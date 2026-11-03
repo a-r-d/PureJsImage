@@ -1,0 +1,4945 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "46be6bb6af284fbc38040e389dd8fe80629a6920",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/dc-completion-20261103",
+  "authorization": "One fixed coupled DC completion trial: normative smoothing and fixed weighted DC coding on archived nonlinear DC. No sweep, peer maps or holdout tuning. All gates unchanged.",
+  "source": {
+    "base": "46be6bb6af284fbc38040e389dd8fe80629a6920",
+    "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+    "source": [
+      {
+        "file": "lib/jxl/modular/encoding/enc_encoding.cc",
+        "sha256": "d42b1f8b0b3d4bdcbe11480792265f349eb1d087fdda81c4c472b855cda0a60b",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/enc_modular.cc",
+        "sha256": "4bc466a0c7b2e65c03501eff1a81758d63a45568521a22ceb611cdbc67f0fb7a",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/enc_cache.cc",
+        "sha256": "5d690810759f5ddb6a31746f30c6313b824ceb331143a2a6c8f70ae5300951fb",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/quantizer.h",
+        "sha256": "7a39e5b239c102d8fc4d6159f6f5c3836151ffe9c8c0eb8dbd2b76fcac3a3f5c",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/modular/encoding/context_predict.h",
+        "sha256": "b47b6ba081411c5aa7a96fe5f773649903355f13575936306d52b37ab498dadd",
+        "archiveExact": true
+      },
+      {
+        "file": "LICENSE",
+        "sha256": "8405932022a556380c2d8c272eff154a923feb197233f348ce5f7334fb0a5ede",
+        "archiveExact": true
+      }
+    ],
+    "modules": [
+      {
+        "file": "jpegxl-jpeg-encode.ts",
+        "sha256": "46944766672d60c22337121a80aad0e7d3ed8d0d18a1b24f5382711e121d4dfc"
+      },
+      {
+        "file": "jpegxl-vardct-encode.ts",
+        "sha256": "d62cf5e258f3255cc82bb123b4ba45873eabb422b91f6caedb0b015d9201cfa4"
+      },
+      {
+        "file": "libjxl-block-quantization-port.ts",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+      },
+      {
+        "file": "libjxl-chroma-roundtrip-port.ts",
+        "sha256": "7987ce568f980d8f91d47b3919403742ceb70ac06d834fcd66a2b6a0a2bae7a3"
+      },
+      {
+        "file": "libjxl-dc-quantization-port.ts",
+        "sha256": "7c1f53b360cc25965eb82afd4c55080fc160c30a2c51e797906a6357824a9a30"
+      },
+      {
+        "file": "libjxl-fixed-dc-port.ts",
+        "sha256": "460e63f8c7301f3f220cc6b69515ffc0bea18740adadc4a293ac34f1ca85ea32"
+      },
+      {
+        "file": "libjxl-ports.ts",
+        "sha256": "56988c664df4b6d40fa1a62f8dcd528a35fac929bad9b561cae497c1c8f2be23"
+      },
+      {
+        "file": "libjxl-standalone-port.ts",
+        "sha256": "ebe1b9a37d83254c67d7dd6e8a1d3118956ecdbbed1b274c68b56fde627c488a"
+      },
+      {
+        "file": "libjxl-strategy-port.ts",
+        "sha256": "87da299f08993fb2c7de41c57933b6714735dc58d56d375a4ecb10e7a8025069"
+      },
+      {
+        "file": "run.ts",
+        "sha256": "724a1dcb684efc57642cd05b7f07585c03f3ecc405c730e221644bd3e415fe95"
+      },
+      {
+        "file": "strategy-transplant.ts",
+        "sha256": "5dc11ba0780b60cef19cfb2e1dcf13e4876f468c79ab7398c8c29a47b154ac07"
+      },
+      {
+        "file": "transplant.ts",
+        "sha256": "9f05816fa1781132b29cb834f83eb473eddcf69edae2b53943562caee07ad6ea"
+      },
+      {
+        "file": "worker.ts",
+        "sha256": "50397bb30ba4807e2de89f8f99188fbe0a031779fb75678f67a369443dee08af"
+      }
+    ],
+    "policy": "One fixed configuration frozen after fixture checks, before any development quality result. Private writer and forward copies; no active src or public option changes."
+  },
+  "screen": {
+    "complete": true,
+    "mode": "screen",
+    "variant": "standalone-dc-complete",
+    "images": 16,
+    "regularized": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 18.451518116248188,
+        "median": 12.370621485627012,
+        "p90": 29.58324518594516,
+        "worst": 76.82247880503364,
+        "fullBandCount": 8
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": 7.310487363282456,
+        "median": 5.003407878628494,
+        "p90": 13.608602300068444,
+        "worst": 28.149960438354178,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 9.845182063245478,
+        "median": 6.490560532150999,
+        "p90": 22.2154450634656,
+        "worst": 44.72119876560437,
+        "fullBandCount": 0
+      }
+    ],
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 3.493934303021886,
+        "median": 2.659426160687398,
+        "p90": 8.49377441678774,
+        "worst": 9.00607305949572
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 10.380642061407013,
+        "median": 7.54905985172908,
+        "p90": 16.52731854522809,
+        "worst": 42.57901040482633
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": 5.849014800111929,
+        "median": 5.072990027871436,
+        "p90": 10.641613274772592,
+        "worst": 13.327144552131875
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 4.0745369667443105,
+        "median": 4.789212129312965,
+        "p90": 7.109850446708899,
+        "worst": 8.137958838302634
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 2.280941784651708,
+        "median": 0.8843087552533914,
+        "p90": 7.244051273760436,
+        "worst": 19.299112500721836
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": 1.205881161470003,
+        "median": 1.6391199843031317,
+        "p90": 2.659294770908904,
+        "worst": 3.710349329165547
+      }
+    ],
+    "nonlinear": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 13.821556820282284,
+        "median": 7.991496443270428,
+        "p90": 28.632369497059077,
+        "worst": 61.017406581445364,
+        "fullBandCount": 7
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": 7.806145368698475,
+        "median": 5.230436329842632,
+        "p90": 14.663936932000102,
+        "worst": 26.945712489464913,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 6.30308103697508,
+        "median": 3.4775503859017727,
+        "p90": 15.575323218271402,
+        "worst": 22.845067545630474,
+        "fullBandCount": 1
+      }
+    ],
+    "ac125": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 16.640193887573727,
+        "median": 11.994409806272829,
+        "p90": 26.35924795682815,
+        "worst": 64.44842859841744,
+        "fullBandCount": 7
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": 8.750945652268307,
+        "median": 7.208269163877862,
+        "p90": 12.894854802404573,
+        "worst": 28.054568026285093,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 7.976952854251717,
+        "median": 5.55231928921682,
+        "p90": 18.689772199066162,
+        "worst": 36.113700222687875,
+        "fullBandCount": 1
+      }
+    ],
+    "worst": [
+      {
+        "metric": "ssimulacra2",
+        "rows": [
+          {
+            "id": "im26-3014-lab",
+            "metric": "ssimulacra2",
+            "percent": 76.82247880503364,
+            "meanLogRateDifference": 0.5699760986959286,
+            "overlap": {
+              "minimum": 80.47020425,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 80.47020425,
+              "maximum": 94.23460573
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2012-lab",
+            "metric": "ssimulacra2",
+            "percent": 33.639481114909294,
+            "meanLogRateDifference": 0.28997554878497467,
+            "overlap": {
+              "minimum": 64.29255117,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 64.29255117,
+              "maximum": 93.73202996
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3312-lab",
+            "metric": "ssimulacra2",
+            "percent": 25.52700925698102,
+            "meanLogRateDifference": 0.22735076263174395,
+            "overlap": {
+              "minimum": 69.98695861,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 69.98695861,
+              "maximum": 90.03789065
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "rows": [
+          {
+            "id": "im26-3014-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 28.149960438354178,
+            "meanLogRateDifference": 0.24803095810835685,
+            "overlap": {
+              "minimum": 0.207823,
+              "maximum": 0.519849
+            },
+            "measuredOverlap": {
+              "minimum": 0.207823,
+              "maximum": 0.519849
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3312-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 14.46851509642529,
+            "meanLogRateDifference": 0.13512962186921007,
+            "overlap": {
+              "minimum": 0.398574,
+              "maximum": 1.411373
+            },
+            "measuredOverlap": {
+              "minimum": 0.398574,
+              "maximum": 1.411373
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1634-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 12.7486895037116,
+            "meanLogRateDifference": 0.11999116930020035,
+            "overlap": {
+              "minimum": 0.44397,
+              "maximum": 1.36385
+            },
+            "measuredOverlap": {
+              "minimum": 0.44397,
+              "maximum": 1.36385
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliMax",
+        "rows": [
+          {
+            "id": "im26-3014-lab",
+            "metric": "butteraugliMax",
+            "percent": 44.72119876560437,
+            "meanLogRateDifference": 0.369638938409061,
+            "overlap": {
+              "minimum": 0.5,
+              "maximum": 1.1449348927
+            },
+            "measuredOverlap": {
+              "minimum": 0.4441036284,
+              "maximum": 1.1449348927
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3312-lab",
+            "metric": "butteraugliMax",
+            "percent": 32.41394345093155,
+            "meanLogRateDifference": 0.2807627650432852,
+            "overlap": {
+              "minimum": 0.7910169363,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7910169363,
+              "maximum": 3.2734489441
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1634-lab",
+            "metric": "butteraugliMax",
+            "percent": 12.016946675999659,
+            "meanLogRateDifference": 0.11347998346799897,
+            "overlap": {
+              "minimum": 1.0342278481,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 1.0342278481,
+              "maximum": 3.4345049858
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      }
+    ],
+    "managedPeakBytes": 9379363,
+    "elapsedSeconds": 31.001
+  },
+  "lab": {
+    "complete": true,
+    "mode": "lab",
+    "variant": "standalone-dc-complete",
+    "images": 64,
+    "regularized": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": 15.666206967422122,
+        "median": 11.758462435772758,
+        "p90": 32.19045841790124,
+        "worst": 72.60511448515867,
+        "fullBandCount": 38
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 7.187878896081108,
+        "median": 4.7824426294874005,
+        "p90": 15.406748297770346,
+        "worst": 38.72843214519365,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 5.853672769227927,
+        "median": 2.935924008981601,
+        "p90": 15.34529453987931,
+        "worst": 50.85283101154696,
+        "fullBandCount": 0
+      }
+    ],
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": 4.0187829772116235,
+        "median": 3.5768419856621283,
+        "p90": 8.357514251990809,
+        "worst": 17.403779934433455
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 8.169116004413247,
+        "median": 7.029970473989253,
+        "p90": 17.170081128861042,
+        "worst": 25.83149507180434
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 6.409067176604102,
+        "median": 5.401001250638195,
+        "p90": 11.688890420203776,
+        "worst": 19.02507041437104
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": 5.076936489640837,
+        "median": 5.119700535304468,
+        "p90": 7.996190153885021,
+        "worst": 16.91162626489584
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -0.5987866527991415,
+        "median": -0.7021925583429625,
+        "p90": 6.699805712611946,
+        "worst": 10.236864112616447
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 1.6864217948610922,
+        "median": 1.6027009449779976,
+        "p90": 3.84431375422667,
+        "worst": 11.149142865009958
+      }
+    ],
+    "nonlinear": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": 11.468352574725396,
+        "median": 7.149903691185805,
+        "p90": 23.36921491706498,
+        "worst": 64.1569568237911,
+        "fullBandCount": 34
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 7.811981897800426,
+        "median": 5.388146036160356,
+        "p90": 16.18842545784236,
+        "worst": 34.612750398087016,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 6.17032465461767,
+        "median": 3.568465606200419,
+        "p90": 13.52354132936074,
+        "worst": 47.261549025844424,
+        "fullBandCount": 3
+      }
+    ],
+    "ac125": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": 14.460875609264725,
+        "median": 11.11551024956951,
+        "p90": 27.738062331036083,
+        "worst": 68.92835844032189,
+        "fullBandCount": 32
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 8.849123290290734,
+        "median": 6.739257838846399,
+        "p90": 14.097339843443063,
+        "worst": 37.2072129734575,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 7.868903920503363,
+        "median": 4.594932524478976,
+        "p90": 18.997130514981126,
+        "worst": 53.239857920431774,
+        "fullBandCount": 3
+      }
+    ],
+    "production": {
+      "means": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 6.486519682315329,
+          "median": 5.097172099177756,
+          "p90": 13.461911610040575,
+          "worst": 43.032381397279224,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -4.948163809278342,
+          "median": -3.4722039809261167,
+          "p90": 1.598811074276754,
+          "worst": 20.96444086374128,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -4.972253665021196,
+          "median": -4.243603850949848,
+          "p90": 6.519684811761831,
+          "worst": 26.860234647914066,
+          "fullBandCount": 1
+        }
+      ],
+      "guards": [
+        {
+          "metric": "ssimulacra2",
+          "admitted": 8,
+          "failures": [
+            {
+              "id": "im26-1468-lab",
+              "metric": "ssimulacra2",
+              "percent": 13.634555508850408,
+              "meanLogRateDifference": 0.12781745986117887,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 51.65782564,
+                "maximum": 92.97074852
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "ssimulacra2",
+              "percent": 8.146073780954847,
+              "meanLogRateDifference": 0.07831266229341244,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 51.30174578,
+                "maximum": 92.03218327
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-3012-lab",
+              "metric": "ssimulacra2",
+              "percent": 8.86181080265621,
+              "meanLogRateDifference": 0.08490910111309138,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 53.26136961,
+                "maximum": 93.58196893
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-3302-lab",
+              "metric": "ssimulacra2",
+              "percent": 12.622892771094499,
+              "meanLogRateDifference": 0.11887481963080783,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 39.29881957,
+                "maximum": 92.79136998
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-3316-lab",
+              "metric": "ssimulacra2",
+              "percent": 8.947265356688067,
+              "meanLogRateDifference": 0.0856937751030216,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 55.11315292,
+                "maximum": 92.57129206
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ],
+          "worst": 13.634555508850408
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "admitted": 0,
+          "failures": [],
+          "worst": null
+        }
+      ]
+    },
+    "worst": [
+      {
+        "metric": "ssimulacra2",
+        "rows": [
+          {
+            "id": "im26-3014-lab",
+            "metric": "ssimulacra2",
+            "percent": 72.60511448515867,
+            "meanLogRateDifference": 0.5458362242335648,
+            "overlap": {
+              "minimum": 79.73239509,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 79.73239509,
+              "maximum": 94.50776959
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3304-lab",
+            "metric": "ssimulacra2",
+            "percent": 58.873374081238595,
+            "meanLogRateDifference": 0.4629373095194418,
+            "overlap": {
+              "minimum": 81.28893841,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 81.28893841,
+              "maximum": 94.6567404
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2016-lab",
+            "metric": "ssimulacra2",
+            "percent": 42.755963048056266,
+            "meanLogRateDifference": 0.355966434341468,
+            "overlap": {
+              "minimum": 75.22108724,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 75.22108724,
+              "maximum": 93.22899669
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "rows": [
+          {
+            "id": "im26-2016-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 38.72843214519365,
+            "meanLogRateDifference": 0.3273481105571777,
+            "overlap": {
+              "minimum": 0.336869,
+              "maximum": 1.171563
+            },
+            "measuredOverlap": {
+              "minimum": 0.336869,
+              "maximum": 1.171563
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2400-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 36.49411147026283,
+            "meanLogRateDifference": 0.31111128829439794,
+            "overlap": {
+              "minimum": 0.317364,
+              "maximum": 0.993359
+            },
+            "measuredOverlap": {
+              "minimum": 0.317364,
+              "maximum": 0.993359
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3014-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 24.024778553745644,
+            "meanLogRateDifference": 0.21531118670051647,
+            "overlap": {
+              "minimum": 0.200504,
+              "maximum": 0.520108
+            },
+            "measuredOverlap": {
+              "minimum": 0.200504,
+              "maximum": 0.520108
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliMax",
+        "rows": [
+          {
+            "id": "im26-2400-lab",
+            "metric": "butteraugliMax",
+            "percent": 50.85283101154696,
+            "meanLogRateDifference": 0.4111345465044988,
+            "overlap": {
+              "minimum": 0.7975955009,
+              "maximum": 1.9352223873
+            },
+            "measuredOverlap": {
+              "minimum": 0.7975955009,
+              "maximum": 1.9352223873
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2016-lab",
+            "metric": "butteraugliMax",
+            "percent": 44.47612559195694,
+            "meanLogRateDifference": 0.3679440870970257,
+            "overlap": {
+              "minimum": 0.6644589901,
+              "maximum": 2.3591170311
+            },
+            "measuredOverlap": {
+              "minimum": 0.6644589901,
+              "maximum": 2.3591170311
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1416-lab",
+            "metric": "butteraugliMax",
+            "percent": 28.00168314702357,
+            "meanLogRateDifference": 0.24687322743119242,
+            "overlap": {
+              "minimum": 0.6274009347,
+              "maximum": 2.7460534573
+            },
+            "measuredOverlap": {
+              "minimum": 0.6274009347,
+              "maximum": 2.7460534573
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      }
+    ],
+    "managedPeakBytes": 9565721,
+    "elapsedSeconds": 226.93
+  },
+  "fixtureChecks": {
+    "passed": true,
+    "quantizerCases": 22,
+    "invalidInputs": 4,
+    "chromaCases": 2,
+    "groupResetCases": 2,
+    "controlExactStreams": 3,
+    "policyDistances": 9,
+    "promotionDenials": 3,
+    "rows": [
+      {
+        "width": 1,
+        "height": 17,
+        "distance": 0.65,
+        "bytes": 330,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "distance": 2,
+        "bytes": 263,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "distance": 7,
+        "bytes": 214,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "distance": 0.65,
+        "bytes": 326,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "distance": 2,
+        "bytes": 255,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "distance": 7,
+        "bytes": 212,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 19,
+        "distance": 0.65,
+        "bytes": 946,
+        "managedPeakBytes": 1140167,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 19,
+        "distance": 2,
+        "bytes": 602,
+        "managedPeakBytes": 1140167,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 19,
+        "distance": 7,
+        "bytes": 359,
+        "managedPeakBytes": 1140167,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 65,
+        "height": 73,
+        "distance": 0.65,
+        "bytes": 7584,
+        "managedPeakBytes": 1178233,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 65,
+        "height": 73,
+        "distance": 2,
+        "bytes": 3519,
+        "managedPeakBytes": 1178225,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 65,
+        "height": 73,
+        "distance": 7,
+        "bytes": 1567,
+        "managedPeakBytes": 1178219,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 2057,
+        "height": 9,
+        "distance": 0.65,
+        "bytes": 29050,
+        "managedPeakBytes": 1326774,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 2057,
+        "height": 9,
+        "distance": 2,
+        "bytes": 18536,
+        "managedPeakBytes": 1326710,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 2057,
+        "height": 9,
+        "distance": 7,
+        "bytes": 8484,
+        "managedPeakBytes": 1307284,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 9,
+        "height": 2057,
+        "distance": 0.65,
+        "bytes": 29018,
+        "managedPeakBytes": 1327023,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 9,
+        "height": 2057,
+        "distance": 2,
+        "bytes": 17188,
+        "managedPeakBytes": 1311988,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 9,
+        "height": 2057,
+        "distance": 7,
+        "bytes": 6921,
+        "managedPeakBytes": 1318344,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      }
+    ]
+  },
+  "completionChecks": {
+    "passed": true,
+    "cases": 18,
+    "treeExtentCases": 6,
+    "invalidTreeInputs": 8,
+    "bitDepthCases": 4,
+    "cutoffsExact": true,
+    "dcIntegersUnchanged": true,
+    "smoothingOn": true,
+    "globalTreeExact": true
+  },
+  "alphaChecks": {
+    "passed": true,
+    "rows": [
+      {
+        "width": 17,
+        "height": 19,
+        "bytes": 706,
+        "alphaExact": true,
+        "nativeValid": true,
+        "repeatable": true
+      },
+      {
+        "width": 257,
+        "height": 17,
+        "bytes": 4790,
+        "alphaExact": true,
+        "nativeValid": true,
+        "repeatable": true
+      }
+    ]
+  },
+  "rateAudit": {
+    "passed": true,
+    "points": 80,
+    "totals": {
+      "beforeBytes": 2849166,
+      "afterBytes": 2910351,
+      "modelDeltaBits": 246959,
+      "residualDeltaBits": 243187,
+      "metadataAndPadDeltaBits": -26,
+      "ssimLosses": 73,
+      "norm3Losses": 78,
+      "maxLosses": 49,
+      "ssimDelta": -0.8276788783750005,
+      "norm3DeltaPercent": 1.1256205995585535,
+      "maxDeltaPercent": 0.8905613204847109
+    },
+    "policy": "Read-only saved development outputs. All raw DC integers and previously audited AC sections are equal. Quality changes therefore come from the smoothing flag. Model delta includes the complete LF global section and local DC header, including alignment; no omitted global tree cost. These are same-distance deltas, not BD-rates.",
+    "raw": ".tmp/jpegxl-lossy-lab/dc-completion-20261103/rate-audit.json"
+  },
+  "screenDecisionAudit": {
+    "passed": true,
+    "points": 80,
+    "unchangedFields": 14,
+    "acSectionsExact": true,
+    "dcQuantizationUnchanged": true,
+    "smoothingEnabled": true,
+    "sourceFrozen": true,
+    "raw": ".tmp/jpegxl-lossy-lab/dc-completion-20261103/screen-decisions.json"
+  },
+  "isolatedTiming": {
+    "summaries": [
+      {
+        "id": "im26-3012",
+        "pairs": 15,
+        "ratio": 0.9864291936697067,
+        "mad": 0.03902813899317903,
+        "wins": 10,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 893.9529240000011,
+            "bytes": 32832,
+            "managedPeakBytes": 5682267
+          },
+          {
+            "mode": "complete-dc",
+            "medianMs": 851.351756,
+            "bytes": 42754,
+            "managedPeakBytes": 5825661
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "pairs": 15,
+        "ratio": 0.9326667681114481,
+        "mad": 0.03327399617720295,
+        "wins": 14,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 870.9517130000004,
+            "bytes": 7913,
+            "managedPeakBytes": 5678171
+          },
+          {
+            "mode": "complete-dc",
+            "medianMs": 823.707926000001,
+            "bytes": 9785,
+            "managedPeakBytes": 5823613
+          }
+        ]
+      }
+    ]
+  },
+  "archive": {
+    "base": "46be6bb6af284fbc38040e389dd8fe80629a6920",
+    "patchPath": "benchmark/jpegxl/lossy-lab/DC-COMPLETION-EXPERIMENT.patch",
+    "applies": true,
+    "rows": [
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-ports.ts",
+        "sha256": "7b316885f829e77d9c30769e66a43ab19fb58f395bda41dd3cd81560750c658a",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+        "sha256": "2c9845c8f89b266b988753bfe70fb38c4188e7bdb3e4e5f7b3333e04776bcec7",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts",
+        "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+        "sha256": "ea6eb523dc58727ca6d1d492931191137fdc306d1d592c92ce5ed89786ece05f",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts",
+        "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-dc-quantization-port.ts",
+        "sha256": "dbba03cc25872cfaf470307d8ebdfe53b5de8a7669764f5304b001ac64e61486",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-fixed-dc-port.ts",
+        "sha256": "02e1ea664573a9d3f4680f145b279e6df55df7491acb2be5fc15a5d7ec8ecf9f",
+        "changed": true
+      },
+      {
+        "path": "src/codecs/jpegxl-jpeg-encode.ts",
+        "sha256": "b4615c0c1445f01a1146c67fe4716e1f2dd576116d6e6c15fab1e9cc8ba6e94f",
+        "changed": true
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "7495815638362e1c9a26f4981e9c2f7a984ff1ef5db776be2b957f8428cbe0af",
+        "changed": false
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/transplant.ts",
+        "sha256": "c65aee7084a28755515ec67e2525684165256f603afb700a537c4afec6e79655",
+        "changed": false
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-completion.ts",
+        "sha256": "11d364657de10b42ffe3c93f5cf072098f372c908352fa8db44d36fd4323965f",
+        "changed": true
+      }
+    ],
+    "policy": "Independent prototype snapshot, normalized import paths. No promotion admission. Contains development-only writer support; not active in public source."
+  },
+  "auditArchive": {
+    "patchPath": "benchmark/jpegxl/lossy-lab/DC-COMPLETION-AUDIT.patch",
+    "applies": true,
+    "rows": [
+      {
+        "path": "benchmark/jpegxl/lossy-lab/prepare-dc-completion-context.ts",
+        "sha256": "04af325cff4059f5bf44bf9b99de5d5edd5ab9480a2d19aeea783bf04984a69c"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-completion-context.ts",
+        "sha256": "c91baa239244f6c3228e87846739ca3fc47cf58aef5539d767154243ba6c6f1f"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-completion-screen.ts",
+        "sha256": "c0afecfd13eff9c90b534e31d64dc0d346e4fc4b3ab6a8369e7b64e19f4a2dc7"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-completion-rate.ts",
+        "sha256": "5ac9f85e1ebcdba85ec0dec1e9ec60e9ad6d2142b6af2f451236b8aca7b6fd31"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-completion-tree.ts",
+        "sha256": "8077755f47b5d97d077b1808d640866334925074c5334fb680b92f2f6306cb97"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-completion-alpha.ts",
+        "sha256": "b842d7bb5ba3f002b85817b9f4106939e74e3f63df7b7ff02acbb2daacc753d6"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/review-dc-completion-pairs.ts",
+        "sha256": "0cbcc2d7a4562e1f8f080af0a6549226570fe136f160af4a98f7bf64ce852554"
+      }
+    ],
+    "policy": "First-party decoder inspection, saved development bitstream audits and fixed-mode correctness fixtures. No production edits or native internal probe."
+  },
+  "dcContextAudit": {
+    "completed": true,
+    "points": 36,
+    "rows": [
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "mode": "candidate",
+        "bytes": 140750,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 777,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 65594,
+        "dcGroupBytes": 9332
+      },
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "mode": "nonlinear",
+        "bytes": 139362,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 6,
+        "lfGlobalBytes": 41,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 13,
+            "histograms": [
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 4,
+            "histograms": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              0,
+              1
+            ]
+          }
+        ],
+        "dcHeaderBits": 2728,
+        "dcPayloadBits": 60372,
+        "dcGroupBytes": 8679
+      },
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "mode": "ac125",
+        "bytes": 139781,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 7,
+        "lfGlobalBytes": 41,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 14,
+            "histograms": [
+              4,
+              5,
+              6
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6,
+              13
+            ],
+            "leaves": 9,
+            "histograms": [
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 6,
+            "histograms": [
+              0,
+              1,
+              3
+            ]
+          }
+        ],
+        "dcHeaderBits": 2032,
+        "dcPayloadBits": 63727,
+        "dcGroupBytes": 9098
+      },
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "mode": "native",
+        "bytes": 116523,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 14,
+        "lfGlobalBytes": 433,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              3,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              3,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              3,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 58602,
+        "dcGroupBytes": 8579
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "mode": "candidate",
+        "bytes": 61339,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 765,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 44820,
+        "dcGroupBytes": 6361
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "mode": "nonlinear",
+        "bytes": 60421,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 8,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 15,
+            "histograms": [
+              4,
+              5,
+              6,
+              7
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 4,
+            "histograms": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 3,
+            "histograms": [
+              0,
+              1
+            ]
+          }
+        ],
+        "dcHeaderBits": 2378,
+        "dcPayloadBits": 43307,
+        "dcGroupBytes": 6172
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "mode": "ac125",
+        "bytes": 60444,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 7,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 13,
+            "histograms": [
+              3,
+              4,
+              5,
+              6
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6,
+              12
+            ],
+            "leaves": 9,
+            "histograms": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              3,
+              5,
+              6
+            ],
+            "leaves": 6,
+            "histograms": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "dcHeaderBits": 1657,
+        "dcPayloadBits": 43493,
+        "dcGroupBytes": 6195
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "mode": "native",
+        "bytes": 38282,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 15,
+        "lfGlobalBytes": 398,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              2,
+              3,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              2,
+              3,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              2,
+              3,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 41212,
+        "dcGroupBytes": 5971
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "mode": "candidate",
+        "bytes": 11037,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 624,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 27292,
+        "dcGroupBytes": 3686
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "mode": "nonlinear",
+        "bytes": 10440,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 7,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 17,
+            "histograms": [
+              3,
+              4,
+              5,
+              6
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 8,
+            "histograms": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 4,
+            "histograms": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "dcHeaderBits": 1898,
+        "dcPayloadBits": 27227,
+        "dcGroupBytes": 3677
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "mode": "ac125",
+        "bytes": 10279,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 9,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 15,
+            "histograms": [
+              3,
+              4,
+              6,
+              8
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6,
+              12
+            ],
+            "leaves": 12,
+            "histograms": [
+              0,
+              1,
+              2,
+              5,
+              7
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              2,
+              5
+            ],
+            "leaves": 9,
+            "histograms": [
+              0,
+              1,
+              2,
+              5,
+              7
+            ]
+          }
+        ],
+        "dcHeaderBits": 1864,
+        "dcPayloadBits": 25933,
+        "dcGroupBytes": 3516
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "mode": "native",
+        "bytes": 5366,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 12,
+        "lfGlobalBytes": 321,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 25966,
+        "dcGroupBytes": 3550
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "mode": "candidate",
+        "bytes": 120077,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 814,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 60602,
+        "dcGroupBytes": 9081
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "mode": "nonlinear",
+        "bytes": 118753,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 5,
+        "lfGlobalBytes": 36,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              3,
+              4
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              0,
+              2
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              0,
+              1
+            ]
+          }
+        ],
+        "dcHeaderBits": 2205,
+        "dcPayloadBits": 56229,
+        "dcGroupBytes": 8534
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "mode": "ac125",
+        "bytes": 119077,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 3,
+        "lfGlobalBytes": 36,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 1,
+            "histograms": [
+              2
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 1,
+            "histograms": [
+              1
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 1,
+            "histograms": [
+              0
+            ]
+          }
+        ],
+        "dcHeaderBits": 625,
+        "dcPayloadBits": 58820,
+        "dcGroupBytes": 8858
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "mode": "native",
+        "bytes": 104084,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 12,
+        "lfGlobalBytes": 404,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              1,
+              4,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              1,
+              4,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              1,
+              4,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 54798,
+        "dcGroupBytes": 8692
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "mode": "candidate",
+        "bytes": 45534,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 753,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 41206,
+        "dcGroupBytes": 6238
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "mode": "nonlinear",
+        "bytes": 44616,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 5,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              3,
+              4
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 3,
+            "histograms": [
+              0,
+              2
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 4,
+            "histograms": [
+              0,
+              1
+            ]
+          }
+        ],
+        "dcHeaderBits": 1628,
+        "dcPayloadBits": 39603,
+        "dcGroupBytes": 6037
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "mode": "ac125",
+        "bytes": 44645,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 3,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 1,
+            "histograms": [
+              2
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 1,
+            "histograms": [
+              1
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 1,
+            "histograms": [
+              0
+            ]
+          }
+        ],
+        "dcHeaderBits": 524,
+        "dcPayloadBits": 39831,
+        "dcGroupBytes": 6066
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "mode": "native",
+        "bytes": 35638,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 11,
+        "lfGlobalBytes": 317,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              1,
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              1,
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              1,
+              7,
+              8,
+              9,
+              10
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 38628,
+        "dcGroupBytes": 6540
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "mode": "candidate",
+        "bytes": 10335,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 543,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 24353,
+        "dcGroupBytes": 3508
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "mode": "nonlinear",
+        "bytes": 9783,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 6,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              1,
+              5
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              2,
+              4
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 7,
+            "histograms": [
+              0,
+              3,
+              4
+            ]
+          }
+        ],
+        "dcHeaderBits": 1278,
+        "dcPayloadBits": 23990,
+        "dcGroupBytes": 3463
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "mode": "ac125",
+        "bytes": 9727,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 7,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 6,
+            "histograms": [
+              3,
+              5
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 6,
+            "histograms": [
+              0,
+              2,
+              4
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              1
+            ],
+            "leaves": 10,
+            "histograms": [
+              0,
+              1,
+              4,
+              6
+            ]
+          }
+        ],
+        "dcHeaderBits": 1315,
+        "dcPayloadBits": 23540,
+        "dcGroupBytes": 3407
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "mode": "native",
+        "bytes": 6878,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 9,
+        "lfGlobalBytes": 420,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              5,
+              6,
+              7,
+              8
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 23603,
+        "dcGroupBytes": 3651
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "mode": "candidate",
+        "bytes": 48712,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 589,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 29857,
+        "dcGroupBytes": 4152
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "mode": "nonlinear",
+        "bytes": 47950,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 13,
+        "lfGlobalBytes": 36,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6,
+              13
+            ],
+            "leaves": 5,
+            "histograms": [
+              2,
+              3,
+              7
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 22,
+            "histograms": [
+              0,
+              1,
+              4,
+              5,
+              6,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 12,
+            "histograms": [
+              0,
+              1,
+              4,
+              8
+            ]
+          }
+        ],
+        "dcHeaderBits": 2783,
+        "dcPayloadBits": 28176,
+        "dcGroupBytes": 3942
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "mode": "ac125",
+        "bytes": 47775,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 11,
+        "lfGlobalBytes": 36,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              13
+            ],
+            "leaves": 3,
+            "histograms": [
+              0,
+              4
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5
+            ],
+            "leaves": 15,
+            "histograms": [
+              1,
+              2,
+              3,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 20,
+            "histograms": [
+              1,
+              2,
+              3,
+              5,
+              6,
+              7,
+              10
+            ]
+          }
+        ],
+        "dcHeaderBits": 2136,
+        "dcPayloadBits": 26777,
+        "dcGroupBytes": 3767
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "mode": "native",
+        "bytes": 48333,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 11,
+        "lfGlobalBytes": 293,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 27562,
+        "dcGroupBytes": 5157
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "mode": "candidate",
+        "bytes": 10802,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 441,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 16238,
+        "dcGroupBytes": 2168
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "mode": "nonlinear",
+        "bytes": 10358,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 8,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 5,
+            "histograms": [
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 9,
+            "histograms": [
+              0,
+              1,
+              2,
+              7
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 9,
+            "histograms": [
+              0,
+              1,
+              2,
+              6
+            ]
+          }
+        ],
+        "dcHeaderBits": 1373,
+        "dcPayloadBits": 15923,
+        "dcGroupBytes": 2129
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "mode": "ac125",
+        "bytes": 10210,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 5,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              13
+            ],
+            "leaves": 2,
+            "histograms": [
+              2
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 6,
+            "histograms": [
+              0,
+              1,
+              3,
+              4
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              4,
+              6
+            ],
+            "leaves": 6,
+            "histograms": [
+              0,
+              1,
+              3,
+              4
+            ]
+          }
+        ],
+        "dcHeaderBits": 794,
+        "dcPayloadBits": 14738,
+        "dcGroupBytes": 1981
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "mode": "native",
+        "bytes": 7697,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 9,
+        "lfGlobalBytes": 242,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 16594,
+        "dcGroupBytes": 2932
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "mode": "candidate",
+        "bytes": 1844,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 34,
+        "lfGlobalBytes": 299,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 6443,
+        "dcGroupBytes": 951
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "mode": "nonlinear",
+        "bytes": 1578,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 6,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              5,
+              6,
+              13
+            ],
+            "leaves": 6,
+            "histograms": [
+              0,
+              4,
+              5
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              5,
+              6
+            ],
+            "leaves": 3,
+            "histograms": [
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              5
+            ],
+            "leaves": 2,
+            "histograms": [
+              0,
+              1
+            ]
+          }
+        ],
+        "dcHeaderBits": 769,
+        "dcPayloadBits": 6424,
+        "dcGroupBytes": 948
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "mode": "ac125",
+        "bytes": 1835,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "histograms": 7,
+        "lfGlobalBytes": 35,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              5,
+              13
+            ],
+            "leaves": 9,
+            "histograms": [
+              3,
+              4,
+              6
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              4
+            ],
+            "leaves": 5,
+            "histograms": [
+              1,
+              2,
+              3,
+              5
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              3
+            ],
+            "leaves": 7,
+            "histograms": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "dcHeaderBits": 1013,
+        "dcPayloadBits": 8481,
+        "dcGroupBytes": 1205
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "mode": "native",
+        "bytes": 1561,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "histograms": 6,
+        "lfGlobalBytes": 219,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [
+            13,
+            12,
+            12,
+            12
+          ]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "channel": 1,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5
+            ]
+          },
+          {
+            "channel": 2,
+            "predictors": [
+              6
+            ],
+            "leaves": 34,
+            "histograms": [
+              0,
+              1,
+              3,
+              4,
+              5
+            ]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 7325,
+        "dcGroupBytes": 1038
+      }
+    ],
+    "policy": "Read-only existing development bitstreams. First-party decoder inspection copy exports its existing Modular parser. No native internal probe, new encode or parameter change.",
+    "limits": "Reachable predictors are possible leaves after channel/group pruning, not observed usage counts. DC payload excludes any globally shared tree/histogram and matrices; whole-file comparisons remain authoritative."
+  },
+  "visualReview": {
+    "rows": [
+      {
+        "id": "im26-3000-lab",
+        "bdMax": 26.860234647914066,
+        "candidate": {
+          "setting": 1.3,
+          "bytes": 22597,
+          "encodeMs": 1145.1356509999996,
+          "managedPeakBytes": 5821565,
+          "processPeakRssBytes": 215715840,
+          "ssimulacra2": 86.01292687,
+          "butteraugliMax": 1.2981874943,
+          "butteraugliNorm3": 0.546732
+        },
+        "reference": {
+          "setting": 1.85,
+          "bytes": 22520,
+          "encodeMs": 873.0574510000006,
+          "managedPeakBytes": 6070875,
+          "processPeakRssBytes": 218742784,
+          "ssimulacra2": 89.6909522,
+          "butteraugliMax": 0.9358385801,
+          "butteraugliNorm3": 0.439035
+        },
+        "byteRatio": 1.0034191829484902,
+        "maxRatio": 1.3871916823105122,
+        "candidatePath": ".tmp/jpegxl-lossy-lab/dc-completion-20261103/lab/standalone-dc-complete-purejsimage/im26-3000-lab/1.3.png",
+        "referencePath": ".tmp/jpegxl-lossy-lab/transplant-20261013-v2/control/lab/transplant-control-purejsimage/im26-3000-lab/1.85.png"
+      },
+      {
+        "id": "im26-3004-lab",
+        "bdMax": 12.796606238813876,
+        "candidate": {
+          "setting": 0.65,
+          "bytes": 65997,
+          "encodeMs": 1223.6925729999998,
+          "managedPeakBytes": 9059605,
+          "processPeakRssBytes": 231501824,
+          "ssimulacra2": 90.93668011,
+          "butteraugliMax": 1.2261359692,
+          "butteraugliNorm3": 0.426481
+        },
+        "reference": {
+          "setting": 0.9,
+          "bytes": 67965,
+          "encodeMs": 897.658148,
+          "managedPeakBytes": 6436679,
+          "processPeakRssBytes": 219860992,
+          "ssimulacra2": 92.06701486,
+          "butteraugliMax": 0.7853450179,
+          "butteraugliNorm3": 0.387196
+        },
+        "byteRatio": 0.9710439196645332,
+        "maxRatio": 1.561270449615467,
+        "candidatePath": ".tmp/jpegxl-lossy-lab/dc-completion-20261103/lab/standalone-dc-complete-purejsimage/im26-3004-lab/0.65.png",
+        "referencePath": ".tmp/jpegxl-lossy-lab/transplant-20261013-v2/control/lab/transplant-control-purejsimage/im26-3004-lab/0.9.png"
+      },
+      {
+        "id": "im26-1634-lab",
+        "bdMax": 9.870400990041716,
+        "candidate": {
+          "setting": 3,
+          "bytes": 9062,
+          "encodeMs": 1104.367988,
+          "managedPeakBytes": 5817469,
+          "processPeakRssBytes": 228941824,
+          "ssimulacra2": 81.00052869,
+          "butteraugliMax": 2.0800299644,
+          "butteraugliNorm3": 0.9572
+        },
+        "reference": {
+          "setting": 3,
+          "bytes": 9341,
+          "encodeMs": 1391.4411060000002,
+          "managedPeakBytes": 6084699,
+          "processPeakRssBytes": 232931328,
+          "ssimulacra2": 83.45948991,
+          "butteraugliMax": 1.8342502117,
+          "butteraugliNorm3": 0.912907
+        },
+        "byteRatio": 0.9701316775505835,
+        "maxRatio": 1.1339946704829376,
+        "candidatePath": ".tmp/jpegxl-lossy-lab/dc-completion-20261103/lab/standalone-dc-complete-purejsimage/im26-1634-lab/3.png",
+        "referencePath": ".tmp/jpegxl-lossy-lab/transplant-20261013-v2/control/lab/transplant-control-purejsimage/im26-1634-lab/3.png"
+      }
+    ],
+    "scope": "Native-decoded nearby-byte pairs for the three worst development main max regressions.",
+    "finding": "Subtle grain and tonal differences in dark texture and vessel. Block-like tonal texture in blurred sign/wood. These views do not locate or dismiss metric peaks."
+  },
+  "validation": {
+    "strictTypeScript": "passed",
+    "activeSourceChanged": false,
+    "finalIntegrity": {
+      "passed": true,
+      "counts": [
+        {
+          "directory": ".tmp/jpegxl-lossy-lab/dc-completion-20261103",
+          "modules": 13,
+          "unchanged": true
+        },
+        {
+          "directory": ".tmp/jpegxl-lossy-lab/dc-quantization-20261103",
+          "modules": 12,
+          "unchanged": true
+        }
+      ],
+      "archivesExact": true,
+      "activeSourceTestsPackageAndLabUnchanged": true
+    },
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-03T22:26:31.929Z",
+      "endedAt": "2026-11-03T22:35:44.833Z",
+      "code": 0,
+      "signal": null
+    },
+    "repositoryTests": {
+      "passed": 4229,
+      "skipped": 3,
+      "total": 4232
+    }
+  },
+  "configurations": 1,
+  "developmentOutputs": 656,
+  "newHoldoutAttempts": 0,
+  "retainedQualityChanges": 0,
+  "promotedChanges": 0,
+  "bundles": {
+    "codecBytes": 614969,
+    "specializedBytes": 687801,
+    "runtimeDependencies": 0
+  },
+  "status": "Rejected. All development means regress against AC 1.25 and nonlinear DC; main SSIM mean and five admitted per-image guards fail. No original or holdout qualification.",
+  "priorHoldout": "The preceding AC 1.25 holdout still fails two SSIM guards, worst +10.568971938275642%. No new holdout result.",
+  "limitation": "This ports the native tree decision, not native entropy clustering. The adapter writes 34 separate leaf histograms; sampled native streams cluster them into 5-11 DC histograms. It does not establish the cost of full native DC coding.",
+  "nextHypotheses": [
+    {
+      "rank": 1,
+      "hypothesis": "Audit selected-transform low-frequency reconstruction against native equations before another quality trial.",
+      "evidence": "Smoothing degrades SSIM in 73/80 saved screen cases despite equal DC integers and AC sections. Native smoothing alone is not the missing repair; precise low-frequency error source remains unmeasured."
+    },
+    {
+      "rank": 2,
+      "hypothesis": "Cluster fixed DC contexts with the existing first-party entropy machinery.",
+      "evidence": "Native uses 5-11 histograms for the same 34 leaves. Full model overhead and residual cost both rose; clustering could reduce coding cost but cannot repair the observed smoothing pixel losses. Gain unmeasured; another configuration needs approval."
+    },
+    {
+      "rank": 3,
+      "hypothesis": "Audit native DC source formation and preconditioning against our nonlinear input.",
+      "evidence": "Native and our residual predictor agree structurally; source plane and selected-transform scaling equality is unproven. No numerical gain estimate yet."
+    }
+  ],
+  "remaining": "One approved configuration exhausted. No new quality trial authorized. Peer forcing hooks remain on the public bundle path and must be removed before any merge. Branch not merge-ready."
+}

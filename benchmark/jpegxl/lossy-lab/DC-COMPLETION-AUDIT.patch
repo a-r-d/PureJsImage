@@ -1,0 +1,701 @@
+diff --git a/benchmark/jpegxl/lossy-lab/prepare-dc-completion-context.ts b/benchmark/jpegxl/lossy-lab/prepare-dc-completion-context.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/prepare-dc-completion-context.ts
+@@ -0,0 +1,21 @@
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { resolve } from 'node:path'
++const root = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++const code = await readFile('src/codecs/jpegxl-decode.ts', 'utf8')
++const marker = 'const readStandaloneModularProgram = ('
++if (code.split(marker).length !== 2) throw new Error('Ambiguous decoder inspection point')
++const inspected = code
++  .replace(marker, 'export const readStandaloneModularProgram = (')
++  .replace(
++    /from (['"])(\.[^'"]+)\1/gu,
++    (_all: string, quote: string, path: string) =>
++      `from ${quote}${resolve('src/codecs', path)}${quote}`,
++  )
++  .replace(
++    /import\((['"])(\.[^'"]+)\1\)/gu,
++    (_all: string, quote: string, path: string) =>
++      `import(${quote}${resolve('src/codecs', path)}${quote})`,
++  )
++await mkdir(`${root}/diagnostic`, { recursive: true })
++await writeFile(`${root}/diagnostic/jpegxl-decode.ts`, inspected)
++console.log('Prepared read-only first-party decoder inspection copy; no encoder changes')
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-completion-context.ts b/benchmark/jpegxl/lossy-lab/audit-dc-completion-context.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-completion-context.ts
+@@ -0,0 +1,177 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import {
++  readJpegXlSourceFrameStructures,
++  decodeJpegXlStandaloneModular,
++} from '../../../src/codecs/jpegxl-decode.ts'
++import { readStandaloneModularProgram } from '../../../.tmp/jpegxl-lossy-lab/dc-completion-20261103/diagnostic/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { JpegXlBitReader } from '../../../src/codecs/jpegxl-bitstream.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++interface ContextAuditRow {
++  id: string
++  distance: number
++  mode: string
++  bytes: number
++  precision: number
++  smoothDc: boolean
++  useGlobalTree: boolean
++  histograms: number
++  lfGlobalBytes: number
++  transforms: ReturnType<typeof readStandaloneModularProgram>['transforms']
++  weightedPredictor: ReturnType<typeof readStandaloneModularProgram>['weightedPredictor']
++  reachable: { channel: number; predictors: number[]; leaves: number; histograms: number[] }[]
++  dcHeaderBits: number
++  dcPayloadBits: number
++  dcGroupBytes: number
++}
++const rows: ContextAuditRow[] = []
++for (const id of ['im26-2004', 'im26-3012', 'im26-3312']) {
++  const candidate = `${root}/lab/standalone-dc-complete-purejsimage/${id}-lab`
++  const result = object(JSON.parse(await readFile(`${candidate}/result.json`, 'utf8')))
++  if (typeof result.fixtureSha256 !== 'string') throw new Error('Missing input hash')
++  const paths = {
++    candidate,
++    nonlinear: `.tmp/jpegxl-lossy-lab/dc-quantization-20261103/lab/standalone-dc-nonlinear-purejsimage/${id}-lab`,
++    ac125: `.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125-lab/standalone-block-ac125-purejsimage/${id}-lab`,
++    native: `.tmp/jpegxl-lossy-lab/peer-cache/vips-0.0.19-curve/${result.fixtureSha256}`,
++  }
++  for (const distance of [0.45, 1.85, 7.5])
++    for (const [mode, directory] of Object.entries(paths)) {
++      const bytes = await readFile(`${directory}/${distance}.jxl`)
++      const source = new MemorySource(bytes)
++      const logical = new JpegXlCodestreamSource(
++        source,
++        await inspectJpegXlSource(source, resolveJpegXlLimits()),
++      )
++      const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++      if (
++        !frame ||
++        frame.encoding !== 'vardct' ||
++        frame.sections.length < 2 ||
++        frame.dcGroupCount !== 1
++      )
++        throw new Error('Expected separated single DC group')
++      const sections = await Promise.all(
++        frame.sections.map((section) => logical.read(section.offset, section.length)),
++      )
++      const state = prepareJpegXlVarDctLowFrequency(
++        sections,
++        frame,
++        new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++      )
++      try {
++        const dc = sections[1]
++        if (!dc) throw new Error('Missing DC section')
++        const reader = new JpegXlBitReader(dc),
++          precision = reader.readBits(2)
++        const shape = { width: state.dcGroup.blockWidth, height: state.dcGroup.blockHeight }
++        const program = readStandaloneModularProgram(
++          dc,
++          reader.bitPosition,
++          [shape, shape, shape],
++          1,
++          state.lfGlobal.globalModularCode,
++        )
++        const decoded = decodeJpegXlStandaloneModular(
++          dc,
++          reader.bitPosition,
++          [shape, shape, shape],
++          1,
++          state.lfGlobal.globalModularCode,
++        )
++        const planes = decoded.planes.map((plane) =>
++          Float64Array.from(plane, (value) => value / 2 ** precision),
++        )
++        assert.deepEqual(planes, state.dcGroup.dcCoefficients)
++        const reachable = []
++        for (let channel = 0; channel < program.channelLayouts.length; channel++) {
++          const pending = [0],
++            seen = new Set<number>(),
++            predictors = new Set<number>(),
++            contexts = new Set<number>()
++          while (pending.length) {
++            const index = pending.pop()
++            if (index === undefined || seen.has(index)) continue
++            seen.add(index)
++            const node = program.nodes[index]
++            if (!node) throw new Error('Missing tree node')
++            if (node.kind === 'leaf') {
++              predictors.add(node.predictor)
++              contexts.add(node.context)
++            } else if (node.property === 0 || node.property === 1) {
++              const property = node.property === 0 ? channel : 1
++              pending.push(property > node.split ? node.greater : node.lessOrEqual)
++            } else pending.push(node.greater, node.lessOrEqual)
++          }
++          reachable.push({
++            channel,
++            predictors: [...predictors].sort((a, b) => a - b),
++            leaves: contexts.size,
++            histograms: [
++              ...new Set(
++                [...contexts].map((context) => program.pixelCode.contextMap[context] ?? 0),
++              ),
++            ].sort((a, b) => a - b),
++          })
++        }
++        rows.push({
++          id,
++          distance,
++          mode,
++          bytes: bytes.length,
++          precision,
++          smoothDc: (frame.frameFlags & 128) === 0,
++          useGlobalTree: ((dc[0] ?? 0) & 4) !== 0,
++          histograms: program.pixelCode.uintConfigs.length,
++          lfGlobalBytes: sections[0]?.length ?? 0,
++          transforms: program.transforms,
++          weightedPredictor: program.weightedPredictor,
++          reachable,
++          dcHeaderBits: program.residualBitPosition - 2,
++          dcPayloadBits: decoded.endingBitPosition - 2,
++          dcGroupBytes: dc.length,
++        })
++      } finally {
++        state.release()
++      }
++    }
++}
++const report = {
++  completed: true,
++  points: rows.length,
++  rows,
++  policy:
++    'Read-only existing development bitstreams. First-party decoder inspection copy exports its existing Modular parser. No native internal probe, new encode or parameter change.',
++  limits:
++    'Reachable predictors are possible leaves after channel/group pruning, not observed usage counts. DC payload excludes any globally shared tree/histogram and matrices; whole-file comparisons remain authoritative.',
++}
++await writeFile(`${root}/dc-context-audit.json`, JSON.stringify(report, null, 2) + '\n')
++console.log(
++  JSON.stringify({
++    points: rows.length,
++    modes: ['candidate', 'nonlinear', 'ac125', 'native'].map((mode) => {
++      const selected = rows.filter((row) => row.mode === mode)
++      return {
++        mode,
++        smoothOn: selected.filter((row) => row.smoothDc).length,
++        dcPayloadBits: selected.reduce((sum, row) => sum + row.dcPayloadBits, 0),
++        globalTrees: selected.filter((row) => row.useGlobalTree).length,
++        predictors: [
++          ...new Set(
++            selected.flatMap((row) => row.reachable.flatMap((channel) => channel.predictors)),
++          ),
++        ].sort((a, b) => a - b),
++      }
++    }),
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-completion-screen.ts b/benchmark/jpegxl/lossy-lab/audit-dc-completion-screen.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-completion-screen.ts
+@@ -0,0 +1,100 @@
++import assert from 'node:assert/strict'
++import { readFile, readdir, writeFile } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { extractDecisions } from './decisions.ts'
++import { object } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++const current = `${root}/screen/standalone-dc-complete-purejsimage`
++const frozen =
++  '.tmp/jpegxl-lossy-lab/dc-quantization-20261103/screen/standalone-dc-nonlinear-purejsimage'
++const rows = []
++async function acSections(bytes: Uint8Array) {
++  const source = new MemorySource(bytes)
++  const logical = new JpegXlCodestreamSource(
++    source,
++    await inspectJpegXlSource(source, resolveJpegXlLimits()),
++  )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame || frame.sections.length < 2) throw new Error('Expected separated crop sections')
++  return Promise.all(
++    frame.sections
++      .slice(1 + frame.dcGroupCount)
++      .map((section) => logical.read(section.offset, section.length)),
++  )
++}
++const keys = [
++  'strategies',
++  'strategyFirstBlocks',
++  'rawQuantization',
++  'globalScale',
++  'quantDc',
++  'colorCorrelation',
++  'correlationX',
++  'correlationB',
++  'sharpness',
++  'gaborish',
++  'epfIterations',
++  'xQuantizationScale',
++  'bQuantizationScale',
++  'quantizationTables',
++] as const
++for (const id of await readdir(current)) {
++  for (const file of (await readdir(`${current}/${id}`)).filter((file) => file.endsWith('.jxl'))) {
++    const beforeBytes = await readFile(`${frozen}/${id}/${file}`),
++      afterBytes = await readFile(`${current}/${id}/${file}`)
++    const before = await extractDecisions(beforeBytes)
++    const after = await extractDecisions(afterBytes)
++    const beforeAc = await acSections(beforeBytes),
++      afterAc = await acSections(afterBytes)
++    assert.deepEqual(afterAc, beforeAc, `${id}/${file}/AC sections`)
++    for (const key of keys) assert.deepEqual(after[key], before[key], `${id}/${file}/${key}`)
++    assert.deepEqual(after.dcQuantization, before.dcQuantization)
++    assert.equal(before.smoothDc, false)
++    assert.equal(after.smoothDc, true)
++    rows.push({
++      id,
++      file,
++      unchangedFields: keys,
++      smoothingEnabled: true,
++      nominalDcUnchanged: true,
++      acSectionsExact: true,
++      acBytes: beforeAc.reduce((sum, bytes) => sum + bytes.length, 0),
++      beforeBytes: beforeBytes.length,
++      afterBytes: afterBytes.length,
++    })
++  }
++}
++assert.equal(rows.length, 80)
++const frozenSource = object(JSON.parse(await readFile(`${root}/source.json`, 'utf8')))
++if (!Array.isArray(frozenSource.modules)) throw new Error('Missing frozen modules')
++for (const item of frozenSource.modules) {
++  const row = object(item)
++  if (typeof row.file !== 'string' || typeof row.sha256 !== 'string')
++    throw new Error('Invalid module receipt')
++  assert.equal(
++    createHash('sha256')
++      .update(await readFile(`${root}/prototype/${row.file}`))
++      .digest('hex'),
++    row.sha256,
++  )
++}
++await writeFile(
++  `${root}/screen-decisions.json`,
++  JSON.stringify({ passed: true, points: rows.length, sourceFrozen: true, rows }, null, 2) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    points: rows.length,
++    unchangedFields: keys.length,
++    sourceFrozen: true,
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-completion-rate.ts b/benchmark/jpegxl/lossy-lab/audit-dc-completion-rate.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-completion-rate.ts
+@@ -0,0 +1,141 @@
++import assert from 'node:assert/strict'
++import { readFile, readdir, writeFile } from 'node:fs/promises'
++import { object } from '../comparison/model.ts'
++import { parsePoint } from './model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import {
++  readJpegXlSourceFrameStructures,
++  decodeJpegXlStandaloneModular,
++} from '../../../src/codecs/jpegxl-decode.ts'
++import { readStandaloneModularProgram } from '../../../.tmp/jpegxl-lossy-lab/dc-completion-20261103/diagnostic/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++const current = `${root}/screen/standalone-dc-complete-purejsimage`
++const old =
++  '.tmp/jpegxl-lossy-lab/dc-quantization-20261103/screen/standalone-dc-nonlinear-purejsimage'
++async function read(path: string) {
++  const bytes = await readFile(path)
++  const source = new MemorySource(bytes)
++  const logical = new JpegXlCodestreamSource(
++    source,
++    await inspectJpegXlSource(source, resolveJpegXlLimits()),
++  )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame || frame.sections.length < 2 || frame.dcGroupCount !== 1)
++    throw new Error('Need separated single DC group')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  const state = prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++  try {
++    const dc = sections[1]
++    if (!dc) throw new Error('Missing DC section')
++    const shape = { width: state.dcGroup.blockWidth, height: state.dcGroup.blockHeight }
++    const program = readStandaloneModularProgram(
++      dc,
++      2,
++      [shape, shape, shape],
++      1,
++      state.lfGlobal.globalModularCode,
++    )
++    const decoded = decodeJpegXlStandaloneModular(
++      dc,
++      2,
++      [shape, shape, shape],
++      1,
++      state.lfGlobal.globalModularCode,
++    )
++    return {
++      planes: decoded.planes,
++      bytes: bytes.length,
++      lfBytes: sections[0]?.length ?? 0,
++      dcBytes: dc.length,
++      headerBits: program.residualBitPosition - 2,
++      residualBits: decoded.endingBitPosition - program.residualBitPosition,
++      metadataAndPadBits: dc.length * 8 - decoded.endingBitPosition,
++      histograms: program.pixelCode.uintConfigs.length,
++      leaves: program.nodes.filter((node) => node.kind === 'leaf').length,
++    }
++  } finally {
++    state.release()
++  }
++}
++const rows = []
++for (const id of await readdir(current)) {
++  const candidate = object(JSON.parse(await readFile(`${current}/${id}/result.json`, 'utf8')))
++  const previous = object(JSON.parse(await readFile(`${old}/${id}/result.json`, 'utf8')))
++  assert.equal(candidate.fixtureSha256, previous.fixtureSha256)
++  if (!Array.isArray(candidate.points) || !Array.isArray(previous.points))
++    throw new Error('Missing points')
++  const a = candidate.points.map(parsePoint),
++    b = previous.points.map(parsePoint)
++  for (const p of a) {
++    const q = b.find((row) => row.setting === p.setting)
++    if (!q) throw new Error('Different ladders')
++    const after = await read(`${current}/${id}/${p.setting}.jxl`),
++      before = await read(`${old}/${id}/${p.setting}.jxl`)
++    assert.deepEqual(after.planes, before.planes)
++    const { planes: _after, ...next } = after,
++      { planes: _before, ...prior } = before
++    rows.push({
++      id,
++      distance: p.setting,
++      before: prior,
++      after: next,
++      dcIntegersExact: true,
++      sizeDelta: after.bytes - before.bytes,
++      modelDeltaBits: (after.lfBytes - before.lfBytes) * 8 + after.headerBits - before.headerBits,
++      residualDeltaBits: after.residualBits - before.residualBits,
++      metadataAndPadDeltaBits: after.metadataAndPadBits - before.metadataAndPadBits,
++      ssimDelta: p.ssimulacra2 - q.ssimulacra2,
++      norm3DeltaPercent: (p.butteraugliNorm3 / q.butteraugliNorm3 - 1) * 100,
++      maxDeltaPercent: (p.butteraugliMax / q.butteraugliMax - 1) * 100,
++    })
++  }
++}
++assert.equal(rows.length, 80)
++const totals = {
++  beforeBytes: 0,
++  afterBytes: 0,
++  modelDeltaBits: 0,
++  residualDeltaBits: 0,
++  metadataAndPadDeltaBits: 0,
++  ssimLosses: 0,
++  norm3Losses: 0,
++  maxLosses: 0,
++  ssimDelta: 0,
++  norm3DeltaPercent: 0,
++  maxDeltaPercent: 0,
++}
++for (const row of rows) {
++  totals.beforeBytes += row.before.bytes
++  totals.afterBytes += row.after.bytes
++  totals.modelDeltaBits += row.modelDeltaBits
++  totals.residualDeltaBits += row.residualDeltaBits
++  totals.metadataAndPadDeltaBits += row.metadataAndPadDeltaBits
++  totals.ssimLosses += Number(row.ssimDelta < 0)
++  totals.norm3Losses += Number(row.norm3DeltaPercent > 0)
++  totals.maxLosses += Number(row.maxDeltaPercent > 0)
++  totals.ssimDelta += row.ssimDelta / rows.length
++  totals.norm3DeltaPercent += row.norm3DeltaPercent / rows.length
++  totals.maxDeltaPercent += row.maxDeltaPercent / rows.length
++}
++const result = {
++  passed: true,
++  points: rows.length,
++  totals,
++  rows,
++  policy:
++    'Read-only saved development outputs. All raw DC integers and previously audited AC sections are equal. Quality changes therefore come from the smoothing flag. Model delta includes the complete LF global section and local DC header, including alignment; no omitted global tree cost. These are same-distance deltas, not BD-rates.',
++}
++await writeFile(`${root}/rate-audit.json`, JSON.stringify(result, null, 2) + '\n')
++console.log(JSON.stringify({ passed: true, points: rows.length, totals }))
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-completion-tree.ts b/benchmark/jpegxl/lossy-lab/verify-dc-completion-tree.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-completion-tree.ts
+@@ -0,0 +1,117 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { libjxlFixedDcTree } from '../../../.tmp/jpegxl-lossy-lab/dc-completion-20261103/prototype/libjxl-fixed-dc-port.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++for (const [count, nodes] of [
++  [1, 1],
++  [512, 1],
++  [1024, 3],
++  [4096, 3],
++  [8192, 7],
++  [12288, 67],
++] as const)
++  assert.equal(libjxlFixedDcTree(count, 8).length, nodes)
++for (const count of [0, -1, NaN, 1.5]) assert.throws(() => libjxlFixedDcTree(count, 8))
++for (const depth of [0, 33, NaN, 1.5]) assert.throws(() => libjxlFixedDcTree(100, depth))
++const full = libjxlFixedDcTree(12288, 8)
++assert.deepEqual(
++  full
++    .filter((n) => n.kind === 'branch')
++    .map((n) => n.split)
++    .sort((a, b) => a - b),
++  [
++    -500, -392, -255, -191, -127, -95, -63, -47, -31, -23, -15, -11, -7, -4, -3, -1, 0, 1, 3, 5, 7,
++    11, 15, 23, 31, 47, 63, 95, 127, 191, 255, 392, 500,
++  ],
++)
++for (const [depth, mul] of [
++  [11, 1],
++  [12, 2],
++  [15, 16],
++  [32, 16],
++] as const) {
++  const scaled = libjxlFixedDcTree(12288, depth)
++  assert.deepEqual(
++    scaled,
++    full.map((node) => (node.kind === 'leaf' ? node : { ...node, split: node.split * mul })),
++  )
++}
++async function decode(path: string) {
++  const source = new MemorySource(await readFile(path))
++  const logical = new JpegXlCodestreamSource(
++    source,
++    await inspectJpegXlSource(source, resolveJpegXlLimits()),
++  )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame) throw new Error('Missing frame')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  const state = prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++  return { frame, sections, state }
++}
++let cases = 0
++for (const [width, height] of [
++  [1, 17],
++  [17, 1],
++  [17, 19],
++  [65, 73],
++  [2057, 9],
++  [9, 2057],
++] as const)
++  for (const distance of [0.65, 2, 7]) {
++    const name = `${width}x${height}-${distance}.jxl`
++    const before = await decode(`.tmp/jpegxl-lossy-lab/dc-quantization-20261103/fixtures/${name}`)
++    const after = await decode(`${root}/fixtures/${name}`)
++    try {
++      assert.equal(before.frame.frameFlags & 128, 128)
++      assert.equal(after.frame.frameFlags & 128, 0)
++      assert.deepEqual(after.state.dcGroup.dcCoefficients, before.state.dcGroup.dcCoefficients)
++      assert.deepEqual(
++        after.state.lfGlobal.globalModularCode?.nodes,
++        libjxlFixedDcTree(Math.ceil(width / 8) * Math.ceil(height / 8) * 3, 8),
++      )
++      if (after.sections.length > 1)
++        for (let group = 0; group < after.frame.dcGroupCount; group++)
++          assert.equal((after.sections[group + 1]?.[0] ?? 0) & 7, 5)
++      cases++
++    } finally {
++      before.state.release()
++      after.state.release()
++    }
++  }
++await writeFile(
++  `${root}/completion-checks.json`,
++  JSON.stringify({
++    passed: true,
++    cases,
++    treeExtentCases: 6,
++    invalidTreeInputs: 8,
++    bitDepthCases: 4,
++    cutoffsExact: true,
++    dcIntegersUnchanged: true,
++    smoothingOn: true,
++    globalTreeExact: true,
++  }) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    cases,
++    smoothingOn: true,
++    dcIntegersUnchanged: true,
++    globalTreeExact: true,
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-completion-alpha.ts b/benchmark/jpegxl/lossy-lab/verify-dc-completion-alpha.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-completion-alpha.ts
+@@ -0,0 +1,45 @@
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { promisify } from 'node:util'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { encodeTransplant } from '../../../.tmp/jpegxl-lossy-lab/dc-completion-20261103/prototype/transplant.ts'
++import { libjxlPortOverrides } from '../../../.tmp/jpegxl-lossy-lab/dc-completion-20261103/prototype/libjxl-ports.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++const rows = []
++for (const [width, height] of [
++  [17, 19],
++  [257, 17],
++] as const) {
++  const pixels = Uint8Array.from(
++    { length: width * height * 4 },
++    (_, i) => (i * 17 + Math.floor(i / width) * 37) % 256,
++  )
++  const input = pixels.slice(),
++    options = libjxlPortOverrides('standalone-dc-complete', 2, width, height)
++  const first = await encodeTransplant(pixels, width, height, 2, options),
++    second = await encodeTransplant(pixels, width, height, 2, options)
++  assert.deepEqual(first.bytes, second.bytes)
++  assert.deepEqual(pixels, input)
++  const path = `${root}/fixtures/alpha-${width}x${height}`
++  await writeFile(`${path}.jxl`, first.bytes)
++  await promisify(execFile)(
++    '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl',
++    [`${path}.jxl`, `${path}.png`],
++    { timeout: 120000 },
++  )
++  const decoded = PNG.sync.read(await readFile(`${path}.png`))
++  assert.equal(decoded.width, width)
++  assert.equal(decoded.height, height)
++  for (let i = 3; i < pixels.length; i += 4) assert.equal(decoded.data[i], pixels[i])
++  rows.push({
++    width,
++    height,
++    bytes: first.bytes.length,
++    alphaExact: true,
++    nativeValid: true,
++    repeatable: true,
++  })
++}
++await writeFile(`${root}/alpha-checks.json`, JSON.stringify({ passed: true, rows }, null, 2) + '\n')
++console.log(JSON.stringify({ passed: true, cases: rows.length }))
+diff --git a/benchmark/jpegxl/lossy-lab/review-dc-completion-pairs.ts b/benchmark/jpegxl/lossy-lab/review-dc-completion-pairs.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/review-dc-completion-pairs.ts
+@@ -0,0 +1,65 @@
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import { parsePoint } from './model.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++const comparison = object(JSON.parse(await readFile(`${root}/lab/against-production.json`, 'utf8')))
++if (!Array.isArray(comparison.comparisons) || typeof comparison.reference !== 'string')
++  throw new Error('Missing main comparisons')
++const worst = comparison.comparisons
++  .map(object)
++  .filter((row) => row.metric === 'butteraugliMax')
++  .sort((a, b) => number(b.percent) - number(a.percent))
++  .slice(0, 3)
++const rows = []
++for (const row of worst) {
++  if (typeof row.id !== 'string') throw new Error('Missing image')
++  const path = `${root}/lab/standalone-dc-complete-purejsimage/${row.id}`
++  const before = object(
++      JSON.parse(await readFile(`${comparison.reference}/${row.id}/result.json`, 'utf8')),
++    ),
++    after = object(JSON.parse(await readFile(`${path}/result.json`, 'utf8')))
++  if (!Array.isArray(before.points) || !Array.isArray(after.points))
++    throw new Error('Missing points')
++  const base = before.points.map(parsePoint)
++  const pairs = after.points
++    .map(parsePoint)
++    .map((candidate) => {
++      const reference = base.toSorted(
++        (a, b) =>
++          Math.abs(Math.log(a.bytes / candidate.bytes)) -
++          Math.abs(Math.log(b.bytes / candidate.bytes)),
++      )[0]
++      if (!reference) throw new Error('Missing reference')
++      return {
++        candidate,
++        reference,
++        byteRatio: candidate.bytes / reference.bytes,
++        maxRatio: candidate.butteraugliMax / reference.butteraugliMax,
++      }
++    })
++    .filter((pair) => Math.abs(Math.log(pair.byteRatio)) <= 0.15)
++    .sort((a, b) => b.maxRatio - a.maxRatio)
++  const selected = pairs[0]
++  if (!selected) throw new Error('No nearby-rate pair')
++  rows.push({
++    id: row.id,
++    bdMax: row.percent,
++    ...selected,
++    candidatePath: `${path}/${selected.candidate.setting}.png`,
++    referencePath: `${comparison.reference}/${row.id}/${selected.reference.setting}.png`,
++  })
++}
++await writeFile(`${root}/visual-pairs.json`, JSON.stringify(rows, null, 2) + '\n')
++console.log(
++  JSON.stringify(
++    rows.map((r) => ({
++      id: r.id,
++      bdMax: r.bdMax,
++      candidateDistance: r.candidate.setting,
++      mainDistance: r.reference.setting,
++      byteRatio: r.byteRatio,
++      candidatePath: r.candidatePath,
++      referencePath: r.referencePath,
++    })),
++  ),
++)

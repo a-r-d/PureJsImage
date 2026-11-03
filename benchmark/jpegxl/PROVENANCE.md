@@ -654,3 +654,24 @@ revision; the existing full BSD notices apply. No runtime dependency is added.
 `lib/jxl/enc_group.cc` at that revision was read to identify
 `AdjustQuantBlockAC` and its caller. No code, constants or tables from that pass
 have been ported in this follow-up.
+
+## Coupled DC completion trial (2026-11-03)
+
+The development archive `lossy-lab/DC-COMPLETION-EXPERIMENT.patch` adds
+`lossy-lab/libjxl-fixed-dc-port.ts` from libjxl
+`lib/jxl/modular/encoding/enc_encoding.cc`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. It takes `MakeFixedTree`, the
+`kWPFixedDC` cutoffs, weighted predictor selection, small-image pruning and
+bit-depth scaling. The TypeScript adaptation uses our node representation and
+assigns breadth-first leaf contexts explicitly. The caller follows
+`lib/jxl/enc_modular.cc`'s predefined VarDCT DC chunk sample count and bitdepth 8.
+Our existing weighted predictor and ANS implementation share this tree over DC
+groups, with one histogram per leaf. Metadata and alpha keep local trees; no
+native entropy clustering or infrastructure is ported. The same experiment
+turns on the existing normative DC smoothing flag and reuses the separately
+attributed nonlinear DC port. The module contains the source and BSD-3 header;
+the complete libjxl license remains in the package and docs notices. This mode
+is rejected and archived outside active source. The companion
+`lossy-lab/DC-COMPLETION-AUDIT.patch` contains first-party decoder inspection,
+saved-stream rate and decision audits, visual-pair selection and correctness
+fixtures; it adds no native probe or runtime dependency.
