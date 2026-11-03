@@ -207,7 +207,7 @@ export const comparisonEvidence: readonly ComparisonEvidence[] = Object.freeze([
     id: 'codec-corpus',
     kind: 'source',
     label: 'Independent 154-file TIFF corpus sources and licenses',
-    url: 'https://github.com/a-r-d/codec-corpus/blob/main/tiff-conformance/SOURCES.md',
+    url: 'https://github.com/imazen/codec-corpus/blob/main/tiff-conformance/SOURCES.md',
   },
 ])
 

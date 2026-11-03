@@ -7,7 +7,7 @@
   "oracle": "sharp with ImageMagick fallback",
   "corpus": {
     "name": "codec-corpus TIFF conformance",
-    "source": "https://github.com/a-r-d/codec-corpus/tree/main/tiff-conformance",
+    "source": "https://github.com/imazen/codec-corpus/tree/main/tiff-conformance",
     "directories": [
       "../codec-corpus/tiff-conformance/valid",
       "../codec-corpus/tiff-conformance/edge-cases",

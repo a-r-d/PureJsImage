@@ -4,6 +4,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Give every docs site page Open Graph and Twitter share tags. Pages without
+  their own image use a new 1200 x 630 site card. Publish the JPEG XL
+  flat-palette evidence file that the comparison page links to, point the TIFF
+  corpus source link at `imazen/codec-corpus`, give the JPEG XL converter its
+  own title, and shorten seven page descriptions to 160 characters or less.
+  The docs build now fails when a page omits share tags, repeats a title, has a
+  description over 160 characters, or links to unpublished JPEG XL evidence.
+
 - Add slow JPEG XL effort 9. It retains effort 7's tools and adds complete AC
   iteration, strategy, luma-context, cone-frame and advanced Modular DC searches.
   Effort 7 omits these alternatives. Effort 9 lossless encoding uses the effort-7

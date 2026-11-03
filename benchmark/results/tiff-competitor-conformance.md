@@ -2,7 +2,7 @@
 
 Generated: 2026-08-13T23:43:28.045Z
 
-Corpus: codec-corpus TIFF conformance; https://github.com/a-r-d/codec-corpus/tree/main/tiff-conformance
+Corpus: codec-corpus TIFF conformance; https://github.com/imazen/codec-corpus/tree/main/tiff-conformance
 
 Oracle: sharp with ImageMagick fallback raw RGBA8. Exact means every independently decoded channel matched. Color-converted and lossy cases remain visible but a mismatch is not automatically a decoder defect.
 

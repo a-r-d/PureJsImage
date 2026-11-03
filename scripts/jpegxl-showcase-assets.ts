@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { PixelColorSemantics } from '../src/color.ts'
 import { encodeJpegXlAnimation, encodeJpegXlNative } from '../src/jpegxl.ts'
@@ -34,6 +34,7 @@ export async function writeJpegXlShowcaseAssets(directory: string): Promise<void
     'ORIGINAL-PHOTO.md',
     'ORIGINAL-MATRIX.md',
     'FRONTIER-SAMPLING.md',
+    'FLAT-PALETTE-CONFIRMATION.md',
     'survey.json',
     'subjects.json',
     'fixtures.json',
@@ -105,6 +106,18 @@ export async function writeJpegXlShowcaseAssets(directory: string): Promise<void
     if (!name) throw new Error('Bad report name')
     await copyFile(value.path, join(evidence, name))
   }
+  // Fail the build when a docs page links to an evidence file that is not copied above.
+  const linked = new Set<string>()
+  for (const file of await readdir('docs-astro/src', { recursive: true })) {
+    if (!/\.(astro|ts|tsx)$/.test(file)) continue
+    const text = await readFile(join('docs-astro/src', file), 'utf8')
+    for (const [, name] of text.matchAll(/\/jpeg-xl\/evidence\/([\w.-]+)/g))
+      if (name) linked.add(name)
+  }
+  const published = new Set(await readdir(evidence))
+  const missing = [...linked].filter((name) => !published.has(name))
+  if (missing.length > 0)
+    throw new Error(`Linked JPEG XL evidence is not published: ${missing.join(', ')}`)
   const cropDir = join(directory, 'assets/jpegxl-comparison')
   await mkdir(cropDir, { recursive: true })
   await copyFile(

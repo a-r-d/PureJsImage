@@ -42,6 +42,21 @@ const {
 } = Astro.props
 const base = import.meta.env.BASE_URL
 const assetBase = base.endsWith('/') ? base : `${base}/`
+
+// Every page with a canonical URL gets share tags. Pages without their own image use the site card.
+const siteImage = {
+  image: 'https://purejsimage.com/assets/purejsimage-og.png',
+  imageAlt: 'PureJsImage: image codecs and scientific raster readers in strict TypeScript',
+  imageWidth: 1200,
+  imageHeight: 630,
+}
+const pageOpenGraph =
+  openGraph ??
+  (canonical ? { title, description: description ?? title, url: canonical } : undefined)
+const og = pageOpenGraph?.image
+  ? pageOpenGraph
+  : pageOpenGraph && { ...pageOpenGraph, ...siteImage }
+const card = twitterCard ?? (og ? 'summary_large_image' : undefined)
 ---
 
 <!doctype html>
@@ -53,24 +68,24 @@ const assetBase = base.endsWith('/') ? base : `${base}/`
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#f6f7f2" />
     {
-      openGraph && (
+      og && (
         <>
-          <meta property="og:title" content={openGraph.title} />
-          <meta property="og:description" content={openGraph.description} />
+          <meta property="og:title" content={og.title} />
+          <meta property="og:description" content={og.description} />
           <meta property="og:type" content="website" />
-          <meta property="og:url" content={openGraph.url} />
-          {openGraph.image && <meta property="og:image" content={openGraph.image} />}
-          {openGraph.imageAlt && <meta property="og:image:alt" content={openGraph.imageAlt} />}
-          {openGraph.imageWidth && <meta property="og:image:width" content={openGraph.imageWidth} />}
-          {openGraph.imageHeight && <meta property="og:image:height" content={openGraph.imageHeight} />}
-          {openGraph.image && <meta name="twitter:image" content={openGraph.image} />}
-          {openGraph.imageAlt && <meta name="twitter:image:alt" content={openGraph.imageAlt} />}
-          <meta name="twitter:title" content={openGraph.title} />
-          <meta name="twitter:description" content={openGraph.description} />
+          <meta property="og:url" content={og.url} />
+          {og.image && <meta property="og:image" content={og.image} />}
+          {og.imageAlt && <meta property="og:image:alt" content={og.imageAlt} />}
+          {og.imageWidth && <meta property="og:image:width" content={og.imageWidth} />}
+          {og.imageHeight && <meta property="og:image:height" content={og.imageHeight} />}
+          {og.image && <meta name="twitter:image" content={og.image} />}
+          {og.imageAlt && <meta name="twitter:image:alt" content={og.imageAlt} />}
+          <meta name="twitter:title" content={og.title} />
+          <meta name="twitter:description" content={og.description} />
         </>
       )
     }
-    {twitterCard && <meta name="twitter:card" content={twitterCard} />}
+    {card && <meta name="twitter:card" content={card} />}
     {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" href={`${assetBase}favicon.svg`} type="image/svg+xml" />
     <title>{title}</title>

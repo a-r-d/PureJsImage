@@ -557,7 +557,7 @@ export const runTiffCompetitorComparison = async (
     oracle: 'sharp with ImageMagick fallback',
     corpus: {
       name: 'codec-corpus TIFF conformance',
-      source: 'https://github.com/a-r-d/codec-corpus/tree/main/tiff-conformance',
+      source: 'https://github.com/imazen/codec-corpus/tree/main/tiff-conformance',
       directories: settings.corpusDirectories.map(portable),
     },
     purejsimage,

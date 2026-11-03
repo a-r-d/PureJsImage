@@ -103,11 +103,28 @@ if (!sitemapIndex.includes('https://purejsimage.com/sitemap-0.xml')) {
   throw new Error('Generated sitemap index does not reference sitemap-0.xml')
 }
 const sitemap = await readFile(join(outputDirectory, 'sitemap-0.xml'), 'utf8')
+const pageTitles = new Map<string, string>()
 for (const page of await builtIndexPages(outputDirectory)) {
   const directory = dirname(relative(outputDirectory, page)).replaceAll('\\', '/')
   const route = directory === '.' ? '/' : `/${directory}/`
   if (!sitemap.includes(`<loc>https://purejsimage.com${route}</loc>`)) {
     throw new Error(`Generated sitemap omits canonical Astro route ${route}`)
+  }
+  // Every page needs share tags, a unique title, and a description that fits in search results.
+  const html = await readFile(page, 'utf8')
+  for (const required of ['property="og:title"', 'property="og:image"', 'name="twitter:card"']) {
+    if (!html.includes(required)) throw new Error(`Generated page ${route} omits ${required}`)
+  }
+  const title = /<title>([^<]*)<\/title>/u.exec(html)?.[1]
+  if (!title) throw new Error(`Generated page ${route} has no title`)
+  const other = pageTitles.get(title)
+  if (other) throw new Error(`Generated pages ${other} and ${route} share the title ${title}`)
+  pageTitles.set(title, route)
+  const description = /<meta name="description" content="([^"]*)"/u
+    .exec(html)?.[1]
+    ?.replace(/&(?:amp|quot|#39|lt|gt);/gu, '_')
+  if (!description || description.length > 160) {
+    throw new Error(`Generated page ${route} description is missing or longer than 160 characters`)
   }
 }
 if (sitemap.includes('/llms.txt')) throw new Error('Generated sitemap includes non-HTML llms.txt')
