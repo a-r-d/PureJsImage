@@ -1,0 +1,19 @@
+docs/architecture/hdr-surgery.md
+  s_029a5c7c9ea47d::t_ddf18194445951 347
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b5b25585ca67779d8b03b036bbf0d1998dba2a68",
+  "prompts": {},
+  "sessions": {
+    "s_029a5c7c9ea47d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a054bb-34f4-7110-8f14-0e59500e8c41",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

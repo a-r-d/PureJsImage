@@ -1,0 +1,70 @@
+benchmark/jpegxl/production-program/visual-selector-public-20260929/map-receipt.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-29
+benchmark/jpegxl/production-program/visual-selector-public-20260929/table-receipt.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-29
+benchmark/jpegxl/production-program/visual-selector-public-20260929/table-original.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-125
+README.md
+  s_d4180e5cac980c::t_ef55654c8d81f2 90
+  s_d4180e5cac980c::t_1eb76cbc08d9f7 403
+benchmark/jpegxl/production-program/visual-selector-public-20260929/browser-receipt.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-35
+benchmark/jpegxl/production-program/visual-selector-public-20260929/map-original.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-125
+benchmark/jpegxl/production-program/visual-selector-public-20260929/screenshot-original.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-133
+benchmark/jpegxl/production-program/m7-visual-selector-public-20260929.md
+  s_d4180e5cac980c::t_69b14a43de0bef 1-29,31-43
+  s_d4180e5cac980c::t_3ac9f20ba4ad46 30
+benchmark/jpegxl/production-program/visual-selector-public-20260929/full-check-receipt.json
+  s_d4180e5cac980c::t_3ac9f20ba4ad46 1-31
+benchmark/jpegxl/production-program/visual-selector-public-20260929/photo-receipt.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-29
+browser-tests/jpegxl-pipeline-harness.ts
+  s_d4180e5cac980c::t_548815948305b3 26-76
+src/codecs/jpegxl-vardct-encode.ts
+  s_d4180e5cac980c::t_4696639cbde3aa 74-87,722-724,740-741,746
+  s_d4180e5cac980c::t_e1f885ea7fa29b 291,324,359,708,742-745,748-749,784,786-819
+benchmark/jpegxl/production-program/visual-selector-public-20260929/screenshot-receipt.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-29
+benchmark/jpegxl/production-program/visual-selector-public-20260929/sunset-receipt.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-29
+src/codecs/jpegxl-modular-encode.ts
+  s_d4180e5cac980c::t_bf56de7ea94953 4243-4244
+  s_d4180e5cac980c::t_b3dc4c9b38dfef 4085-4089,4097,4102,4156-4198,4222,4254-4256,4258,4262
+browser-tests/jpegxl-pipeline.pw.ts
+  s_d4180e5cac980c::t_3ec9d1b1fa0ae3 20
+  s_d4180e5cac980c::t_548815948305b3 11,21-30
+  s_d4180e5cac980c::t_b492caa9f76000 31
+tests/jpegxl-m7-vardct-encode.test.ts
+  s_d4180e5cac980c::t_0538a8049b78a4 94-128,138-141,146-154,157-167
+  s_d4180e5cac980c::t_bf56de7ea94953 129-137,142-145,155-156
+benchmark/jpegxl/run-m7-public-original.ts
+  s_d4180e5cac980c::t_ea5ea9c3eb1175 1-9,16-18,27-29,33,37-63,110-111,122-123,137,147,179,189,227,232-233
+  s_d4180e5cac980c::t_bf56de7ea94953 10-15,19-26,30-32,34-35,64-65,68-103,106-109,112-121,124-136,138-146,148-178,180-188,190-226,228-231,234-236
+  s_d4180e5cac980c::t_9a640e300ae7e6 36,66-67,104-105
+docs-astro/src/data/documentation-data.json
+  s_d4180e5cac980c::t_ef55654c8d81f2 109-111,129
+benchmark/jpegxl/production-program/visual-selector-public-20260929/development-small.json
+  s_d4180e5cac980c::t_4e6912e089edd3 1-895
+benchmark/generated/package-metrics.json
+  s_d4180e5cac980c::t_ea22f026cbae65 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/package-metrics.json
+  s_d4180e5cac980c::t_560f22950f98d7 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d06a7dc1a3c01e9483683459df7e91298e16f27e",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

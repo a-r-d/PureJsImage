@@ -1,0 +1,76 @@
+browser-tests/responsive-containment.pw.ts
+  s_64c7f1880f6684::t_a7f47a5a85d19c 10
+tests/project-contract.test.ts
+  s_64c7f1880f6684::t_73dd403d95e1d4 500-507
+docs-astro/src/data/package-metrics.json
+  s_64c7f1880f6684::t_2f6c4ff601211c 179
+docs-astro/src/pages/ome-zarr.astro
+  s_64c7f1880f6684::t_0c67a3454e9bef 172-173,362,367-368,391
+  s_64c7f1880f6684::t_ea0af604401e14 75-85,170-171,175,177
+  s_64c7f1880f6684::t_3ff2176065a5e6 54
+  s_64c7f1880f6684::t_f49baaa48455fe 185,187,209-212,215-216,218-219,221-237,240,345
+  s_64c7f1880f6684::t_ef75541b046969 346-347,349-361,363-366,369-390
+  s_64c7f1880f6684::t_20473745b96848 4-9
+  s_64c7f1880f6684::t_1a2095b6d7bb47 11-18,39-53,55-74
+  s_64c7f1880f6684::t_99c7ef5efd21ec 348
+scripts/build-docs-site.ts
+  s_64c7f1880f6684::t_d8793fa2ca0ee0 1,5,23-40,156
+benchmark/scientific-readers/generated-fixtures.ts
+  s_64c7f1880f6684::t_9e0dae08fff75a 1305
+  s_64c7f1880f6684::t_f12141380673cc 576-577,599-600,964-965,984-985
+  s_64c7f1880f6684::t_fc2520f46f9ba2 616-617,943-944,947
+  s_64c7f1880f6684::t_20473745b96848 580-584,862-890,893-897,901-910
+  s_64c7f1880f6684::t_33f8ce4c372fe3 574-575,585-595,597-598,603-610,613-615,629,678,831,859-861,961-963,968-983,988-999
+  s_64c7f1880f6684::t_5a5b5d671a744a 578-579,601-602,945-946,966-967,986-987
+  s_64c7f1880f6684::t_ef3e1bbe20d563 1000
+README.md
+  s_64c7f1880f6684::t_ceca014e190c4e 23,41-46
+  s_64c7f1880f6684::t_2373cb1f75e6fd 47
+docs-astro/src/styles/global.css
+  s_64c7f1880f6684::t_7f723eeee73edb 7850,7852-7857
+  s_64c7f1880f6684::t_eb67e28189756d 6739-6746,7185-7207,7209-7217,7752-7849,7917,7921-7924,7968-7974,8015,8019-8026
+  s_64c7f1880f6684::t_3c080dac311e96 7984
+  s_127b3e4bb8be8e::t_e6de5286a231cb 7851,7975,8027
+benchmark/generated/package-metrics.json
+  s_64c7f1880f6684::t_2f6c4ff601211c 179
+docs-astro/src/scripts/ome-zarr-viewer.ts
+  s_64c7f1880f6684::t_f2ddd4ad6b2003 841-842
+  s_64c7f1880f6684::t_a3b6bdd658b523 820-821,823
+docs-astro/src/data/documentation-data.json
+  s_64c7f1880f6684::t_8e434459d17840 119
+docs-astro/src/layouts/SiteLayout.astro
+  s_64c7f1880f6684::t_0c67a3454e9bef 22-23,62-63
+  s_64c7f1880f6684::t_a9b00cc8bed726 21,61,65
+scripts/serve-browser-tests.ts
+  s_64c7f1880f6684::t_eb524e4038ae09 235-238,241,272-276
+browser-tests/ome-zarr.pw.ts
+  s_64c7f1880f6684::t_88500facb06e4d 8-26,28,31-33,35-126,131
+  s_64c7f1880f6684::t_b2cb1110389598 127-129
+  s_64c7f1880f6684::t_8c5a73c3328c30 130
+  s_64c7f1880f6684::t_20473745b96848 2-7
+  s_64c7f1880f6684::t_a3e2109871fb46 27,29-30,34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "819ef243cee9d746bae6d7c3f4eda91b1ed31a17",
+  "prompts": {},
+  "sessions": {
+    "s_127b3e4bb8be8e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01fc3-cd9c-7bb3-ad6c-c68f59f86cf0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_64c7f1880f6684": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01f31-fe0a-7353-aa43-464160dd5c45",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

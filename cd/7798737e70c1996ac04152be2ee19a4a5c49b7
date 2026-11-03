@@ -1,0 +1,27 @@
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_aaf3e2e2adc7ac 3727-3728
+tests/jpegxl-m7-lossless.test.ts
+  s_2b0ba550ad1491::t_e640da3cf2949d 153-154
+tests/jpegxl-m7-vardct-encode.test.ts
+  s_2b0ba550ad1491::t_43c868727ae098 205
+benchmark/jpegxl/comparison/results/ci-deadline-production-controls.json
+  s_2b0ba550ad1491::t_9ebea32386159a 1-123
+tests/jpegxl-document-patches.test.ts
+  s_2b0ba550ad1491::t_43c868727ae098 143,151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cd7798737e70c1996ac04152be2ee19a4a5c49b7",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

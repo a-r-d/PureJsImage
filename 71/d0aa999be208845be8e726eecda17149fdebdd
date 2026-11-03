@@ -1,0 +1,50 @@
+src/codecs/jpegxl-vardct-render.ts
+  s_6006332bb8a489::t_6b2ba3f82f6e8c 342-355,713-714
+  s_6006332bb8a489::t_169b6ddfd5962b 381-384
+  s_6006332bb8a489::t_48a38a5a527b9e 74-132,194-279
+  s_6006332bb8a489::t_e67cf868d79768 524-525,527-538,541,544,550,555-557,561-563
+  s_6006332bb8a489::t_763011c2d98bb5 526,545-549,551-554,558-560,786-788
+  s_6006332bb8a489::t_ab0afbef677e21 133-193
+  s_6006332bb8a489::t_bb26560e101c7c 356-380,385-447
+  s_6006332bb8a489::t_51308b23d04cad 676-677
+  s_6006332bb8a489::t_a3777a934504ca 448-523,771-778
+  s_6006332bb8a489::t_302589199bda33 715-718,765
+  s_6006332bb8a489::t_c3a942d9b92ed4 539-540,542-543
+  s_6006332bb8a489::t_1eb0688912402f 617,619,702,704-706,709-711,720,764,766-770,779-781
+  s_d5c1dbd3fe6449::t_a0c85a88bfd26c 789
+src/codecs/jpegxl-vardct-jpeg.ts
+  s_6006332bb8a489::t_51308b23d04cad 513,689-698
+  s_6006332bb8a489::t_863ee3db2bfd91 111-114,163-166
+  s_6006332bb8a489::t_3c234558bdfcfa 95-96,157-162,167,338-340,342-373,375-379,381,401-402
+  s_6006332bb8a489::t_b81146a921904d 829,905-906
+  s_6006332bb8a489::t_2b40f7a5661ea2 482,490,583-600,610-616
+  s_6006332bb8a489::t_ae7e02684f08d9 721-755,759-761,768,770,785,787-801,803-814,816-825,827
+benchmark/jpegxl/generated-vardct-manifest.json
+  s_6006332bb8a489::t_2e69d3a1623873 78
+benchmark/jpegxl/generate-vardct-corpus.ts
+  s_6006332bb8a489::t_2e69d3a1623873 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "71d0aa999be208845be8e726eecda17149fdebdd",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_d5c1dbd3fe6449": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0594b-15f7-7882-8953-57dad5a22850",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

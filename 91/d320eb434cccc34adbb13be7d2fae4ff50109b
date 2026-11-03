@@ -1,0 +1,50 @@
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_ec21c224a288dc 109-111,129
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_3bd5bd96d1973d 644-669
+  s_2b0ba550ad1491::t_4b4b6d76e03e6a 600-643
+  s_2b0ba550ad1491::t_1f5361a37179f0 670-703
+README.md
+  s_2b0ba550ad1491::t_ec21c224a288dc 463
+  s_2b0ba550ad1491::t_c407868093ecb3 482
+src/codecs/jpegxl-modular-tree.ts
+  s_2b0ba550ad1491::t_876419b05b4acb 41-45,272,338-341,354-355,357-358,365
+tests/jpegxl-weighted-predictor.test.ts
+  s_2b0ba550ad1491::t_24374110ce4106 42
+  s_2b0ba550ad1491::t_47953ca713aaa3 1-41,43-45
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_700e30eea8b5db 393-394
+  s_2b0ba550ad1491::t_e39c25e58faa6f 395
+  s_2b0ba550ad1491::t_46d916caf1293a 401-402
+  s_2b0ba550ad1491::t_f31bf37336aa09 409-410
+  s_2b0ba550ad1491::t_3961e2d7bbd14e 399-400
+  s_2b0ba550ad1491::t_c43617810fc40c 407-408
+  s_2b0ba550ad1491::t_638c434e71eab1 397-398
+  s_2b0ba550ad1491::t_c8399307a92a3e 411-412
+  s_2b0ba550ad1491::t_6bb1834096ad19 405-406
+  s_2b0ba550ad1491::t_f645206fa6f8fd 396
+  s_2b0ba550ad1491::t_0135a5f2560400 3,11,13-15,22-23,26,29
+  s_2b0ba550ad1491::t_ce66f7597d45bd 403-404
+src/codecs/jpegxl-decode.ts
+  s_2b0ba550ad1491::t_13438ad4ab504a 2347-2349,2439-2440
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_8fc8c6ce774299 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_d04909f676c321 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "91d320eb434cccc34adbb13be7d2fae4ff50109b",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

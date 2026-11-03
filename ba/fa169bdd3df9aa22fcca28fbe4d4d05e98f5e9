@@ -1,0 +1,27 @@
+tests/jpegxl-m7-vardct-encode.test.ts
+  s_d4180e5cac980c::t_c7fc5ef98242e7 289-331
+src/codecs/jpegxl-vardct-encode.ts
+  s_d4180e5cac980c::t_f7ee554aa2109f 622
+README.md
+  s_d4180e5cac980c::t_41e8cc3017636d 403
+benchmark/generated/package-metrics.json
+  s_d4180e5cac980c::t_41e8cc3017636d 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/package-metrics.json
+  s_d4180e5cac980c::t_41e8cc3017636d 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "bafa169bdd3df9aa22fcca28fbe4d4d05e98f5e9",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

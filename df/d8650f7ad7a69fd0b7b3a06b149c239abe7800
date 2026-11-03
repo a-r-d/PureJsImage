@@ -1,0 +1,42 @@
+benchmark/jpegxl/lossy-lab/JOINT-ALLOCATION-REPORT.json
+  s_42a303a21f7525::t_8e522ba44fc0aa 870-1012,1029-1171,1187-1191,1193-1330,1347-1489,1505-1509,1511-1648,1665-1807,1823-1827,1829-1966
+  s_42a303a21f7525::t_95e1cb25114bf4 1-869,1013-1028,1172-1186,1192,1331-1346,1490-1504,1510,1649-1664,1808-1822,1828,1967-2109,2126
+  s_42a303a21f7525::t_e159b08fcb0039 2110-2125
+benchmark/jpegxl/lossy-lab/JOINT-ALLOCATION-EXPERIMENT.patch
+  s_42a303a21f7525::t_6f1ba0202e4b0c 1-646
+benchmark/jpegxl/lossy-lab/JOINT-ALLOCATION-REPORT.md
+  s_42a303a21f7525::t_ebdfdec8df4fe0 1-124,126-143
+  s_42a303a21f7525::t_9fc6461e111432 125
+  s_42a303a21f7525::t_9a7d096138fc40 144-149
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_d8d243464960c3 2493-2494
+  s_42a303a21f7525::t_9ff091a8718294 2497,2499-2502
+  s_42a303a21f7525::t_5afa1354c496bd 2509-2512
+  s_42a303a21f7525::t_e159b08fcb0039 2523-2524
+  s_42a303a21f7525::t_78f1171c70b82a 2521-2522
+  s_42a303a21f7525::t_f6c492d3b4f0fe 2495-2496
+  s_42a303a21f7525::t_abb636bc8372b4 2513,2515,2517-2520
+  s_42a303a21f7525::t_9fc6461e111432 13
+  s_42a303a21f7525::t_ebdfdec8df4fe0 9,11-12,14-15
+  s_42a303a21f7525::t_42268b4a1d7f7b 2498,2504,2506,2514,2516
+  s_42a303a21f7525::t_f0f01f5bae93c8 2503,2505,2507-2508
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_18e9364bbbc7a4 500,503-510
+  s_42a303a21f7525::t_ebdfdec8df4fe0 501-502,511-512
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dfd8650f7ad7a69fd0b7b3a06b149c239abe7800",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

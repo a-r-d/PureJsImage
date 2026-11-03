@@ -1,0 +1,54 @@
+docs-astro/public/llms.txt
+  s_5d594ee0d8bcfe::t_359692ea576363 602
+docs-astro/src/data/documentation-data.json
+  s_5d594ee0d8bcfe::t_bea71073a96a91 129
+src/codecs/jpegxl-level10.ts
+  s_5d594ee0d8bcfe::t_3ad669431cf97d 173
+  s_5d594ee0d8bcfe::t_e8d71a23f83cb2 73-76
+docs-astro/src/scripts/jpegxl-progressive-workbench.ts
+  s_5d594ee0d8bcfe::t_bfd2f7cd8dfc9e 229-240
+docs-astro/public/capabilities.json
+  s_5d594ee0d8bcfe::t_359692ea576363 5516,5608
+jpegxl-codec-support.md
+  s_5d594ee0d8bcfe::t_359692ea576363 18
+browser-tests/jpegxl-workbench.pw.ts
+  s_5d594ee0d8bcfe::t_b939788423d7d7 55-76
+src/codecs/jpegxl-jpeg-transcode.ts
+  s_5d594ee0d8bcfe::t_218babd0521d13 611,613,661
+tests/jpegxl-m10-level10.test.ts
+  s_5d594ee0d8bcfe::t_b939788423d7d7 119-129,131-136
+  s_5d594ee0d8bcfe::t_0b3056bee6f208 130
+benchmark/jpegxl/production-program/m10-level-profile-map.json
+  s_5d594ee0d8bcfe::t_3c68522a17ce56 61
+capabilities/manifest.json
+  s_5d594ee0d8bcfe::t_3c68522a17ce56 3630,3708
+benchmark/jpegxl/run-m9-fuzz-resource.ts
+  s_5d594ee0d8bcfe::t_6ce84ea34f74aa 184,193
+  s_5d594ee0d8bcfe::t_a5250122ace654 479-488,490-492,495,499,502-505,507-515,517-524,526-527
+  s_5d594ee0d8bcfe::t_a84dcc7a124a90 10,18-22,24,133-183,185-192,194-202,204-222,272-299
+  s_5d594ee0d8bcfe::t_0b3056bee6f208 203
+tests/jpegxl-jpeg-reconstruction.test.ts
+  s_5d594ee0d8bcfe::t_b939788423d7d7 988,993-1001,1004-1006,1013,1016-1027,1029-1031
+docs-astro/src/pages/codecs.astro
+  s_5d594ee0d8bcfe::t_359692ea576363 33,40
+docs-astro/src/data/package-metrics.json
+  s_5d594ee0d8bcfe::t_873e8c3a8fb1e6 179,571,574,577
+benchmark/generated/package-metrics.json
+  s_5d594ee0d8bcfe::t_873e8c3a8fb1e6 179,571,574,577
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a231fef56dfe20daf3abda655469bd7449043aa8",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

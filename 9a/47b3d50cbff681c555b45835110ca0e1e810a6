@@ -1,0 +1,33 @@
+benchmark/jpegxl/generated-vardct-manifest.json
+  s_6006332bb8a489::t_8b5f78afc8035c 1-240
+package.json
+  s_6006332bb8a489::t_73ad26cc132d8e 639
+tests/jpegxl-corpus.test.ts
+  s_6006332bb8a489::t_18b50bb1d0d8be 1-2,7-9,12-14,57-74
+  s_6006332bb8a489::t_c9f788d22f8698 75-88
+  s_6006332bb8a489::t_1a8ab1f65498ab 89-90
+src/codecs/jpegxl-decode.ts
+  s_6006332bb8a489::t_17077b091780ed 299-301
+  s_6006332bb8a489::t_8daef7612a1b85 298,302
+benchmark/jpegxl/README.md
+  s_6006332bb8a489::t_c9f788d22f8698 20-32
+benchmark/jpegxl/generate-vardct-corpus.ts
+  s_6006332bb8a489::t_73ad26cc132d8e 1-99,101-154
+  s_6006332bb8a489::t_8b5f78afc8035c 100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9a47b3d50cbff681c555b45835110ca0e1e810a6",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

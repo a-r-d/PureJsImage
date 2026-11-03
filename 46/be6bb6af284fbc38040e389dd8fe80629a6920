@@ -1,0 +1,40 @@
+benchmark/jpegxl/lossy-lab/DC-QUANTIZATION-EXPERIMENT.patch
+  s_42a303a21f7525::t_101b30a1a11084 619,621,640-645,692
+  s_42a303a21f7525::t_545bb8a5e6d3a2 1-618,620,622-639,646-691,693-712
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_10670b69b81587 12
+benchmark/jpegxl/lossy-lab/DC-QUANTIZATION-REPORT.json
+  s_42a303a21f7525::t_ad095707175ae3 3361,3367-4385
+  s_42a303a21f7525::t_6e6a180763f466 1-3360,3362-3366
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_a98ee8ee838c66 2853-2856
+  s_42a303a21f7525::t_6dd629d6585f93 2859-2862
+  s_42a303a21f7525::t_7997ddfb860eb0 2857-2858
+  s_42a303a21f7525::t_d7dfdbe3ad01d4 15
+  s_42a303a21f7525::t_339f52e407ccd3 2867-2868
+  s_42a303a21f7525::t_4f48b52cd0f8cc 3-13,16,2863-2866
+benchmark/jpegxl/lossy-lab/DC-QUANTIZATION-CONTEXT-AUDIT.patch
+  s_42a303a21f7525::t_c6d52e662ab296 1-30,32-50,67-297
+  s_42a303a21f7525::t_a7da14553fc28b 31,51-66
+benchmark/jpegxl/lossy-lab/DC-QUANTIZATION-REPORT.md
+  s_42a303a21f7525::t_10670b69b81587 70-84,128-142
+  s_42a303a21f7525::t_677bd6e3b30d1e 1-69,85-95,103-110,114-115
+  s_42a303a21f7525::t_c698f32e69f9cf 96-102,116-122
+  s_42a303a21f7525::t_d7dfdbe3ad01d4 111-113,123-127,143-144
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "46be6bb6af284fbc38040e389dd8fe80629a6920",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

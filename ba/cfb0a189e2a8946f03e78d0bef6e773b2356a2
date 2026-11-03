@@ -1,0 +1,28 @@
+benchmark/jpegxl/production-program/visual-selector-public-20260929/conformance-receipt.json
+  s_d4180e5cac980c::t_1fd2a19edea7e7 1-30
+benchmark/jpegxl/production-program/visual-selector-public-20260929/resource.json
+  s_d4180e5cac980c::t_1fd2a19edea7e7 1-243
+benchmark/jpegxl/production-program/visual-selector-public-20260929/resource-receipt.json
+  s_d4180e5cac980c::t_1fd2a19edea7e7 1-28
+benchmark/jpegxl/production-program/m7-visual-selector-public-20260929.md
+  s_d4180e5cac980c::t_1fd2a19edea7e7 3,32
+  s_d4180e5cac980c::t_a6f1b00bc1acc3 33
+benchmark/jpegxl/production-program/visual-selector-public-20260929/conformance.json
+  s_d4180e5cac980c::t_1fd2a19edea7e7 1-694
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "bacfb0a189e2a8946f03e78d0bef6e773b2356a2",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

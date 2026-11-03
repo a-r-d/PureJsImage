@@ -1,0 +1,30 @@
+docs-astro/src/scripts/geo-showcase.ts
+  s_7d25dd617ba7f4::t_2f72defe7f86b7 52-57,92-97,162-164,182,238-265,273,291-296,310-315,381-384,469-472,475-480,511,526,531,536,550-554,713-718,728,892
+  s_7d25dd617ba7f4::t_e6c347d7de75fd 893
+docs-astro/src/pages/geo.astro
+  s_7d25dd617ba7f4::t_eae7e8991f331a 177,181
+  s_7d25dd617ba7f4::t_8c7ce551bce0d5 110,123,127-134,160
+browser-tests/geo-showcase.pw.ts
+  s_7d25dd617ba7f4::t_d58234755288ef 3-5,30,35,42-44,119-120,122-126
+  s_7d25dd617ba7f4::t_bae8e063f78297 41,121
+docs/geo-showcase.md
+  s_7d25dd617ba7f4::t_d58234755288ef 33-38
+browser-tests/geo-showcase-live.pw.ts
+  s_7d25dd617ba7f4::t_d58234755288ef 50-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "bcdf6be68ff09dbe4ee6ea67ba1725faec07abc8",
+  "prompts": {},
+  "sessions": {
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

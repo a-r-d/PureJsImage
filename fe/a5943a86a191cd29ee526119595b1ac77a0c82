@@ -1,0 +1,50 @@
+tests/jpegxl-showcase.test.ts
+  s_2b0ba550ad1491::t_35753e49ba9d74 47-53
+src/codecs/jpegxl-progressive-plan.ts
+  s_2b0ba550ad1491::t_7713148d2bba38 169-175,179,237
+browser-tests/jpegxl-practical-progressive.pw.ts
+  s_2b0ba550ad1491::t_68708816033c8b 4-25
+browser-tests/jpegxl-showcase.pw.ts
+  s_2b0ba550ad1491::t_35753e49ba9d74 48-65,188-197
+  s_2b0ba550ad1491::t_5b2ea91d204b1c 151-153
+  s_2b0ba550ad1491::t_5ba7b5ee7fb963 45-47
+docs-astro/src/scripts/jpegxl-tools.ts
+  s_2b0ba550ad1491::t_5d6500d4e88717 227-229
+src/codecs/jpegxl-session.ts
+  s_2b0ba550ad1491::t_7713148d2bba38 510
+  s_2b0ba550ad1491::t_5bc4cb72e158ef 28
+CHANGELOG.md
+  s_2b0ba550ad1491::t_e3160edca1b0dc 7-12
+docs-astro/src/scripts/jpegxl-worker-client.ts
+  s_2b0ba550ad1491::t_5d6500d4e88717 14,17-22,26-27
+docs-astro/src/scripts/jpegxl-tool-types.ts
+  s_2b0ba550ad1491::t_5d6500d4e88717 43,52-53
+browser-tests/jpegxl-pipeline-harness.ts
+  s_2b0ba550ad1491::t_68708816033c8b 1381-1443
+tests/jpegxl-practical-progressive.test.ts
+  s_2b0ba550ad1491::t_b014e34b842cec 134-140,142-157,159-164,166-172,174-210
+  s_2b0ba550ad1491::t_e3160edca1b0dc 173
+  s_2b0ba550ad1491::t_37cd75c5d3d33a 141,158,165
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_998e4e9cd60d65 179,571,574,577
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_5a9a94f575de9b 129
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_2765b885eebe2c 179,571,574,577
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

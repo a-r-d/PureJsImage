@@ -1,0 +1,72 @@
+tests/jpegxl-large-plane-reconstruction.test.ts
+  s_2b0ba550ad1491::t_cffacc96348e2a 16-41
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_292f3b144f84b8 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+tests/helpers/jpegxl-large-plane-reconstruction.ts
+  s_2b0ba550ad1491::t_a21652ad9c63ed 13-16,30,37
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_6790ff801708c5 109-111,129
+tests/jpegxl-vardct-large-menu.test.ts
+  s_2b0ba550ad1491::t_3b926f440b42df 308
+  s_2b0ba550ad1491::t_f25ca148be0f55 294-296,349-350
+  s_2b0ba550ad1491::t_038aad9fd2c8f9 297-307,309-344,346-348
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_4c56b75cef2cd6 2790-2791
+  s_2b0ba550ad1491::t_4067eff68fa69c 2782-2789
+  s_2b0ba550ad1491::t_d1698a84d33306 2792-2795
+  s_2b0ba550ad1491::t_578c01996b0ab7 2796-2799
+  s_2b0ba550ad1491::t_ea6da320698aa4 2820-2821
+  s_2b0ba550ad1491::t_e04fa70446cd5f 2816-2817
+  s_2b0ba550ad1491::t_7f4b7c2d659cac 2822-2823
+  s_2b0ba550ad1491::t_8c2edbfb0d388b 2800-2801
+  s_2b0ba550ad1491::t_79a9f89ea951cc 2806-2809
+  s_2b0ba550ad1491::t_f15567b65ea8ec 2814-2815
+  s_2b0ba550ad1491::t_08e25fe93fda19 2802-2803
+  s_2b0ba550ad1491::t_8c16ed59f15d25 2818-2819
+  s_2b0ba550ad1491::t_3d1cba026d4fbf 2810-2811
+  s_2b0ba550ad1491::t_037b9d1da29dec 2804-2805
+  s_2b0ba550ad1491::t_d00d769e439e8f 2812-2813
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_292f3b144f84b8 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_4c56b75cef2cd6 1409-1410
+  s_2b0ba550ad1491::t_79a9f89ea951cc 1427-1430
+  s_2b0ba550ad1491::t_4067eff68fa69c 4-11,13,16-18,1404-1408
+  s_2b0ba550ad1491::t_578c01996b0ab7 1416-1418,1421
+  s_2b0ba550ad1491::t_e04fa70446cd5f 1437-1438
+  s_2b0ba550ad1491::t_d1698a84d33306 1411-1414
+  s_2b0ba550ad1491::t_ea6da320698aa4 14,1441-1442
+  s_2b0ba550ad1491::t_037b9d1da29dec 1426,1431
+  s_2b0ba550ad1491::t_7f4b7c2d659cac 3,12,15,1443-1444
+  s_2b0ba550ad1491::t_8c2edbfb0d388b 1419-1420
+  s_2b0ba550ad1491::t_3d1cba026d4fbf 1432-1433
+  s_2b0ba550ad1491::t_f15567b65ea8ec 1436,1445
+  s_2b0ba550ad1491::t_8c16ed59f15d25 1439-1440
+  s_2b0ba550ad1491::t_d00d769e439e8f 1434-1435
+  s_2b0ba550ad1491::t_08e25fe93fda19 1422-1425
+  s_2b0ba550ad1491::t_14f81c39beb7eb 1415
+browser-tests/jpegxl-large-plane-reconstruction.pw.ts
+  s_2b0ba550ad1491::t_26095fe4f403c3 8-11,34-37
+src/codecs/jpegxl-vardct-encode.ts
+  s_2b0ba550ad1491::t_54e7c62c6b23aa 1487-1551,1554-1557,2150,2159-2168
+  s_2b0ba550ad1491::t_490333743ed590 1552-1553,2151-2158,2169-2170
+README.md
+  s_2b0ba550ad1491::t_292f3b144f84b8 482
+  s_2b0ba550ad1491::t_6790ff801708c5 463
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "972181261ab2c1c5c563d85e650e8fbbd6427f34",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+benchmark/jpegxl/lossy-lab/GUARD-REPORT.json
+  s_42a303a21f7525::t_c24a1b2c51593b 22,24-46,592-595
+  s_42a303a21f7525::t_573e7970d901bf 1-6,23,47-591,612-623
+  s_42a303a21f7525::t_a260d7bd20d768 7-21,596-611
+benchmark/jpegxl/lossy-lab/GUARD-REPORT.md
+  s_42a303a21f7525::t_e1944fa2e6c72a 130-131
+  s_42a303a21f7525::t_c24a1b2c51593b 53-56,118-119
+  s_42a303a21f7525::t_a260d7bd20d768 101-103,116,123-129,132-138
+  s_42a303a21f7525::t_4676e9fb188df2 1-4,8-15,18-36,62-66,69-85,92-98
+  s_42a303a21f7525::t_32d3ac1288b047 5-7,37-52,57-61,99-100,104-115,117,120-122
+  s_42a303a21f7525::t_552b6e07e7f333 16-17,67-68,86-91
+benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+  s_42a303a21f7525::t_2f26aa77395a24 48,59
+  s_42a303a21f7525::t_b513542ebb198f 49-50,61-63,68-69,74-77,150-151,155-156,163-170,179-181,194
+  s_42a303a21f7525::t_3ad4b2d413e1e8 51-53,64-67,70-73
+benchmark/jpegxl/lossy-lab/libjxl-gaborish-port.ts
+  s_42a303a21f7525::t_34fe0973f1a455 11,38,42-43,60,64,69,101
+  s_42a303a21f7525::t_aafaf9940f8b3c 8-9
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_fe68a35174495b 1842-1843
+  s_42a303a21f7525::t_93c540cc0e55f2 1838-1841
+  s_42a303a21f7525::t_d56e745f31b944 1847
+  s_42a303a21f7525::t_2f26aa77395a24 1820
+  s_42a303a21f7525::t_fd7a62ff790f2e 1849
+  s_42a303a21f7525::t_c24a1b2c51593b 1852
+  s_42a303a21f7525::t_b513542ebb198f 1821-1822
+  s_42a303a21f7525::t_32d3ac1288b047 14-15,1844,1846,1850-1851
+  s_42a303a21f7525::t_15b4b70b6890fc 4-13,19
+  s_42a303a21f7525::t_8bea836872c931 1845
+  s_42a303a21f7525::t_3a5430cc783b85 1828
+  s_42a303a21f7525::t_a260d7bd20d768 16-18,1848
+  s_42a303a21f7525::t_aafaf9940f8b3c 1836
+  s_42a303a21f7525::t_70e363af4e54b8 1823-1827,1829-1835,1837
+benchmark/jpegxl/lossy-lab/packed-coefficients.ts
+  s_42a303a21f7525::t_b1b7e6cd802467 1-2,6-16,19-33,38-48
+  s_42a303a21f7525::t_2aa29029a5d220 3-5,17-18,34-37
+benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+  s_42a303a21f7525::t_34fe0973f1a455 1-3,5,31,95-100,253-269,272-275,277-304,312
+  s_42a303a21f7525::t_9abd9b86692d86 4,276
+benchmark/jpegxl/lossy-lab/gaborish-source-cache.ts
+  s_42a303a21f7525::t_755ccd0de7ec1d 1-49
+tests/jpegxl-lossy-lab-fixture-selection.test.ts
+  s_42a303a21f7525::t_ca416feec716cc 4,13-21
+  s_42a303a21f7525::t_963d54598ca857 22
+benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+  s_42a303a21f7525::t_b513542ebb198f 60-61,131-132
+  s_42a303a21f7525::t_2f26aa77395a24 59,130
+  s_42a303a21f7525::t_940cd778e55124 62-65,133-136
+tests/jpegxl-libjxl-strategy-port.test.ts
+  s_42a303a21f7525::t_b513542ebb198f 47-48
+  s_42a303a21f7525::t_2f26aa77395a24 46
+  s_42a303a21f7525::t_152d3e06a1e3b2 49-51,140-170
+benchmark/jpegxl/lossy-lab/run.ts
+  s_42a303a21f7525::t_ca416feec716cc 6,50
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_104dfb60acebd5 200-204
+  s_42a303a21f7525::t_ec6e6ce884899f 194-199
+tests/jpegxl-gaborish-source-cache.test.ts
+  s_42a303a21f7525::t_755ccd0de7ec1d 1-8,10-28,30,32-47
+  s_42a303a21f7525::t_88cc0d00768e39 9,29,31
+benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+  s_42a303a21f7525::t_34fe0973f1a455 82,115,541-542
+tests/jpegxl-packed-coefficients.test.ts
+  s_42a303a21f7525::t_2aa29029a5d220 16-17,36,38
+  s_42a303a21f7525::t_b1b7e6cd802467 1-4,6-15,18-35,39,41-45
+  s_42a303a21f7525::t_13c6eb71ff1da2 5,37,40
+tests/helpers/jpegxl-decision-transplant.ts
+  s_42a303a21f7525::t_104dfb60acebd5 173
+benchmark/jpegxl/lossy-lab/fixture-selection.ts
+  s_42a303a21f7525::t_ca416feec716cc 6,8-16
+  s_42a303a21f7525::t_7b2a1b744ef99c 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ace4ef5d4f38171a51681b8f8a3d5fc4773edf62",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_4e813125def80d 5775-5776
+  s_2b0ba550ad1491::t_9c1cb557363938 5793-5794
+  s_2b0ba550ad1491::t_c925f3ca7cfce1 5779-5780
+  s_2b0ba550ad1491::t_80039345832fa6 5771-5774
+  s_2b0ba550ad1491::t_5b3f22e20302c0 5795-5796
+  s_2b0ba550ad1491::t_2c2b673404cb5c 5781-5784
+  s_2b0ba550ad1491::t_fe99babbf25646 5785-5790
+  s_2b0ba550ad1491::t_6c470b73e0ad98 5791-5792
+  s_2b0ba550ad1491::t_f8606f206d1ea3 5777-5778
+benchmark/jpegxl/comparison/RESEARCH-CHECKPOINT.md
+  s_2b0ba550ad1491::t_5b3f22e20302c0 5
+  s_2b0ba550ad1491::t_9198a23e43efff 17
+  s_2b0ba550ad1491::t_9c1cb557363938 15
+  s_2b0ba550ad1491::t_fe99babbf25646 1-4,6-14,16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "516bea57d23f9cc869f2a08e0dcf192b639bfcbb",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+browser-tests/geo-showcase.pw.ts
+  s_7d25dd617ba7f4::t_975e12d8107204 46-49
+docs-astro/src/pages/geo.astro
+  s_7d25dd617ba7f4::t_e6a56d30909d28 81-84,86-90,96
+  s_7d25dd617ba7f4::t_71807c216b3ba9 171-183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "e25986711d75e4d7393a52928c626acc991f7f78",
+  "prompts": {},
+  "sessions": {
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

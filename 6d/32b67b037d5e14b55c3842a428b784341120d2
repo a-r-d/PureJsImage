@@ -1,0 +1,23 @@
+tests/jpegxl-document-patches.test.ts
+  s_2b0ba550ad1491::t_170cb311d6e548 189-190
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_e17a1517791be8 4269-4278
+  s_2b0ba550ad1491::t_908099a8f01e20 4279-4280
+  s_2b0ba550ad1491::t_dc4d67764ebfb9 4281-4282
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6d32b67b037d5e14b55c3842a428b784341120d2",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

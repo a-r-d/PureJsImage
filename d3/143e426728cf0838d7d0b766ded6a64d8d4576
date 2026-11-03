@@ -1,0 +1,73 @@
+src/codecs/jpegxl-vardct-encode.ts
+  s_2b0ba550ad1491::t_053750a6d48b1b 1426-1467
+  s_2b0ba550ad1491::t_8d8cd928cb283b 1408-1409,1411-1417,1419-1425,1468-1469,1471-1486,2222-2224
+  s_2b0ba550ad1491::t_dff4bd0cafbc39 1410,1418,1470
+browser-tests/jpegxl-large-plane-reconstruction.pw.ts
+  s_2b0ba550ad1491::t_c09bb2de9dfe99 1-4,8-34
+  s_2b0ba550ad1491::t_c6ec5315b2ab5b 5-7
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_4039938d05ee10 39
+  s_2b0ba550ad1491::t_13248684fec815 42-46
+  s_2b0ba550ad1491::t_0d46de364249d0 41
+  s_2b0ba550ad1491::t_203d955c9128aa 3-38,40,47-50,82-83
+src/codecs/jpegxl-vardct-large-menu.ts
+  s_2b0ba550ad1491::t_a193dcabdd8dc1 800-808,810-811,813-815,895-903,905-906,908-910
+  s_2b0ba550ad1491::t_8d8cd928cb283b 63-71,73-74
+  s_2b0ba550ad1491::t_dff4bd0cafbc39 72,809,812,904,907
+tests/jpegxl-large-plane-reconstruction.test.ts
+  s_2b0ba550ad1491::t_1f0fd206d512a2 1-15
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_6a20a9ebb98ed8 2553-2561
+  s_2b0ba550ad1491::t_ea92c34524d3e5 2585-2593
+  s_2b0ba550ad1491::t_619e0a0cd54479 2562-2569
+  s_2b0ba550ad1491::t_598bec145b8d5f 2578-2584
+  s_2b0ba550ad1491::t_2ebcbacdca55c7 2545-2552
+  s_2b0ba550ad1491::t_54b6561f481792 2510-2536
+  s_2b0ba550ad1491::t_cc450d68d4629d 2537-2544
+  s_2b0ba550ad1491::t_0d46de364249d0 2570-2577
+tests/jpegxl-vardct-large-menu.test.ts
+  s_2b0ba550ad1491::t_6ddc752ca0b852 172,181-187,189
+  s_2b0ba550ad1491::t_54596eb2710dc4 5,8,60-67,74-76,100-129,135,149,165
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_619e0a0cd54479 1223-1224
+  s_2b0ba550ad1491::t_0d46de364249d0 1225-1226
+  s_2b0ba550ad1491::t_54b6561f481792 1216
+  s_2b0ba550ad1491::t_2ebcbacdca55c7 1219-1220
+  s_2b0ba550ad1491::t_6a20a9ebb98ed8 1221-1222
+  s_2b0ba550ad1491::t_598bec145b8d5f 1228,1231
+  s_2b0ba550ad1491::t_ea92c34524d3e5 3,5-9,11-17,1229-1230
+  s_2b0ba550ad1491::t_cc450d68d4629d 1217-1218
+  s_2b0ba550ad1491::t_885bdad1431f27 1210-1211
+  s_2b0ba550ad1491::t_cadadf78a0e781 4,10,18-19,35,1215
+  s_2b0ba550ad1491::t_8af0f81c1db658 1212-1213
+  s_2b0ba550ad1491::t_43e38e8bb58a82 1214,1227
+scripts/bundle-size-budgets.ts
+  s_2b0ba550ad1491::t_452e04f6e75573 17
+tests/helpers/jpegxl-large-plane-reconstruction.ts
+  s_2b0ba550ad1491::t_c6ec5315b2ab5b 25-26,47-55,95-100
+  s_2b0ba550ad1491::t_c09bb2de9dfe99 1-24,27-46,56-94,101-103
+README.md
+  s_2b0ba550ad1491::t_1b0147e1a3563b 463,482
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_f77f146532cae9 179,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_a81ad28c1b9ba0 109-111,129
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_5dd74b5e8b3ef1 179,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d3143e426728cf0838d7d0b766ded6a64d8d4576",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

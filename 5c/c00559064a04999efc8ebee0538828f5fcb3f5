@@ -1,0 +1,97 @@
+benchmark/jpegxl/lossy-lab/ALLOCATION-FRONTIER.svg
+  s_42a303a21f7525::t_45a95bbaed333f 3-70
+  s_42a303a21f7525::t_2aa56e8699c6b1 1-2
+src/codecs/jpegxl-development-decisions.ts
+  s_42a303a21f7525::t_109f1f9ae6ed50 11-16
+benchmark/jpegxl/lossy-lab/allocation.ts
+  s_42a303a21f7525::t_eb5e81c91a594f 1-40
+  s_42a303a21f7525::t_6f3b08ea121506 41-49
+benchmark/jpegxl/lossy-lab/run.ts
+  s_42a303a21f7525::t_e85f13892fa5e6 36-45,241
+benchmark/jpegxl/LOSSY_LIBJXL_REOPENING.md
+  s_42a303a21f7525::t_0ba45260869533 62-91
+benchmark/jpegxl/lossy-lab/allocation-screen.ts
+  s_42a303a21f7525::t_e34012a41cbd77 1-11
+  s_42a303a21f7525::t_3e1261c2b5d903 12-15
+benchmark/jpegxl/lossy-lab/run-allocation-sweep.ts
+  s_42a303a21f7525::t_da78f0ebf289ef 2-61,69
+  s_42a303a21f7525::t_c95b1b4b370a7e 1,62-68,70-76
+src/codecs/jpegxl-vardct-encode.ts
+  s_42a303a21f7525::t_109f1f9ae6ed50 702-710
+  s_42a303a21f7525::t_8d30551c1da333 711-717,798,811-818,2859
+tests/jpegxl-allocation.test.ts
+  s_42a303a21f7525::t_da78f0ebf289ef 2-7,10,12-14,18-24,28-54,60-73
+  s_42a303a21f7525::t_748b395deccc11 1,8-9,11,15-17,25-27,55-59,74
+  s_42a303a21f7525::t_23ad4b36ca2144 75-77
+benchmark/jpegxl/lossy-lab/ALLOCATION-REPORT.md
+  s_42a303a21f7525::t_75fa0ac3e05ea1 69-72
+  s_42a303a21f7525::t_adaad212875b54 74-78
+  s_42a303a21f7525::t_47345c27c90194 1-68,73,79-163
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_0ba45260869533 147-152
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_762b0d2fa33bed 1725-1726
+  s_42a303a21f7525::t_2abf21c1c28d2b 3-6,10-12,15,1634
+  s_42a303a21f7525::t_300213bcc54ca2 1723-1724
+  s_42a303a21f7525::t_f4b50d9b35e6b2 1653-1654
+  s_42a303a21f7525::t_ffcf407aada9fb 7-9,1651-1652,1655-1722
+tests/helpers/jpegxl-decision-transplant.ts
+  s_42a303a21f7525::t_e85f13892fa5e6 1,54-58
+  s_42a303a21f7525::t_2ab21271e94884 59-63,147
+benchmark/jpegxl/lossy-lab/report-allocation.ts
+  s_42a303a21f7525::t_da78f0ebf289ef 2
+  s_42a303a21f7525::t_9d78a9d8854c42 145-149
+  s_42a303a21f7525::t_214defde839ded 23,30,33-35,37,92,96
+  s_42a303a21f7525::t_5a3524eaba5433 72-85
+  s_42a303a21f7525::t_71b1133f1eaf76 1,3-22,24-29,31-32,36,38-71,86-91,93-95,97-100,106-108,111-144,150-160,162-168
+  s_42a303a21f7525::t_ee32f673c4e2ec 101-105,109-110,161
+benchmark/jpegxl/lossy-lab/run-allocation-finalists.ts
+  s_42a303a21f7525::t_6bda6c3b54f9c7 1,4-19,32-57,59-100,102-115
+  s_42a303a21f7525::t_da78f0ebf289ef 2-3
+  s_42a303a21f7525::t_54c60ca47d022b 20-31,58,101
+benchmark/jpegxl/lossy-lab/report-allocation-finalists.ts
+  s_42a303a21f7525::t_86b3df12c8ba40 1-44,48-50,52-93,95-97,99-124
+  s_42a303a21f7525::t_214defde839ded 45-47,51,94,98
+  s_42a303a21f7525::t_f46e1dff1e2eb0 125-126
+benchmark/jpegxl/lossy-lab/README.md
+  s_42a303a21f7525::t_2abf21c1c28d2b 3-6,9-10,38
+  s_42a303a21f7525::t_198b5195bb8d1e 7-8
+benchmark/jpegxl/lossy-lab/worker.ts
+  s_42a303a21f7525::t_e85f13892fa5e6 14,42-45
+  s_42a303a21f7525::t_61de3923c97e35 46-51,158-160,242,269
+benchmark/jpegxl/lossy-lab/ALLOCATION-REPORT.json
+  s_42a303a21f7525::t_dbe315d0ac1f0c 1-3,5-12,16-25,29-38,42-51,55-64,68-77,81-90,94-103,107-116,120-129,133-142,146-155,159-168,172-181,185-194,198-207,211-220,224-233,237-246,250-259,263-272,276-285,289-298,302-311,315-324,328-337,341-350,354-363,367-376,380-389,393-402,406-415,419-422,424-431,435-444,448-34249,34253-38083,38087-41917,41921-49536,49540-53376
+  s_42a303a21f7525::t_300213bcc54ca2 4,13-15,26-28,39-41,52-54,65-67,78-80,91-93,104-106,117-119,130-132,143-145,156-158,169-171,182-184,195-197,208-210,221-223,234-236,247-249,260-262,273-275,286-288,299-301,312-314,325-327,338-340,351-353,364-366,377-379,390-392,403-405,416-418,423,432-434,445-447,34250-34252,38084-38086,41918-41920,49537-49539
+  s_42a303a21f7525::t_14829d6f1126b7 53377-53384
+benchmark/jpegxl/lossy-lab/transplant.ts
+  s_42a303a21f7525::t_109f1f9ae6ed50 58,73-75
+  s_42a303a21f7525::t_6ca0326dbdc83c 76,98,120,137-141,157
+README.md
+  s_42a303a21f7525::t_825f1bd24e1b9e 463,482
+benchmark/generated/package-metrics.json
+  s_42a303a21f7525::t_6c82b29ae07887 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/lossy-lab/ALLOCATION-FRONTIER-ZOOM.svg
+  s_42a303a21f7525::t_277d567ec715bf 1-55
+docs-astro/src/data/documentation-data.json
+  s_42a303a21f7525::t_1c85ac1fa831f2 109-111,129
+docs-astro/src/data/package-metrics.json
+  s_42a303a21f7525::t_f8859ea6ec261a 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+tests/jpegxl-lossy-lab-transplant.test.ts
+  s_42a303a21f7525::t_317c8c753b3483 230-244
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5cc00559064a04999efc8ebee0538828f5fcb3f5",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

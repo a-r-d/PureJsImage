@@ -1,0 +1,59 @@
+browser-tests/geo-showcase-live.pw.ts
+  s_7d25dd617ba7f4::t_b2c9661797bdd3 50,56-60
+  s_7d25dd617ba7f4::t_026a65199f0e63 5
+  s_7d25dd617ba7f4::t_1798aa3d50258b 55
+  s_7d25dd617ba7f4::t_9990f5db011041 77
+docs/geo-showcase.md
+  s_7d25dd617ba7f4::t_70e8ed3f8ce7e9 5-7,29-37,42-43,45-47
+docs-astro/src/pages/geo.astro
+  s_7d25dd617ba7f4::t_b2438b7122cebc 169
+  s_7d25dd617ba7f4::t_aaa73326a3be32 3,42-44,54-55,63-66
+  s_7d25dd617ba7f4::t_80f4f415fdd842 62,67-68,76,78-97,99-104,106-136,140-154,158,160,162,170-173
+docs-astro/src/data/package-metrics.json
+  s_7d25dd617ba7f4::t_f67669f208cc1c 179
+src/geo/readers/geotiff.ts
+  s_7d25dd617ba7f4::t_ac011a4589b330 35
+  s_7d25dd617ba7f4::t_aaa73326a3be32 6,13
+docs-astro/src/scripts/geo-showcase-types.ts
+  s_7d25dd617ba7f4::t_ac011a4589b330 20-21
+tests/geo-geotiff-reader.test.ts
+  s_7d25dd617ba7f4::t_1798aa3d50258b 11,16
+  s_7d25dd617ba7f4::t_026a65199f0e63 8-10,12,301-320
+  s_7d25dd617ba7f4::t_3ffadb79855d89 321-322
+docs-astro/src/scripts/geo-showcase-worker.ts
+  s_7d25dd617ba7f4::t_aaa73326a3be32 13,16-17
+  s_7d25dd617ba7f4::t_ac011a4589b330 49-55,240-250,613,620
+benchmark/generated/package-metrics.json
+  s_7d25dd617ba7f4::t_f67669f208cc1c 179
+docs-astro/src/data/documentation-data.json
+  s_7d25dd617ba7f4::t_34040a4ff198ba 129
+docs-astro/src/scripts/geo-showcase.ts
+  s_7d25dd617ba7f4::t_aaa73326a3be32 335,499
+  s_7d25dd617ba7f4::t_8c1370d4c861ba 290-291,301
+  s_7d25dd617ba7f4::t_99e0a4bef6f340 121-137,268,277,490-491,493,500
+  s_7d25dd617ba7f4::t_dd982aab5a3b66 103-120,138,149,192-197,222,231-245,263-265,267,272,276,315-321,329-334,336-345,485-489,498
+  s_7d25dd617ba7f4::t_58635572ab237b 661-672,708,724,740,744,750-751,759
+test-fixtures/packed-package-consumer/geo-showcase.ts
+  s_7d25dd617ba7f4::t_f48c898c674c7f 3,10,16-17
+browser-tests/geo-showcase.pw.ts
+  s_7d25dd617ba7f4::t_a0b59f4810e4b7 69-79
+  s_7d25dd617ba7f4::t_026a65199f0e63 7,31-40
+  s_7d25dd617ba7f4::t_9990f5db011041 105
+  s_7d25dd617ba7f4::t_a183457a66b1ca 41-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "9288267118902f95e809b1be2f04963cd4079aef",
+  "prompts": {},
+  "sessions": {
+    "s_7d25dd617ba7f4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a021a9-2929-7170-b739-4bf37e472064",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

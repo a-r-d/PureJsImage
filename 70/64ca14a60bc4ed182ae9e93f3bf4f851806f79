@@ -1,0 +1,105 @@
+docs-astro/public/llms.txt
+  s_ce394ddfeaeeea::t_c1edff0f12f0de 494
+tests/ome-zarr-worker-protocol.test.ts
+  s_ce394ddfeaeeea::t_a0ec5da0457e19 1-40
+browser-tests/scientific-presentation.pw.ts
+  s_ce394ddfeaeeea::t_786191d155ef41 39-46
+docs-astro/src/scripts/ome-zarr-types.ts
+  s_ce394ddfeaeeea::t_a0ec5da0457e19 160-176,179,186-188,191,194,201,208,223,230,236-325,329-344
+  s_ce394ddfeaeeea::t_f290b9c33f301b 326-328
+src/convert.ts
+  s_ce394ddfeaeeea::t_786191d155ef41 167
+docs-astro/src/scripts/xray-types.ts
+  s_ce394ddfeaeeea::t_786191d155ef41 13-43
+docs-astro/public/capabilities.json
+  s_ce394ddfeaeeea::t_c1edff0f12f0de 404,694-697,700
+tests/native-precision.test.ts
+  s_ce394ddfeaeeea::t_786191d155ef41 493-518
+tests/xray-worker-protocol.test.ts
+  s_ce394ddfeaeeea::t_786191d155ef41 1-26
+tests/png-compatibility.test.ts
+  s_ce394ddfeaeeea::t_7ce754372b491e 396-397,399-425,429-437
+  s_ce394ddfeaeeea::t_1c85643c879930 31,231-243,265-266,268-270,272-283,285-300
+  s_ce394ddfeaeeea::t_0c2b475ccce9ed 1,271
+  s_ce394ddfeaeeea::t_f290b9c33f301b 267,284,426-428
+  s_ce394ddfeaeeea::t_67073458955db4 398
+  s_ce394ddfeaeeea::t_060d25a3de0be0 301
+src/color.ts
+  s_ce394ddfeaeeea::t_f24728a273ed36 19,37,65-70,142,154-156,158
+  s_ce394ddfeaeeea::t_f290b9c33f301b 157
+src/zarr/http-store.ts
+  s_ce394ddfeaeeea::t_749dc5c4aac827 379
+  s_ce394ddfeaeeea::t_e0582756b100a6 240-244,378,388-389
+  s_ce394ddfeaeeea::t_4fa83ab5545b1e 380-387
+  s_ce394ddfeaeeea::t_098c8b64a5b8d5 390
+src/scientific/ome-zarr-http.ts
+  s_ce394ddfeaeeea::t_e0582756b100a6 104-107
+tests/http-range-source.test.ts
+  s_ce394ddfeaeeea::t_0c42d3e7444b57 26-66
+capabilities/manifest.json
+  s_ce394ddfeaeeea::t_7b4d68e1bbc9d7 794,923-925
+tests/png.test.ts
+  s_ce394ddfeaeeea::t_7ce754372b491e 139-140,142-152
+  s_ce394ddfeaeeea::t_869e53abfc11dc 78-90,190-206,208-213,218-241
+  s_ce394ddfeaeeea::t_f290b9c33f301b 207,214-217
+  s_ce394ddfeaeeea::t_67073458955db4 141
+  s_ce394ddfeaeeea::t_4c35016dd5db69 242
+docs/architecture/application-platform.md
+  s_ce394ddfeaeeea::t_8bddcbc31d7a3b 2420-2422
+browser-tests/ome-zarr.pw.ts
+  s_ce394ddfeaeeea::t_8bddcbc31d7a3b 385-386,401-405
+  s_ce394ddfeaeeea::t_3678e79b7bcfe9 387-395
+docs-astro/src/pages/codecs.astro
+  s_ce394ddfeaeeea::t_c1edff0f12f0de 49
+docs-astro/src/scripts/ome-zarr-viewer.ts
+  s_ce394ddfeaeeea::t_8bc8ce2cbdd6cf 230-231,630,645,655-656,673,827,954,962,1135-1140,1228
+  s_ce394ddfeaeeea::t_3f34ec0f5047a2 1323-1324,1368,1403-1404,1408-1411,1440-1445,1447-1456,1552-1554
+  s_ce394ddfeaeeea::t_3678e79b7bcfe9 1428,1446
+src/codecs/png.ts
+  s_ce394ddfeaeeea::t_1c85643c879930 194-199,243,1727-1730
+  s_ce394ddfeaeeea::t_f24728a273ed36 67-70,192-193,200-213,215-220,235-238,241-242,248,467,469,499,516,631-634
+  s_ce394ddfeaeeea::t_f290b9c33f301b 222-228,1405
+  s_ce394ddfeaeeea::t_474d52bdb6991a 1400-1404,1406-1457,1794-1795
+src/sources/http-range.ts
+  s_ce394ddfeaeeea::t_54bd90ee140b72 679-682
+  s_ce394ddfeaeeea::t_e0582756b100a6 527-530,539-540
+  s_ce394ddfeaeeea::t_c453b4f0545300 531-538
+docs-astro/src/scripts/ome-zarr-worker.ts
+  s_ce394ddfeaeeea::t_7850ceebdaa42c 609-615,632,659,669,671,674,772,783,786-790,803,813
+  s_ce394ddfeaeeea::t_e99152b827390e 31-41
+  s_ce394ddfeaeeea::t_8bddcbc31d7a3b 93,119,124,1190,1208,1211-1217
+  s_ce394ddfeaeeea::t_f290b9c33f301b 702,1191-1203,1209-1210,1218-1221
+  s_ce394ddfeaeeea::t_a46b28dfcea71f 1007-1010,1022,1037,1087,1100,1117,1122,1132,1142,1148,1154-1162,1165-1175,1177,1180-1181,1184-1188,1229,1245
+  s_ce394ddfeaeeea::t_e0582756b100a6 1163-1164
+  s_ce394ddfeaeeea::t_f54374c450f2da 28-30,45,50,94-96,118,120-123,125-126
+  s_ce394ddfeaeeea::t_18653af2f3608f 127
+png-codec-support.md
+  s_ce394ddfeaeeea::t_c1edff0f12f0de 117-119
+docs-astro/src/scripts/xray-worker.ts
+  s_ce394ddfeaeeea::t_786191d155ef41 13,19-20
+README.md
+  s_ce394ddfeaeeea::t_5af246764cf461 88-89,91,93
+  s_ce394ddfeaeeea::t_b08c142cfa5e26 370-371,373
+docs-astro/src/data/documentation-data.json
+  s_ce394ddfeaeeea::t_5af246764cf461 99-101,104-106,109-111,114-116,119-120,129,134-135
+benchmark/generated/package-metrics.json
+  s_ce394ddfeaeeea::t_0fdf0b72983810 179,526,532,541,544,547,556,562,586,589,592,841,844,847,1201,1204,1207,1216,1222,1231,1234,1237,1246,1252,1261,1267,1276,1282,1291,1297,1306,1309,1312,1321,1327,1336,1342,1351,1357,1366,1372,1381,1387,1396,1402,1411,1426,1432,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+docs-astro/src/data/package-metrics.json
+  s_ce394ddfeaeeea::t_33cd550998644f 179,526,532,541,544,547,556,562,586,589,592,841,844,847,1201,1204,1207,1216,1222,1231,1234,1237,1246,1252,1261,1267,1276,1282,1291,1297,1306,1309,1312,1321,1327,1336,1342,1351,1357,1366,1372,1381,1387,1396,1402,1411,1426,1432,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7064ca14a60bc4ed182ae9e93f3bf4f851806f79",
+  "prompts": {},
+  "sessions": {
+    "s_ce394ddfeaeeea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0503b-7043-73b3-a0da-dfa82d798508",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

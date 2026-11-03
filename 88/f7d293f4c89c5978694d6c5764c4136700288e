@@ -1,0 +1,25 @@
+src/codecs/hevc-residual.ts
+  s_bcedabc3194766::t_540b00bb45eb66 181
+src/metadata.ts
+  s_bcedabc3194766::t_5fbcde46116229 17-43
+tests/hevc-picture.test.ts
+  s_bcedabc3194766::t_8fccf89da10638 4-8,46-60,121-154
+tests/hevc-residual.test.ts
+  s_bcedabc3194766::t_60da6a1b12f1ee 114-130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "88f7d293f4c89c5978694d6c5764c4136700288e",
+  "prompts": {},
+  "sessions": {
+    "s_bcedabc3194766": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a047c7-8d26-7672-8bf2-af7a5e28db78",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

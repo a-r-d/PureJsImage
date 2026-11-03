@@ -1,0 +1,55 @@
+benchmark/jpegxl/lossy-lab/audit-perceptual-maps.ts
+  s_42a303a21f7525::t_9d6264aa7ef260 1-109
+benchmark/jpegxl/lossy-lab/PERCEPTUAL-REPORT.md
+  s_42a303a21f7525::t_b9542a264f7036 4,87-130,152-166
+  s_42a303a21f7525::t_1ebc899375cb53 43,55-85
+  s_42a303a21f7525::t_a9e0be574bfe4b 1-3,5-42,44-54,86,131-151,167-175
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+  s_42a303a21f7525::t_afc45c29d8305b 137-144
+  s_42a303a21f7525::t_660b39d4d3b374 1-14,20-21,24-25,53,70-75,78-83,86-88,91-96,101-104,109-123,156,160-162,169-175,182-183,186-189,194-199,202,208-209,238-242,252,256-259,265-266,269-282,290-291
+  s_42a303a21f7525::t_7520a6aa902392 129-136,145
+  s_42a303a21f7525::t_8296fa67ef7af4 15-19,22-23,26-52,54-69,76-77,84-85,89-90,97-100,105-108,124-128,146-155,157-159,163-168,176-181,184-185,190-193,200-201,203-207,210-237,243-251,253-255,260-264,267-268,283-289
+benchmark/jpegxl/lossy-lab/validate-perceptual-local.ts
+  s_42a303a21f7525::t_afc45c29d8305b 15,19-21,24,63-73,78-85,141-142,145-146,154-157
+  s_42a303a21f7525::t_1b0695bcd96776 6,11,13,75-77,86-99,105,144,147
+  s_42a303a21f7525::t_8296fa67ef7af4 7-10,12,28-38,40-43,46-47,50-54,104,106-129,131-140,151-153,158-167,170-173,181-191,194-195,197
+  s_42a303a21f7525::t_b1e76317ac8b80 17-18
+  s_42a303a21f7525::t_c8dcb27fe3e191 1-5,16,27,39,44-45,48-49,55-62,74,100-103,130,143,150,168-169,174-180,192-193,198
+  s_42a303a21f7525::t_ef920e0b5a7f76 14,22-23,25-26,148-149,196
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
+  s_42a303a21f7525::t_afc45c29d8305b 110-184
+  s_42a303a21f7525::t_2db646d21c5164 1-109
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_afc45c29d8305b 459-467
+  s_42a303a21f7525::t_fe4a1888443e92 468-474
+  s_42a303a21f7525::t_8296fa67ef7af4 445-458
+tests/jpegxl-perceptual-local.test.ts
+  s_42a303a21f7525::t_632233db2e5e62 1,8-9,16-25,42-50
+  s_42a303a21f7525::t_8296fa67ef7af4 2-7,10-15,26-41
+  s_42a303a21f7525::t_fe4a1888443e92 84-95
+  s_42a303a21f7525::t_b1e76317ac8b80 96-147
+  s_42a303a21f7525::t_afc45c29d8305b 51-83
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-pool-port.ts
+  s_42a303a21f7525::t_fe4a1888443e92 1-32
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_044df7b45edef4 2414-2419
+  s_42a303a21f7525::t_afc45c29d8305b 2404-2407
+  s_42a303a21f7525::t_b1e76317ac8b80 2408-2413
+  s_42a303a21f7525::t_93e7cbd44944f3 2402-2403
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "abad8e49e088f42d94ab0cc687d3056b22e49679",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

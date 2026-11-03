@@ -1,0 +1,93 @@
+docs-astro/src/data/library-comparison.ts
+  s_896fa7e1aa98f9::t_55c624849c6f3e 235
+tests/analysis-raster-validation.test.ts
+  s_896fa7e1aa98f9::t_181cf941071ee8 1-91,93-110,116-173,175,177-179,181-184,188,192-193,197-269,271-279,283-373,376-405,409-423,429-442,448-465,470-509,535-684,688-754,772-786,793-804,809-861,868-891,898,935-948
+  s_896fa7e1aa98f9::t_82e2b048a60328 92,111-115,174,176,180,185-187,189-191,194-196,270,280-282,374-375,406-408,424-428,443-447,466-469,510-534,685-687,755-771,787-792,805-808,862-867,892-897,899-934
+scripts/check-package-types.ts
+  s_896fa7e1aa98f9::t_631c6cfc9e342f 288-289,361-386
+benchmark/results/tiff-competitor-conformance.md
+  s_896fa7e1aa98f9::t_935837eb51e1d2 11
+src/analysis/raster-contracts.ts
+  s_896fa7e1aa98f9::t_70eaac57cc3480 1-205,207-212,214-320
+  s_896fa7e1aa98f9::t_1d5ff676c5249b 206,213
+  s_896fa7e1aa98f9::t_fe54e6a1b341a3 321-323
+src/analysis/raster-sampling.ts
+  s_896fa7e1aa98f9::t_994982232e6bbe 1-122,127-143,146-161,163-240,242-328,366-370,375-382,386-467,476-478,480-515,518-534,540-548,554-578,581-590,601-621,634,638-641,644-647,652-662,668-695,703-737,739
+  s_896fa7e1aa98f9::t_71ca8fab9fbd8f 383,622-631
+  s_896fa7e1aa98f9::t_dbcad761a0a187 123-126,144-145,162,241,329-365,371-374,384-385,516-517,535-539,549-553,579-580,632-633,635-637,642-643,663-667,696-702
+  s_896fa7e1aa98f9::t_1d5ff676c5249b 468-475,479
+  s_896fa7e1aa98f9::t_e2c97fc46edfb9 591-600,648-651,738
+docs/bounded-raster-analysis.md
+  s_896fa7e1aa98f9::t_17f094f55d21dc 1-90
+package.json
+  s_896fa7e1aa98f9::t_dd9e1f56e64746 3
+src/analysis/raster-band-math.ts
+  s_896fa7e1aa98f9::t_14a4b8d099eff7 1-40,46-180,188-210,216-284,290-299,302-312,318-319,322-325,328-412,414-494,500-503,509-510,512-513,518-523,528,534-535,538-564,567-576,583-601
+  s_896fa7e1aa98f9::t_dbcad761a0a187 41-45,211-215,285-289,300-301,313-317,320-321,326-327,495-499,504-508,511,514-517,524-527,529-533,536-537,565-566
+  s_896fa7e1aa98f9::t_1d5ff676c5249b 181-187,413
+  s_896fa7e1aa98f9::t_e7b7f67c42f16d 577-582
+docs-astro/src/pages/api.astro
+  s_896fa7e1aa98f9::t_632ade1cb43dbf 100
+  s_896fa7e1aa98f9::t_721e51b26850b9 99
+src/analysis/index.ts
+  s_896fa7e1aa98f9::t_e355827970e691 132-209
+src/analysis/raster-terrain.ts
+  s_896fa7e1aa98f9::t_2eff5e85701b72 1-91,95-316
+  s_896fa7e1aa98f9::t_1d5ff676c5249b 92-94
+  s_896fa7e1aa98f9::t_57ade1fc182ce0 317-319
+docs-astro/src/pages/demo.astro
+  s_896fa7e1aa98f9::t_c57507e204d8b8 433,435
+tests/analysis-raster-operations.test.ts
+  s_896fa7e1aa98f9::t_e7b7f67c42f16d 191
+  s_896fa7e1aa98f9::t_b7d4b657e71e91 1-47,55-116,120-134,141-182,184-190,192-201,203-213,245-290,313-343,349-351,367-368
+  s_896fa7e1aa98f9::t_c07a648f503982 202
+  s_896fa7e1aa98f9::t_010052b2cf8910 214-244
+  s_896fa7e1aa98f9::t_1902e27870675c 48-54,117-119,135-140,183,344-348
+  s_896fa7e1aa98f9::t_71ca8fab9fbd8f 291-312,352-366
+  s_896fa7e1aa98f9::t_f9ca92bb90ce90 369-373
+docs/architecture/application-platform.md
+  s_896fa7e1aa98f9::t_fac6e15925bd6f 534
+  s_896fa7e1aa98f9::t_17f094f55d21dc 535-538
+README.md
+  s_896fa7e1aa98f9::t_3605cb5016169e 175-176
+  s_896fa7e1aa98f9::t_826e8057cb37ac 63,294
+CHANGELOG.md
+  s_896fa7e1aa98f9::t_0ea25ff94491f3 9-14,17
+  s_896fa7e1aa98f9::t_632ade1cb43dbf 15-16
+  s_896fa7e1aa98f9::t_03ac7e759e1a5c 7
+  s_896fa7e1aa98f9::t_dd9e1f56e64746 8,1075-1076
+docs-astro/src/pages/scientific/platform.astro
+  s_896fa7e1aa98f9::t_721e51b26850b9 50
+benchmark/results/tiff-competitor-conformance.json
+  s_896fa7e1aa98f9::t_935837eb51e1d2 18
+tests/tiff-competitor-harness.test.ts
+  s_896fa7e1aa98f9::t_c57507e204d8b8 57
+api/analysis-exports.json
+  s_896fa7e1aa98f9::t_e4f5c1578121e9 5-8,261-264,285-288,317-356,365-368,377-388,409-420,429-444,469-604,621-624,633-640,649-652
+benchmark/generated/package-metrics.json
+  s_896fa7e1aa98f9::t_9616a9b5ddb738 178-179,571,574,577
+docs-astro/src/data/documentation-data.json
+  s_896fa7e1aa98f9::t_8aa639d8d9021b 119,122
+docs-astro/src/data/package-metrics.json
+  s_896fa7e1aa98f9::t_8415d110cb6b9c 178-179,571,574,577
+docs-astro/src/pages/tiff-comparison.astro
+  s_896fa7e1aa98f9::t_0fa85efb538e60 84-85
+package-lock.json
+  s_896fa7e1aa98f9::t_77da5696dabb9d 3,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3737a99f95f2e2547729becb31e58b31f88ec699",
+  "prompts": {},
+  "sessions": {
+    "s_896fa7e1aa98f9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01c80-0b22-75c1-ae02-3ac87fba6167",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

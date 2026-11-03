@@ -1,0 +1,41 @@
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_754c1da1bb6034 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_7a933584918090 2332-2351
+  s_2b0ba550ad1491::t_7b48aab2bf60dc 2286-2331
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_754c1da1bb6034 109-111,129
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_754c1da1bb6034 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+tests/helpers/jpegxl-large-source.ts
+  s_2b0ba550ad1491::t_11980d7be486fa 43,45-55
+  s_2b0ba550ad1491::t_11843bb29f7311 44,56-73
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_116fde3b325d2d 17-18,52-53
+  s_2b0ba550ad1491::t_7b48aab2bf60dc 3-13,1055,1057,1059,1061,1063,1065,1067,1069,1071,1073,1075,1077
+  s_2b0ba550ad1491::t_7a933584918090 14-15,1054,1056,1058,1060,1062,1064,1066,1068,1070,1072,1074,1076,1078-1082
+  s_2b0ba550ad1491::t_99821d99f0687d 16,1083
+README.md
+  s_2b0ba550ad1491::t_754c1da1bb6034 463,482
+src/codecs/jpegxl-vardct-large-transforms.ts
+  s_2b0ba550ad1491::t_74e7f8ef716258 39-103,107-138,144-208,212-243,339-404,408-439,443
+tests/jpegxl-vardct-large-menu.test.ts
+  s_2b0ba550ad1491::t_11980d7be486fa 7-10
+  s_2b0ba550ad1491::t_d4c11085165eb3 50-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4f6ebbb1695e204435c9e9574b23eee3419cd612",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

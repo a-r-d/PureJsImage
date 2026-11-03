@@ -1,0 +1,23 @@
+benchmark/results/jpegxl-lossless-first-2026-08-31.json
+  s_6006332bb8a489::t_bcaa851e5600e3 1-2,5-12,19-28,32-41,45-89
+  s_6006332bb8a489::t_cd97e211b7deff 3-4,13-18,29-31,42-44
+benchmark/results/jpegxl-lossless-first-2026-08-31.md
+  s_6006332bb8a489::t_cd97e211b7deff 3
+  s_6006332bb8a489::t_bcaa851e5600e3 1-2,4-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "e9db23fc656f5f10d34d51e44d875a52a782cfbc",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

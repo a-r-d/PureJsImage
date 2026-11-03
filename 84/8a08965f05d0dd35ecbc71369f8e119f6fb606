@@ -1,0 +1,19 @@
+docs/architecture/jpegxl-lossless-first.md
+  s_6006332bb8a489::t_ae1eb18fe9af83 491-492
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "848a08965f05d0dd35ecbc71369f8e119f6fb606",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

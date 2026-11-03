@@ -1,0 +1,52 @@
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_5968578d8b3533 10-15,2462-2466
+  s_42a303a21f7525::t_48217e413043f5 2440-2441
+  s_42a303a21f7525::t_db9b2ed3bfcd7b 2442-2445
+  s_42a303a21f7525::t_23f1eeac42f34c 2446-2449
+  s_42a303a21f7525::t_f5ff5f7b6d85d6 2450-2453
+  s_42a303a21f7525::t_757fd98d073e5d 2454-2457
+  s_42a303a21f7525::t_ea4bf6515a7738 2467-2468
+  s_42a303a21f7525::t_83226551b4f4db 2458-2461
+benchmark/jpegxl/lossy-lab/LOCAL-SPEED-REPORT.md
+  s_42a303a21f7525::t_ea4bf6515a7738 140-145
+  s_42a303a21f7525::t_5968578d8b3533 1-139
+tests/jpegxl-perceptual-local.test.ts
+  s_42a303a21f7525::t_1b6012dc59479f 52-69
+benchmark/jpegxl/lossy-lab/local-perceptual-region.ts
+  s_42a303a21f7525::t_3c96f3e9c52db6 24,37-38,44,47-54,84,87-89,96-97,110,126,128-131,149-150
+  s_42a303a21f7525::t_eacb710d5f93c1 3-6,39-43,45-46,82-83,85-86,116-119
+  s_42a303a21f7525::t_283fcb710aa635 12,127,132,136-137,142-143,146-148,151-152
+  s_42a303a21f7525::t_f91388af8b3718 2,120
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+  s_42a303a21f7525::t_185a029b977fdf 50-74,76-96,98-101,103
+  s_42a303a21f7525::t_0ea3c4e2e6a94b 284-291,311-330,332-338
+  s_42a303a21f7525::t_283fcb710aa635 11,273-283,292-299,302-303,310
+  s_42a303a21f7525::t_1b6012dc59479f 12
+tests/jpegxl-local-perceptual-region.test.ts
+  s_42a303a21f7525::t_0ea3c4e2e6a94b 58-61
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_f55dbdd6d2bcd2 488-499
+benchmark/jpegxl/lossy-lab/libjxl-display-loss.ts
+  s_42a303a21f7525::t_0aa7a4e7486bb2 13,17,36-39,63
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
+  s_42a303a21f7525::t_3d974522694bac 109-121
+  s_42a303a21f7525::t_1b6012dc59479f 9
+  s_42a303a21f7525::t_283fcb710aa635 8,11,59,74-77,87-88,101-102,124,134,136,140,168,173
+  s_42a303a21f7525::t_0ea3c4e2e6a94b 98-99,174-181
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "83fa29b8f983d12d7db53bfe7b64d279c5a573d9",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

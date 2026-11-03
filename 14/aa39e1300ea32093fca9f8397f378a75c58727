@@ -1,0 +1,75 @@
+README.md
+  s_2b0ba550ad1491::t_2d7a2dbefe92d1 463
+  s_2b0ba550ad1491::t_a7cdeceec2111d 482
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_9607dd1bb6f34e 2736-2741
+  s_2b0ba550ad1491::t_58d8de193d84c7 2720-2727
+  s_2b0ba550ad1491::t_6833b2feef5c56 2728-2729
+  s_2b0ba550ad1491::t_09ae25ff18dd48 2730-2735
+  s_2b0ba550ad1491::t_7d85c23180e67a 2742-2747
+  s_2b0ba550ad1491::t_aa3c1144fac6ba 2756-2761
+  s_2b0ba550ad1491::t_7c385e89712b6d 2762-2767
+  s_2b0ba550ad1491::t_ea1eecbf5b41f3 2748-2755
+  s_2b0ba550ad1491::t_3eb16e182f3582 2768-2769
+  s_2b0ba550ad1491::t_1e0092cc053761 2770-2771
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_2d7a2dbefe92d1 109-111,129
+tests/jpegxl-rgb-projection.test.ts
+  s_2b0ba550ad1491::t_8046dec341f22a 1-12
+src/codecs/jpegxl-modular-encode.ts
+  s_2b0ba550ad1491::t_d778e4f9bd932b 1340,1346,1710,1714-1725,1765-1776,3077,3135,3241-3253,3268,3292-3303,3312-3323,3389,3399-3403,3408,4063,4088,4096-4099,4101-4103,4106-4108,4116,4118,4129,4135-4137,4139-4141,4144-4147,4271,4274,4303,4318,4397,4556,4593-4603,4615-4620,5527,5529-5530,5532-5533,5536-5537,5550-5563,5568,5570-5579,5588-5589,5886-5888,5891,5898-5901,6085,6088-6089,6113-6114
+  s_2b0ba550ad1491::t_a5107fa7acec8b 6115,6126,6180,6183,6228-6229
+tests/helpers/jpegxl-rgb-projection.ts
+  s_2b0ba550ad1491::t_8046dec341f22a 1-51,54-66,74-118,129-131
+  s_2b0ba550ad1491::t_5be483499b5f2f 52-53,67-73,119-128
+tests/helpers/jpegxl-palette-public.ts
+  s_2b0ba550ad1491::t_9615f4e0fed520 198-200,202,231,244
+browser-tests/jpegxl-rgb-projection.pw.ts
+  s_2b0ba550ad1491::t_8046dec341f22a 1-21,28-32
+  s_2b0ba550ad1491::t_5be483499b5f2f 22-27
+src/codecs/jpegxl-modular-rct.ts
+  s_2b0ba550ad1491::t_d778e4f9bd932b 124,128
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_9607dd1bb6f34e 14,1363-1366
+  s_2b0ba550ad1491::t_74d1bc66f94f0c 1360,1371
+  s_2b0ba550ad1491::t_ea1eecbf5b41f3 16,1369-1370
+  s_2b0ba550ad1491::t_7c385e89712b6d 3,15,1373-1374
+  s_2b0ba550ad1491::t_aa3c1144fac6ba 1372,1379
+  s_2b0ba550ad1491::t_3eb16e182f3582 1375-1376
+  s_2b0ba550ad1491::t_58d8de193d84c7 18-20
+  s_2b0ba550ad1491::t_7d85c23180e67a 1367-1368
+  s_2b0ba550ad1491::t_1e0092cc053761 17,1377-1378
+  s_2b0ba550ad1491::t_09ae25ff18dd48 1361-1362
+  s_b1866d87f7e1ec::t_1347cb4325d949 4-13
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_3eb16e182f3582 52-53,55-62,76,80
+  s_2b0ba550ad1491::t_1e0092cc053761 81-84
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_fff4384c1459e9 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_503ed85371dc91 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "14aa39e1300ea32093fca9f8397f378a75c58727",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_b1866d87f7e1ec": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a131c4-e553-7f83-bc1c-6fe9f9b1bd69",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

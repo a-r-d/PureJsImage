@@ -1,0 +1,39 @@
+docs-astro/src/data/documentation-data.json
+  s_d4180e5cac980c::t_1b9a20a916ae17 109-111,129
+benchmark/jpegxl/production-program/m7-hdr-alpha-followup-evidence-index.json
+  s_d4180e5cac980c::t_09b2fa2e99330a 1-17,19-502
+  s_d4180e5cac980c::t_bf535f9ad52e81 18
+benchmark/jpegxl/production-program/m7-hdr-alpha-followup-conformance.json
+  s_d4180e5cac980c::t_a5a9c74fe83792 26,40,55,69,84,99,114,129,144,159,174,189,204,219,234,249,264,279,294,309,324,339,354,369,384,399,414,429,444,459,474,489,504,519,534,549,564,579,593
+  s_d4180e5cac980c::t_90d4a71204d83b 1-25,27-39,41-54,56-68,70-83,85-98,100-113,115-128,130-143,145-158,160-173,175-188,190-203,205-218,220-233,235-248,250-263,265-278,280-293,295-308,310-323,325-338,340-353,355-368,370-383,385-398,400-413,415-428,430-443,445-458,460-473,475-488,490-503,505-518,520-533,535-548,550-563,565-578,580-592,594-606
+benchmark/jpegxl/production-program/m7-hdr-alpha-followup-development.json
+  s_d4180e5cac980c::t_90d4a71204d83b 1-7033
+benchmark/optimization-log.md
+  s_d4180e5cac980c::t_95e01c53559a32 1307-1318
+benchmark/jpegxl/production-program/m7-hdr-alpha-followup-resource.json
+  s_d4180e5cac980c::t_90d4a71204d83b 1-243
+README.md
+  s_d4180e5cac980c::t_1b9a20a916ae17 90
+benchmark/jpegxl/production-program/m7-hdr-alpha-followup.md
+  s_d4180e5cac980c::t_3af359f5121f3f 1-44
+benchmark/jpegxl/production-program/m7-hdr-alpha-followup-observed.json
+  s_d4180e5cac980c::t_90d4a71204d83b 1-6897
+tests/jpegxl-document-patches.test.ts
+  s_d4180e5cac980c::t_415b28ebe11e27 193
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5f0c447535f55696463afc5a7580b8c4ea15e39c",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

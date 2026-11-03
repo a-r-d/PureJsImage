@@ -1,0 +1,23 @@
+benchmark/jpegxl/production-program/program-state.json
+  s_5d594ee0d8bcfe::t_6cb6cc340bc0fa 637,651-652,654,676,687,699,707
+benchmark/jpegxl/production-program/m10-static-conformance.json
+  s_5d594ee0d8bcfe::t_b9b7abe688efa0 3,6-7,12,49,78,93,108,123,138,228,243,573
+benchmark/jpegxl/production-program/status.json
+  s_5d594ee0d8bcfe::t_9cdadcb09aca36 734,748-749,751,773,793,805,813
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "bdb6703d433d420160f6a1a5251d1de13c7b7b00",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

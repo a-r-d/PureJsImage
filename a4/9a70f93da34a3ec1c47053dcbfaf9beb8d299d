@@ -1,0 +1,23 @@
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_cd41aed4ee3ee3 3,15,1520-1521
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_cd41aed4ee3ee3 2894-2895
+benchmark/jpegxl/PROVENANCE.md
+  s_2b0ba550ad1491::t_cd41aed4ee3ee3 22-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a49a70f93da34a3ec1c47053dcbfaf9beb8d299d",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

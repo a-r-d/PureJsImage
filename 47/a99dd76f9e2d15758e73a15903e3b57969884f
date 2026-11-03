@@ -1,0 +1,41 @@
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_2ec1bc4feebdfa 52-59,75-76
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_31f544d7136bfb 2712-2719
+tests/generated/capability-expectations.json
+  s_2b0ba550ad1491::t_ded62b954ca1f8 342-349
+capabilities/manifest.json
+  s_2b0ba550ad1491::t_fe7164a3ebdc91 3647,3838,3914,4007
+  s_2b0ba550ad1491::t_1239ae45ecafdc 3807-3814,3985,3998,4045-4050
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_31f544d7136bfb 3-20,1338-1340
+  s_2b0ba550ad1491::t_7e480d0e2ac50f 1341
+docs-astro/src/pages/codecs.astro
+  s_2b0ba550ad1491::t_5c9704e275a994 33,40
+jpegxl-codec-support.md
+  s_2b0ba550ad1491::t_5c9704e275a994 23,99,192
+  s_2b0ba550ad1491::t_ded62b954ca1f8 170,183,230-234
+  s_2b0ba550ad1491::t_d6c0133fe90f3e 235
+docs-astro/public/capabilities.json
+  s_2b0ba550ad1491::t_ded62b954ca1f8 5615-5622,6116-6118
+  s_2b0ba550ad1491::t_5c9704e275a994 5522
+  s_2b0ba550ad1491::t_26479076dd237a 6119
+docs-astro/public/llms.txt
+  s_2b0ba550ad1491::t_5c9704e275a994 608
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "47a99dd76f9e2d15758e73a15903e3b57969884f",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

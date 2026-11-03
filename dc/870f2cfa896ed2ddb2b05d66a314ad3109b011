@@ -1,0 +1,115 @@
+benchmark/jpegxl/production-program/program-state.json
+  s_5d594ee0d8bcfe::t_6c36c56d1ba02b 653-654
+  s_5d594ee0d8bcfe::t_6dc6587650bb90 4
+  s_5d594ee0d8bcfe::t_f3529029950c26 633,636,638-645,647-652,655-668,670-678,680
+README.md
+  s_5d594ee0d8bcfe::t_26a28fa1d890fa 90
+  s_5d594ee0d8bcfe::t_2f69c2bc9623e9 403
+benchmark/jpegxl/production-program/m9-gate-manifest.json
+  s_5d594ee0d8bcfe::t_e5833b3e251d1c 1-55
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_5d594ee0d8bcfe::t_6c36c56d1ba02b 1192-1194
+  s_5d594ee0d8bcfe::t_abda7796dec00a 7-9,121,1129-1191,1195-1199
+package.json
+  s_5d594ee0d8bcfe::t_b34d14e495fa6e 724-726
+benchmark/generated/package-metrics.json
+  s_5d594ee0d8bcfe::t_9ce41b93713164 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+capabilities/manifest.json
+  s_5d594ee0d8bcfe::t_c557ec037fb465 3685-3687,3698-3708
+  s_5d594ee0d8bcfe::t_7825adc440adb4 3688
+jpegxl-codec-support.md
+  s_5d594ee0d8bcfe::t_75de2a1dc80de9 9-19
+docs-astro/src/data/package-metrics.json
+  s_5d594ee0d8bcfe::t_cd28fb04bf3cdb 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+tests/jpegxl.test.ts
+  s_5d594ee0d8bcfe::t_2194d4920a4f29 471,488-498,500
+  s_5d594ee0d8bcfe::t_c1ac901ef45549 499
+  s_5d594ee0d8bcfe::t_69af21456d0226 501
+benchmark/jpegxl/run-m9-integration.ts
+  s_5d594ee0d8bcfe::t_dc51105ab556ca 163-170,172-176,181,183
+  s_5d594ee0d8bcfe::t_76f91972a5a565 287
+  s_5d594ee0d8bcfe::t_caaedd84f9ba17 266
+  s_5d594ee0d8bcfe::t_0b77f7e03aff1a 1,401-407
+  s_5d594ee0d8bcfe::t_e41d2badc576e4 64,424-425
+  s_5d594ee0d8bcfe::t_895c02fed4319e 151-155,157,159
+  s_5d594ee0d8bcfe::t_ef41c66af393e9 35-62,294-299,301,303
+  s_5d594ee0d8bcfe::t_736120ea38a785 2-8,10-19,21-34,63,65-95,101-115,117-150,156,158,160-162,177-180,182,188-265,267-286,288-293,300,302,304-324,329-400,408-411,415-423,426-427
+  s_5d594ee0d8bcfe::t_0517e59681dbcb 9,20,96-100,171,184-187,325-328,412-414
+  s_5d594ee0d8bcfe::t_238e9d59a43654 116
+benchmark/jpegxl/evidence-validation.ts
+  s_5d594ee0d8bcfe::t_f2316e205bed11 4-8,34-36,104-109
+  s_5d594ee0d8bcfe::t_ed72fa2637c043 12-13
+  s_5d594ee0d8bcfe::t_109e482603ff5b 1
+benchmark/jpegxl/production-program/render-baseline.ts
+  s_5d594ee0d8bcfe::t_d325d292bb8271 113-114,120-123,129-132
+  s_5d594ee0d8bcfe::t_f98860f9d05691 133-134
+tests/jpegxl-evidence.test.ts
+  s_5d594ee0d8bcfe::t_156c6ee27dcbeb 453-508
+  s_5d594ee0d8bcfe::t_8a2fd0e60f9584 3,37-39,262,267,277-291,293,302,309-311,324
+  s_5d594ee0d8bcfe::t_aacc81be6cd9c0 308
+  s_5d594ee0d8bcfe::t_238e9d59a43654 13,18-20
+  s_5d594ee0d8bcfe::t_e015179d2e9887 21-26,28-29,31-32,258-261,263-266,268-276,292,294-301,303-307,312-323,325-344
+  s_5d594ee0d8bcfe::t_b94f794ad59feb 27
+  s_5d594ee0d8bcfe::t_fd637649814707 30
+  s_5d594ee0d8bcfe::t_8c688a0c363f92 33
+.github/workflows/jpegxl-corpus.yml
+  s_5d594ee0d8bcfe::t_09deb0f3f13040 52-58,85,89,121,147
+docs-astro/src/data/documentation-data.json
+  s_5d594ee0d8bcfe::t_26a28fa1d890fa 109-111,129
+benchmark/jpegxl/production-program/m9-security-sources.json
+  s_5d594ee0d8bcfe::t_e5833b3e251d1c 1-39
+benchmark/jpegxl/run-m9-fuzz-resource.ts
+  s_5d594ee0d8bcfe::t_b6b5ace278b46f 6-9,14,16,22-23,103-107,138,208-213,273-274,317-325,330-331,342-350,467-469
+  s_5d594ee0d8bcfe::t_60c8c15f1edd32 281,285-292,298,303-305,309-310,433-440,446-447
+  s_5d594ee0d8bcfe::t_7e6342c4724827 1-5,11-13,15,17-21,24-39,71-102,108-137,139-144,146-167,169-201,203-207,214-218,221-272,275-280,282-284,293-297,299-302,306-308,311-316,326-329,332-341,351-385,392-400,402-432,441-445,448-466,470-485,488-489
+  s_5d594ee0d8bcfe::t_e41d2badc576e4 386-391,486-487
+  s_5d594ee0d8bcfe::t_6d673a73d31840 10,40-70,202,219-220
+  s_5d594ee0d8bcfe::t_05c402f292e8c1 145
+  s_5d594ee0d8bcfe::t_7ab11997983ced 168
+  s_5d594ee0d8bcfe::t_030ba2b609f7ae 401
+tests/generated/capability-expectations.json
+  s_5d594ee0d8bcfe::t_a6185cfe78cf71 286-289
+src/codecs/jpegxl-modular-encode.ts
+  s_5d594ee0d8bcfe::t_298aca29c650ee 3739-3740
+  s_5d594ee0d8bcfe::t_ed72fa2637c043 11
+benchmark/jpegxl/m9-evidence-validation.ts
+  s_5d594ee0d8bcfe::t_76bf3039cede4d 1-2,10-12,55-56,69-70,103-104,106-123
+  s_5d594ee0d8bcfe::t_e5833b3e251d1c 3-9,13-33,39-54,57-68,71-102,105,124-163
+  s_5d594ee0d8bcfe::t_ed72fa2637c043 34-38
+benchmark/jpegxl/build-final-evidence.ts
+  s_5d594ee0d8bcfe::t_ddcc8a4f368d10 215-225
+  s_5d594ee0d8bcfe::t_ed72fa2637c043 1,8,12
+  s_5d594ee0d8bcfe::t_084a925745f4c6 52-54,90-95,107,133-149,151
+docs-astro/public/capabilities.json
+  s_5d594ee0d8bcfe::t_29a5fdb9c4e513 5555-5558,5577-5600
+.github/workflows/jpegxl-m9.yml
+  s_5d594ee0d8bcfe::t_9c9cc15e8a23eb 1-170
+benchmark/jpegxl/production-program/status.json
+  s_5d594ee0d8bcfe::t_6dc6587650bb90 5
+  s_5d594ee0d8bcfe::t_09d6763bbdf8dc 731,733,735-742,744-749,752-765,767-775,777
+  s_5d594ee0d8bcfe::t_ddb7da4dfe5bc0 750-751
+benchmark/jpegxl/run-m9-package.ts
+  s_5d594ee0d8bcfe::t_e41d2badc576e4 194-195
+  s_5d594ee0d8bcfe::t_c41c962c0342d0 1-101,106-193,196-197
+  s_5d594ee0d8bcfe::t_8632e807fc0560 102-105
+benchmark/jpegxl/production-program/baseline.json
+  s_5d594ee0d8bcfe::t_fed809dc425d6d 223
+CHANGELOG.md
+  s_5d594ee0d8bcfe::t_44e8c2875f6fee 7-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

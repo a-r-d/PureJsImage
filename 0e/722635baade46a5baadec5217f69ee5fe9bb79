@@ -1,0 +1,29 @@
+benchmark/jpegxl/production-program/m7-prompt9-probes.json
+  s_d4180e5cac980c::t_c3f7dc0f672f05 357-358,702-703,719-720,742-743
+  s_d4180e5cac980c::t_95d14c32e53c45 721-728,744-751,759-764
+  s_d4180e5cac980c::t_c659f5f77a21a1 1-356,359-701,704-718,729-741,752-758,765-766
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_d4180e5cac980c::t_9f2b5120010d17 1017-1020
+benchmark/jpegxl/production-program/m7-prompt9-investigation.md
+  s_d4180e5cac980c::t_26599643de52ba 1-15,17-33
+  s_d4180e5cac980c::t_588a8e84bf6ac1 16
+benchmark/optimization-log.md
+  s_d4180e5cac980c::t_83a41bade847e7 1294
+  s_d4180e5cac980c::t_26599643de52ba 1285-1293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "0e722635baade46a5baadec5217f69ee5fe9bb79",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

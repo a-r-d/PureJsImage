@@ -1,0 +1,26 @@
+benchmark/jpegxl/production-program/m10-static-conformance.json
+  s_5d594ee0d8bcfe::t_821f7a56e2bb30 25,39,54,68,83,98,113,128,143,158,173,188,203,218,233,248,263,278,293,308,323,338,353,368,383,398,413,428,443,458,473,488,503,518,533,548,563,578,592
+  s_5d594ee0d8bcfe::t_f6d4061f03cabb 3-5
+  s_5d594ee0d8bcfe::t_c043d65521c52a 1-2,6-24,26-38,40-53,55-67,69-82,84-97,99-112,114-127,129-142,144-157,159-172,174-187,189-202,204-217,219-232,234-247,249-262,264-277,279-292,294-307,309-322,324-337,339-352,354-367,369-382,384-397,399-412,414-427,429-442,444-457,459-472,474-487,489-502,504-517,519-532,534-547,549-562,564-577,579-591,593-605
+benchmark/jpegxl/production-program/program-state.json
+  s_5d594ee0d8bcfe::t_500a0fab5ffec1 637
+  s_5d594ee0d8bcfe::t_25e6fb325f1275 4,676,683,686-696,698-723,725-735,737
+benchmark/jpegxl/production-program/status.json
+  s_5d594ee0d8bcfe::t_db98d7fa53c5dd 5,734,773,790,792-802,804-829,831-841,843
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "2c097fdaf7217e5f04b5603ddde31b24047884ec",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

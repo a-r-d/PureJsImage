@@ -1,0 +1,40 @@
+benchmark/jpegxl/README.md
+  s_d34c43d2bf2f2e::t_04b1316c363515 124-189
+benchmark/jpegxl/production-program/build-m6-report.ts
+  s_d34c43d2bf2f2e::t_c8ba9f768e943c 1-30,52-57
+  s_d34c43d2bf2f2e::t_29c588fe5bc229 31-37,42-45,51
+  s_d34c43d2bf2f2e::t_9e270c0b0a3657 38-41
+  s_d34c43d2bf2f2e::t_0223b8605cba4f 46-50
+benchmark/jpegxl/production-program/validate-m6-report.ts
+  s_d34c43d2bf2f2e::t_04b1316c363515 1,28-38
+  s_d34c43d2bf2f2e::t_2f7545a734c04e 57-64,86-91
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_d34c43d2bf2f2e::t_14586931547b52 284-307
+  s_d34c43d2bf2f2e::t_ea7bb728331f8b 282-283,308-344
+benchmark/jpegxl/production-program/m6-report.json
+  s_d34c43d2bf2f2e::t_4711cbdd22b674 1-9412
+benchmark/jpegxl/production-program/program-state.json
+  s_d34c43d2bf2f2e::t_f23b6b0e0270cf 416,428-432,436-440,442-449,459
+benchmark/jpegxl/production-program/status.json
+  s_d34c43d2bf2f2e::t_a971d859621d25 485,497-501,505-509,511-518,528
+tests/jpegxl-m6-report.test.ts
+  s_d34c43d2bf2f2e::t_64545bee48d935 1-49
+tests/jpegxl-session.test.ts
+  s_d34c43d2bf2f2e::t_f7b7d52ef401bc 115-120,129-130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "35d40a2b7979863983ced2850b654c3f47570c35",
+  "prompts": {},
+  "sessions": {
+    "s_d34c43d2bf2f2e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a07f48-f1b4-7370-bbd3-2fa7dccee382",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

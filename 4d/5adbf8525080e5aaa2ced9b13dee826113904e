@@ -1,0 +1,22 @@
+.gitignore
+  s_6006332bb8a489::t_72ef680c86513f 161
+.github/workflows/jpegxl-corpus.yml
+  s_6006332bb8a489::t_a829239ea1c6cc 45-47,61,128-132
+  s_6006332bb8a489::t_f44c00c88cb776 133-135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4d5adbf8525080e5aaa2ced9b13dee826113904e",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

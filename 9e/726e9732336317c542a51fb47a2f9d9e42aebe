@@ -1,0 +1,25 @@
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_d4180e5cac980c::t_1b34e26f4694ab 1027-1030
+benchmark/jpegxl/production-program/m7-prompt10-native-ceiling.json
+  s_d4180e5cac980c::t_43c09bd13a4155 1-508
+benchmark/optimization-log.md
+  s_d4180e5cac980c::t_1b34e26f4694ab 1297-1300
+benchmark/jpegxl/production-program/m7-prompt10-report.md
+  s_d4180e5cac980c::t_1b34e26f4694ab 1-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9e726e9732336317c542a51fb47a2f9d9e42aebe",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

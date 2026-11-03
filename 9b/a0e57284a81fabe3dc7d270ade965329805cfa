@@ -1,0 +1,37 @@
+browser-tests/jpegxl-pipeline.pw.ts
+  s_d4180e5cac980c::t_9fbf86ffe1b03f 340
+benchmark/jpegxl/production-program/m7-prompt3-runtime-commit-run1.json
+  s_d4180e5cac980c::t_d7307f7f86f8a3 1-4204
+benchmark/jpegxl/production-program/m7-prompt3-public-effort3.json
+  s_d4180e5cac980c::t_d7307f7f86f8a3 1-1653
+benchmark/jpegxl/production-program/m7-prompt3-report.md
+  s_d4180e5cac980c::t_5b964b25044e93 1-52
+benchmark/jpegxl/production-program/m7-prompt3-resource.json
+  s_d4180e5cac980c::t_d7307f7f86f8a3 1-243
+benchmark/jpegxl/production-program/m7-prompt3-alpha-conformance.json
+  s_d4180e5cac980c::t_d7307f7f86f8a3 1-439
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_d4180e5cac980c::t_ab365b25680c88 981-988
+benchmark/jpegxl/production-program/m7-prompt3-runtime-decoding.json
+  s_d4180e5cac980c::t_d7307f7f86f8a3 1-45
+benchmark/jpegxl/production-program/m7-prompt3-conformance.json
+  s_d4180e5cac980c::t_d7307f7f86f8a3 3-4
+benchmark/jpegxl/production-program/m7-prompt3-evidence-index.json
+  s_d4180e5cac980c::t_969d32b7f4fd33 1-144
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9ba0e57284a81fabe3dc7d270ade965329805cfa",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

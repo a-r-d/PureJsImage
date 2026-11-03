@@ -1,0 +1,41 @@
+src/codecs/jpegxl-decode.ts
+  s_6006332bb8a489::t_f714770956f67f 187-188,337-338,340-341,459-460
+src/codecs/jpegxl-vardct-render.ts
+  s_6006332bb8a489::t_71d9e3a51e0f66 1-276,280-349
+  s_6006332bb8a489::t_becdccc4aed0a0 277-279
+src/codecs/jpegxl.ts
+  s_6006332bb8a489::t_a55b3c53f17dbe 19,78
+src/codecs/jpegxl-vardct.ts
+  s_6006332bb8a489::t_a55b3c53f17dbe 3,6,9-10,12-13,95-168
+src/codecs/jpegxl-vardct-jpeg.ts
+  s_6006332bb8a489::t_8954e732b4aa8a 132,630
+  s_6006332bb8a489::t_f714770956f67f 199
+  s_6006332bb8a489::t_22fc6650bea919 71,247-248,264,340-342,460-461,489,497,585-587,737-738,752,809-811,821-826,852,860
+  s_6006332bb8a489::t_25a6258ee7103f 393
+  s_6006332bb8a489::t_c0e08a045ca7b4 827
+  s_6006332bb8a489::t_22bb95c6184c99 93,289,292-293,616-621
+benchmark/jpegxl/generate-vardct-corpus.ts
+  s_6006332bb8a489::t_6b65e2afdf713b 16,30,42,54,66,78,135
+benchmark/jpegxl/generated-vardct-manifest.json
+  s_6006332bb8a489::t_6b65e2afdf713b 32
+  s_6006332bb8a489::t_4df254a2ec4262 218
+tests/jpegxl-corpus.test.ts
+  s_6006332bb8a489::t_2754e00dcc6a37 12-14,19-43,94,117-141
+  s_6006332bb8a489::t_e786a8c50b5610 142
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "740cb0b8ed7652203ea828667826f9bc0a026a4f",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

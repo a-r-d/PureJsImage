@@ -1,0 +1,29 @@
+docs-astro/src/scripts/jpegxl-workbench-types.ts
+  s_2b0ba550ad1491::t_54fdbf4dedda91 8
+.github/workflows/ci.yml
+  s_2b0ba550ad1491::t_82690c8557bc0a 95-103
+browser-tests/jpegxl-workbench.pw.ts
+  s_2b0ba550ad1491::t_990ff07c6c4538 56-61
+  s_2b0ba550ad1491::t_b5ee789e03ddd3 28-31,33-34,41-46,64-65
+  s_2b0ba550ad1491::t_54fdbf4dedda91 2,27,32,35-40,47-55,62-63
+docs-astro/src/scripts/jpegxl-worker-client.ts
+  s_2b0ba550ad1491::t_b5ee789e03ddd3 1-2,8-9,22-31,44-45,53-54
+docs-astro/src/scripts/jpegxl-workbench-worker.ts
+  s_2b0ba550ad1491::t_22ee70995a6dc7 32,595-597
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

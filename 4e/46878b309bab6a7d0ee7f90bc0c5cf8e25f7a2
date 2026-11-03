@@ -1,0 +1,16 @@
+docs-astro/src/layouts/SiteLayout.astro
+  h_9f4a25732fa0c1 78-84
+tests/project-contract.test.ts
+  h_9f4a25732fa0c1 715-716
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "4e46878b309bab6a7d0ee7f90bc0c5cf8e25f7a2",
+  "prompts": {},
+  "humans": {
+    "h_9f4a25732fa0c1": {
+      "author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

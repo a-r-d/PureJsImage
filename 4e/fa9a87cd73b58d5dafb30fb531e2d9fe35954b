@@ -1,0 +1,108 @@
+docs-astro/src/scripts/jpegxl-progressive-workbench.ts
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 3-4
+  s_5d594ee0d8bcfe::t_138277c45dffcf 118-122
+  s_5d594ee0d8bcfe::t_2bb1a1670dc2af 231-235
+benchmark/jpegxl/production-program/conformance-expectation.ts
+  s_5d594ee0d8bcfe::t_453d305336885f 1-16
+browser-tests/jpegxl-workbench.pw.ts
+  s_5d594ee0d8bcfe::t_e4f96ac3d1a04f 27-38,42-44,46-49,52-54
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 39-41,50
+  s_5d594ee0d8bcfe::t_ed19118be1c2ad 51
+  s_5d594ee0d8bcfe::t_2bb1a1670dc2af 45
+benchmark/generated/package-metrics.json
+  s_5d594ee0d8bcfe::t_58ab64c44d6699 179,566,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/pages/codecs.astro
+  s_5d594ee0d8bcfe::t_2ffee87bbaac4e 33,40
+src/codecs/jpegxl-sequence.ts
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 982
+  s_5d594ee0d8bcfe::t_c88b289e547f42 981
+src/codecs/jpegxl.ts
+  s_5d594ee0d8bcfe::t_c88b289e547f42 406-408,411-416
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 409-410
+tests/jpegxl-m7-api.test.ts
+  s_5d594ee0d8bcfe::t_1149157f4c2899 53-85
+docs-astro/public/capabilities.json
+  s_5d594ee0d8bcfe::t_2ffee87bbaac4e 5516,5608
+  s_5d594ee0d8bcfe::t_d8dcbc5dbfe354 5596-5597
+  s_5d594ee0d8bcfe::t_dd900510e3a556 5594-5595
+src/codecs/jpegxl-vardct-encode.ts
+  s_5d594ee0d8bcfe::t_c88b289e547f42 254
+docs-astro/public/llms.txt
+  s_5d594ee0d8bcfe::t_2ffee87bbaac4e 602
+jpegxl-codec-support.md
+  s_5d594ee0d8bcfe::t_d8dcbc5dbfe354 15
+  s_5d594ee0d8bcfe::t_2ffee87bbaac4e 18
+README.md
+  s_5d594ee0d8bcfe::t_e69042bb3fc92e 90
+  s_5d594ee0d8bcfe::t_58ab64c44d6699 403
+docs-astro/src/data/documentation-data.json
+  s_5d594ee0d8bcfe::t_e69042bb3fc92e 109-111,129
+tests/jpegxl-m10-level10.test.ts
+  s_5d594ee0d8bcfe::t_eef3fe10241f04 15-16,90-95,100
+  s_5d594ee0d8bcfe::t_fdf85390942a73 98,255,257-263,270-278,280,282-286
+  s_5d594ee0d8bcfe::t_e8668ed29a5edb 264-269,279,281
+  s_5d594ee0d8bcfe::t_1149157f4c2899 99,101-103,105-106,108,111,114-144,240-247,251-254
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 4,110
+  s_5d594ee0d8bcfe::t_afac2964613aff 104
+  s_5d594ee0d8bcfe::t_2ffee87bbaac4e 146
+  s_5d594ee0d8bcfe::t_2ead98f93f745e 248-250
+  s_5d594ee0d8bcfe::t_f953d0148355e1 96-97,256
+benchmark/jpegxl/m9-evidence-validation.ts
+  s_5d594ee0d8bcfe::t_c9c50bc2274c9a 3,164-168,170
+  s_5d594ee0d8bcfe::t_68fc7febe128da 98,138
+  s_5d594ee0d8bcfe::t_39b7acf3de5bfe 83-97,99-104,115-119,135-136,139
+src/codecs/jpegxl-native-encode.ts
+  s_5d594ee0d8bcfe::t_c88b289e547f42 140-146,159-163
+tests/jpegxl-evidence.test.ts
+  s_5d594ee0d8bcfe::t_e4f96ac3d1a04f 515-530
+  s_5d594ee0d8bcfe::t_c9c50bc2274c9a 561-562
+src/codecs/jpegxl-level10.ts
+  s_5d594ee0d8bcfe::t_0737882b45f052 26-51,53-75,126-127,139-141,171
+  s_5d594ee0d8bcfe::t_afac2964613aff 52
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 183
+  s_5d594ee0d8bcfe::t_c83eefd4932a49 167,179
+benchmark/jpegxl/production-program/run-conformance.ts
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 14
+  s_5d594ee0d8bcfe::t_453d305336885f 12-13,15,17,248-253
+  s_5d594ee0d8bcfe::t_7ac9133f847294 158-166,296
+tests/jpegxl-production-program.test.ts
+  s_5d594ee0d8bcfe::t_14c124d64cfbd9 32-34
+  s_5d594ee0d8bcfe::t_1149157f4c2899 4,30-31,35-38
+benchmark/jpegxl/run-m9-fuzz-resource.ts
+  s_5d594ee0d8bcfe::t_4de05e0ea377e0 225,231,244,253,259,272,274-283,288-289,292-296,331-335,357,381,421,436,472-476
+  s_5d594ee0d8bcfe::t_6c38fb79e720f4 492-499,516-518,526
+  s_5d594ee0d8bcfe::t_68fc7febe128da 24,500-503
+  s_5d594ee0d8bcfe::t_794448a834217e 515
+  s_5d594ee0d8bcfe::t_39b7acf3de5bfe 22-23,25-26,35,76-81,83-87,90,97,103,122,177-183,196
+capabilities/manifest.json
+  s_5d594ee0d8bcfe::t_1d437993df0bf7 3705
+  s_5d594ee0d8bcfe::t_afac2964613aff 3630,3708
+src/codecs/jpegxl-modular-encode.ts
+  s_5d594ee0d8bcfe::t_2ac5436c5bd213 2546,2554,2866,3460-3463
+tests/jpegxl-m8-sequence.test.ts
+  s_5d594ee0d8bcfe::t_1149157f4c2899 6,293-310
+  s_5d594ee0d8bcfe::t_92f6c1a1aa20fc 311-312
+docs-astro/src/data/package-metrics.json
+  s_5d594ee0d8bcfe::t_58ab64c44d6699 179,566,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+scripts/bundle-size-budgets.ts
+  s_5d594ee0d8bcfe::t_c9c50bc2274c9a 18-19
+benchmark/jpegxl/production-program/m10-level-profile-map.json
+  s_5d594ee0d8bcfe::t_1fbf4ff5655c83 71,83,87
+  s_5d594ee0d8bcfe::t_afac2964613aff 61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4efa9a87cd73b58d5dafb30fb531e2d9fe35954b",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

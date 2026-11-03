@@ -1,0 +1,21 @@
+benchmark/jpegxl/build-final-evidence.ts
+  s_7d348c739afcf2::t_ea16c2761f4c27 43-46,58
+.github/workflows/jpegxl-corpus.yml
+  s_7d348c739afcf2::t_ea16c2761f4c27 35-36,200,226-227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2338db281d5a9eaf2146011b8be394b6246e28e9",
+  "prompts": {},
+  "sessions": {
+    "s_7d348c739afcf2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05e14-c899-7c12-a202-69c7e0176d08",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

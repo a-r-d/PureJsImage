@@ -1,0 +1,56 @@
+benchmark/jpegxl/PROVENANCE.md
+  s_c2b6cc73f1c634::t_dedbdc563e1065 317-323
+  s_c2b6cc73f1c634::t_1034f387e8c2c8 305-310
+  s_c2b6cc73f1c634::t_3e28574a85deec 311-316
+benchmark/jpegxl/lossy-lab/CFL-MENU-REPORT.json
+  s_c2b6cc73f1c634::t_907680fd8649ad 1-18,20-26,30-38,42-50,54-62,66-74,78-86,90-98,102-110,114-122,126-134,138-146,150-158,162-170,174-182,186-194,198-206,210-218,222-230,234-242,246-7709,7711,7728-7738,7744-7745
+  s_c2b6cc73f1c634::t_cb019a96c02a79 19,27-29,39-41,51-53,63-65,75-77,87-89,99-101,111-113,123-125,135-137,147-149,159-161,171-173,183-185,195-197,207-209,219-221,231-233,243-245,7710
+  s_c2b6cc73f1c634::t_a40a1405216899 7712-7727,7739-7743
+benchmark/jpegxl/lossy-lab/CFL-MENU-REPORT.md
+  s_c2b6cc73f1c634::t_a40a1405216899 107-111
+  s_c2b6cc73f1c634::t_907680fd8649ad 1-106,112-140
+benchmark/jpegxl/lossy-lab-log.md
+  s_c2b6cc73f1c634::t_ce1bedf3188c8d 2103-2104
+  s_c2b6cc73f1c634::t_d2fbcf299ced2e 2095-2096
+  s_c2b6cc73f1c634::t_688cd54d27dbf2 2099-2100
+  s_c2b6cc73f1c634::t_4e4f483ea94d02 2089-2090
+  s_c2b6cc73f1c634::t_0db6275263be16 2093-2094
+  s_c2b6cc73f1c634::t_bea082323fcc00 2115-2116
+  s_c2b6cc73f1c634::t_80b2ce3aea18bc 2091-2092
+  s_c2b6cc73f1c634::t_1e5bf652760ed8 2117-2118
+  s_c2b6cc73f1c634::t_93d0144a8ee4a7 2133-2134
+  s_c2b6cc73f1c634::t_36bf1fa221e304 5,9-12,14-16
+  s_c2b6cc73f1c634::t_42cfe2d699d8bc 2109-2110
+  s_c2b6cc73f1c634::t_ec36cbb526cca1 2107-2108
+  s_c2b6cc73f1c634::t_c3544064d8b13f 2113-2114
+  s_c2b6cc73f1c634::t_80a2245a81f73a 2087-2088
+  s_c2b6cc73f1c634::t_d8eacaf0591680 2125-2126
+  s_c2b6cc73f1c634::t_a40a1405216899 13
+  s_c2b6cc73f1c634::t_081accf08840cb 2111-2112
+  s_c2b6cc73f1c634::t_465f89abda1419 2105-2106
+  s_c2b6cc73f1c634::t_095d0e6aff7fb4 2127-2130
+  s_c2b6cc73f1c634::t_554f768ba78f6d 2131-2132
+  s_c2b6cc73f1c634::t_d47f7cbaf526b7 2119-2120
+  s_c2b6cc73f1c634::t_914142b4be4891 2097-2098
+  s_c2b6cc73f1c634::t_669ca54b4cac13 2121-2122
+  s_c2b6cc73f1c634::t_6a2b61e370aa37 2123-2124
+  s_c2b6cc73f1c634::t_d849815391f1bb 2101-2102
+benchmark/jpegxl/lossy-lab/CFL-MENU-EXPERIMENT.patch
+  s_c2b6cc73f1c634::t_f9760b85e28ced 1-709
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1f8d6a5ab98cc413c44c3375737d073e1f2a4b52",
+  "prompts": {},
+  "sessions": {
+    "s_c2b6cc73f1c634": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13fce-110d-7420-9829-228d7d625aae",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+src/codecs/jpegxl-jpeg-reconstruct-source.ts
+  s_6006332bb8a489::t_2b5ed0fd8ab391 279-280,308,321-324,328,335-336,380,396-397
+docs/architecture/jpegxl-lossless-first.md
+  s_6006332bb8a489::t_705bb3a191717b 437-443,456-457
+src/jpegxl.ts
+  s_6006332bb8a489::t_2db4fd4342bf2c 11-21
+src/codecs/jpegxl-modular-encode.ts
+  s_6006332bb8a489::t_a76aaf98c2fff9 10,56,139,202,221,223,340,462
+src/codecs/jpegxl-jpeg-encode.ts
+  s_6006332bb8a489::t_2af407d2ff43da 220-224,237-239
+  s_6006332bb8a489::t_ea6e056d165b50 1-219,225-236,240-264,266,272-418,424-431,433-566
+  s_6006332bb8a489::t_44ed14742e31ec 267
+  s_6006332bb8a489::t_bf05b7880b5f30 265,268-271,419-423,432
+tests/jpegxl-jpeg-reconstruction.test.ts
+  s_6006332bb8a489::t_a0f2bf6965297c 357-366
+  s_6006332bb8a489::t_04bd1a26921992 18-22,309-356,367-385
+  s_6006332bb8a489::t_b49be6c56eee50 386
+src/codecs/jpegxl-jpeg-transcode.ts
+  s_6006332bb8a489::t_50f593ef3b347a 1-138,141-161,165-179,181-184,190-328
+  s_6006332bb8a489::t_d6a1024815bda8 139-140,162-164,180,185-189
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "000453b6fb84a35cc3c18981d4b4d38c30e30cc3",
+  "prompts": {},
+  "sessions": {
+    "s_6006332bb8a489": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a05804-95c7-75f0-96dc-4721bc9862f0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

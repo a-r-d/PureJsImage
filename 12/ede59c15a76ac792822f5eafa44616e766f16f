@@ -1,0 +1,205 @@
+src/pipeline.ts
+  s_ce394ddfeaeeea::t_98b597f949585e 20-21,310-315
+  s_ce394ddfeaeeea::t_7c33f341d22b41 716-719,721
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 2-3
+  s_ce394ddfeaeeea::t_dbeb6c7bbd3bd1 38-43,147,243-257,588-595
+  s_ce394ddfeaeeea::t_4f1510635649c6 596,720
+  s_ce394ddfeaeeea::t_5b5fa4852ac177 316,597-599
+scripts/bundle-size-budgets.ts
+  s_ce394ddfeaeeea::t_273728956dad4d 14
+src/resize.ts
+  s_ce394ddfeaeeea::t_8d710b6d043d50 260-266,271-277,555-570,572-667,689,695-697,699-796,800-827,830,833-835,837-846,849-879,881-892,894-895,1560-1568
+  s_ce394ddfeaeeea::t_8e177c72541570 481-482,487,538,551,831-832,836,880,893
+  s_ce394ddfeaeeea::t_75ebef2bbe4ae4 668-688,690-694,698
+  s_ce394ddfeaeeea::t_98b597f949585e 1,278-288,290-333,335,373-444,448-477,480,483-486,488-503,506-522,532-537,539,549-550,552-554,1546,1550-1559
+  s_ce394ddfeaeeea::t_4f1510635649c6 334,336-372
+  s_ce394ddfeaeeea::t_24391ce2c894c8 289,445-447,478-479,504-505,523-531,540-548,571,797-799,828-829,847-848
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 2,5
+  s_ce394ddfeaeeea::t_37c35a897ac584 896
+browser-tests/compatibility-harness.ts
+  s_ce394ddfeaeeea::t_fed78dee9a4f60 1562
+  s_ce394ddfeaeeea::t_24391ce2c894c8 1462-1547,1568-1571
+  s_ce394ddfeaeeea::t_f35c57aca7cd5a 1459-1461,1548-1552,1554-1561,1563-1567,1572-1578,5157
+  s_ce394ddfeaeeea::t_7913fc80ef6929 1553
+tests/native-precision.test.ts
+  s_ce394ddfeaeeea::t_78a36c53d3127e 1-3,5-6,8,10-12,15-16,18-57,73-128,137-158,162-182,186-206,208-220,222-234,236-267,277-292,296-305,324-348,352-363,367-369,371-375,389-422,439-462,467-508,528-529
+  s_ce394ddfeaeeea::t_4f1510635649c6 7,9,207,235,423-438,509-527
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 13-14
+  s_ce394ddfeaeeea::t_fed78dee9a4f60 293-295
+  s_ce394ddfeaeeea::t_24391ce2c894c8 4,17,129-136,159-161,183-185,268-276,349-351,364-366,376-388,463-465
+  s_ce394ddfeaeeea::t_8f97ede41243a0 58-72,221,370,466
+  s_ce394ddfeaeeea::t_9705dee4cdfea1 306-323
+docs-astro/src/data/documentation-data.json
+  s_ce394ddfeaeeea::t_dbc048ab679d61 99-101,104-106,109-111,114-116,119-121,134-136
+  s_ce394ddfeaeeea::t_ca475bf36021f7 129
+scripts/bundle-size.ts
+  s_ce394ddfeaeeea::t_ba7fb9883860ca 490,498-505,518-534,540
+docs/architecture/native-precision-pipeline.md
+  s_ce394ddfeaeeea::t_7f84e67e30ea60 186
+  s_ce394ddfeaeeea::t_1d43d8cae07a75 1-124,129-181,188-201,205-227,231,233,235,237,239,242,244,248-249
+  s_ce394ddfeaeeea::t_0b7893075c8905 250-251
+  s_ce394ddfeaeeea::t_3e31f63038aa68 228-230,232,234,236,238,240-241
+  s_ce394ddfeaeeea::t_7d9ea8f14255cf 245
+  s_ce394ddfeaeeea::t_307de2cae9f740 125-128,182-185,187,202-204
+  s_ce394ddfeaeeea::t_09061c3542d06f 243,246-247
+src/convert.ts
+  s_ce394ddfeaeeea::t_24391ce2c894c8 64-67,70-71,87,205-206
+  s_ce394ddfeaeeea::t_dbeb6c7bbd3bd1 1-4,6-59,61,63,68-69,72-86,88-105,107-136,140,144-179,196,198-202,204,207-216,218-225,227-232
+  s_ce394ddfeaeeea::t_11560fccf83a50 226
+  s_ce394ddfeaeeea::t_4f1510635649c6 60,62,137-139
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 5
+  s_ce394ddfeaeeea::t_7c33f341d22b41 106,141-143,180-195,197,203,217
+benchmark/results/native-precision-baseline-alpha.md
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-39
+src/orient.ts
+  s_ce394ddfeaeeea::t_5de2a8fca552fd 253
+  s_ce394ddfeaeeea::t_d53c1fefede64a 77-78,81-99,102-114,128,134-135,144-155,158-175,177-178,200,203,206,221,240-242,279
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 3
+  s_ce394ddfeaeeea::t_4f1510635649c6 1,129-133,141,157,185-189
+src/codecs/png.ts
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 3,11,34-35
+  s_ce394ddfeaeeea::t_fed78dee9a4f60 1610
+  s_ce394ddfeaeeea::t_de42e710699f07 166-170,182-184,188-189,191-214,859-913,1008,1033,1646-1654,1662-1666,1722,1734
+  s_ce394ddfeaeeea::t_4f1510635649c6 1614-1622,1626
+  s_ce394ddfeaeeea::t_5de2a8fca552fd 1623-1625
+  s_ce394ddfeaeeea::t_baae052dab99db 190
+  s_ce394ddfeaeeea::t_7c33f341d22b41 1735-1739
+docs-astro/public/llms.txt
+  s_ce394ddfeaeeea::t_680a4711dfda76 494-495
+src/executor.ts
+  s_ce394ddfeaeeea::t_dbeb6c7bbd3bd1 359-361,363
+  s_ce394ddfeaeeea::t_931b744a04e1dc 18,310-315,317-320,325,341,344-349,352,356-358,431-437,446-447,452
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 4,9,17,21
+  s_ce394ddfeaeeea::t_96ffdd59ee90d6 324
+  s_ce394ddfeaeeea::t_7c33f341d22b41 321-323,362,438
+  s_ce394ddfeaeeea::t_24391ce2c894c8 316,372,439-445
+benchmark/precision/worker.ts
+  s_ce394ddfeaeeea::t_1eac5d6239aff5 23-37,39-45,68,71,182-183,192-198,221,244-246,249-250,271-274,296-297
+  s_ce394ddfeaeeea::t_b1fca5de1c51fd 1-22,46-67,69-70,72-74,81-83,90-124,130-177,185-191,199-205,208-220,222-243,247-248,251-260,264-270,275-295,298-301
+  s_ce394ddfeaeeea::t_a5f9d1b3b07d2c 38
+  s_ce394ddfeaeeea::t_24391ce2c894c8 75-80,84-89,125-129,178-181,184,206-207,261-263
+benchmark/results/native-precision-baseline-jpeg.json
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-264
+benchmark/results/native-precision-baseline-large.md
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-39
+src/precision-plan.ts
+  s_ce394ddfeaeeea::t_797c426d9f8469 79-81,190
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 8,10
+  s_ce394ddfeaeeea::t_6b63b7df2fc63f 167,185,214,220-221
+  s_ce394ddfeaeeea::t_931b744a04e1dc 1,3-7,9,11-69,75-77,82-98,101-113,116-129,132-135,137-147,149-154,160-166,169-179,184,191-204,210-213,215,217-219,225-241,243-248,255-263
+  s_ce394ddfeaeeea::t_dbeb6c7bbd3bd1 78,205-209,222-224
+  s_ce394ddfeaeeea::t_7c33f341d22b41 2,130,136,186-189,249-254
+  s_ce394ddfeaeeea::t_96ffdd59ee90d6 99-100,114-115,131,148,168,180-183,216,242
+  s_ce394ddfeaeeea::t_24391ce2c894c8 70-74,155-159
+src/image-core.ts
+  s_ce394ddfeaeeea::t_dbeb6c7bbd3bd1 202-203
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 11,35
+  s_ce394ddfeaeeea::t_ba7fb9883860ca 470-473
+  s_ce394ddfeaeeea::t_cf80cc3a89e861 204-205
+src/pixel.ts
+  s_ce394ddfeaeeea::t_1f45753c35bc73 3,45,49-110
+tests/png-compatibility.test.ts
+  s_ce394ddfeaeeea::t_3fa2291438c8a8 254
+benchmark/results/native-precision-baseline-alpha.json
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-264
+capabilities/manifest.json
+  s_ce394ddfeaeeea::t_04b0c8532f56b1 793-794,850-852,899-901,936-937
+docs-astro/public/capabilities.json
+  s_ce394ddfeaeeea::t_680a4711dfda76 403-404,516,520,618-629,722-725
+benchmark/precision/run.ts
+  s_ce394ddfeaeeea::t_24391ce2c894c8 90-92
+  s_ce394ddfeaeeea::t_b1fca5de1c51fd 1-14,20,22-32,34-41,43-60,62-89,93-103,106-126
+  s_ce394ddfeaeeea::t_1eac5d6239aff5 15-19,21,42,104-105
+  s_ce394ddfeaeeea::t_9705dee4cdfea1 33,61
+package.json
+  s_ce394ddfeaeeea::t_b1fca5de1c51fd 687
+src/crop.ts
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 3
+  s_ce394ddfeaeeea::t_d53c1fefede64a 12-14,19-29,31-48,50-51,53-55
+  s_ce394ddfeaeeea::t_24391ce2c894c8 49
+src/codecs/icc.ts
+  s_ce394ddfeaeeea::t_e5d930a0c42a73 2,1247,1258-1266
+  s_ce394ddfeaeeea::t_7c33f341d22b41 1282-1290
+benchmark/results/native-precision-baseline-large.json
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-221
+benchmark/results/native-precision-baseline-jpeg.md
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-39
+src/color.ts
+  s_ce394ddfeaeeea::t_53583f63c2efdd 100-101,136,145
+  s_ce394ddfeaeeea::t_1f45753c35bc73 1-9,11-54,56-74,76-86,92-98,102-135,137-144,146-164
+  s_ce394ddfeaeeea::t_24391ce2c894c8 10,55,75,87-91,99
+src/codec.ts
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 2
+  s_ce394ddfeaeeea::t_1f45753c35bc73 112-113,135,171,187
+src/index.ts
+  s_ce394ddfeaeeea::t_1f45753c35bc73 75-81
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 24-34,45,49-50,61
+docs-astro/src/pages/codecs.astro
+  s_ce394ddfeaeeea::t_680a4711dfda76 24,49
+src/browser.ts
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 13,15,53,57-58,69
+  s_ce394ddfeaeeea::t_1f45753c35bc73 2-12,83-89
+tests/png.test.ts
+  s_ce394ddfeaeeea::t_24391ce2c894c8 284,322,330-335,347-350,364-365,374,380
+  s_ce394ddfeaeeea::t_5de2a8fca552fd 123-125
+  s_ce394ddfeaeeea::t_d5236ce5d55c40 6
+  s_ce394ddfeaeeea::t_3fa2291438c8a8 4,65-77,252,278-279,281,283,285-286,306,317-321,323-329,336-346,351-363,366-373,375-379,381
+  s_ce394ddfeaeeea::t_4f1510635649c6 99-122,126-131
+benchmark/results/native-precision-current.md
+  s_ce394ddfeaeeea::t_cdf10bed5484df 1-2,4-6
+  s_ce394ddfeaeeea::t_aa39ffe7dedf14 3
+README.md
+  s_ce394ddfeaeeea::t_f1343691b626af 360-364
+  s_ce394ddfeaeeea::t_dbc048ab679d61 78-82,84
+  s_ce394ddfeaeeea::t_50ca0ffd0cc81a 86
+  s_ce394ddfeaeeea::t_9f0f97d0592638 366
+tests/project-contract.test.ts
+  s_ce394ddfeaeeea::t_273728956dad4d 159
+  s_ce394ddfeaeeea::t_ba7fb9883860ca 157-158
+benchmark/generated/package-metrics.json
+  s_ce394ddfeaeeea::t_f1343691b626af 526,529-530,532-547,556,559,562,586,589,592,601,604,607,841,844,847,856,862,871,874,877,901,904,907,916,919,922,931,934,937,961,964,967,1126,1132,1201,1204,1207,1216,1219,1222,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+  s_ce394ddfeaeeea::t_6f692ebb309a47 179
+docs-astro/src/data/package-metrics.json
+  s_ce394ddfeaeeea::t_f1343691b626af 526,529-530,532-547,556,559,562,586,589,592,601,604,607,841,844,847,856,862,871,874,877,901,904,907,916,919,922,931,934,937,961,964,967,1126,1132,1201,1204,1207,1216,1219,1222,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+  s_ce394ddfeaeeea::t_6f692ebb309a47 179
+browser-tests/compatibility.pw.ts
+  s_ce394ddfeaeeea::t_f35c57aca7cd5a 339-345
+docs/native-precision.md
+  s_ce394ddfeaeeea::t_3e31f63038aa68 1-45,48-92,98-110
+  s_ce394ddfeaeeea::t_307de2cae9f740 46-47,93-97
+scripts/bundle-size-config.ts
+  s_ce394ddfeaeeea::t_ba7fb9883860ca 29-30,119,129,141,225,228-236
+  s_ce394ddfeaeeea::t_1728246a073e4b 1
+ROADMAP.md
+  s_ce394ddfeaeeea::t_3e31f63038aa68 86-94
+png-codec-support.md
+  s_ce394ddfeaeeea::t_680a4711dfda76 44-46,93-95,130-131
+benchmark/results/native-precision-current.json
+  s_ce394ddfeaeeea::t_cdf10bed5484df 1,3-6,8-17,22-27,30-34,41-44,47-51,56-61,64-68,73-78,81-85,90-95,98-102,109-112,115-119,124-129,132-136
+  s_ce394ddfeaeeea::t_aa39ffe7dedf14 2,7,18-21,28-29,35-40,45-46,52-55,62-63,69-72,79-80,86-89,96-97,103-108,113-114,120-123,130-131
+benchmark/results/native-precision-baseline-png.md
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-39
+CHANGELOG.md
+  s_ce394ddfeaeeea::t_22c92637690629 18-20
+  s_ce394ddfeaeeea::t_3e31f63038aa68 9-17,21
+browser-tests/types.ts
+  s_ce394ddfeaeeea::t_f35c57aca7cd5a 82
+benchmark/results/native-precision-baseline-png.json
+  s_ce394ddfeaeeea::t_a23b4837f6e3b4 1-264
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "12ede59c15a76ac792822f5eafa44616e766f16f",
+  "prompts": {},
+  "sessions": {
+    "s_ce394ddfeaeeea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0503b-7043-73b3-a0da-dfa82d798508",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

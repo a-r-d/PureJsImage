@@ -1,0 +1,47 @@
+tests/jpegxl-m7-api.test.ts
+  s_d4180e5cac980c::t_641955feacbb80 137-143,166
+browser-tests/jpegxl-pipeline-harness.ts
+  s_d4180e5cac980c::t_79d826500245ab 905-943,945-963
+  s_d4180e5cac980c::t_ae9f9e4440a257 944
+scripts/bundle-size-budgets.ts
+  s_d4180e5cac980c::t_94148193e12008 16-18
+CHANGELOG.md
+  s_d4180e5cac980c::t_f6c4574c0b9261 7-10
+README.md
+  s_d4180e5cac980c::t_6a587045048e32 403
+  s_d4180e5cac980c::t_e5c6fc0f29f855 90
+tests/jpegxl-m7-vardct-encode.test.ts
+  s_d4180e5cac980c::t_329227da9ea512 126-134
+  s_d4180e5cac980c::t_6147e466b42fc4 94-125,135-160
+docs-astro/src/data/documentation-data.json
+  s_d4180e5cac980c::t_e5c6fc0f29f855 109-111,129
+benchmark/generated/package-metrics.json
+  s_d4180e5cac980c::t_6a587045048e32 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+browser-tests/jpegxl-pipeline.pw.ts
+  s_d4180e5cac980c::t_79d826500245ab 13,335-342
+  s_d4180e5cac980c::t_6c441a9b583e02 343-346
+src/codecs/jpegxl-vardct-encode.ts
+  s_d4180e5cac980c::t_270fe0314aaf8d 632-638
+  s_d4180e5cac980c::t_ba3ef3fb3b7463 378
+  s_d4180e5cac980c::t_329227da9ea512 639
+  s_d4180e5cac980c::t_8cdea2abdba530 640
+  s_d4180e5cac980c::t_ff57d14300dfda 369-377
+docs-astro/src/data/package-metrics.json
+  s_d4180e5cac980c::t_6a587045048e32 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "090e644d4b951410c675edce1ba0e36ae60a3681",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

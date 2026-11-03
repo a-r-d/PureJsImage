@@ -1,0 +1,108 @@
+scripts/build-wasm-png.ts
+  s_5d3857b1b6a91f::t_826efd735ee8f7 14,37,41
+benchmark/results/jpeg-wasm-decoder-simd-2026-08-24.md
+  s_5d3857b1b6a91f::t_a4e2101c398a5a 1-21
+benchmark/results/jpeg-wasm-encoder-2026-08-24.md
+  s_5d3857b1b6a91f::t_11146617ed2f40 1-81
+.agents/skills/rust-wasm/SKILL.md
+  s_5d3857b1b6a91f::t_a889878d579840 83-84,111-116
+  s_5d3857b1b6a91f::t_82d5298841df8e 70-82,85-110,117-129
+benchmark/results/imazen-tiff-conformance.json
+  s_5d3857b1b6a91f::t_ca08943450d416 504
+  s_5d3857b1b6a91f::t_433b3a965f1e68 2918
+benchmark/jpeg/wasm-encoder-worker.ts
+  s_5d3857b1b6a91f::t_4fe985e4aa2e4e 21-22,69-71
+  s_5d3857b1b6a91f::t_9628481bdf2c6e 20,36-38,41-43,59,168-171,178-179,197
+  s_5d3857b1b6a91f::t_77ef93b1615b5a 172-177
+benchmark/hillclimb/run.ts
+  s_5d3857b1b6a91f::t_c3524e1e4f85ef 12,16,85-91,94,245,249,279,343,395,476,600,697,701
+wasm/jpeg-encoder/Cargo.toml
+  s_5d3857b1b6a91f::t_e306d97365ead9 13-14
+benchmark/results/jpeg-wasm-decoder-simd-2026-08-24.json
+  s_5d3857b1b6a91f::t_a298566aa4f405 1-62
+CHANGELOG.md
+  s_5d3857b1b6a91f::t_2ee1c6ffd21367 7-29
+tests/imazen-corpus-harness.test.ts
+  s_5d3857b1b6a91f::t_e8b2892c25e70a 11,18-19,328-411
+wasm/jpeg-decoder/src/lib.rs
+  s_5d3857b1b6a91f::t_ea8b2ac3b64848 713-714
+  s_5d3857b1b6a91f::t_2aa589297d2036 541,552,574,577,708,710-712,715-723,801,807
+  s_5d3857b1b6a91f::t_826efd735ee8f7 234,1441-1444,1485
+README.md
+  s_5d3857b1b6a91f::t_7e0c4ac8630e38 352
+wasm/png-codec/src/lib.rs
+  s_5d3857b1b6a91f::t_826efd735ee8f7 11
+tests/wasm-png.test.ts
+  s_5d3857b1b6a91f::t_c289d2cdcda611 497
+  s_5d3857b1b6a91f::t_77ef93b1615b5a 487-496
+benchmark/generated/package-metrics.json
+  s_5d3857b1b6a91f::t_7e0c4ac8630e38 179,2063-2064,2067-2068,2090-2091,2094,2098-2099,2102,2106-2107,2110,2114-2115,2118,2122-2123,2126,2130-2131,2134
+docs-astro/src/data/package-metrics.json
+  s_5d3857b1b6a91f::t_7e0c4ac8630e38 179,2063-2064,2067-2068,2090-2091,2094,2098-2099,2102,2106-2107,2110,2114-2115,2118,2122-2123,2126,2130-2131,2134
+benchmark/results/jpeg-wasm-encoder-2026-08-24.json
+  s_5d3857b1b6a91f::t_11146617ed2f40 1-1546
+docs-astro/src/data/documentation-data.json
+  s_5d3857b1b6a91f::t_7e0c4ac8630e38 129
+benchmark/optimization-log.md
+  s_5d3857b1b6a91f::t_e670b688a7f8f1 740-742,745
+  s_5d3857b1b6a91f::t_61df91cc129bf5 743-744
+  s_5d3857b1b6a91f::t_5e48cbecf49c9f 703-739,746
+tests/wasm-jpeg.test.ts
+  s_5d3857b1b6a91f::t_28246c29c10bbc 45-62,168-182,184-200
+  s_5d3857b1b6a91f::t_77ef93b1615b5a 183
+wasm/jpeg-encoder/src/lib.rs
+  s_5d3857b1b6a91f::t_534ae41b3c6ff3 158-159,199-200,1072,1083,1091,1102,1110,1117,1125,1128
+  s_5d3857b1b6a91f::t_e71e237c12eaee 16-19,216-222,492,498-500,518,526,532,539-541,543-546,559-562,586-589,748-751,811,815,824-828,856-860,884,1071,1090,1108
+  s_5d3857b1b6a91f::t_2f6237c6b32690 671-689,702-710,718-742,754-769
+  s_5d3857b1b6a91f::t_e306d97365ead9 224,240,882,910,922,956-972,974-981,983-990,1070,1085-1089,1092-1101,1113,1115,1120
+  s_5d3857b1b6a91f::t_109443f27b8952 973,982
+  s_5d3857b1b6a91f::t_55eb97ac7c71e8 12,62
+  s_5d3857b1b6a91f::t_826efd735ee8f7 14,246,252-276,1368-1370,1496-1499,1502-1504
+  s_5d3857b1b6a91f::t_787fe28db7650e 1027-1030,1045
+  s_5d3857b1b6a91f::t_9dbad05c2b4c05 616-670,781-796
+  s_5d3857b1b6a91f::t_5f387b6b84b8ce 1122
+  s_5d3857b1b6a91f::t_d0f6f0927f977d 1123,1127,1270,1302,1322,1331
+  s_5d3857b1b6a91f::t_b942952eb21ff6 1500-1501
+  s_5d3857b1b6a91f::t_5e2f06ea8370c3 690-701,711-717,1084,1103
+  s_5d3857b1b6a91f::t_af442022ea4b0c 1267,1299,1319,1328,1426-1436,1505
+  s_5d3857b1b6a91f::t_1a7f5274a782d7 938,947
+  s_5d3857b1b6a91f::t_7687391b348874 15
+  s_5d3857b1b6a91f::t_5de20c1cc8e8f5 991
+scripts/build-wasm-jpeg.ts
+  s_5d3857b1b6a91f::t_826efd735ee8f7 5-6,39-40,47,53,62,69
+  s_5d3857b1b6a91f::t_4d20d8f8d878b4 2,54-61
+tests/project-contract.test.ts
+  s_5d3857b1b6a91f::t_b08911809fc591 246-249,251-265
+  s_5d3857b1b6a91f::t_082990ba5918b9 68
+  s_5d3857b1b6a91f::t_fc50b82222e14f 250
+  s_5d3857b1b6a91f::t_0357a7206c0e15 60-67,69-74
+benchmark/jpeg/run-wasm-encoder.ts
+  s_5d3857b1b6a91f::t_322af029fe825f 10,55,103,134,136,142-144,156,164-168,231,235-240,242,246,262,266,268-269
+  s_5d3857b1b6a91f::t_4befee2ddfd1a9 175-183,189,193,260,264
+.github/workflows/imazen-corpus.yml
+  s_5d3857b1b6a91f::t_979e48496a86a9 1-70
+scripts/validate-imazen-corpus.ts
+  s_5d3857b1b6a91f::t_8ccc204f745d09 113,117-133,175,198-200,223,227-230,234
+  s_5d3857b1b6a91f::t_4bdbdf4f39b7d4 1343-1344,1348,1387-1391,1401-1403,1409-1415
+  s_5d3857b1b6a91f::t_24b811557afba0 1162-1303,1306-1317
+  s_5d3857b1b6a91f::t_5bff1466b386ba 1345-1346
+  s_5d3857b1b6a91f::t_fc50b82222e14f 1304-1305,1347
+benchmark/jpeg/run-wasm-decoder.ts
+  s_5d3857b1b6a91f::t_4befee2ddfd1a9 128-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "e6a2ea131d905682b921a1681d4896a4ca9b72c6",
+  "prompts": {},
+  "sessions": {
+    "s_5d3857b1b6a91f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0344e-0392-7e00-b4c8-8f847ba87912",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

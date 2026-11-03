@@ -1,0 +1,74 @@
+src/resize.ts
+  s_ce394ddfeaeeea::t_63eb34115dd8e9 1550-1552
+docs-astro/src/scripts/four-d-stem-worker.ts
+  s_ce394ddfeaeeea::t_021afa364286e8 39,493
+docs-astro/src/data/package-metrics.json
+  s_ce394ddfeaeeea::t_238ca43dedd865 179,532,541,544,547,556,559,562,586,589,592,1216,1219,1222,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+src/sources/http-range.ts
+  s_ce394ddfeaeeea::t_63eb34115dd8e9 555
+docs/native-precision.md
+  s_ce394ddfeaeeea::t_04421897003393 26-28,64-65
+docs/architecture/execution-evidence.md
+  s_ce394ddfeaeeea::t_04421897003393 52-54
+src/convert.ts
+  s_ce394ddfeaeeea::t_63eb34115dd8e9 111-115
+tests/four-d-stem-worker-protocol.test.ts
+  s_ce394ddfeaeeea::t_08c497e6b6e7ee 69,87-90
+  s_ce394ddfeaeeea::t_8a9aade2c9abc1 1-68,70-86,91-100
+tests/evidence.test.ts
+  s_ce394ddfeaeeea::t_a65df091ed817d 282-295,474-500,508-518
+  s_ce394ddfeaeeea::t_08c497e6b6e7ee 501-507
+  s_ce394ddfeaeeea::t_f93f68abdb3edd 519
+docs-astro/src/scripts/four-d-stem-types.ts
+  s_ce394ddfeaeeea::t_021afa364286e8 141-156,159-178,183-185,188-271,276-308
+  s_ce394ddfeaeeea::t_8a9aade2c9abc1 309-313
+  s_ce394ddfeaeeea::t_08c497e6b6e7ee 157-158,179-182,186-187,272-275
+README.md
+  s_ce394ddfeaeeea::t_238ca43dedd865 88-90,93,370-372
+docs/architecture/native-precision-pipeline.md
+  s_ce394ddfeaeeea::t_04421897003393 81,106-107
+benchmark/generated/package-metrics.json
+  s_ce394ddfeaeeea::t_238ca43dedd865 179,532,541,544,547,556,559,562,586,589,592,1216,1219,1222,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1442,1445,1448,1473,1476,1479,1488,1491,1494,1518,1521,1524
+src/analysis/four-d-stem.ts
+  s_ce394ddfeaeeea::t_63eb34115dd8e9 908,913
+docs-astro/src/scripts/four-d-stem-explorer.ts
+  s_ce394ddfeaeeea::t_8a9aade2c9abc1 7-10,197
+  s_ce394ddfeaeeea::t_021afa364286e8 192
+CHANGELOG.md
+  s_ce394ddfeaeeea::t_04421897003393 76-81
+docs-astro/src/data/documentation-data.json
+  s_ce394ddfeaeeea::t_238ca43dedd865 99-101,109-111,114-116,119,129,134-136
+src/evidence.ts
+  s_ce394ddfeaeeea::t_63eb34115dd8e9 107,518,833,992,1046-1049,1051-1052,1054-1056
+  s_ce394ddfeaeeea::t_83004393566279 1050,1053
+  s_2ec244cc8606c0::t_4e0e128cdda135 1057-1058
+tests/four-d-stem-analysis.test.ts
+  s_ce394ddfeaeeea::t_b003163f3973e4 131-199,545-560,562
+  s_2ec244cc8606c0::t_739cce55f97e4f 561
+tests/native-precision.test.ts
+  s_ce394ddfeaeeea::t_8f79b0e4303837 354-377
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "af25855505653b8bee78f14165acb22ecdea6b33",
+  "prompts": {},
+  "sessions": {
+    "s_2ec244cc8606c0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a048bd-ab38-7a82-b1d9-eb0f59af00f9",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_ce394ddfeaeeea": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0503b-7043-73b3-a0da-dfa82d798508",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+  s_42a303a21f7525::t_5f060c0c47c1d7 14,160-174,176-184
+  s_42a303a21f7525::t_8b88dc05d61323 185-202,205-213
+  s_42a303a21f7525::t_fcb0453f03ae90 13,55-58,67-96,102-121
+benchmark/jpegxl/lossy-lab/FULLMAP-MASK-EXPERIMENT.patch
+  s_42a303a21f7525::t_a4fc39322bc518 1-254
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-REPORT.json
+  s_42a303a21f7525::t_296cdd6a16f876 1-3474,3480-3483
+  s_42a303a21f7525::t_9d9f560c66745b 3475-3479
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-EXPERIMENT.patch
+  s_42a303a21f7525::t_a4fc39322bc518 1-1013
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_25e4b924988b20 2552-2555
+  s_42a303a21f7525::t_01cba4aec2f6f2 13-14,2560-2564
+  s_42a303a21f7525::t_0b02d371430650 2565-2567
+  s_42a303a21f7525::t_e4374176d38735 2556-2559
+  s_42a303a21f7525::t_3ab8588398dbd1 2544-2547
+  s_42a303a21f7525::t_0cb64902e88b5f 2548-2551
+tests/jpegxl-perceptual-blur.test.ts
+  s_42a303a21f7525::t_8b88dc05d61323 42-50,53-55,57-59
+  s_42a303a21f7525::t_3df7c811f160fe 1-41,51-52,56,60-62
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-REPORT.md
+  s_42a303a21f7525::t_34becea7979294 85-90
+  s_42a303a21f7525::t_01cba4aec2f6f2 81-84
+  s_42a303a21f7525::t_9b709ca6418bc3 1-80,91-126
+  s_42a303a21f7525::t_0b02d371430650 127-133
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_7619109bc4f5f1 501-517
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5888daeb45e52d8283a01a803c7f9859ee53b5d3",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

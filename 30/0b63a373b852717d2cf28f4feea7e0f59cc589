@@ -1,0 +1,29 @@
+capabilities/manifest.json
+  s_5d594ee0d8bcfe::t_be93f8251868e0 3721
+jpegxl-codec-support.md
+  s_5d594ee0d8bcfe::t_d8d47f81da4fb7 31
+docs/architecture/jpegxl-m6-m10-completion.md
+  s_5d594ee0d8bcfe::t_be93f8251868e0 1174-1181
+.github/workflows/jpegxl-corpus.yml
+  s_5d594ee0d8bcfe::t_d3d9b2d2f40a0a 1,10,26-27,29,37,46,49,54,63,65,67-69
+docs-astro/public/capabilities.json
+  s_5d594ee0d8bcfe::t_d8d47f81da4fb7 5640
+docs/architecture/jpegxl-production-program.md
+  s_5d594ee0d8bcfe::t_be93f8251868e0 542-549
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "300b63a373b852717d2cf28f4feea7e0f59cc589",
+  "prompts": {},
+  "sessions": {
+    "s_5d594ee0d8bcfe": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ba41-4c6f-7dc1-908e-da823718bde0",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
