@@ -1,0 +1,3047 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "3d61db6bc6fba32c2601e2056c9a366fde460018",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/block-quantization-20261103",
+  "authorization": "At most three source-based development configurations. All quality, speed, memory and promotion gates unchanged; no peer maps or holdout tuning.",
+  "configurations": 3,
+  "correctedDevelopmentOutputs": 1392,
+  "experiments": [
+    {
+      "directory": "writer-v2-screen",
+      "outputs": 80,
+      "verdict": "full-lab finalist",
+      "complete": true,
+      "mode": "screen",
+      "variant": "standalone-block-quantization",
+      "images": 16,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.6741993263832176,
+          "median": -0.78324918816562,
+          "p90": 0.6287606715995584,
+          "worst": 1.2594537478062562,
+          "fullBandCount": 9
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.0501814835932946,
+          "median": -0.9529985090067867,
+          "p90": -0.0998811388422658,
+          "worst": 0.05499655396018852,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.11538537216518646,
+          "median": -0.22741671032037997,
+          "p90": 7.158267831257798,
+          "worst": 11.059092361820708,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -12.36742132597219,
+          "median": -8.651904883141365,
+          "p90": -3.617849163278162,
+          "worst": 3.383981801622659
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.551050633333356,
+          "median": 1.249637218160974,
+          "p90": 8.099104765531298,
+          "worst": 12.127769678390923
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.6904288144506618,
+          "median": -0.15531359451370513,
+          "p90": 3.826444565291511,
+          "worst": 4.412772985056771
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.37441634188654,
+          "median": -7.926815229100187,
+          "p90": -3.5804574660714907,
+          "worst": -1.7530469804711761
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -6.572041677576761,
+          "median": -7.391973657320991,
+          "p90": 3.457089842953966,
+          "worst": 4.934054669814149
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.6021435057878275,
+          "median": -4.9303871057977,
+          "p90": -2.6026943041929096,
+          "worst": -1.3681459048128384
+        }
+      ],
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1026-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.2594537478062562,
+              "meanLogRateDifference": 0.012515885988521226,
+              "overlap": {
+                "minimum": 60.30841383,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 60.30841383,
+                "maximum": 93.92077196
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1626-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.079658973192362,
+              "meanLogRateDifference": 0.010738722695505961,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 57.49693955,
+                "maximum": 92.39394166
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-3000-lab",
+              "metric": "ssimulacra2",
+              "percent": 0.17786237000675467,
+              "meanLogRateDifference": 0.0017770438219959792,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 56.02967902,
+                "maximum": 93.52125626
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-3000-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.05499655396018852,
+              "meanLogRateDifference": 0.0005498143639795594,
+              "overlap": {
+                "minimum": 0.295471,
+                "maximum": 1.597935
+              },
+              "measuredOverlap": {
+                "minimum": 0.295471,
+                "maximum": 1.597935
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2002-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.03543551667073534,
+              "meanLogRateDifference": 0.00035429239774316737,
+              "overlap": {
+                "minimum": 0.373275,
+                "maximum": 1.782393
+              },
+              "measuredOverlap": {
+                "minimum": 0.373275,
+                "maximum": 1.782393
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliNorm3",
+              "percent": -0.23519779435526694,
+              "meanLogRateDifference": -0.002354748188231498,
+              "overlap": {
+                "minimum": 0.3609,
+                "maximum": 2.655784
+              },
+              "measuredOverlap": {
+                "minimum": 0.3609,
+                "maximum": 2.655784
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 11.059092361820708,
+              "meanLogRateDifference": 0.1048922372890097,
+              "overlap": {
+                "minimum": 0.7901622653,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7901622653,
+                "maximum": 4.7498979568
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1052-lab",
+              "metric": "butteraugliMax",
+              "percent": 8.788614123644088,
+              "meanLogRateDifference": 0.08423649335874007,
+              "overlap": {
+                "minimum": 0.6544468403,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.6544468403,
+                "maximum": 4.1161394119
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliMax",
+              "percent": 5.527921538871508,
+              "meanLogRateDifference": 0.053805391048201534,
+              "overlap": {
+                "minimum": 0.5,
+                "maximum": 1.1449348927
+              },
+              "measuredOverlap": {
+                "minimum": 0.4865713418,
+                "maximum": 1.1449348927
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9201559,
+      "elapsedSeconds": 30.429
+    },
+    {
+      "directory": "writer-v2-lab",
+      "outputs": 576,
+      "verdict": "entry passed; subsequent holdout guards failed",
+      "complete": true,
+      "mode": "lab",
+      "variant": "standalone-block-quantization",
+      "images": 64,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -0.5850957178584084,
+          "median": -0.7190027882575412,
+          "p90": 0.5347206901725399,
+          "worst": 3.2735399398882983,
+          "fullBandCount": 44
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.0172608464228043,
+          "median": -0.8279778835730445,
+          "p90": -0.0037674095381384654,
+          "worst": 2.05150350853798,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -0.9815371390232427,
+          "median": -1.1148827807028296,
+          "p90": 3.3948754586007936,
+          "worst": 13.471639091787784,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -9.267610385494693,
+          "median": -7.868218913432867,
+          "p90": -2.915845860572373,
+          "worst": 10.419480126138634
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 1.4660995345849632,
+          "median": 2.6357843511954506,
+          "p90": 8.864009570732488,
+          "worst": 21.30978187132127
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.1289722398953825,
+          "median": -0.3011968016930471,
+          "p90": 2.782999884164096,
+          "worst": 9.277720773875734
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.754648849567614,
+          "median": -6.110343489576564,
+          "p90": -2.5953876391127015,
+          "worst": 3.392221072963533
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -6.510343205569218,
+          "median": -5.313522980927745,
+          "p90": 2.151484325160368,
+          "worst": 13.470274745404994
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -6.038591542530324,
+          "median": -4.51870150834514,
+          "p90": -1.735027050473382,
+          "worst": 0.2827151566358833
+        }
+      ],
+      "production": {
+        "means": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -7.952167740706697,
+            "median": -6.20848043170496,
+            "p90": -0.032748862622919706,
+            "worst": 8.683477419351373,
+            "fullBandCount": 8
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -11.198940505663456,
+            "median": -7.884401376283176,
+            "p90": -2.4729412294190656,
+            "worst": 12.100745939043694,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -10.42004815386005,
+            "median": -8.72362930201231,
+            "p90": 0.8209260964070507,
+            "worst": 23.93500456892538,
+            "fullBandCount": 0
+          }
+        ],
+        "guards": [
+          {
+            "metric": "ssimulacra2",
+            "admitted": 8,
+            "failures": [],
+            "worst": 4.752365791645583
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "admitted": 0,
+            "failures": [],
+            "worst": null
+          }
+        ]
+      },
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "ssimulacra2",
+              "percent": 3.2735399398882983,
+              "meanLogRateDifference": 0.03221100959991558,
+              "overlap": {
+                "minimum": 69.56449612,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 69.56449612,
+                "maximum": 91.83355318
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.949583676573209,
+              "meanLogRateDifference": 0.01930822742004478,
+              "overlap": {
+                "minimum": 67.27947155,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 67.27947155,
+                "maximum": 92.31220846
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1472-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.7905844000487174,
+              "meanLogRateDifference": 0.017747422692103023,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 59.4363287,
+                "maximum": 92.32237174
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.05150350853798,
+              "meanLogRateDifference": 0.020307436216929015,
+              "overlap": {
+                "minimum": 0.410501,
+                "maximum": 1.474568
+              },
+              "measuredOverlap": {
+                "minimum": 0.410501,
+                "maximum": 1.474568
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1612-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.44008161744190366,
+              "meanLogRateDifference": 0.004391160899946245,
+              "overlap": {
+                "minimum": 0.385198,
+                "maximum": 1.820718
+              },
+              "measuredOverlap": {
+                "minimum": 0.385198,
+                "maximum": 1.820718
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.39525959775558944,
+              "meanLogRateDifference": 0.003944804993069697,
+              "overlap": {
+                "minimum": 0.408155,
+                "maximum": 1.434486
+              },
+              "measuredOverlap": {
+                "minimum": 0.408155,
+                "maximum": 1.434486
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2014-lab",
+              "metric": "butteraugliMax",
+              "percent": 13.471639091787784,
+              "meanLogRateDifference": 0.1263827438659165,
+              "overlap": {
+                "minimum": 0.8009892702,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.8009892702,
+                "maximum": 4.2349591255
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2400-lab",
+              "metric": "butteraugliMax",
+              "percent": 9.465650925748385,
+              "meanLogRateDifference": 0.09044062388159549,
+              "overlap": {
+                "minimum": 0.9539506435,
+                "maximum": 2.8797693253
+              },
+              "measuredOverlap": {
+                "minimum": 0.9539506435,
+                "maximum": 2.8797693253
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliMax",
+              "percent": 7.055691717261163,
+              "meanLogRateDifference": 0.06817899640823295,
+              "overlap": {
+                "minimum": 0.8132402301,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.8132402301,
+                "maximum": 3.5988636017
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9291613,
+      "elapsedSeconds": 231.646
+    },
+    {
+      "directory": "selector-screen",
+      "outputs": 80,
+      "verdict": "full-lab diagnostic",
+      "complete": true,
+      "mode": "screen",
+      "variant": "standalone-block-selector",
+      "images": 16,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.35021592548945524,
+          "median": -0.6250206701591294,
+          "p90": 1.3135874426518432,
+          "worst": 1.4777676621290943,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.6651708027134078,
+          "median": -0.45994582755039903,
+          "p90": 0.3299738766448127,
+          "worst": 0.6506683685502541,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.10577384795512146,
+          "median": 0.2655235007146928,
+          "p90": 5.645511399831188,
+          "worst": 10.04617141749999,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -12.063755615568914,
+          "median": -8.383190618834828,
+          "p90": -2.7166363960440822,
+          "worst": 5.65941341813
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.8108760694284665,
+          "median": 1.7081816066918483,
+          "p90": 7.404377096022239,
+          "worst": 11.958053932469994
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.318874537509927,
+          "median": 0.3354474283164962,
+          "p90": 3.2435763977623164,
+          "worst": 4.973829722160688
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.049165878049422,
+          "median": -7.116608608696234,
+          "p90": -2.805376867988144,
+          "worst": -1.440736358986967
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -6.4175239037544625,
+          "median": -5.326530312736318,
+          "p90": 0.2699944623323961,
+          "worst": 3.886233054745488
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.2488003235591325,
+          "median": -4.174986933139218,
+          "p90": -2.6475683722869365,
+          "worst": -1.1099813174191107
+        }
+      ],
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1026-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.4777676621290943,
+              "meanLogRateDifference": 0.014669550689929653,
+              "overlap": {
+                "minimum": 60.32295336,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 60.32295336,
+                "maximum": 93.92077196
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1626-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.327776024918191,
+              "meanLogRateDifference": 0.013190383386790927,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 57.40265718,
+                "maximum": 92.39394166
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.2993988603854958,
+              "meanLogRateDifference": 0.012910290998055038,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 18.31386729,
+                "maximum": 90.03813844
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.6506683685502541,
+              "meanLogRateDifference": 0.006485606597769787,
+              "overlap": {
+                "minimum": 0.3609,
+                "maximum": 2.657275
+              },
+              "measuredOverlap": {
+                "minimum": 0.3609,
+                "maximum": 2.657275
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2002-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.4576227665927983,
+              "meanLogRateDifference": 0.004565788571768112,
+              "overlap": {
+                "minimum": 0.373275,
+                "maximum": 1.783299
+              },
+              "measuredOverlap": {
+                "minimum": 0.373275,
+                "maximum": 1.783299
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3306-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.20232498669682705,
+              "meanLogRateDifference": 0.0020212058535251155,
+              "overlap": {
+                "minimum": 0.365104,
+                "maximum": 2.264038
+              },
+              "measuredOverlap": {
+                "minimum": 0.365104,
+                "maximum": 2.264038
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 10.04617141749999,
+              "meanLogRateDifference": 0.09572983189715753,
+              "overlap": {
+                "minimum": 0.7901622653,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7901622653,
+                "maximum": 4.7518005371
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliMax",
+              "percent": 7.160807223484819,
+              "meanLogRateDifference": 0.06916039154054203,
+              "overlap": {
+                "minimum": 0.5210853815,
+                "maximum": 1.1449348927
+              },
+              "measuredOverlap": {
+                "minimum": 0.5210853815,
+                "maximum": 1.1449348927
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3000-lab",
+              "metric": "butteraugliMax",
+              "percent": 4.130215576177557,
+              "meanLogRateDifference": 0.04047200281160632,
+              "overlap": {
+                "minimum": 0.6889410615,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.6889410615,
+                "maximum": 4.0072436333
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9203627,
+      "elapsedSeconds": 31.999
+    },
+    {
+      "directory": "selector-lab",
+      "outputs": 576,
+      "verdict": "dominated by writer; speed gate failed",
+      "complete": true,
+      "mode": "lab",
+      "variant": "standalone-block-selector",
+      "images": 64,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -0.24902141380816173,
+          "median": -0.2164460650655876,
+          "p90": 0.8564335823689131,
+          "worst": 2.7968820337354483,
+          "fullBandCount": 44
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.6497210276471358,
+          "median": -0.584037017915177,
+          "p90": 0.5069953548818753,
+          "worst": 1.2873324432655426,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -0.14897844808738564,
+          "median": -0.33928389875458265,
+          "p90": 4.592915270758223,
+          "worst": 12.690922066450042,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.947524202235677,
+          "median": -7.445209246461979,
+          "p90": -2.535927616271461,
+          "worst": 10.419480126138634
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 2.3071333455907626,
+          "median": 3.205554171561401,
+          "p90": 10.476871377878155,
+          "worst": 20.961290291516534
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.7447530367890628,
+          "median": 0.29436084744635377,
+          "p90": 2.960920336861622,
+          "worst": 9.275576630988898
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.431664503512193,
+          "median": -5.5201083243210425,
+          "p90": -1.9426807352766589,
+          "worst": 3.392221072963533
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.741222610614017,
+          "median": -3.4871299041375172,
+          "p90": 3.4489599854624022,
+          "worst": 12.628389560809502
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -5.688693620592606,
+          "median": -4.050198503837668,
+          "p90": -1.5131036546757262,
+          "worst": -0.163521245881343
+        }
+      ],
+      "production": {
+        "means": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -7.574355586246416,
+            "median": -5.539991025927807,
+            "p90": 0.7448532410969423,
+            "worst": 7.935715189736757,
+            "fullBandCount": 8
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -10.68055277922475,
+            "median": -7.568258481809044,
+            "p90": -1.4413179461537018,
+            "worst": 11.950908641971674,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -9.853558096803855,
+            "median": -7.732399474364271,
+            "p90": 2.8588201616772997,
+            "worst": 23.163706746692075,
+            "fullBandCount": 0
+          }
+        ],
+        "guards": [
+          {
+            "metric": "ssimulacra2",
+            "admitted": 8,
+            "failures": [],
+            "worst": 5.9955789922486655
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "admitted": 0,
+            "failures": [],
+            "worst": null
+          }
+        ]
+      },
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "ssimulacra2",
+              "percent": 2.7968820337354483,
+              "meanLogRateDifference": 0.02758483616186337,
+              "overlap": {
+                "minimum": 69.5744301,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 69.5744301,
+                "maximum": 91.83355318
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.5945150812544922,
+              "meanLogRateDifference": 0.015819362278301375,
+              "overlap": {
+                "minimum": 67.27463219,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 67.27463219,
+                "maximum": 92.31220846
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1238-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.3240575877715857,
+              "meanLogRateDifference": 0.013153685597476776,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 52.47305894,
+                "maximum": 93.60185158
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 1.2873324432655426,
+              "meanLogRateDifference": 0.012791167528748093,
+              "overlap": {
+                "minimum": 0.410501,
+                "maximum": 1.469749
+              },
+              "measuredOverlap": {
+                "minimum": 0.410501,
+                "maximum": 1.469749
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1612-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 1.0161244825535325,
+              "meanLogRateDifference": 0.010109966452841884,
+              "overlap": {
+                "minimum": 0.385198,
+                "maximum": 1.817381
+              },
+              "measuredOverlap": {
+                "minimum": 0.385198,
+                "maximum": 1.817381
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.7682353633353652,
+              "meanLogRateDifference": 0.007652994623009448,
+              "overlap": {
+                "minimum": 0.324214,
+                "maximum": 2.745388
+              },
+              "measuredOverlap": {
+                "minimum": 0.324214,
+                "maximum": 2.745388
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2014-lab",
+              "metric": "butteraugliMax",
+              "percent": 12.690922066450042,
+              "meanLogRateDifference": 0.11947868226987265,
+              "overlap": {
+                "minimum": 0.8009892702,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.8009892702,
+                "maximum": 4.2349591255
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3320-lab",
+              "metric": "butteraugliMax",
+              "percent": 11.014714147194866,
+              "meanLogRateDifference": 0.10449256642359606,
+              "overlap": {
+                "minimum": 0.5761271119,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.5761271119,
+                "maximum": 4.5955376625
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 9.046441884296181,
+              "meanLogRateDifference": 0.08660367783100283,
+              "overlap": {
+                "minimum": 0.7086913586,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7086913586,
+                "maximum": 5.0696520805
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9270401,
+      "elapsedSeconds": 242.099
+    },
+    {
+      "directory": "native-proxy-screen",
+      "outputs": 80,
+      "verdict": "rejected max regression; no full lab",
+      "complete": true,
+      "mode": "screen",
+      "variant": "standalone-block-native-proxy",
+      "images": 16,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.563978634499098,
+          "median": -0.5550418696854593,
+          "p90": 1.1813942333787044,
+          "worst": 1.5200776036920272,
+          "fullBandCount": 9
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.0369007283268745,
+          "median": -0.9701518692542099,
+          "p90": -0.019863088620250373,
+          "worst": 0.16392675589169,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 1.5352063036350683,
+          "median": 0.7732588006091797,
+          "p90": 9.418441785453062,
+          "worst": 12.87969016567138,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -12.029180860258608,
+          "median": -8.753408004235062,
+          "p90": -2.980198883733408,
+          "worst": 5.889590367193185
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.0255263033570405,
+          "median": 1.8366527183386139,
+          "p90": 8.729096374137733,
+          "worst": 11.8563550531401
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.295075205743956,
+          "median": -0.14021433485548504,
+          "p90": 3.7216716398814365,
+          "worst": 5.081893987261604
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.213093187520775,
+          "median": -7.304879473741323,
+          "p90": -2.5123088225947834,
+          "worst": -1.2081904662819296
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -5.199244222970392,
+          "median": -5.912915935409914,
+          "p90": -0.16577737188668307,
+          "worst": 6.729011115482622
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.592661928885998,
+          "median": -5.120455138306379,
+          "p90": -2.3039443042558085,
+          "worst": -1.2814884832170697
+        }
+      ],
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.5200776036920272,
+              "meanLogRateDifference": 0.015086401835518851,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 18.47218366,
+                "maximum": 90.03813844
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-1026-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.391433704198682,
+              "meanLogRateDifference": 0.0138184213656084,
+              "overlap": {
+                "minimum": 60.3989007,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 60.3989007,
+                "maximum": 93.92077196
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1626-lab",
+              "metric": "ssimulacra2",
+              "percent": 0.9713547625587271,
+              "meanLogRateDifference": 0.009666674414194176,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 57.39497399,
+                "maximum": 92.39394166
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.16392675589169,
+              "meanLogRateDifference": 0.0016379254263947198,
+              "overlap": {
+                "minimum": 0.3609,
+                "maximum": 2.655866
+              },
+              "measuredOverlap": {
+                "minimum": 0.3609,
+                "maximum": 2.655866
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2002-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.022690788225295085,
+              "meanLogRateDifference": 0.00022688214255305684,
+              "overlap": {
+                "minimum": 0.373275,
+                "maximum": 1.783981
+              },
+              "measuredOverlap": {
+                "minimum": 0.373275,
+                "maximum": 1.783981
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1026-lab",
+              "metric": "butteraugliNorm3",
+              "percent": -0.06241696546579583,
+              "meanLogRateDifference": -0.0006243645296311052,
+              "overlap": {
+                "minimum": 0.269389,
+                "maximum": 1.820867
+              },
+              "measuredOverlap": {
+                "minimum": 0.269389,
+                "maximum": 1.820867
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 12.87969016567138,
+              "meanLogRateDifference": 0.12115237674114263,
+              "overlap": {
+                "minimum": 0.7901622653,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7901622653,
+                "maximum": 4.7476882935
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliMax",
+              "percent": 12.719461963993,
+              "meanLogRateDifference": 0.11973190838293062,
+              "overlap": {
+                "minimum": 0.8319938779,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.8319938779,
+                "maximum": 3.8167123795
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliMax",
+              "percent": 6.1174216069131235,
+              "meanLogRateDifference": 0.059376046029177114,
+              "overlap": {
+                "minimum": 0.5,
+                "maximum": 1.1449348927
+              },
+              "measuredOverlap": {
+                "minimum": 0.4865713418,
+                "maximum": 1.1449348927
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9205661,
+      "elapsedSeconds": 29.469
+    }
+  ],
+  "invalidInitial": {
+    "screen": {
+      "complete": true,
+      "mode": "screen",
+      "variant": "standalone-block-quantization",
+      "images": 16,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.7936828723135284,
+          "median": -0.9242228694948724,
+          "p90": 0.6855817648362676,
+          "worst": 1.2594537478062562,
+          "fullBandCount": 9
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.102532133260448,
+          "median": -0.9239934705659956,
+          "p90": -0.13578288141775682,
+          "worst": 0.04792616989625013,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.14105815105915492,
+          "median": 0.3157449743765526,
+          "p90": 5.09131448093432,
+          "worst": 10.327626909754855,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -12.464904679269734,
+          "median": -8.611907291894825,
+          "p90": -3.7656143461634843,
+          "worst": 3.3400753426897007
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.5365170802314168,
+          "median": 1.1989369922720927,
+          "p90": 7.770227510711417,
+          "worst": 11.896032149831976
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.7444209184463868,
+          "median": -0.1299931762660342,
+          "p90": 3.7776503662725824,
+          "worst": 4.404968012945718
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.464501300463324,
+          "median": -7.880791405178487,
+          "p90": -3.6340997318753008,
+          "worst": -1.6786691464111454
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -6.5622812039160054,
+          "median": -6.43014061087197,
+          "p90": 1.521709268056454,
+          "worst": 4.215193093136595
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.660244222959915,
+          "median": -4.983876771553929,
+          "p90": -2.6052620905077477,
+          "worst": -1.4054943552023942
+        }
+      ],
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1026-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.2594537478062562,
+              "meanLogRateDifference": 0.012515885988521226,
+              "overlap": {
+                "minimum": 60.30841383,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 60.30841383,
+                "maximum": 93.92077196
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1626-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.1218381941230382,
+              "meanLogRateDifference": 0.01115592258901188,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 57.49693955,
+                "maximum": 92.39394166
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 0.24932533554949707,
+              "meanLogRateDifference": 0.0024901503559867175,
+              "overlap": {
+                "minimum": 70.83330878,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 70.83330878,
+                "maximum": 91.81518712
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-2002-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.04792616989625013,
+              "meanLogRateDifference": 0.00047914688975542744,
+              "overlap": {
+                "minimum": 0.373275,
+                "maximum": 1.782393
+              },
+              "measuredOverlap": {
+                "minimum": 0.373275,
+                "maximum": 1.782393
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3000-lab",
+              "metric": "butteraugliNorm3",
+              "percent": -0.01650445748709203,
+              "meanLogRateDifference": -0.00016505819622554188,
+              "overlap": {
+                "minimum": 0.295471,
+                "maximum": 1.598291
+              },
+              "measuredOverlap": {
+                "minimum": 0.295471,
+                "maximum": 1.598291
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1026-lab",
+              "metric": "butteraugliNorm3",
+              "percent": -0.25506130534842164,
+              "meanLogRateDifference": -0.0025538714086732884,
+              "overlap": {
+                "minimum": 0.269389,
+                "maximum": 1.822291
+              },
+              "measuredOverlap": {
+                "minimum": 0.269389,
+                "maximum": 1.822291
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 10.327626909754855,
+              "meanLogRateDifference": 0.09828417953217977,
+              "overlap": {
+                "minimum": 0.7901622653,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7901622653,
+                "maximum": 4.8331127167
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliMax",
+              "percent": 5.513881231874207,
+              "meanLogRateDifference": 0.05367233393028763,
+              "overlap": {
+                "minimum": 0.5,
+                "maximum": 1.1449348927
+              },
+              "measuredOverlap": {
+                "minimum": 0.4865713418,
+                "maximum": 1.1449348927
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3306-lab",
+              "metric": "butteraugliMax",
+              "percent": 4.668747729994432,
+              "meanLogRateDifference": 0.04563039382504008,
+              "overlap": {
+                "minimum": 0.7965077162,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7965077162,
+                "maximum": 4.1249713898
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9201559,
+      "elapsedSeconds": 39.76
+    },
+    "fullLab": {
+      "startedAt": "2026-11-03T16:46:48.816Z",
+      "mode": "lab",
+      "variant": "standalone-block-quantization",
+      "effort": 7,
+      "budgetSeconds": 3600,
+      "workers": 4,
+      "resumedSpeed": false,
+      "reusedSpeedJobs": 0,
+      "measuredSpeedJobs": 0,
+      "selected": 64,
+      "totalJobs": 192,
+      "completedJobs": 111,
+      "failures": [],
+      "omissions": []
+    },
+    "terminalExitCode": 130,
+    "reason": "32x16 error-weight row was assigned to 16x8 transform IDs. Corrected before all qualified results. Initial invocation also stopped on an omitted explicit manifest before encoding; separate log preserved."
+  },
+  "source": {
+    "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+    "archive": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source-a7a9c787.tar.gz",
+    "archiveSha256": "818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29",
+    "files": [
+      {
+        "path": "lib/jxl/enc_group.cc",
+        "sha256": "a677d4534a8e4d405e06d9052be180e6d8cdcd489834868c8712ce30a23ec9ba",
+        "archiveExact": true
+      },
+      {
+        "path": "LICENSE",
+        "sha256": "8405932022a556380c2d8c272eff154a923feb197233f348ce5f7334fb0a5ede",
+        "archiveExact": true
+      }
+    ]
+  },
+  "quantFieldAudit": {
+    "passed": true,
+    "unchanged": "Strategies, DC scale/steps, CfL maps, filtering and chroma scales",
+    "rows": [
+      {
+        "id": "im26-2004",
+        "distance": 0.5,
+        "leaders": 4096,
+        "raised": 3758,
+        "lowered": 0,
+        "same": 338,
+        "meanQuantRatio": 1.1113290057382224,
+        "byStrategy": [
+          {
+            "strategy": 0,
+            "leaders": 3758,
+            "raised": 3758,
+            "lowered": 0,
+            "minimum": 1.0909090909090908,
+            "maximum": 1.1428571428571428
+          },
+          {
+            "strategy": 2,
+            "leaders": 338,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 2,
+        "leaders": 787,
+        "raised": 620,
+        "lowered": 0,
+        "same": 167,
+        "meanQuantRatio": 1.1465601742603018,
+        "byStrategy": [
+          {
+            "strategy": 0,
+            "leaders": 449,
+            "raised": 449,
+            "lowered": 0,
+            "minimum": 1.1428571428571428,
+            "maximum": 1.2
+          },
+          {
+            "strategy": 6,
+            "leaders": 39,
+            "raised": 38,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.4
+          },
+          {
+            "strategy": 10,
+            "leaders": 70,
+            "raised": 70,
+            "lowered": 0,
+            "minimum": 1.1666666666666667,
+            "maximum": 1.2
+          },
+          {
+            "strategy": 5,
+            "leaders": 164,
+            "raised": 1,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1666666666666667
+          },
+          {
+            "strategy": 11,
+            "leaders": 42,
+            "raised": 42,
+            "lowered": 0,
+            "minimum": 1.1666666666666667,
+            "maximum": 1.2
+          },
+          {
+            "strategy": 7,
+            "leaders": 20,
+            "raised": 20,
+            "lowered": 0,
+            "minimum": 1.1666666666666667,
+            "maximum": 1.4
+          },
+          {
+            "strategy": 4,
+            "leaders": 2,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 2,
+            "leaders": 1,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7,
+        "leaders": 372,
+        "raised": 99,
+        "lowered": 0,
+        "same": 273,
+        "meanQuantRatio": 1.050448028673834,
+        "byStrategy": [
+          {
+            "strategy": 5,
+            "leaders": 194,
+            "raised": 1,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.2
+          },
+          {
+            "strategy": 4,
+            "leaders": 60,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 11,
+            "leaders": 27,
+            "raised": 27,
+            "lowered": 0,
+            "minimum": 1.1666666666666667,
+            "maximum": 1.2
+          },
+          {
+            "strategy": 10,
+            "leaders": 61,
+            "raised": 61,
+            "lowered": 0,
+            "minimum": 1.1666666666666667,
+            "maximum": 1.2
+          },
+          {
+            "strategy": 6,
+            "leaders": 17,
+            "raised": 1,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1666666666666667
+          },
+          {
+            "strategy": 1,
+            "leaders": 1,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 0,
+            "leaders": 9,
+            "raised": 9,
+            "lowered": 0,
+            "minimum": 1.1666666666666667,
+            "maximum": 1.2
+          },
+          {
+            "strategy": 2,
+            "leaders": 2,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 7,
+            "leaders": 1,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.5,
+        "leaders": 4096,
+        "raised": 3453,
+        "lowered": 0,
+        "same": 643,
+        "meanQuantRatio": 1.0669306008661088,
+        "byStrategy": [
+          {
+            "strategy": 0,
+            "leaders": 3509,
+            "raised": 3453,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1111111111111112
+          },
+          {
+            "strategy": 2,
+            "leaders": 579,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 1,
+            "leaders": 8,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 2,
+        "leaders": 1460,
+        "raised": 1180,
+        "lowered": 0,
+        "same": 280,
+        "meanQuantRatio": 1.1084023700804453,
+        "byStrategy": [
+          {
+            "strategy": 5,
+            "leaders": 108,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 11,
+            "leaders": 72,
+            "raised": 53,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1428571428571428
+          },
+          {
+            "strategy": 0,
+            "leaders": 960,
+            "raised": 960,
+            "lowered": 0,
+            "minimum": 1.1111111111111112,
+            "maximum": 1.2222222222222223
+          },
+          {
+            "strategy": 2,
+            "leaders": 99,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 7,
+            "leaders": 98,
+            "raised": 85,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.2857142857142858
+          },
+          {
+            "strategy": 10,
+            "leaders": 42,
+            "raised": 36,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1428571428571428
+          },
+          {
+            "strategy": 4,
+            "leaders": 24,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 6,
+            "leaders": 48,
+            "raised": 46,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.2857142857142858
+          },
+          {
+            "strategy": 1,
+            "leaders": 9,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7,
+        "leaders": 579,
+        "raised": 117,
+        "lowered": 0,
+        "same": 462,
+        "meanQuantRatio": 1.0298030265646851,
+        "byStrategy": [
+          {
+            "strategy": 5,
+            "leaders": 158,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 11,
+            "leaders": 76,
+            "raised": 31,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1666666666666667
+          },
+          {
+            "strategy": 10,
+            "leaders": 45,
+            "raised": 16,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1428571428571428
+          },
+          {
+            "strategy": 4,
+            "leaders": 71,
+            "raised": 1,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.125
+          },
+          {
+            "strategy": 7,
+            "leaders": 50,
+            "raised": 5,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1666666666666667
+          },
+          {
+            "strategy": 2,
+            "leaders": 57,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 6,
+            "leaders": 37,
+            "raised": 1,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1428571428571428
+          },
+          {
+            "strategy": 1,
+            "leaders": 22,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 0,
+            "leaders": 63,
+            "raised": 63,
+            "lowered": 0,
+            "minimum": 1.125,
+            "maximum": 1.3333333333333333
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.5,
+        "leaders": 3706,
+        "raised": 2927,
+        "lowered": 0,
+        "same": 779,
+        "meanQuantRatio": 1.0607108757404835,
+        "byStrategy": [
+          {
+            "strategy": 2,
+            "leaders": 740,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 0,
+            "leaders": 2898,
+            "raised": 2898,
+            "lowered": 0,
+            "minimum": 1.0714285714285714,
+            "maximum": 1.0769230769230769
+          },
+          {
+            "strategy": 6,
+            "leaders": 16,
+            "raised": 15,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.0769230769230769
+          },
+          {
+            "strategy": 7,
+            "leaders": 16,
+            "raised": 12,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1538461538461537
+          },
+          {
+            "strategy": 11,
+            "leaders": 9,
+            "raised": 2,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.0769230769230769
+          },
+          {
+            "strategy": 10,
+            "leaders": 10,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 5,
+            "leaders": 15,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 1,
+            "leaders": 2,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 2,
+        "leaders": 293,
+        "raised": 23,
+        "lowered": 0,
+        "same": 270,
+        "meanQuantRatio": 1.0097648843382634,
+        "byStrategy": [
+          {
+            "strategy": 5,
+            "leaders": 244,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 10,
+            "leaders": 9,
+            "raised": 6,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1.1111111111111112
+          },
+          {
+            "strategy": 7,
+            "leaders": 5,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 6,
+            "leaders": 5,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 2,
+            "leaders": 5,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 0,
+            "leaders": 10,
+            "raised": 10,
+            "lowered": 0,
+            "minimum": 1.1111111111111112,
+            "maximum": 1.25
+          },
+          {
+            "strategy": 11,
+            "leaders": 7,
+            "raised": 7,
+            "lowered": 0,
+            "minimum": 1.1111111111111112,
+            "maximum": 1.1111111111111112
+          },
+          {
+            "strategy": 4,
+            "leaders": 7,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 1,
+            "leaders": 1,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7,
+        "leaders": 295,
+        "raised": 9,
+        "lowered": 0,
+        "same": 286,
+        "meanQuantRatio": 1.0043583535108958,
+        "byStrategy": [
+          {
+            "strategy": 5,
+            "leaders": 243,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 10,
+            "leaders": 9,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 4,
+            "leaders": 12,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 0,
+            "leaders": 9,
+            "raised": 9,
+            "lowered": 0,
+            "minimum": 1.1428571428571428,
+            "maximum": 1.1428571428571428
+          },
+          {
+            "strategy": 2,
+            "leaders": 6,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 11,
+            "leaders": 7,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 7,
+            "leaders": 5,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 6,
+            "leaders": 3,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          },
+          {
+            "strategy": 1,
+            "leaders": 1,
+            "raised": 0,
+            "lowered": 0,
+            "minimum": 1,
+            "maximum": 1
+          }
+        ]
+      }
+    ]
+  },
+  "writerPairedTiming": {
+    "summaries": [
+      {
+        "id": "im26-3012",
+        "pairs": 15,
+        "ratio": 0.9984516057031471,
+        "mad": 0.03246395239412092,
+        "wins": 8,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 851.9805070000002,
+            "bytes": 32832,
+            "managedPeakBytes": 5682267
+          },
+          {
+            "mode": "writer",
+            "medianMs": 867.8300920000001,
+            "bytes": 35424,
+            "managedPeakBytes": 5684315
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "pairs": 15,
+        "ratio": 1.0042998603218878,
+        "mad": 0.036958444555014514,
+        "wins": 6,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 847.0196069999984,
+            "bytes": 7913,
+            "managedPeakBytes": 5678171
+          },
+          {
+            "mode": "writer",
+            "medianMs": 850.6616729999987,
+            "bytes": 7032,
+            "managedPeakBytes": 5672027
+          }
+        ]
+      }
+    ]
+  },
+  "selectorPairedTiming": {
+    "summaries": [
+      {
+        "id": "im26-3012",
+        "pairs": 15,
+        "ratio": 1.189254019155544,
+        "mad": 0.03532782527627654,
+        "wins": 0,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 855.5390460000017,
+            "bytes": 32832,
+            "managedPeakBytes": 5682267
+          },
+          {
+            "mode": "selector",
+            "medianMs": 983.574786000001,
+            "bytes": 35835,
+            "managedPeakBytes": 5680219
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "pairs": 15,
+        "ratio": 1.105068723691015,
+        "mad": 0.026551437886606744,
+        "wins": 1,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 834.3803740000003,
+            "bytes": 7913,
+            "managedPeakBytes": 5678171
+          },
+          {
+            "mode": "selector",
+            "medianMs": 915.7670780000008,
+            "bytes": 7052,
+            "managedPeakBytes": 5674075
+          }
+        ]
+      }
+    ]
+  },
+  "writerEntry": {
+    "completedAt": "2026-11-03T17:06:09.453Z",
+    "cropRatio": 2.316027504511696,
+    "originals": [
+      {
+        "id": "im26-2004",
+        "exitCode": 0,
+        "engines": [
+          {
+            "engine": "purejsimage",
+            "receipt": {
+              "status": "encoded",
+              "engine": "purejsimage",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": "standalone-block-quantization",
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "c1842c4da2c96804af5b548771514d9255f16b704c055d32ed95dd53ed7cbb7f",
+              "setting": 2,
+              "bytes": 1980510,
+              "encodeMs": 36806.150910000004,
+              "managedPeakBytes": 59141263,
+              "processPeakRssBytes": 435105792
+            }
+          },
+          {
+            "engine": "jsquash",
+            "receipt": {
+              "status": "encoded",
+              "engine": "jsquash",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "967e08312ebc30005867cdab1762c6d29bdc585672778812a3167192256094c3",
+              "setting": 80,
+              "bytes": 1928555,
+              "encodeMs": 24504.301164,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1927585792
+            }
+          },
+          {
+            "engine": "vips",
+            "receipt": {
+              "status": "encoded",
+              "engine": "vips",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "527f32c8369703529f51dd911b153e184506dc512620694893c8692f630f2919",
+              "setting": 2,
+              "bytes": 1493247,
+              "encodeMs": 8932.658400999999,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1042632704
+            }
+          }
+        ],
+        "managedPass": true,
+        "ratio": 1.5020281812432594
+      },
+      {
+        "id": "im26-2400",
+        "exitCode": 1,
+        "engines": [
+          {
+            "engine": "purejsimage",
+            "receipt": {
+              "status": "encoded",
+              "engine": "purejsimage",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+              "width": 4000,
+              "height": 5350,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": "standalone-block-quantization",
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+              "encodedSha256": "a88642d415e61b6a1776bafb9d0af1c9c676164c596c96321bcdcd42d998bce5",
+              "setting": 2,
+              "bytes": 576639,
+              "encodeMs": 58224.146487,
+              "managedPeakBytes": 91084189,
+              "processPeakRssBytes": 508739584
+            }
+          },
+          {
+            "engine": "jsquash",
+            "receipt": null
+          },
+          {
+            "engine": "vips",
+            "receipt": {
+              "status": "encoded",
+              "engine": "vips",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+              "width": 4000,
+              "height": 5350,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+              "encodedSha256": "73bf90d71043a671628d7c31fe3ad616cf80a0a913a387eee7463d1233a90221",
+              "setting": 2,
+              "bytes": 594138,
+              "encodeMs": 13138.458652000001,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1198764032
+            }
+          }
+        ],
+        "managedPass": true,
+        "ratio": null
+      }
+    ],
+    "policy": "All own encodes must finish, managed <=137514476, measured original ratios <=5. Preserve an unavailable peer ratio explicitly; no holdout is launched by this script."
+  },
+  "writerHoldout": {
+    "executionComplete": true,
+    "selected": 63,
+    "completedJobs": 189,
+    "outputs": 567,
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -7.0208117623093385,
+        "median": -7.65055166672423,
+        "p90": 2.1233752160752566,
+        "worst": 9.239461267778701
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": 1.8186540012604615,
+        "median": 2.6574487765244608,
+        "p90": 9.208104357084686,
+        "worst": 17.31723642198305
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": 0.737035786373654,
+        "median": 0.8487198210743004,
+        "p90": 4.672517208674107,
+        "worst": 27.93094023131175
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -6.511776451647969,
+        "median": -4.960977080699909,
+        "p90": -0.6766786510630268,
+        "worst": 1.1742930066037713
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -3.7623311694530597,
+        "median": -3.01421928841853,
+        "p90": 4.002976825354913,
+        "worst": 9.73065475749859
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -4.239432057535481,
+        "median": -3.2652511544128835,
+        "p90": -0.5858747494276942,
+        "worst": 9.156672814808651
+      }
+    ],
+    "vipsMean": -4.837846559545503,
+    "mainMeans": [
+      {
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -5.965820341693229,
+        "median": -4.7390217482387955,
+        "p90": 2.6115571127339496,
+        "worst": 10.090153972682833,
+        "fullBandCount": 9
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -8.980767189464377,
+        "median": -7.266052915731396,
+        "p90": -1.890558998092997,
+        "worst": 8.856208523103334,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -8.83935202205355,
+        "median": -8.49860955810049,
+        "p90": 3.172212887055393,
+        "worst": 17.85070600264421,
+        "fullBandCount": 0
+      }
+    ],
+    "guards": [
+      {
+        "metric": "ssimulacra2",
+        "comparisons": 63,
+        "admitted": 9,
+        "failures": 2,
+        "worstAdmitted": 10.090153972682833
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "comparisons": 63,
+        "admitted": 0,
+        "failures": 0,
+        "worstAdmitted": null
+      }
+    ],
+    "objectivePass": true,
+    "mainMeansPass": true,
+    "guardsPass": false,
+    "passed": false,
+    "maxManaged": 26046019,
+    "policy": "Aggregate-only holdout review. No identities, per-image values or tuning decisions are emitted."
+  },
+  "validation": {
+    "portUnitTests": 19,
+    "fixtureCases": 36,
+    "explicitPromotionFences": "passed",
+    "strictTypeScript": "passed",
+    "archives": [
+      {
+        "base": "3d61db6bc6fba32c2601e2056c9a366fde460018",
+        "trial": "writer",
+        "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-QUANTIZATION-WRITER-EXPERIMENT.patch",
+        "applies": true,
+        "exactModules": [
+          {
+            "name": "libjxl-ports",
+            "sha256": "58cf9eddc11e902bc3835a9e77279c376c8964e9084f4f31f851f8c3d29679d9"
+          },
+          {
+            "name": "libjxl-standalone-port",
+            "sha256": "935383ed35e1378de0e4c997c855742a3857f158df8fdb4f1aa1f999dd469d22"
+          },
+          {
+            "name": "libjxl-strategy-port",
+            "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d"
+          },
+          {
+            "name": "strategy-transplant",
+            "sha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730"
+          },
+          {
+            "name": "libjxl-chroma-roundtrip-port",
+            "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6"
+          },
+          {
+            "name": "libjxl-block-quantization-port",
+            "sha256": "2f40679de8e0f9202e8a46d77180cd24e0c2f69f3ed6bb2e3a97b16922c3ab4a"
+          }
+        ]
+      },
+      {
+        "base": "3d61db6bc6fba32c2601e2056c9a366fde460018",
+        "trial": "writer-v2",
+        "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-QUANTIZATION-WRITER-V2-EXPERIMENT.patch",
+        "applies": true,
+        "exactModules": [
+          {
+            "name": "libjxl-ports",
+            "sha256": "58cf9eddc11e902bc3835a9e77279c376c8964e9084f4f31f851f8c3d29679d9"
+          },
+          {
+            "name": "libjxl-standalone-port",
+            "sha256": "935383ed35e1378de0e4c997c855742a3857f158df8fdb4f1aa1f999dd469d22"
+          },
+          {
+            "name": "libjxl-strategy-port",
+            "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d"
+          },
+          {
+            "name": "strategy-transplant",
+            "sha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730"
+          },
+          {
+            "name": "libjxl-chroma-roundtrip-port",
+            "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6"
+          },
+          {
+            "name": "libjxl-block-quantization-port",
+            "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+          },
+          {
+            "name": "tests/jpegxl-block-quantization-port.test.ts",
+            "sha256": "3b976a07d15b4eb4deafbfdb87c71ca74397e49a2c9b9c1a692670732e91afbb"
+          }
+        ]
+      },
+      {
+        "base": "3d61db6bc6fba32c2601e2056c9a366fde460018",
+        "trial": "selector",
+        "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-QUANTIZATION-SELECTOR-EXPERIMENT.patch",
+        "applies": true,
+        "exactModules": [
+          {
+            "name": "libjxl-ports",
+            "sha256": "21430a966f3de15a1cb8d9958dc2f3a3d043826caa229303e7917a93d21301c8"
+          },
+          {
+            "name": "libjxl-standalone-port",
+            "sha256": "15091c93e55f9f6f5821667033fbbb19d17b630eeec69f6be9bcb1b7bfd970ae"
+          },
+          {
+            "name": "libjxl-strategy-port",
+            "sha256": "b37ca12bef6f4adf75dcd8ff675f477449aed8d9a48130844a67ee63ef17bd92"
+          },
+          {
+            "name": "strategy-transplant",
+            "sha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730"
+          },
+          {
+            "name": "libjxl-chroma-roundtrip-port",
+            "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6"
+          },
+          {
+            "name": "libjxl-block-quantization-port",
+            "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+          },
+          {
+            "name": "tests/jpegxl-block-quantization-port.test.ts",
+            "sha256": "3b976a07d15b4eb4deafbfdb87c71ca74397e49a2c9b9c1a692670732e91afbb"
+          }
+        ]
+      },
+      {
+        "base": "3d61db6bc6fba32c2601e2056c9a366fde460018",
+        "trial": "native-proxy",
+        "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-QUANTIZATION-NATIVE-PROXY-EXPERIMENT.patch",
+        "applies": true,
+        "exactModules": [
+          {
+            "name": "libjxl-ports",
+            "sha256": "7f68df71f2e06cea48ed8382b101a7287f46e9817a2293e0f26becc60897ca3f"
+          },
+          {
+            "name": "libjxl-standalone-port",
+            "sha256": "9e1c3b020f9662f01c92736331978b8b00b0f73444eb5ee3107e980669ac4ce1"
+          },
+          {
+            "name": "libjxl-strategy-port",
+            "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d"
+          },
+          {
+            "name": "strategy-transplant",
+            "sha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730"
+          },
+          {
+            "name": "libjxl-chroma-roundtrip-port",
+            "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6"
+          },
+          {
+            "name": "libjxl-block-quantization-port",
+            "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+          },
+          {
+            "name": "tests/jpegxl-block-quantization-port.test.ts",
+            "sha256": "3b976a07d15b4eb4deafbfdb87c71ca74397e49a2c9b9c1a692670732e91afbb"
+          }
+        ]
+      }
+    ],
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-03T17:34:12.837Z",
+      "endedAt": "2026-11-03T17:42:56.663Z",
+      "code": 0,
+      "signal": null
+    },
+    "repositoryTests": {
+      "passed": 4229,
+      "skipped": 3,
+      "total": 4232
+    },
+    "activeImplementationChanged": false
+  },
+  "retainedQualityChanges": 0,
+  "newHoldoutAttempts": 1,
+  "bundles": {
+    "codecBytes": 614969,
+    "specializedBytes": 687801,
+    "runtimeDependencies": 0
+  },
+  "status": "Not merge-ready. The best configuration improves development means and passes speed/memory entry, but two holdout SSIM guards still fail. All new code is archived; active source/tests match the base.",
+  "nextHypotheses": [
+    {
+      "rank": 1,
+      "hypothesis": "Revisit the existing DC/AC allocation controls with the corrected selected-block pass held fixed.",
+      "upside": "Best-supported remaining lever, unmeasured. The pass raises mean leader precision by 14.7% on the development grain example at distance 2, changing the balance used to choose the old allocation.",
+      "cost": "One block-field scale or existing DC-step selection; no additional candidate encodes."
+    },
+    {
+      "rank": 2,
+      "hypothesis": "Audit native low-frequency/chroma reconstruction ordering against our retained separate DC handling.",
+      "upside": "Possible source-fidelity gap, unmeasured; lower confidence because the feature audit primarily implicated luma structure.",
+      "cost": "Source and own-bitstream diagnostic before any port."
+    },
+    {
+      "rank": 3,
+      "hypothesis": "Check sensitivity to native Float32 rounding versus the scalar port's double precision.",
+      "upside": "Expected small; no evidence yet that rare threshold differences explain the guard gap.",
+      "cost": "Development-only arithmetic audit; no quality claim."
+    }
+  ],
+  "stop": "All three approved configurations are evaluated. No further quality trial without owner renewal; do not relax the failed guards or merge."
+}
