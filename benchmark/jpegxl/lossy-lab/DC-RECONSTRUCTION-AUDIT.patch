@@ -1,0 +1,866 @@
+diff --git a/benchmark/jpegxl/lossy-lab/prepare-dc-reconstruction-audit.ts b/benchmark/jpegxl/lossy-lab/prepare-dc-reconstruction-audit.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/prepare-dc-reconstruction-audit.ts
+@@ -0,0 +1,37 @@
++import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises'
++import { resolve, dirname } from 'node:path'
++const root = resolve('.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103')
++const frozen = resolve('.tmp/jpegxl-lossy-lab/dc-completion-20261103/prototype')
++await mkdir(`${root}/prototype`, { recursive: true })
++const observerSource = resolve(process.argv[2] ?? `${root}/prototype/dc-observer.ts`)
++const observer = (await readFile(observerSource, 'utf8')).replace(
++  /from (['"])(\.[^'"]+)\1/gu,
++  (_all: string, quote: string, path: string) =>
++    `from ${quote}${resolve(dirname(observerSource), path)}${quote}`,
++)
++for (const file of await readdir(frozen)) {
++  if (!file.endsWith('.ts')) continue
++  let code = (await readFile(`${frozen}/${file}`, 'utf8')).replaceAll(frozen, `${root}/prototype`)
++  if (file === 'strategy-transplant.ts') {
++    code = code.replace(
++      ' */\n',
++      " * Diagnostic copy: observe source DC and transform roundtrip errors only.\n */\nimport {captureDcSource,recordDcRoundtrip} from '../../../.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/dc-observer.ts'\n",
++    )
++    const a = '              developmentDcGrid(result, bw, bh, dc)'
++    const b = '  libjxlQuantizeDc(base, rawDc)'
++    if (!code.includes(a) || !code.includes(b)) throw new Error('Missing observation points')
++    code = code.replace(a, a + '\n              recordDcRoundtrip(strategy,c,bw,bh,result,dc)')
++    code = code.replace(b, '  captureDcSource(base, rawDc, strategies, firstBlocks)\n' + b)
++  }
++  await writeFile(`${root}/prototype/${file}`, code)
++}
++await writeFile(`${root}/prototype/dc-observer.ts`, observer)
++await writeFile(
++  `${root}/tsconfig.json`,
++  JSON.stringify({
++    extends: '../../../tsconfig.json',
++    include: ['*.ts', 'prototype/*.ts'],
++    exclude: [],
++  }) + '\n',
++)
++console.log('Prepared first-party observation copy of frozen coupled DC mode')
+diff --git a/benchmark/jpegxl/lossy-lab/dc-reconstruction-observer.ts b/benchmark/jpegxl/lossy-lab/dc-reconstruction-observer.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-reconstruction-observer.ts
+@@ -0,0 +1,95 @@
++// First-party diagnostic only. Observe existing values without changing decisions.
++import type { VarDctCoefficientGeometry } from '../../../.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/prototype/jpegxl-jpeg-encode.ts'
++import { populateJpegXlDevelopmentLowestFrequencies } from '../../../src/codecs/jpegxl-vardct-render.ts'
++interface ErrorStat {
++  count: number
++  maxAbsolute: number
++  squared: number
++  sourceSquared: number
++}
++const stat = (): ErrorStat => ({ count: 0, maxAbsolute: 0, squared: 0, sourceSquared: 0 })
++function add(s: ErrorStat, actual: number, expected: number): void {
++  const delta = actual - expected
++  s.count++
++  s.maxAbsolute = Math.max(s.maxAbsolute, Math.abs(delta))
++  s.squared += delta * delta
++  s.sourceSquared += expected * expected
++}
++interface Roundtrip {
++  strategy: number
++  channel: number
++  blocks: number
++  exact: ErrorStat
++  floatGrid: ErrorStat
++}
++export interface SourceSnapshot {
++  width: number
++  height: number
++  planes: Float32Array[]
++  strategies: Int32Array
++  firstBlocks: Uint8Array
++  dcQuantization: readonly number[]
++  globalScale: number
++  quantDc: number
++}
++let snapshot: SourceSnapshot | undefined
++let captures = 0
++const roundtrips = new Map<string, Roundtrip>()
++const recovered = new Float64Array(4096),
++  recoveredFloat = new Float64Array(4096)
++const grid = new Float64Array(64),
++  scratch = new Float64Array(64)
++export function resetDcObserver(): void {
++  snapshot = undefined
++  captures = 0
++  roundtrips.clear()
++}
++export function recordDcRoundtrip(
++  strategy: number,
++  channel: number,
++  bw: number,
++  bh: number,
++  coefficients: Float64Array,
++  dc: Float64Array,
++): void {
++  const key = `${strategy}/${channel}`
++  let row = roundtrips.get(key)
++  if (!row) {
++    row = { strategy, channel, blocks: 0, exact: stat(), floatGrid: stat() }
++    roundtrips.set(key, row)
++  }
++  row.blocks++
++  populateJpegXlDevelopmentLowestFrequencies(recovered, dc, bw, bh, scratch)
++  for (let i = 0; i < bw * bh; i++) grid[i] = Math.fround(dc[i] ?? 0)
++  populateJpegXlDevelopmentLowestFrequencies(recoveredFloat, grid, bw, bh, scratch)
++  for (let y = 0; y < bh; y++)
++    for (let x = 0; x < bw; x++) {
++      const i = bh >= bw ? x * bh * 8 + y : y * bw * 8 + x
++      add(row.exact, recovered[i] ?? 0, coefficients[i] ?? 0)
++      add(row.floatGrid, recoveredFloat[i] ?? 0, coefficients[i] ?? 0)
++    }
++}
++export function captureDcSource(
++  base: VarDctCoefficientGeometry,
++  planes: readonly Float32Array[],
++  strategies: Int32Array,
++  firstBlocks: Uint8Array,
++): void {
++  if (!base.dcQuantization || !base.globalScale || !base.quantDc)
++    throw new Error('Missing DC scale')
++  captures++
++  snapshot = {
++    width: base.blocksWide,
++    height: base.blocksHigh,
++    planes: planes.map((p) => p.slice()),
++    strategies: strategies.slice(),
++    firstBlocks: firstBlocks.slice(),
++    dcQuantization: [...base.dcQuantization],
++    globalScale: base.globalScale,
++    quantDc: base.quantDc,
++  }
++}
++export function readDcObserver() {
++  if (!snapshot || captures !== 1) throw new Error(`Expected one source capture, got ${captures}`)
++  return { snapshot, roundtrips: [...roundtrips.values()] }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-reconstruction.ts b/benchmark/jpegxl/lossy-lab/audit-dc-reconstruction.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-reconstruction.ts
+@@ -0,0 +1,247 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile, mkdir } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { PNG } from 'pngjs'
++import { encodeTransplant } from '../../../.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/prototype/transplant.ts'
++import { libjxlPortOverrides } from '../../../.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/prototype/libjxl-ports.ts'
++import { resetDcObserver, readDcObserver } from './dc-reconstruction-observer.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103'
++const frozen = '.tmp/jpegxl-lossy-lab/dc-completion-20261103'
++const previous = '.tmp/jpegxl-lossy-lab/dc-quantization-20261103'
++const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++function assertValues(a: ArrayLike<number>, b: ArrayLike<number>): void {
++  assert.equal(a.length, b.length)
++  for (let i = 0; i < a.length; i++) assert.equal(a[i], b[i])
++}
++assertValues(Uint8Array.of(0, 1, 255), Int32Array.of(0, 1, 255))
++assert.throws(() => assertValues(Uint8Array.of(0, 1), Int32Array.of(0, 2)))
++interface ErrorStat {
++  count: number
++  beforeSquared: number
++  afterSquared: number
++  shiftSquared: number
++  crossTerm: number
++  beforeAbsMax: number
++  afterAbsMax: number
++  changed: number
++  improved: number
++  worsened: number
++}
++const newStat = (): ErrorStat => ({
++  count: 0,
++  beforeSquared: 0,
++  afterSquared: 0,
++  shiftSquared: 0,
++  crossTerm: 0,
++  beforeAbsMax: 0,
++  afterAbsMax: 0,
++  changed: 0,
++  improved: 0,
++  worsened: 0,
++})
++function add(stat: ErrorStat, before: number, after: number): void {
++  const shift = after - before
++  stat.count++
++  stat.beforeSquared += before * before
++  stat.afterSquared += after * after
++  stat.shiftSquared += shift * shift
++  stat.crossTerm += 2 * before * shift
++  stat.beforeAbsMax = Math.max(stat.beforeAbsMax, Math.abs(before))
++  stat.afterAbsMax = Math.max(stat.afterAbsMax, Math.abs(after))
++  if (Math.abs(shift) > 1e-12) {
++    stat.changed++
++    if (after * after < before * before) stat.improved++
++    else if (after * after > before * before) stat.worsened++
++  }
++}
++async function decode(bytes: Uint8Array) {
++  const source = new MemorySource(bytes),
++    logical = new JpegXlCodestreamSource(
++      source,
++      await inspectJpegXlSource(source, resolveJpegXlLimits()),
++    )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame) throw new Error('Missing frame')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  return prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++}
++await mkdir(`${root}/sources`, { recursive: true })
++const rows = []
++for (const id of ['im26-2004', 'im26-3012', 'im26-3312']) {
++  const input = PNG.sync.read(await readFile(`.tmp/jpegxl-lossy-lab/corpus-512-v2/${id}.png`))
++  const pixels = Uint8Array.from(input.data)
++  for (const distance of [0.45, 1.85, 7.5]) {
++    resetDcObserver()
++    const encoded = await encodeTransplant(
++      pixels,
++      input.width,
++      input.height,
++      distance,
++      libjxlPortOverrides('standalone-dc-complete', distance, input.width, input.height),
++    )
++    const expected = await readFile(
++      `${frozen}/lab/standalone-dc-complete-purejsimage/${id}-lab/${distance}.jxl`,
++    )
++    assertValues(encoded.bytes, expected)
++    const observed = readDcObserver(),
++      snapshot = observed.snapshot
++    const before = await decode(
++      await readFile(
++        `${previous}/lab/standalone-dc-nonlinear-purejsimage/${id}-lab/${distance}.jxl`,
++      ),
++    )
++    const after = await decode(expected)
++    try {
++      assert.deepEqual(before.dcGroup.dcCoefficients, after.dcGroup.dcCoefficients)
++      assertValues(snapshot.strategies, after.dcGroup.strategies)
++      assertValues(snapshot.firstBlocks, after.dcGroup.strategyFirstBlocks)
++      const width = snapshot.width,
++        height = snapshot.height
++      const owners = new Int32Array(width * height).fill(-1)
++      for (let y = 0; y < height; y++)
++        for (let x = 0; x < width; x++) {
++          const at = y * width + x
++          if (snapshot.firstBlocks[at] !== 1) continue
++          const strategy = snapshot.strategies[at] ?? -1,
++            bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
++            bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
++          if (bw < 1 || bh < 1 || x + bw > width || y + bh > height)
++            throw new Error('Invalid selected footprint')
++          for (let dy = 0; dy < bh; dy++)
++            for (let dx = 0; dx < bw; dx++) {
++              const i = (y + dy) * width + x + dx
++              assert.equal(owners[i], -1)
++              owners[i] = at
++            }
++        }
++      assert.ok(owners.every((owner) => owner >= 0))
++      const channels = []
++      for (let c = 0; c < 3; c++) {
++        const src = snapshot.planes[c],
++          y = snapshot.planes[1],
++          a = before.dcPlanes[c],
++          b = after.dcPlanes[c]
++        if (!src || !y || !a || !b) throw new Error('Missing DC plane')
++        const target =
++          c === 2 ? Float32Array.from(src, (v, i) => Math.fround(v + (y[i] ?? 0))) : src
++        const step =
++          (65536 / after.lfGlobal.globalScale / after.lfGlobal.quantDc) *
++          (after.lfGlobal.dcQuantization[c] ?? 0)
++        const intendedStep =
++          (65536 / snapshot.globalScale / snapshot.quantDc) * (snapshot.dcQuantization[c] ?? 0)
++        if (!(step > 0)) throw new Error('Invalid decoded step')
++        const total = newStat(),
++          byStrategy = new Map<number, ErrorStat>(),
++          byRegion = new Map<string, ErrorStat>()
++        for (let i = 0; i < target.length; i++) {
++          const x = i % width,
++            y = Math.floor(i / width),
++            strategy = snapshot.strategies[i] ?? -1
++          const region =
++            x === 0 || y === 0 || x === width - 1 || y === height - 1
++              ? 'image-edge'
++              : [
++                    i - 1,
++                    i + 1,
++                    i - width,
++                    i + width,
++                    i - width - 1,
++                    i - width + 1,
++                    i + width - 1,
++                    i + width + 1,
++                  ].every((n) => owners[n] === owners[i])
++                ? 'transform-interior'
++                : 'transform-boundary'
++          const old = ((a[i] ?? 0) - (target[i] ?? 0)) / step,
++            next = ((b[i] ?? 0) - (target[i] ?? 0)) / step
++          add(total, old, next)
++          let strategyStat = byStrategy.get(strategy)
++          if (!strategyStat) {
++            strategyStat = newStat()
++            byStrategy.set(strategy, strategyStat)
++          }
++          add(strategyStat, old, next)
++          let regionStat = byRegion.get(region)
++          if (!regionStat) {
++            regionStat = newStat()
++            byRegion.set(region, regionStat)
++          }
++          add(regionStat, old, next)
++        }
++        const path = `${root}/sources/${id}-${distance}-${c}.f32`
++        const raw = new Uint8Array(target.buffer, target.byteOffset, target.byteLength)
++        await writeFile(path, raw)
++        channels.push({
++          channel: c,
++          step,
++          intendedStep,
++          relativeStepError: step / intendedStep - 1,
++          total,
++          byStrategy: [...byStrategy].map(([strategy, errors]) => ({ strategy, errors })),
++          byRegion: [...byRegion].map(([region, errors]) => ({ region, errors })),
++          source: { path, sha256: hash(raw) },
++        })
++      }
++      const row = {
++        id,
++        distance,
++        width: input.width,
++        height: input.height,
++        hash: hash(expected),
++        outputExact: true,
++        channels,
++        roundtrips: observed.roundtrips,
++      }
++      rows.push(row)
++      console.log(
++        JSON.stringify({
++          id,
++          distance,
++          exact: true,
++          channels: channels.map((c) => ({
++            channel: c.channel,
++            stepError: c.relativeStepError,
++            changed: c.total.changed,
++            mseRatio: c.total.afterSquared / c.total.beforeSquared,
++          })),
++          maxRoundtrip: Math.max(...observed.roundtrips.map((r) => r.exact.maxAbsolute)),
++        }),
++      )
++    } finally {
++      before.release()
++      after.release()
++    }
++  }
++}
++await writeFile(
++  `${root}/reconstruction.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      points: rows.length,
++      rows,
++      policy:
++        'Observe the frozen coupled-DC mode on nine existing development points. All encoded bytes must equal saved native-valid streams. No new decisions, quality configuration, scoring, peer replay or holdout access. Errors use selected-transform source DC and decoded nominal DC-step units. B is restored from source B-Y with the quantizer float32 boundary. Timing and memory are not performance measurements.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-matrix.ts b/benchmark/jpegxl/lossy-lab/audit-dc-matrix.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-matrix.ts
+@@ -0,0 +1,182 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++import { libjxlPortOverrides as ac125Overrides } from '../../../.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125/libjxl-ports.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103'
++const mode = process.argv[2] ?? 'nonlinear'
++if (mode !== 'nonlinear' && mode !== 'ac125') throw new Error('Saved-stream audit mode only')
++const input = object(JSON.parse(await readFile(`${root}/reconstruction.json`, 'utf8')))
++if (!Array.isArray(input.rows)) throw new Error('Missing numerical audit')
++async function decode(path: string) {
++  const source = new MemorySource(await readFile(path)),
++    logical = new JpegXlCodestreamSource(
++      source,
++      await inspectJpegXlSource(source, resolveJpegXlLimits()),
++    )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame) throw new Error('Missing frame')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  return prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++}
++const rows = []
++for (const item of input.rows) {
++  const row = object(item)
++  if (typeof row.id !== 'string' || !Array.isArray(row.channels)) throw new Error('Invalid point')
++  const distance = number(row.distance),
++    id = row.id
++  const channels = row.channels.map(object)
++  const state = await decode(
++    mode === 'nonlinear'
++      ? `.tmp/jpegxl-lossy-lab/dc-quantization-20261103/lab/standalone-dc-nonlinear-purejsimage/${id}-lab/${distance}.jxl`
++      : `.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125-lab/standalone-block-ac125-purejsimage/${id}-lab/${distance}.jxl`,
++  )
++  try {
++    const control = await decode(
++      `.tmp/jpegxl-lossy-lab/dc-completion-20261103/lab/standalone-dc-complete-purejsimage/${id}-lab/${distance}.jxl`,
++    )
++    try {
++      assert.deepEqual(state.dcGroup.strategies, control.dcGroup.strategies)
++      assert.deepEqual(state.dcGroup.strategyFirstBlocks, control.dcGroup.strategyFirstBlocks)
++      assert.deepEqual(state.dcGroup.quantization, control.dcGroup.quantization)
++    } finally {
++      control.release()
++    }
++    const dc = ac125Overrides(
++      'standalone-block-ac125',
++      distance,
++      number(row.width),
++      number(row.height),
++    ).dc
++    if (!dc) throw new Error('Missing frozen AC125 DC policy')
++    const intended =
++      mode === 'nonlinear'
++        ? channels.map((c) => number(c.intendedStep))
++        : dc.quantization.map((q) => (q * 65536) / dc.globalScale / dc.quantDc)
++    const y = state.dcGroup.dcCoefficients[0]
++    if (!y) throw new Error('Missing Y')
++    const matrix = []
++    for (let c = 0; c < 3; c++) {
++      const channel = channels[c],
++        q = state.dcGroup.dcCoefficients[c < 2 ? c ^ 1 : c],
++        actual = state.dcPlanes[c]
++      if (!channel || !q || !actual) throw new Error('Missing plane')
++      const source = object(channel.source)
++      if (typeof source.path !== 'string') throw new Error('Missing source')
++      const bytes = Uint8Array.from(await readFile(source.path))
++      assert.equal(bytes.length % 4, 0)
++      const target = new Float32Array(bytes.buffer)
++      const corr = state.lfGlobal.colorCorrelation
++      const factor =
++        c === 0
++          ? corr.baseCorrelationX + corr.yToXDc / corr.colorFactor
++          : c === 2
++            ? corr.baseCorrelationB + corr.yToBDc / corr.colorFactor
++            : 0
++      let quantSquared = 0,
++        wireSquared = 0,
++        scaleSquared = 0,
++        crossTerm = 0,
++        scaleBias = 0,
++        scaleMax = 0
++      const step =
++        (65536 / state.lfGlobal.globalScale / state.lfGlobal.quantDc) *
++        (state.lfGlobal.dcQuantization[c] ?? 0)
++      for (let i = 0; i < target.length; i++) {
++        const own =
++          (q[i] ?? 0) * (intended[c] ?? 0) +
++          (c === 1 ? 0 : (y[i] ?? 0) * (intended[1] ?? 0) * factor)
++        const quantError = (own - (target[i] ?? 0)) / step,
++          wireError = ((actual[i] ?? 0) - (target[i] ?? 0)) / step,
++          scaleError = ((actual[i] ?? 0) - own) / step
++        quantSquared += quantError * quantError
++        wireSquared += wireError * wireError
++        scaleSquared += scaleError * scaleError
++        crossTerm += 2 * quantError * scaleError
++        scaleBias += scaleError / target.length
++        scaleMax = Math.max(scaleMax, Math.abs(scaleError))
++      }
++      assert.ok(Math.abs(wireSquared - quantSquared - scaleSquared - crossTerm) < 1e-7)
++      matrix.push({
++        channel: c,
++        samples: target.length,
++        step,
++        intendedStep: intended[c],
++        relativeStepError: step / (intended[c] ?? 0) - 1,
++        quantSquared,
++        wireSquared,
++        scaleSquared,
++        crossTerm,
++        scaleBias,
++        scaleMax,
++        wireToIntendedMse: wireSquared / quantSquared,
++      })
++    }
++    const curve = object(
++      JSON.parse(
++        await readFile(
++          `.tmp/jpegxl-lossy-lab/dc-completion-20261103/lab/standalone-dc-complete-purejsimage/${id}-lab/result.json`,
++          'utf8',
++        ),
++      ),
++    )
++    if (typeof curve.fixtureSha256 !== 'string') throw new Error('Missing fixture identity')
++    const native = await decode(
++      `.tmp/jpegxl-lossy-lab/peer-cache/vips-0.0.19-curve/${curve.fixtureSha256}/${distance}.jxl`,
++    )
++    try {
++      rows.push({
++        id,
++        distance,
++        matrix,
++        nativeDcMatrix: native.lfGlobal.dcQuantization,
++        nativeGlobalScale: native.lfGlobal.globalScale,
++        nativeQuantDc: native.lfGlobal.quantDc,
++      })
++    } finally {
++      native.release()
++    }
++    console.log(
++      JSON.stringify({
++        id,
++        distance,
++        channels: matrix.map((m) => ({
++          c: m.channel,
++          mseRatio: m.wireToIntendedMse,
++          biasInDcSteps: m.scaleBias,
++          maxInDcSteps: m.scaleMax,
++        })),
++      }),
++    )
++  } finally {
++    state.release()
++  }
++}
++await writeFile(
++  `${root}/matrix-${mode}.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      mode,
++      points: rows.length,
++      rows,
++      policy:
++        'Read-only arithmetic decomposition of saved DC coefficients. Intended-grid reconstruction is a diagnostic, not an encoded candidate or measured quality gain. Uses the same quantized integers; re-quantizing with signaled steps has not been tried. No quality or holdout run.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-source-scales.ts b/benchmark/jpegxl/lossy-lab/verify-dc-source-scales.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-source-scales.ts
+@@ -0,0 +1,87 @@
++// Read-only comparison with the pinned source. No new native algorithm is ported.
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { promisify } from 'node:util'
++import { readFile, writeFile } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { dctBasis, developmentDcGrid } from './transform-kernels.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103'
++const revision = 'a7a9c787341cf703dede03c2009fa460cae5e5df'
++const source = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source'
++const files = [
++  'lib/jxl/enc_transforms-inl.h',
++  'lib/jxl/dec_transforms-inl.h',
++  'lib/jxl/dct_scales.h',
++  'lib/jxl/compressed_dc.cc',
++  'lib/jxl/quantizer.h',
++  'lib/jxl/enc_group.cc',
++]
++const verified = []
++for (const file of files) {
++  const bytes = await readFile(`${source}/${file}`)
++  const archived = await promisify(execFile)(
++    'tar',
++    [
++      '-xOf',
++      '.tmp/jpegxl-oracles/libjxl-v0.12.0/source-a7a9c787.tar.gz',
++      `libjxl-${revision}/${file}`,
++    ],
++    { maxBuffer: 1024 * 1024 },
++  )
++  assert.equal(bytes.toString(), archived.stdout)
++  verified.push({
++    file,
++    sha256: createHash('sha256').update(bytes).digest('hex'),
++    archiveExact: true,
++  })
++}
++const text = await readFile(`${source}/lib/jxl/dct_scales.h`, 'utf8')
++const scales = []
++for (const size of [1, 2, 4, 8]) {
++  const match = new RegExp(
++    `struct DCTResampleScales<${size * 8}, ${size}> \\{[\\s\\S]*?kScales\\[\\] = \\{([^}]+)\\}`,
++  ).exec(text)
++  if (!match?.[1]) throw new Error('Missing pinned resample table')
++  const native = match[1]
++    .split(',')
++    .map((v) => v.trim())
++    .filter(Boolean)
++    .map(Number)
++  assert.equal(native.length, size)
++  const basis = dctBasis(size)
++  for (let k = 0; k < size; k++)
++    for (const vertical of [false, true]) {
++      const coefficients = new Float64Array(size * 64),
++        dc = new Float64Array(size)
++      coefficients[k] = 1
++      developmentDcGrid(coefficients, vertical ? 1 : size, vertical ? size : 1, dc)
++      let gain = 0
++      for (let p = 0; p < size; p++)
++        gain += ((dc[p] ?? 0) * (basis[k * size + p] ?? 0)) / Math.sqrt(size)
++      const expected = native[k]
++      if (expected === undefined || !Number.isFinite(expected))
++        throw new Error('Invalid resample table')
++      assert.equal(Math.fround(gain), Math.fround(expected))
++      scales.push({
++        size,
++        k,
++        vertical,
++        gain,
++        source: expected,
++        absoluteDifference: Math.abs(gain - expected),
++        float32Equal: true,
++      })
++    }
++}
++await writeFile(
++  `${root}/source-checks.json`,
++  JSON.stringify({ passed: true, revision, verified, scales }, null, 2) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    sourceFiles: verified.length,
++    scaleCases: scales.length,
++    maxDifference: Math.max(...scales.map((r) => r.absoluteDifference)),
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-wire-helper.ts b/benchmark/jpegxl/lossy-lab/verify-dc-wire-helper.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-wire-helper.ts
+@@ -0,0 +1,27 @@
++// First-party proposal: use the exact serialized DC matrix when quantizing DC.
++// This helper has unit coverage only; no new encoder configuration has run.
++import { JpegXlBitReader } from '../../../src/codecs/jpegxl-bitstream.ts'
++import { JpegXlBitWriter } from '../../../src/codecs/jpegxl-modular-encode.ts'
++import { writeJpegXlDevelopmentF16 } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {
++  type JpegXlEncoderMemory,
++  withJpegXlMemory,
++} from '../../../src/codecs/jpegxl-encoder-memory.ts'
++
++export function dcWireMatrix(
++  values: readonly number[],
++  memory?: JpegXlEncoderMemory,
++): readonly [number, number, number] {
++  if (values.length !== 3 || values.some((value) => !(value > 0) || !Number.isFinite(value)))
++    throw new Error('Invalid DC matrix')
++  return withJpegXlMemory(memory, () => {
++    const writer = new JpegXlBitWriter(memory, 6)
++    for (const value of values) writeJpegXlDevelopmentF16(writer, value * 128)
++    const reader = new JpegXlBitReader(writer.finish())
++    const read = (): number => {
++      const bits = reader.readBits(16)
++      return ((1 + (bits & 1023) / 1024) * 2 ** (((bits >>> 10) & 31) - 15)) / 128
++    }
++    return [read(), read(), read()]
++  })
++}
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-wire-matrix.ts b/benchmark/jpegxl/lossy-lab/verify-dc-wire-matrix.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-wire-matrix.ts
+@@ -0,0 +1,156 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { dcWireMatrix } from './verify-dc-wire-helper.ts'
++import { JpegXlEncoderMemory } from '../../../src/codecs/jpegxl-encoder-memory.ts'
++import { JpegXlBitWriter } from '../../../src/codecs/jpegxl-modular-encode.ts'
++import { writeJpegXlDevelopmentF16 } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import { object, number } from '../comparison/model.ts'
++import { libjxlPortOverrides } from '../../../.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125/libjxl-ports.ts'
++import { extractDecisions } from './decisions.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103'
++const memory = new JpegXlEncoderMemory(100000)
++for (const values of [
++  [],
++  [1, 2],
++  [1, 2, 3, 4],
++  [0, 1, 1],
++  [-1, 1, 1],
++  [NaN, 1, 1],
++  [Infinity, 1, 1],
++  [2 ** -22, 1, 1],
++  [512, 1, 1],
++])
++  assert.throws(() => dcWireMatrix(values, memory))
++for (const values of [
++  [2 ** -20, 2 ** -18, 2 ** -16],
++  [2 ** -12, 2 ** -9, 2 ** -8],
++  [2 ** -21, 511.75, 1],
++])
++  assert.deepEqual(dcWireMatrix(values, memory), values)
++const curve = object(
++  JSON.parse(
++    await readFile(
++      '.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125-lab/standalone-block-ac125-purejsimage/im26-3012-lab/result.json',
++      'utf8',
++    ),
++  ),
++)
++if (!Array.isArray(curve.points)) throw new Error('Missing ladder')
++interface MatrixRow {
++  distance: number
++  matrix: number[]
++  rounded: readonly [number, number, number]
++  wireExact: boolean
++  idempotent: boolean
++  relativeStepError: number[]
++}
++const rows: MatrixRow[] = []
++for (const item of curve.points) {
++  const point = object(item),
++    distance = number(point.setting)
++  const bytes = await readFile(
++    `.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125-lab/standalone-block-ac125-purejsimage/im26-3012-lab/${distance}.jxl`,
++  )
++  const decisions = await extractDecisions(bytes)
++  const requested = libjxlPortOverrides('standalone-block-ac125', distance, 512, 512).dc
++  if (!requested) throw new Error('Missing frozen policy')
++  const matrix = requested.quantization.map(
++    (q) =>
++      (((q * 65536) / requested.globalScale / requested.quantDc) *
++        decisions.globalScale *
++        decisions.quantDc) /
++      65536,
++  )
++  const rounded = dcWireMatrix(matrix, memory)
++  assert.deepEqual(rounded, decisions.dcQuantization)
++  assert.deepEqual(dcWireMatrix(rounded, memory), rounded)
++  const before = new JpegXlBitWriter(),
++    after = new JpegXlBitWriter()
++  for (const value of matrix) writeJpegXlDevelopmentF16(before, value * 128)
++  for (const value of rounded) writeJpegXlDevelopmentF16(after, value * 128)
++  assert.deepEqual(before.finish(), after.finish())
++  rows.push({
++    distance,
++    matrix,
++    rounded,
++    wireExact: true,
++    idempotent: true,
++    relativeStepError: rounded.map((v, c) => v / (matrix[c] ?? 0) - 1),
++  })
++}
++assert.equal(memory.liveBytes, 0)
++const peak = memory.peakBytes
++memory.close()
++const source = object(JSON.parse(await readFile(`${root}/reconstruction.json`, 'utf8')))
++if (!Array.isArray(source.rows)) throw new Error('Missing observations')
++const reconstruction = []
++for (const item of source.rows) {
++  const row = object(item)
++  if (typeof row.id !== 'string' || !Array.isArray(row.channels))
++    throw new Error('Invalid observed row')
++  const y = object(row.channels[1]),
++    path = object(y.source).path
++  if (typeof path !== 'string') throw new Error('Missing luma source')
++  const target = new Float32Array(Uint8Array.from(await readFile(path)).buffer)
++  const distance = number(row.distance),
++    id = row.id
++  const point = rows.find((row) => row.distance === distance)
++  if (!point) throw new Error('Missing matrix')
++  const requested = libjxlPortOverrides('standalone-block-ac125', distance, 512, 512).dc
++  if (!requested) throw new Error('Missing allocation')
++  const intended = (requested.quantization[1] * 65536) / requested.globalScale / requested.quantDc
++  const step = intended * (point.rounded[1] / (point.matrix[1] ?? 0))
++  let before = 0,
++    after = 0,
++    changed = 0,
++    maxError = 0
++  for (const value of target) {
++    const old = Math.round(value / intended),
++      next = Math.round(value / step)
++    const oldError = old - value / step,
++      newError = next - value / step
++    before += oldError * oldError
++    after += newError * newError
++    changed += Number(old !== next)
++    maxError = Math.max(maxError, Math.abs(newError))
++    assert.ok(newError * newError <= oldError * oldError + 1e-10)
++  }
++  assert.ok(maxError <= 0.5)
++  reconstruction.push({
++    id,
++    distance,
++    samples: target.length,
++    beforeSquared: before,
++    afterSquared: after,
++    ratio: after / before,
++    changed,
++    maxError,
++  })
++}
++await writeFile(
++  `${root}/wire-checks.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      invalidCases: 9,
++      exactMatrixCases: 3,
++      ladderCases: rows.length,
++      managedPeakBytes: peak,
++      liveBytesAfter: 0,
++      rows,
++      reconstruction,
++      policy:
++        'Only the rounding helper and scalar luma quantization arithmetic were tested. No encoded candidate, new quality configuration or measured BD-rate. The proposal preserves the serialized DC matrix and aligns the quantizer with it.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    ladderCases: rows.length,
++    managedPeakBytes: peak,
++    reconstruction,
++  }),
++)

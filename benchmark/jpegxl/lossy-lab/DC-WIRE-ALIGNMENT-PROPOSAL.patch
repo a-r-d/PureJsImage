@@ -1,0 +1,64 @@
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 53d14b2f..44118e73 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -6,7 +6,9 @@
+  * Changes: call the scalar quantizer/threshold port from our TypeScript writer,
+  * retain separate DC handling and bridge our B-Y coefficient representation.
+  * Existing transform rewriting, memory tracking and packing are first-party.
++ * Proposed correction: quantize DC using its serialized half-precision matrix.
+  */
++import {dcWireMatrix} from './dc-wire-matrix.ts'
+ import {libjxlAdjustSelectedBlockQuantization,libjxlThresholdQuantize} from './libjxl-block-quantization-port.ts'
+ import {
+   packCoefficients,
+@@ -49,6 +51,7 @@ export function rewriteStrategyGeometry(
+     base.blocksHigh !== decisions.blocksHigh
+   )
+     throw new Error('Strategy transplant dimensions differ')
++  const dcMatrix = dcWireMatrix(base.dcQuantization ?? [], memory)
+   const strategies = memory.allocate(Int32Array, decisions.strategies.length)
+   strategies.set(decisions.strategies)
+   const q = memory.allocate(Int32Array, strategies.length)
+@@ -205,7 +208,7 @@ export function rewriteStrategyGeometry(
+             {
+               developmentDcGrid(result, bw, bh, dc)
+               const target = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
+-              const step = (invGlobal * (base.dcQuantization?.[c] ?? 0)) / (base.quantDc ?? 0)
++              const step = (invGlobal * (dcMatrix[c] ?? 0)) / (base.quantDc ?? 0)
+               if (!target || !(step > 0)) throw new Error('Missing transform DC precision')
+               for (let dy = 0; dy < bh; dy++)
+                 for (let dx = 0; dx < bw; dx++)
+@@ -349,6 +352,7 @@ export function rewriteStrategyGeometry(
+       }
+   return {
+     ...base,
++    dcQuantization: dcMatrix,
+     strategyMap: strategies,
+     developmentFirstBlocks: firstBlocks,
+     quantizationMap: q,
+diff --git a/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts b/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts
+@@ -0,0 +1,20 @@
++// First-party proposal: use the exact serialized DC matrix when quantizing DC.
++// This helper has unit coverage only; no new encoder configuration has run.
++import {JpegXlBitReader} from '../../../src/codecs/jpegxl-bitstream.ts'
++import {JpegXlBitWriter} from '../../../src/codecs/jpegxl-modular-encode.ts'
++import {writeJpegXlDevelopmentF16} from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {type JpegXlEncoderMemory,withJpegXlMemory} from '../../../src/codecs/jpegxl-encoder-memory.ts'
++
++export function dcWireMatrix(values:readonly number[],memory?:JpegXlEncoderMemory):readonly [number,number,number]{
++ if(values.length!==3||values.some(value=>!(value>0)||!Number.isFinite(value))) throw new Error('Invalid DC matrix')
++ return withJpegXlMemory(memory,()=>{
++  const writer=new JpegXlBitWriter(memory,6)
++  for(const value of values) writeJpegXlDevelopmentF16(writer,value*128)
++  const reader=new JpegXlBitReader(writer.finish())
++  const read=():number=>{
++   const bits=reader.readBits(16)
++   return (1+(bits&1023)/1024)*2**(((bits>>>10)&31)-15)/128
++  }
++  return [read(),read(),read()]
++ })
++}

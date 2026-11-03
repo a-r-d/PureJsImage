@@ -1,19 +1,19 @@
 # JPEG XL lossy lab
 
-Step C research stays on jxl-libjxl-ports. Coupled DC completion base 46be6bb6; active source and public encoder behavior stay unchanged.
-The one approved coupled DC configuration is rejected. No sweep, peer maps or new holdout attempt.
+Step C research stays on jxl-libjxl-ports. Numerical audit base ec3ecc99; active source and public encoder behavior stay unchanged.
+The coupled DC configuration is rejected. Aaron approved one fixed DC serialization-alignment trial on frozen AC 1.25.
 Full development SSIM/3-norm/max: vips +5.077/+1.686/-0.599%, mean +2.054857%; jSquash +4.019/+6.409/+8.169%.
 Against AC 1.25: +14.461/+8.849/+7.869%; against nonlinear DC: +11.468/+7.812/+6.170%.
 Main +6.487/-4.948/-4.972%. Five of eight admitted SSIM guards fail, worst +13.634556%; zero full-band 3-norm comparisons.
 Isolated candidate/control ratios 0.986429/0.932667, faster in 10/15 and 14/15 pairs. Quality loss disqualifies the speed gain.
 Full-lab managed peak 9,565,721 bytes. No absolute crop/original or holdout qualification for the rejected mode.
 Last frozen AC 1.25 holdout still fails two SSIM guards, worst +10.569%; this round does not retest or resolve them.
-All 656 development outputs validate natively. Twenty repeatable native-valid fixtures include exact alpha, DC and tree checks.
-All 80 screen HF-global/AC sections and raw DC integers equal nonlinear DC; smoothing lowers SSIM in 73/80 cases.
-Complete model overhead adds 246,959 bits and DC residuals add 243,187 bits. Native uses 5-11 histograms for the adapter's 34 leaves.
+All 656 prior development outputs validate natively. Nine numerical-audit repetitions reproduce saved streams exactly.
+DC transform conversion error stays below 1.2e-15. Quantizer steps differ from the half-precision matrix written to the stream.
+On development im26-3312 at 0.45, serialization adds a -0.725454-step mean luma shift; actual/intended DC MSE is 7.40349x.
 Bundles remain 614,969/687,801 bytes; runtime dependencies zero. Peer forcing cleanup remains required before any merge.
-Current evidence: [coupled DC report](lossy-lab/DC-COMPLETION-REPORT.md). Fresh npm run check passes 4,229 tests, three skips and browser build checks.
-Next: selected-transform LF error audit, fixed-DC histogram clustering, DC source/preconditioning audit. Another quality configuration needs owner renewal.
+Current evidence: [DC reconstruction audit](lossy-lab/DC-RECONSTRUCTION-AUDIT.md). Fresh check passes 4,229 tests, three skips and browser build checks.
+Next: the approved alignment trial, fixed-DC histogram clustering, DC source/preconditioning audit. No other quality configuration is authorized.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2884,3 +2884,15 @@ Read-only 36-stream context audit: the new mode and native both use smoothing, g
 Visual review of the three worst development main max regressions: im26-3000 +26.860%, im26-3004 +12.797%, im26-1634 +9.870%. Native-decoded nearby-byte pairs use candidate/main distances 1.3/1.85, 0.65/0.9 and 3/3, respectively, with byte ratios 1.0034/0.9710/0.9701. The dark texture and vessel pairs have subtle grain and tonal differences; the blurred sign/wood pair has visible block-like tonal texture. These views do not locate the metric peak or excuse the regressions. Two additional transparent single/multi-group fixtures decode natively with exact alpha and repeated bytes. No quality configuration changed.
 
 Checkpoint validation: fresh VITEST_MAX_WORKERS=4 npm run check passes 340 test files and 4,229 tests, with one file and three tests skipped, including browser build checks. Strict experimental TypeScript passes. Twelve experiment files and seven audit/fixture scripts reconstruct exactly from their archives. All thirteen new prototype hashes and twelve previous prototype hashes remain unchanged. Source, tests, package metadata and active lab TypeScript are unchanged against 46be6bb6. Full license text remains included in the npm package and docs. One approved configuration complete, zero retained/promoted, no new holdout attempt. Research remains short of merge readiness; another quality configuration requires owner renewal under the unchanged plateau rule.
+
+| LL-1109, 2026-11-03 | Trace selected-transform DC conversion, quantization and smoothing after the rejected coupled trial. | Nine fixed development observations reproduce saved streams exactly. Transform roundtrip error at most 1.110223e-15; Float32 capture error at most 2.980233e-8. Smoothing increases luma DC squared error in all nine cases. The quantizer uses unrounded DC matrices while the decoder uses their F16 representation; frozen AC 1.25 im26-3312 at 0.45 has actual/intended luma DC MSE 7.40349x and mean serialization shift -0.725454 steps. | No quality scoring or timing; scalar error is not BD-rate. | Concrete numerical defect identified. First-party two-file correction prepared with helper coverage only. No new quality configuration or holdout access. | diagnostic |
+
+LL-1109 validation: thirty existing-operator/source scale comparisons agree as Float32; six libjxl source files match the pinned v0.12.0 archive. Nine invalid helper inputs, three exact matrices and all nine ladder matrices pass; serialization is unchanged and rounding idempotent. Scalar luma nearest rounding never increases error across 36,864 captured cells. Helper managed peak is 12 bytes, not an encode memory measurement. The two-file proposal and seven-script diagnostic archive reconstruct exactly; strict TypeScript and frozen prototype integrity pass. Initial audit preflight compared TypedArray prototypes rather than contents; indexed comparison plus mismatch coverage repairs the harness. No codec change from those failures. Raw: dc-reconstruction-audit-20261103; report: DC-RECONSTRUCTION-AUDIT.md.
+
+Owner renewal, 2026-11-03: Aaron approved one fixed DC serialization-alignment trial on frozen development-selected AC 1.25. Round the three custom matrix entries once to their existing emitted F16 values before DC quantization. Preserve smoothing off, AC allocation, selector, filters, entropy selection and all quality, speed, memory and promotion gates. No sweep or peer maps, development-only selection, research branch only. This is the sole new configuration authorized beyond the completed coupled trial.
+
+LL-1110 plan: apply DC-WIRE-ALIGNMENT-PROPOSAL.patch's two-file behavior to an isolated copy of frozen AC 1.25 as standalone-dc-wire. Verify thin, odd and DC-group edge streams with native decoding and unchanged control hashes, then run the fixed development screen. No active source integration before qualification. Raw: dc-wire-20261103.
+
+Audit checkpoint validation: fresh VITEST_MAX_WORKERS=4 npm run check passes 340 files and 4,229 tests, with one file and three tests skipped, ending 2026-11-03T23:10:22.092Z. Source, tests, package metadata and active lab TypeScript remain unchanged. The alignment preflight passes eighteen repeatable native-valid thin/odd/DC-group fixtures, two exact-alpha fixtures and three pinned AC 1.25 control hashes. Its copied promotion admission was removed before encoding; three explicit denial checks pass. The initial sandboxed waiting launcher ended before any encode; its empty log is preserved and a durable launcher starts the screen only after the repository check passes. No quality result yet at this audit checkpoint.
+
+| LL-1110, 2026-11-03 | Align DC rounding with the serialized matrix on frozen AC 1.25. | 80 native-valid screen outputs. Against AC 1.25: -0.042/-0.087/-0.119%; regularized +1.166/-1.794/+1.299%; vips -9.788/-6.810/-5.144%; jSquash -10.934/-2.410/+2.239%. | Parallel timing excluded; managed peak 9,235,969 bytes. | Small gains on all three metrics against AC 1.25; run the same fixed configuration on the full development lab. No holdout admission yet. Raw: dc-wire-20261103/screen. | full-lab finalist |

@@ -1,0 +1,2917 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "ec3ecc99793e618cfadcadbb1a5723e358120851",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103",
+  "scope": "Read-only numerical audit after the single coupled DC configuration was rejected. Nine instrumented repetitions of that frozen development configuration reproduce saved bytes exactly. No new quality configuration, scoring, peer-map replay or holdout access.",
+  "findings": {
+    "maxExactDcRoundtripError": 1.1102230246251565e-15,
+    "maxFloatGridError": 2.980232283178452e-8,
+    "strategies": [0, 1, 2, 4, 5, 6, 7, 10, 11],
+    "points": [
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "outputExact": true,
+        "sha256": "a7cf46152176d4b68f615f0043d71dfa3b514a072af53d82cbb62235d443a665",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 58,
+            "smoothingMseRatio": 1.0129306536805907,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 17.58927027324966,
+                  "afterSquared": 17.58927027324966,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5000712193329538,
+                  "afterAbsMax": 0.5000712193329538,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 259.31305881152133,
+                  "afterSquared": 262.8935869322652,
+                  "shiftSquared": 3.7882537366989095,
+                  "crossTerm": -0.2077256159549503,
+                  "beforeAbsMax": 0.5101317566107292,
+                  "afterAbsMax": 0.9277261815700946,
+                  "changed": 58,
+                  "improved": 22,
+                  "worsened": 36
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 59,
+            "smoothingMseRatio": 1.009302719065225,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 23.266716990718283,
+                  "afterSquared": 23.266716990718283,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.6803057824863831,
+                  "afterAbsMax": 0.6803057824863831,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 356.160401964588,
+                  "afterSquared": 359.69010585795724,
+                  "shiftSquared": 4.640632424349223,
+                  "crossTerm": -1.1109285309801757,
+                  "beforeAbsMax": 0.7125478877740309,
+                  "afterAbsMax": 0.862663421953772,
+                  "changed": 59,
+                  "improved": 27,
+                  "worsened": 32
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 59,
+            "smoothingMseRatio": 1.016770103934941,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 16.480032295487213,
+                  "afterSquared": 16.480032295487213,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5735226413782607,
+                  "afterAbsMax": 0.5735226413782607,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 238.97423865614184,
+                  "afterSquared": 243.25823333062564,
+                  "shiftSquared": 3.661835904413715,
+                  "crossTerm": 0.6221587700700966,
+                  "beforeAbsMax": 0.6112987136139247,
+                  "afterAbsMax": 0.8021555413303999,
+                  "changed": 59,
+                  "improved": 18,
+                  "worsened": 41
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "outputExact": true,
+        "sha256": "1ac49145260abd425eba1f2761bc41c7cc26c1c902729064f2b9a561422461a0",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 389,
+            "smoothingMseRatio": 1.0975313150380472,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 9.92816768753782,
+                  "afterSquared": 9.92816768753782,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.49314514429212747,
+                  "afterAbsMax": 0.49314514429212747,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3560,
+                  "beforeSquared": 144.05848536727564,
+                  "afterSquared": 157.64710644909673,
+                  "shiftSquared": 17.942981525114654,
+                  "crossTerm": -4.354360443293652,
+                  "beforeAbsMax": 0.5002096327387281,
+                  "afterAbsMax": 0.7629090216184373,
+                  "changed": 323,
+                  "improved": 133,
+                  "worsened": 190
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 284,
+                  "beforeSquared": 8.873757780818634,
+                  "afterSquared": 11.16912673543345,
+                  "shiftSquared": 3.1674728476139724,
+                  "crossTerm": -0.87210389299916,
+                  "beforeAbsMax": 0.4959612764487745,
+                  "afterAbsMax": 0.6370647708731157,
+                  "changed": 66,
+                  "improved": 25,
+                  "worsened": 41
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 405,
+            "smoothingMseRatio": 1.0902049282096775,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 18.11615755076252,
+                  "afterSquared": 18.11615755076252,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5103802948354408,
+                  "afterAbsMax": 0.5103802948354408,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3560,
+                  "beforeSquared": 260.58660971983346,
+                  "afterSquared": 285.0534136661259,
+                  "shiftSquared": 25.54412552990268,
+                  "crossTerm": -1.0773215836097216,
+                  "beforeAbsMax": 0.5282209922219995,
+                  "afterAbsMax": 0.9832357462423552,
+                  "changed": 332,
+                  "improved": 111,
+                  "worsened": 221
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 284,
+                  "beforeSquared": 18.75331518524158,
+                  "afterSquared": 21.11851580240964,
+                  "shiftSquared": 5.602995637890066,
+                  "crossTerm": -3.2377950207220207,
+                  "beforeAbsMax": 0.5040132475790521,
+                  "afterAbsMax": 0.8279504886271247,
+                  "changed": 73,
+                  "improved": 27,
+                  "worsened": 46
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 405,
+            "smoothingMseRatio": 1.1038000702770587,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 9.317892073292402,
+                  "afterSquared": 9.317892073292402,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5150104460315059,
+                  "afterAbsMax": 0.5150104460315059,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3560,
+                  "beforeSquared": 113.76856570254859,
+                  "afterSquared": 126.39757638061229,
+                  "shiftSquared": 18.589008175969933,
+                  "crossTerm": -5.959997497906118,
+                  "beforeAbsMax": 0.5072083606898079,
+                  "afterAbsMax": 0.6918665482692458,
+                  "changed": 332,
+                  "improved": 113,
+                  "worsened": 219
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 284,
+                  "beforeSquared": 8.598368992626522,
+                  "afterSquared": 9.638252587552115,
+                  "shiftSquared": 4.286819644641964,
+                  "crossTerm": -3.246936049716382,
+                  "beforeAbsMax": 0.49530481178069224,
+                  "afterAbsMax": 0.49530481178069224,
+                  "changed": 73,
+                  "improved": 33,
+                  "worsened": 40
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "outputExact": true,
+        "sha256": "c868a1405405e93ba1075a09883fc10f245135b139a46a9e29cf3da7ea843c39",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 1147,
+            "smoothingMseRatio": 1.0546482179464796,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 6.579735134687069,
+                  "afterSquared": 6.579735134687069,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.306825213510134,
+                  "afterAbsMax": 0.306825213510134,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 800,
+                  "beforeSquared": 19.367359295182872,
+                  "afterSquared": 19.801309489896532,
+                  "shiftSquared": 10.801159917668267,
+                  "crossTerm": -10.367209722954623,
+                  "beforeAbsMax": 0.30773128387836046,
+                  "afterAbsMax": 0.6865533334588505,
+                  "changed": 279,
+                  "improved": 172,
+                  "worsened": 107
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3044,
+                  "beforeSquared": 73.15365110860603,
+                  "afterSquared": 78.13538005473762,
+                  "shiftSquared": 31.95884798166423,
+                  "crossTerm": -26.977119035532468,
+                  "beforeAbsMax": 0.3097059841679534,
+                  "afterAbsMax": 0.697631600598772,
+                  "changed": 868,
+                  "improved": 489,
+                  "worsened": 379
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 1463,
+            "smoothingMseRatio": 1.5712294203026764,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 12.61834973582323,
+                  "afterSquared": 12.61834973582323,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5017547437628264,
+                  "afterAbsMax": 0.5017547437628264,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 800,
+                  "beforeSquared": 40.70107467481617,
+                  "afterSquared": 69.40864797150732,
+                  "shiftSquared": 30.490478199518456,
+                  "crossTerm": -1.7829049028272856,
+                  "beforeAbsMax": 0.5034779398660656,
+                  "afterAbsMax": 0.9808696374586099,
+                  "changed": 360,
+                  "improved": 99,
+                  "worsened": 261
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3044,
+                  "beforeSquared": 167.74452543779685,
+                  "afterSquared": 265.31518406284846,
+                  "shiftSquared": 95.1584285516051,
+                  "crossTerm": 2.4122300734459055,
+                  "beforeAbsMax": 0.502478681615274,
+                  "afterAbsMax": 0.984780251395962,
+                  "changed": 1103,
+                  "improved": 312,
+                  "worsened": 791
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 1462,
+            "smoothingMseRatio": 1.1962451440749151,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 5.3585122210149265,
+                  "afterSquared": 5.3585122210149265,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.310392323870333,
+                  "afterAbsMax": 0.310392323870333,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 800,
+                  "beforeSquared": 19.660583077753955,
+                  "afterSquared": 23.095340116077573,
+                  "shiftSquared": 15.139834495387705,
+                  "crossTerm": -11.705077457064096,
+                  "beforeAbsMax": 0.30979851799124414,
+                  "afterAbsMax": 0.4817559576978173,
+                  "changed": 360,
+                  "improved": 183,
+                  "worsened": 177
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3044,
+                  "beforeSquared": 74.34386395559373,
+                  "afterSquared": 90.40860517185259,
+                  "shiftSquared": 48.52372822709394,
+                  "crossTerm": -32.45898701083503,
+                  "beforeAbsMax": 0.3447465981503268,
+                  "afterAbsMax": 0.5941418887298516,
+                  "changed": 1102,
+                  "improved": 485,
+                  "worsened": 617
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "outputExact": true,
+        "sha256": "8c63fc6ddd5c36f629a9e29e93c2af694728bc4a75ba7d8080c386960b1681ee",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 58,
+            "smoothingMseRatio": 1.0157310829116777,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 18.259708683593473,
+                  "afterSquared": 18.259708683593473,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5020570248803666,
+                  "afterAbsMax": 0.5020570248803666,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 240.4051694262825,
+                  "afterSquared": 244.47424807016804,
+                  "shiftSquared": 3.740453201448548,
+                  "crossTerm": 0.32862544243702035,
+                  "beforeAbsMax": 0.5052873751915539,
+                  "afterAbsMax": 0.7222769933379145,
+                  "changed": 58,
+                  "improved": 20,
+                  "worsened": 38
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 58,
+            "smoothingMseRatio": 1.014146343508277,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 23.11215871279138,
+                  "afterSquared": 23.11215871279138,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.6184963443699972,
+                  "afterAbsMax": 0.6184963443699972,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 343.1299271040963,
+                  "afterSquared": 348.31091345724957,
+                  "shiftSquared": 4.476142289145964,
+                  "crossTerm": 0.704844064007489,
+                  "beforeAbsMax": 0.6534732089322407,
+                  "afterAbsMax": 0.8254584876892397,
+                  "changed": 58,
+                  "improved": 20,
+                  "worsened": 38
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 58,
+            "smoothingMseRatio": 1.0147990612892661,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 12.760604044557216,
+                  "afterSquared": 12.760604044557216,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5426697126205903,
+                  "afterAbsMax": 0.5426697126205903,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 196.61650469077335,
+                  "afterSquared": 199.7150893555166,
+                  "shiftSquared": 4.063053264621005,
+                  "crossTerm": -0.9644685998776373,
+                  "beforeAbsMax": 0.5554415303118032,
+                  "afterAbsMax": 0.7297207412220602,
+                  "changed": 58,
+                  "improved": 21,
+                  "worsened": 37
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "outputExact": true,
+        "sha256": "32e141b87e63804435244b6f4c0f3abdfc685fc90035e92dd6a6c5569f402e00",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 563,
+            "smoothingMseRatio": 1.1979373624018608,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 10.526730694001133,
+                  "afterSquared": 10.526730694001133,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5001843346056536,
+                  "afterAbsMax": 0.5001843346056536,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 220,
+                  "beforeSquared": 6.508328449791595,
+                  "afterSquared": 7.962907379181782,
+                  "shiftSquared": 1.7357526934140042,
+                  "crossTerm": -0.2811737640238159,
+                  "beforeAbsMax": 0.47646889034832784,
+                  "afterAbsMax": 0.5670727127985685,
+                  "changed": 42,
+                  "improved": 16,
+                  "worsened": 26
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3624,
+                  "beforeSquared": 131.65868007268247,
+                  "afterSquared": 159.63614768947227,
+                  "shiftSquared": 32.810010378771594,
+                  "crossTerm": -4.832542761982026,
+                  "beforeAbsMax": 0.49945894176157796,
+                  "afterAbsMax": 0.8599656071239392,
+                  "changed": 521,
+                  "improved": 179,
+                  "worsened": 342
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 579,
+            "smoothingMseRatio": 1.1370907390065095,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 18.905846999052585,
+                  "afterSquared": 18.905846999052585,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5148008449055255,
+                  "afterAbsMax": 0.5148008449055255,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 220,
+                  "beforeSquared": 13.839735203280503,
+                  "afterSquared": 16.619035052409817,
+                  "shiftSquared": 3.0930883751600966,
+                  "crossTerm": -0.3137885260307828,
+                  "beforeAbsMax": 0.4993672370910546,
+                  "afterAbsMax": 0.7154983670234794,
+                  "changed": 45,
+                  "improved": 12,
+                  "worsened": 33
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3624,
+                  "beforeSquared": 259.47354678792516,
+                  "afterSquared": 296.7547832839083,
+                  "shiftSquared": 42.200553116142736,
+                  "crossTerm": -4.919316620159944,
+                  "beforeAbsMax": 0.5143783805526265,
+                  "afterAbsMax": 0.9472660871187726,
+                  "changed": 534,
+                  "improved": 189,
+                  "worsened": 345
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 578,
+            "smoothingMseRatio": 1.1866458943260139,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 6.949982753871101,
+                  "afterSquared": 6.949982753871101,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5020323612979656,
+                  "afterAbsMax": 0.5020323612979656,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 220,
+                  "beforeSquared": 5.237043689258921,
+                  "afterSquared": 6.517335404613849,
+                  "shiftSquared": 1.7705006980045772,
+                  "crossTerm": -0.4902089826496501,
+                  "beforeAbsMax": 0.46862158708484103,
+                  "afterAbsMax": 0.5766446049343329,
+                  "changed": 45,
+                  "improved": 14,
+                  "worsened": 31
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3624,
+                  "beforeSquared": 94.84912777894867,
+                  "afterSquared": 113.54669479359076,
+                  "shiftSquared": 28.501937458091252,
+                  "crossTerm": -9.80437044344905,
+                  "beforeAbsMax": 0.49792955968981156,
+                  "afterAbsMax": 0.8441945099720324,
+                  "changed": 533,
+                  "improved": 190,
+                  "worsened": 343
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "outputExact": true,
+        "sha256": "3a70397dc9aec739fe1aec223ec86bfe917d0fa963f3ea5b49224dd79736d1ef",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 1819,
+            "smoothingMseRatio": 1.1246210948280844,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 5.767159866665009,
+                  "afterSquared": 5.767159866665009,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.4526106780643634,
+                  "afterAbsMax": 0.4526106780643634,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 688,
+                  "beforeSquared": 15.559106611350087,
+                  "afterSquared": 18.202028102323705,
+                  "shiftSquared": 13.931949735657062,
+                  "crossTerm": -11.28902824468345,
+                  "beforeAbsMax": 0.40455762670549517,
+                  "afterAbsMax": 0.7732865061070842,
+                  "changed": 336,
+                  "improved": 170,
+                  "worsened": 166
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3156,
+                  "beforeSquared": 74.31292075580724,
+                  "afterSquared": 83.58865948638068,
+                  "shiftSquared": 54.31439157188065,
+                  "crossTerm": -45.03865284130731,
+                  "beforeAbsMax": 0.4937787453923099,
+                  "afterAbsMax": 0.5931895059255861,
+                  "changed": 1483,
+                  "improved": 763,
+                  "worsened": 720
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 2037,
+            "smoothingMseRatio": 1.777135699056172,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 14.159692840638321,
+                  "afterSquared": 14.159692840638321,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.49550804398533455,
+                  "afterAbsMax": 0.49550804398533455,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 688,
+                  "beforeSquared": 34.12468294585466,
+                  "afterSquared": 64.2863123703533,
+                  "shiftSquared": 31.436056579911153,
+                  "crossTerm": -1.2744271554125737,
+                  "beforeAbsMax": 0.5034919676511893,
+                  "afterAbsMax": 0.9036896887891851,
+                  "changed": 374,
+                  "improved": 110,
+                  "worsened": 264
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3156,
+                  "beforeSquared": 152.47034167059113,
+                  "afterSquared": 278.3223699359268,
+                  "shiftSquared": 139.54720416446636,
+                  "crossTerm": -13.695175899130641,
+                  "beforeAbsMax": 0.503288803892958,
+                  "afterAbsMax": 0.9664351028062639,
+                  "changed": 1663,
+                  "improved": 492,
+                  "worsened": 1171
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 2039,
+            "smoothingMseRatio": 1.2662012538534793,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 6.298650787813232,
+                  "afterSquared": 6.298650787813232,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.323163496634372,
+                  "afterAbsMax": 0.323163496634372,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 688,
+                  "beforeSquared": 16.42359742814551,
+                  "afterSquared": 22.412063266993297,
+                  "shiftSquared": 13.650589737679812,
+                  "crossTerm": -7.662123898832059,
+                  "beforeAbsMax": 0.31073477289443163,
+                  "afterAbsMax": 0.6833923929537808,
+                  "changed": 375,
+                  "improved": 146,
+                  "worsened": 229
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3156,
+                  "beforeSquared": 75.9389484348195,
+                  "afterSquared": 96.21421685109374,
+                  "shiftSquared": 60.15163267682448,
+                  "crossTerm": -39.876364260550275,
+                  "beforeAbsMax": 0.4321852069933966,
+                  "afterAbsMax": 0.6165661074236288,
+                  "changed": 1664,
+                  "improved": 739,
+                  "worsened": 925
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "outputExact": true,
+        "sha256": "1b0a3c9eabf5a791e2f020eac070b43eae139db4c0110518d6b191986a4ea789",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 378,
+            "smoothingMseRatio": 1.628990864871007,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 4.267123391694524,
+                  "afterSquared": 4.267123391694524,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.48163239099085176,
+                  "afterAbsMax": 0.48163239099085176,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 36.84227001121981,
+                  "afterSquared": 62.69970292204126,
+                  "shiftSquared": 23.216695712309562,
+                  "crossTerm": 2.6407371985118564,
+                  "beforeAbsMax": 0.49988101368002935,
+                  "afterAbsMax": 0.8811853682467876,
+                  "changed": 378,
+                  "improved": 94,
+                  "worsened": 284
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 963,
+            "smoothingMseRatio": 1.0927371767698049,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 47.13795151841623,
+                  "afterSquared": 47.13795151841623,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.8593632403541555,
+                  "afterAbsMax": 0.8593632403541555,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 780.0044041793184,
+                  "afterSquared": 856.7112510334528,
+                  "shiftSquared": 80.1584802416991,
+                  "crossTerm": -3.451633387565837,
+                  "beforeAbsMax": 0.8640468681558852,
+                  "afterAbsMax": 1.2610910585719137,
+                  "changed": 963,
+                  "improved": 396,
+                  "worsened": 567
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": -0.0003401627200737556,
+            "changed": 967,
+            "smoothingMseRatio": 1.1450462850360699,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 13.437789106976755,
+                  "afterSquared": 13.437789106976755,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.47165836306172393,
+                  "afterAbsMax": 0.47165836306172393,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 3844,
+                  "beforeSquared": 207.84956575840914,
+                  "afterSquared": 239.9464745070917,
+                  "shiftSquared": 47.942199919099444,
+                  "crossTerm": -15.845291170416896,
+                  "beforeAbsMax": 0.6563827570746288,
+                  "afterAbsMax": 0.8658919310032116,
+                  "changed": 967,
+                  "improved": 372,
+                  "worsened": 595
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "outputExact": true,
+        "sha256": "6fa1e01a22b22b3b8975b49613af97c0c7dc6233a9a60ab121eadf801356bc09",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 1087,
+            "smoothingMseRatio": 1.371858597100374,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 4.540952264974141,
+                  "afterSquared": 4.540952264974141,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.37296741629872304,
+                  "afterAbsMax": 0.37296741629872304,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 996,
+                  "beforeSquared": 17.795479902977146,
+                  "afterSquared": 26.73542458626928,
+                  "shiftSquared": 9.600329164773088,
+                  "crossTerm": -0.6603844814809632,
+                  "beforeAbsMax": 0.30875295358840593,
+                  "afterAbsMax": 0.7631288081804519,
+                  "changed": 298,
+                  "improved": 89,
+                  "worsened": 209
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 2848,
+                  "beforeSquared": 48.29600314081595,
+                  "afterSquared": 65.62133676122521,
+                  "shiftSquared": 26.766625379158455,
+                  "crossTerm": -9.44129175874932,
+                  "beforeAbsMax": 0.3092384306348379,
+                  "afterAbsMax": 0.5856776967569399,
+                  "changed": 789,
+                  "improved": 257,
+                  "worsened": 532
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 3155,
+            "smoothingMseRatio": 2.7107918962443533,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 9.723287251603184,
+                  "afterSquared": 9.723287251603184,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.5364032103636305,
+                  "afterAbsMax": 0.5364032103636305,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 996,
+                  "beforeSquared": 34.38206419187883,
+                  "afterSquared": 98.36381660308896,
+                  "shiftSquared": 68.49679101977242,
+                  "crossTerm": -4.515038608562227,
+                  "beforeAbsMax": 0.535473163996893,
+                  "afterAbsMax": 1.0212094003663652,
+                  "changed": 840,
+                  "improved": 244,
+                  "worsened": 596
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 2848,
+                  "beforeSquared": 101.19011807567944,
+                  "afterSquared": 285.7786774788682,
+                  "shiftSquared": 193.13605707368222,
+                  "crossTerm": -8.547497670493621,
+                  "beforeAbsMax": 0.5486221759118407,
+                  "afterAbsMax": 0.983455323878424,
+                  "changed": 2315,
+                  "improved": 652,
+                  "worsened": 1663
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": 0.00016160819687738304,
+            "changed": 3161,
+            "smoothingMseRatio": 1.6338972469839075,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 5.959015306344173,
+                  "afterSquared": 5.959015306344173,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.4026959009259509,
+                  "afterAbsMax": 0.4026959009259509,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 996,
+                  "beforeSquared": 20.903740607421096,
+                  "afterSquared": 35.828046848286164,
+                  "shiftSquared": 32.50420093801412,
+                  "crossTerm": -17.579894697149104,
+                  "beforeAbsMax": 0.3352722720565014,
+                  "afterAbsMax": 0.5418642224482345,
+                  "changed": 844,
+                  "improved": 326,
+                  "worsened": 518
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 2848,
+                  "beforeSquared": 64.59897355536485,
+                  "afterSquared": 107.65200582936804,
+                  "shiftSquared": 82.94934883043102,
+                  "crossTerm": -39.89631655642754,
+                  "beforeAbsMax": 0.335309211338785,
+                  "afterAbsMax": 0.606534153420705,
+                  "changed": 2317,
+                  "improved": 938,
+                  "worsened": 1379
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "outputExact": true,
+        "sha256": "f950ba628072e1106894a1351295c8273c866806232ce68cb641769049400cea",
+        "channels": [
+          {
+            "channel": 0,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 1042,
+            "smoothingMseRatio": 0.5806705645476016,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 3.295611550808838,
+                  "afterSquared": 3.295611550808838,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.4483804460449107,
+                  "afterAbsMax": 0.4483804460449107,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 972,
+                  "beforeSquared": 8.605428565545,
+                  "afterSquared": 4.645581129444505,
+                  "shiftSquared": 7.575148141115449,
+                  "crossTerm": -11.534995577215954,
+                  "beforeAbsMax": 0.3031578973068329,
+                  "afterAbsMax": 0.2928323216755238,
+                  "changed": 272,
+                  "improved": 199,
+                  "worsened": 73
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 2872,
+                  "beforeSquared": 25.660942807625627,
+                  "afterSquared": 13.869945149741191,
+                  "shiftSquared": 17.444247161811496,
+                  "crossTerm": -29.235244819695968,
+                  "beforeAbsMax": 0.30915581490236516,
+                  "afterAbsMax": 0.30885586664301684,
+                  "changed": 770,
+                  "improved": 606,
+                  "worsened": 164
+                }
+              }
+            ]
+          },
+          {
+            "channel": 1,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 3090,
+            "smoothingMseRatio": 1.336155691733492,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 5.990596989999129,
+                  "afterSquared": 5.990596989999129,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.4730467187898305,
+                  "afterAbsMax": 0.4730467187898305,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 972,
+                  "beforeSquared": 22.903631755736825,
+                  "afterSquared": 28.26744090168627,
+                  "shiftSquared": 33.64978079493316,
+                  "crossTerm": -28.28597164898376,
+                  "beforeAbsMax": 0.3220523754991625,
+                  "afterAbsMax": 0.5564057497578018,
+                  "changed": 788,
+                  "improved": 392,
+                  "worsened": 396
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 2872,
+                  "beforeSquared": 69.62382874128377,
+                  "afterSquared": 97.37742535812363,
+                  "shiftSquared": 102.60055315809123,
+                  "crossTerm": -74.84695654125187,
+                  "beforeAbsMax": 0.37667340694618484,
+                  "afterAbsMax": 0.7200047715976194,
+                  "changed": 2302,
+                  "improved": 1117,
+                  "worsened": 1185
+                }
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "relativeStepError": -0.00013406893299428013,
+            "changed": 3144,
+            "smoothingMseRatio": 1.063897276368564,
+            "byRegion": [
+              {
+                "region": "image-edge",
+                "errors": {
+                  "count": 252,
+                  "beforeSquared": 4.012762042560339,
+                  "afterSquared": 4.012762042560339,
+                  "shiftSquared": 0,
+                  "crossTerm": 0,
+                  "beforeAbsMax": 0.31592530949533126,
+                  "afterAbsMax": 0.31592530949533126,
+                  "changed": 0,
+                  "improved": 0,
+                  "worsened": 0
+                }
+              },
+              {
+                "region": "transform-interior",
+                "errors": {
+                  "count": 972,
+                  "beforeSquared": 16.93197881644947,
+                  "afterSquared": 17.461022085041115,
+                  "shiftSquared": 10.250249187721268,
+                  "crossTerm": -9.721205919129634,
+                  "beforeAbsMax": 0.3114581575025787,
+                  "afterAbsMax": 0.39656189667039615,
+                  "changed": 805,
+                  "improved": 396,
+                  "worsened": 409
+                }
+              },
+              {
+                "region": "transform-boundary",
+                "errors": {
+                  "count": 2872,
+                  "beforeSquared": 51.42809668789552,
+                  "afterSquared": 55.52348062161582,
+                  "shiftSquared": 33.415134786604455,
+                  "crossTerm": -29.31975085288411,
+                  "beforeAbsMax": 0.31621823749485606,
+                  "afterAbsMax": 0.5121326878960557,
+                  "changed": 2339,
+                  "improved": 1106,
+                  "worsened": 1233
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "quantizerMatrixMismatch": "DC is rounded using the unrounded custom matrix, then decoded using the emitted half-precision matrix. This is an encoder/decoder step mismatch. Native sampled DC matrices are exact powers of two.",
+    "ac125MatrixAudit": {
+      "passed": true,
+      "mode": "ac125",
+      "points": 9,
+      "rows": [
+        {
+          "id": "im26-2004",
+          "distance": 0.45,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00007019660896645832,
+              "intendedStep": 0.00007017749444545118,
+              "relativeStepError": 0.0002723739449261853,
+              "quantSquared": 348.7123783915211,
+              "wireSquared": 349.54581088706317,
+              "scaleSquared": 0.18740645026358693,
+              "crossTerm": 0.6460260452772689,
+              "scaleBias": -0.0059180660396247215,
+              "scaleMax": 0.014159588433195213,
+              "wireToIntendedMse": 1.0023900284222385
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0003741526542829475,
+              "intendedStep": 0.0003742799703757396,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 336.7962357590641,
+              "wireSquared": 528.5629724703111,
+              "scaleSquared": 198.19546653812216,
+              "crossTerm": -6.428729826874664,
+              "scaleBias": -0.18379083178060607,
+              "scaleMax": 0.45393147914494575,
+              "wireToIntendedMse": 1.5693850356701504
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.001123145743463333,
+              "intendedStep": 0.0011228399111272189,
+              "relativeStepError": 0.0002723739449261853,
+              "quantSquared": 369.6627192291951,
+              "wireSquared": 388.8281728598427,
+              "scaleSquared": 22.235093573126125,
+              "crossTerm": -3.069639942479208,
+              "scaleBias": -0.06218878334415232,
+              "scaleMax": 0.1493117366182115,
+              "wireToIntendedMse": 1.0518457843696292
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 11359,
+          "nativeQuantDc": 15
+        },
+        {
+          "id": "im26-2004",
+          "distance": 1.85,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00022691028773072746,
+              "intendedStep": 0.00022687362309358025,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 330.28479815794225,
+              "wireSquared": 330.4498039287225,
+              "scaleSquared": 0.006325998278079207,
+              "crossTerm": 0.15867977250316193,
+              "scaleBias": -0.0010868919861545619,
+              "scaleMax": 0.0025853133422117365,
+              "wireToIntendedMse": 1.0004995863318582
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0012101882012305464,
+              "intendedStep": 0.0012099926564990947,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 344.5996743110325,
+              "wireSquared": 350.53869121690843,
+              "scaleSquared": 4.27873595646858,
+              "crossTerm": 1.6602809494069846,
+              "scaleBias": 0.026996042634609883,
+              "scaleMax": 0.06689498272963408,
+              "wireToIntendedMse": 1.017234540101496
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.0036305646036916394,
+              "intendedStep": 0.003629977969497284,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 377.04854137216677,
+              "wireSquared": 377.7473561929999,
+              "scaleSquared": 0.47041814011285765,
+              "crossTerm": 0.22839668072013652,
+              "scaleBias": 0.008821832127697094,
+              "scaleMax": 0.022621491744339316,
+              "wireToIntendedMse": 1.0018533815786423
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 2763,
+          "nativeQuantDc": 19
+        },
+        {
+          "id": "im26-2004",
+          "distance": 7.5,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0007248933094713656,
+              "intendedStep": 0.0007249905081752276,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 326.42673005238987,
+              "wireSquared": 326.3048497470457,
+              "scaleSquared": 0.0004352608592230484,
+              "crossTerm": -0.12231556620413704,
+              "scaleBias": 0.0002848364753156646,
+              "scaleMax": 0.0006704345494157768,
+              "wireToIntendedMse": 0.9996266227789476
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0038660976505139498,
+              "intendedStep": 0.0038666160436012136,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 339.7702528195467,
+              "wireSquared": 340.1344660847194,
+              "scaleSquared": 0.2885177549705687,
+              "crossTerm": 0.07569551020312519,
+              "scaleBias": -0.007009936632769513,
+              "scaleMax": 0.017297211374929913,
+              "wireToIntendedMse": 1.0010719398244852
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.01159829295154185,
+              "intendedStep": 0.011599848130803642,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 430.69041868869095,
+              "wireSquared": 430.36189897370843,
+              "scaleSquared": 0.03176432191541677,
+              "crossTerm": -0.36028403689783883,
+              "scaleBias": -0.0022937613030586937,
+              "scaleMax": 0.005899824034866494,
+              "wireToIntendedMse": 0.9992372253927014
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 681,
+          "nativeQuantDc": 24
+        },
+        {
+          "id": "im26-3012",
+          "distance": 0.45,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00007019660896645832,
+              "intendedStep": 0.00007017749444545118,
+              "relativeStepError": 0.0002723739449261853,
+              "quantSquared": 345.7823093163147,
+              "wireSquared": 346.33271974881654,
+              "scaleSquared": 0.11552336520468301,
+              "crossTerm": 0.43488706729848864,
+              "scaleBias": 0.003983049041215899,
+              "scaleMax": 0.015521087321015752,
+              "wireToIntendedMse": 1.001591783089164
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0003741526542829475,
+              "intendedStep": 0.0003742799703757396,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 345.0455394889596,
+              "wireSquared": 524.0363262637652,
+              "scaleSquared": 182.10918484474067,
+              "crossTerm": -3.1183980699349085,
+              "scaleBias": -0.2079517662205692,
+              "scaleMax": 0.33959791318344734,
+              "wireToIntendedMse": 1.5187454010850436
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.001123145743463333,
+              "intendedStep": 0.0011228399111272189,
+              "relativeStepError": 0.0002723739449261853,
+              "quantSquared": 377.5077260600868,
+              "wireSquared": 405.5983431250858,
+              "scaleSquared": 28.00259824766246,
+              "crossTerm": 0.08801881733630643,
+              "scaleBias": -0.08190044949160516,
+              "scaleMax": 0.1259514765434162,
+              "wireToIntendedMse": 1.0744107077176162
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 11359,
+          "nativeQuantDc": 15
+        },
+        {
+          "id": "im26-3012",
+          "distance": 1.85,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00022691028773072746,
+              "intendedStep": 0.00022687362309358025,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 338.68629117775623,
+              "wireSquared": 338.75794561303803,
+              "scaleSquared": 0.0038944885434706255,
+              "crossTerm": 0.06775994673967424,
+              "scaleBias": 0.0007292496100484751,
+              "scaleMax": 0.0029084775099910702,
+              "wireToIntendedMse": 1.00021156579746
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0012101882012305464,
+              "intendedStep": 0.0012099926564990947,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 338.7775225605007,
+              "wireSquared": 341.04912993384704,
+              "scaleSquared": 3.929146003370992,
+              "crossTerm": -1.6575386300255692,
+              "scaleBias": 0.03054358990997501,
+              "scaleMax": 0.050090446005322774,
+              "wireToIntendedMse": 1.0067053072357852
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.0036305646036916394,
+              "intendedStep": 0.003629977969497284,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 376.7749395257763,
+              "wireSquared": 376.8643049462577,
+              "scaleSquared": 0.26674245464694596,
+              "crossTerm": -0.1773770341637473,
+              "scaleBias": 0.007863306377132237,
+              "scaleMax": 0.014811691023064023,
+              "wireToIntendedMse": 1.0002371851498242
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 2763,
+          "nativeQuantDc": 19
+        },
+        {
+          "id": "im26-3012",
+          "distance": 7.5,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0007248933094713656,
+              "intendedStep": 0.0007249905081752276,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 340.97830447193616,
+              "wireSquared": 340.877333287073,
+              "scaleSquared": 0.0002697614082275993,
+              "crossTerm": -0.10124094627076256,
+              "scaleBias": -0.00018980368737847846,
+              "scaleMax": 0.0006704345494157768,
+              "wireToIntendedMse": 0.9997038779783378
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0038660976505139498,
+              "intendedStep": 0.0038666160436012136,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 332.50140084605323,
+              "wireSquared": 332.4021678532712,
+              "scaleSquared": 0.2649748872236941,
+              "crossTerm": -0.36420788000682774,
+              "scaleBias": -0.007932537067641361,
+              "scaleMax": 0.01300643025865554,
+              "wireToIntendedMse": 0.9997015561662912
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.01159829295154185,
+              "intendedStep": 0.011599848130803642,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 344.86263255624476,
+              "wireSquared": 344.90158919352115,
+              "scaleSquared": 0.01797591330061732,
+              "crossTerm": 0.02098072397517943,
+              "scaleBias": -0.0020408206641349337,
+              "scaleMax": 0.0038438247499892114,
+              "wireToIntendedMse": 1.000112962767197
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 681,
+          "nativeQuantDc": 24
+        },
+        {
+          "id": "im26-3312",
+          "distance": 0.45,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00007019660896645832,
+              "intendedStep": 0.00007017749444545118,
+              "relativeStepError": 0.0002723739449261853,
+              "quantSquared": 119.64367702282921,
+              "wireSquared": 120.75727841847723,
+              "scaleSquared": 0.11203600141166395,
+              "crossTerm": 1.0015653942361669,
+              "scaleBias": 0.005210060026189301,
+              "scaleMax": 0.005718295328792513,
+              "wireToIntendedMse": 1.0093076493748645
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0003741526542829475,
+              "intendedStep": 0.0003742799703757396,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 339.82547238236026,
+              "wireSquared": 2515.894403049881,
+              "scaleSquared": 2155.68101188623,
+              "crossTerm": 20.387918781292793,
+              "scaleBias": -0.7254542585669271,
+              "scaleMax": 0.7312584322957012,
+              "wireToIntendedMse": 7.403489754349788
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.001123145743463333,
+              "intendedStep": 0.0011228399111272189,
+              "relativeStepError": 0.0002723739449261853,
+              "quantSquared": 427.36548269425066,
+              "wireSquared": 860.3812618854166,
+              "scaleSquared": 253.87299333010267,
+              "crossTerm": 179.14278586106226,
+              "scaleBias": -0.24895794541524371,
+              "scaleMax": 0.25138688073922055,
+              "wireToIntendedMse": 2.013221228025469
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 11359,
+          "nativeQuantDc": 15
+        },
+        {
+          "id": "im26-3312",
+          "distance": 1.85,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00022691028773072746,
+              "intendedStep": 0.00022687362309358025,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 182.62556462179697,
+              "wireSquared": 181.9159194881823,
+              "scaleSquared": 0.0036466902089776977,
+              "crossTerm": -0.7132918238240641,
+              "scaleBias": 0.000941523338906397,
+              "scaleMax": 0.001131074587217157,
+              "wireToIntendedMse": 0.9961142070384051
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0012101882012305464,
+              "intendedStep": 0.0012099926564990947,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 341.52868218762353,
+              "wireSquared": 394.60610421361235,
+              "scaleSquared": 46.509395114373895,
+              "crossTerm": 6.568026911613998,
+              "scaleBias": 0.10655853212789226,
+              "scaleMax": 0.10729050370176031,
+              "wireToIntendedMse": 1.155411316220961
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.0036305646036916394,
+              "intendedStep": 0.003629977969497284,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 454.7255808358432,
+              "wireSquared": 419.66218462018196,
+              "scaleSquared": 4.780466721367975,
+              "crossTerm": -39.84386293702908,
+              "scaleBias": 0.034162631471637527,
+              "scaleMax": 0.034524705257419915,
+              "wireToIntendedMse": 0.9228910848797857
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 2763,
+          "nativeQuantDc": 19
+        },
+        {
+          "id": "im26-3312",
+          "distance": 7.5,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0007248933094713656,
+              "intendedStep": 0.0007249905081752276,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 165.03236354847905,
+              "wireSquared": 164.87251903171085,
+              "scaleSquared": 0.00027251224103619657,
+              "crossTerm": -0.16011702900930513,
+              "scaleBias": -0.0002547847704151448,
+              "scaleMax": 0.0002681738197662509,
+              "wireToIntendedMse": 0.999031435329827
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0038660976505139498,
+              "intendedStep": 0.0038666160436012136,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 342.5752699056101,
+              "wireSquared": 344.4266869543363,
+              "scaleSquared": 3.1364877378787415,
+              "crossTerm": -1.2850706891531318,
+              "scaleBias": -0.02767192413862573,
+              "scaleMax": 0.027890077255682915,
+              "wireToIntendedMse": 1.0054044095162977
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.01159829295154185,
+              "intendedStep": 0.011599848130803642,
+              "relativeStepError": -0.0001340689329941691,
+              "quantSquared": 652.4907070811142,
+              "wireSquared": 659.6831116301539,
+              "scaleSquared": 0.32187618549689245,
+              "crossTerm": 6.870528363544003,
+              "scaleBias": -0.008864401808048223,
+              "scaleMax": 0.009028518598800404,
+              "wireToIntendedMse": 1.0110229992105397
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 681,
+          "nativeQuantDc": 24
+        }
+      ],
+      "policy": "Read-only arithmetic decomposition of saved DC coefficients. Intended-grid reconstruction is a diagnostic, not an encoded candidate or measured quality gain. Uses the same quantized integers; re-quantizing with signaled steps has not been tried. No quality or holdout run."
+    },
+    "nonlinearMatrixAudit": {
+      "passed": true,
+      "mode": "nonlinear",
+      "points": 9,
+      "rows": [
+        {
+          "id": "im26-2004",
+          "distance": 0.45,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00009353816357073687,
+              "intendedStep": 0.0000935699925939349,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 276.5526524814609,
+              "wireSquared": 276.9023290847708,
+              "scaleSquared": 0.16439269034881834,
+              "crossTerm": 0.18528391296137248,
+              "scaleBias": 0.0055427341914511055,
+              "scaleMax": 0.013270860334824726,
+              "wireToIntendedMse": 1.0012644124009382
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.000748305308565895,
+              "intendedStep": 0.0007485599407514792,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 331.4917158202729,
+              "wireSquared": 379.42711895530687,
+              "scaleSquared": 49.54884014769719,
+              "crossTerm": -1.6134370126624007,
+              "scaleBias": -0.09189446051862189,
+              "scaleMax": 0.22696573957247287,
+              "wireToIntendedMse": 1.1446051314326764
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.00149661061713179,
+              "intendedStep": 0.0014971198815029584,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 240.6783712340207,
+              "wireSquared": 255.45427095162916,
+              "scaleSquared": 12.255548154691844,
+              "crossTerm": 2.5203515629169555,
+              "scaleBias": -0.04504232712556567,
+              "scaleMax": 0.11543947098951328,
+              "wireToIntendedMse": 1.0613927194282087
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 11359,
+          "nativeQuantDc": 15
+        },
+        {
+          "id": "im26-2004",
+          "distance": 1.85,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0003025470503076366,
+              "intendedStep": 0.00030249816412477367,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 162.78749011397613,
+              "wireSquared": 162.86041083563202,
+              "scaleSquared": 0.00355575989083669,
+              "crossTerm": 0.06936496176477008,
+              "scaleBias": -0.0008153465089948393,
+              "scaleMax": 0.0019389850066588025,
+              "wireToIntendedMse": 1.0004479504021153
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.002420376402461093,
+              "intendedStep": 0.0024199853129981894,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 297.90287445304864,
+              "wireSquared": 297.4560824558372,
+              "scaleSquared": 1.0693663563505256,
+              "crossTerm": -1.5161583535616454,
+              "scaleBias": 0.013496344745389518,
+              "scaleMax": 0.03344749136481704,
+              "wireToIntendedMse": 0.9985002091771294
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.004840752804922186,
+              "intendedStep": 0.004839970625996379,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 131.5901269973897,
+              "wireSquared": 131.68482676846722,
+              "scaleSquared": 0.2645640924623284,
+              "crossTerm": -0.16986432138461488,
+              "scaleBias": 0.0066157823645084084,
+              "scaleMax": 0.016966118808254486,
+              "wireToIntendedMse": 1.0007196571143928
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 2763,
+          "nativeQuantDc": 19
+        },
+        {
+          "id": "im26-2004",
+          "distance": 7.5,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0009665244126284874,
+              "intendedStep": 0.0009666540109003035,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 99.12820047596192,
+              "wireSquared": 99.10074553847589,
+              "scaleSquared": 0.00024084170514002793,
+              "crossTerm": -0.027695779191333227,
+              "scaleBias": 0.00021252251439504122,
+              "scaleMax": 0.00046930418459161216,
+              "wireToIntendedMse": 0.9997230360547835
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0077321953010278995,
+              "intendedStep": 0.007733232087202428,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 221.03120025483244,
+              "wireSquared": 221.0639498484363,
+              "scaleSquared": 0.07213481005845764,
+              "crossTerm": -0.039385216454630306,
+              "scaleBias": -0.003505115628666708,
+              "scaleMax": 0.008715649142409885,
+              "wireToIntendedMse": 1.0001481672884467
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.015464390602055799,
+              "intendedStep": 0.015466464174404856,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 99.34149707086064,
+              "wireSquared": 99.36295925436247,
+              "scaleSquared": 0.017842344336252498,
+              "crossTerm": 0.0036198391656542474,
+              "scaleBias": -0.0017175793321042567,
+              "scaleMax": 0.004424868026149871,
+              "wireToIntendedMse": 1.0002160444943418
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 681,
+          "nativeQuantDc": 24
+        },
+        {
+          "id": "im26-3012",
+          "distance": 0.45,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00009353816357073687,
+              "intendedStep": 0.0000935699925939349,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 258.89016752578357,
+              "wireSquared": 258.66487810987593,
+              "scaleSquared": 0.10147647331489724,
+              "crossTerm": -0.3267658892217019,
+              "scaleBias": -0.0037326786965646694,
+              "scaleMax": 0.014461834980260092,
+              "wireToIntendedMse": 0.9991297876699577
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.000748305308565895,
+              "intendedStep": 0.0007485599407514792,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 317.64262485637204,
+              "wireSquared": 366.24208581688794,
+              "scaleSquared": 45.52595875634268,
+              "crossTerm": 3.0735022041726756,
+              "scaleBias": -0.1039745954354092,
+              "scaleMax": 0.16979895659172367,
+              "wireToIntendedMse": 1.1530004387241513
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.00149661061713179,
+              "intendedStep": 0.0014971198815029584,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 203.1740831645922,
+              "wireSquared": 209.37710873533044,
+              "scaleSquared": 6.954521311794289,
+              "crossTerm": -0.7514957410561504,
+              "scaleBias": -0.04015622404443124,
+              "scaleMax": 0.07511647227977436,
+              "wireToIntendedMse": 1.0305305946217223
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 11359,
+          "nativeQuantDc": 15
+        },
+        {
+          "id": "im26-3012",
+          "distance": 1.85,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0003025470503076366,
+              "intendedStep": 0.00030249816412477367,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 148.7064020445858,
+              "wireSquared": 148.6937392164755,
+              "scaleSquared": 0.002183182697527336,
+              "crossTerm": -0.014846010807970059,
+              "scaleBias": 0.0005470161050379599,
+              "scaleMax": 0.002181358132490436,
+              "wireToIntendedMse": 0.9999148467857727
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.002420376402461093,
+              "intendedStep": 0.0024199853129981894,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 291.61556523373,
+              "wireSquared": 292.2191289902581,
+              "scaleSquared": 0.9822868598383623,
+              "crossTerm": -0.37872310331031667,
+              "scaleBias": 0.015271735781861282,
+              "scaleMax": 0.024964431960735667,
+              "wireToIntendedMse": 1.0020697240767802
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.004840752804922186,
+              "intendedStep": 0.004839970625996379,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 107.06722427164273,
+              "wireSquared": 107.03615422207858,
+              "scaleSquared": 0.15003222639414185,
+              "crossTerm": -0.1811022759583638,
+              "scaleBias": 0.005897499507224828,
+              "scaleMax": 0.011149163788272347,
+              "wireToIntendedMse": 0.9997098080222447
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 2763,
+          "nativeQuantDc": 19
+        },
+        {
+          "id": "im26-3012",
+          "distance": 7.5,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0009665244126284874,
+              "intendedStep": 0.0009666540109003035,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 95.65376175047749,
+              "wireSquared": 95.63918723382258,
+              "scaleSquared": 0.00014780782038415489,
+              "crossTerm": -0.014722324475144141,
+              "scaleBias": -0.00014181262051128456,
+              "scaleMax": 0.0005363476395329505,
+              "wireToIntendedMse": 0.9998476325824704
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0077321953010278995,
+              "intendedStep": 0.007733232087202428,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 200.80851092169127,
+              "wireSquared": 200.75471745708347,
+              "scaleSquared": 0.06624549276703284,
+              "crossTerm": -0.12003895737422572,
+              "scaleBias": -0.003966170325638333,
+              "scaleMax": 0.00650321512933495,
+              "wireToIntendedMse": 0.9997321156142193
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.015464390602055799,
+              "intendedStep": 0.015466464174404856,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 98.6707954200795,
+              "wireSquared": 98.66119665077844,
+              "scaleSquared": 0.010117390018945084,
+              "crossTerm": -0.019716159320032355,
+              "scaleBias": -0.0015315402918533083,
+              "scaleMax": 0.0028828685624919088,
+              "wireToIntendedMse": 0.9999027192467619
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 681,
+          "nativeQuantDc": 24
+        },
+        {
+          "id": "im26-3312",
+          "distance": 0.45,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.00009353816357073687,
+              "intendedStep": 0.0000935699925939349,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 42.21544455181137,
+              "wireSquared": 41.109393402914364,
+              "scaleSquared": 0.0985865136984072,
+              "crossTerm": -1.2046376625953577,
+              "scaleBias": -0.004889550726765973,
+              "scaleMax": 0.005444455521979316,
+              "wireToIntendedMse": 0.9737998459890777
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.000748305308565895,
+              "intendedStep": 0.0007485599407514792,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 269.4763689026009,
+              "wireSquared": 827.1423556977356,
+              "scaleSquared": 538.9155872361856,
+              "crossTerm": 18.750399558950214,
+              "scaleBias": -0.36272555084329494,
+              "scaleMax": 0.3657993553830439,
+              "wireToIntendedMse": 3.0694430055820465
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.00149661061713179,
+              "intendedStep": 0.0014971198815029584,
+              "relativeStepError": -0.0003401627200737556,
+              "quantSquared": 102.80226887265277,
+              "wireSquared": 221.2873548653857,
+              "scaleSquared": 124.80757576682882,
+              "crossTerm": -6.322489774096024,
+              "scaleBias": -0.174556915253879,
+              "scaleMax": 0.1764343867591453,
+              "wireToIntendedMse": 2.152553219807895
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 11359,
+          "nativeQuantDc": 15
+        },
+        {
+          "id": "im26-3312",
+          "distance": 1.85,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0003025470503076366,
+              "intendedStep": 0.00030249816412477367,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 71.16631007339889,
+              "wireSquared": 70.63243530876726,
+              "scaleSquared": 0.002030322377344755,
+              "crossTerm": -0.5359050870088334,
+              "scaleBias": 0.0007019905231423161,
+              "scaleMax": 0.0008079104194406899,
+              "wireToIntendedMse": 0.9924982092779433
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.002420376402461093,
+              "intendedStep": 0.0024199853129981894,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 132.50482028319107,
+              "wireSquared": 145.2954695191615,
+              "scaleSquared": 11.627270197723544,
+              "crossTerm": 1.163379038246931,
+              "scaleBias": 0.05327908854456692,
+              "scaleMax": 0.05372604289280588,
+              "wireToIntendedMse": 1.0965296900794559
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.004840752804922186,
+              "intendedStep": 0.004839970625996379,
+              "relativeStepError": 0.00016160819687738304,
+              "quantSquared": 97.76391948125189,
+              "wireSquared": 91.46172946913005,
+              "scaleSquared": 2.6911852454836254,
+              "crossTerm": -8.99337525760527,
+              "scaleBias": 0.025632358487423443,
+              "scaleMax": 0.025933924464050732,
+              "wireToIntendedMse": 0.9355366474097798
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 2763,
+          "nativeQuantDc": 19
+        },
+        {
+          "id": "im26-3312",
+          "distance": 7.5,
+          "matrix": [
+            {
+              "channel": 0,
+              "samples": 4096,
+              "step": 0.0009665244126284874,
+              "intendedStep": 0.0009666540109003035,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 37.623400333288146,
+              "wireSquared": 37.5619829239795,
+              "scaleSquared": 0.0001504597670460142,
+              "crossTerm": -0.06156786907570116,
+              "scaleBias": -0.00019003283981259802,
+              "scaleMax": 0.00020113036482491254,
+              "wireToIntendedMse": 0.9983675742021035
+            },
+            {
+              "channel": 1,
+              "samples": 4096,
+              "step": 0.0077321953010278995,
+              "intendedStep": 0.007733232087202428,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 97.87297609990937,
+              "wireSquared": 98.51805748702003,
+              "scaleSquared": 0.7840972803569486,
+              "crossTerm": -0.13901589324672253,
+              "scaleBias": -0.013835749284924157,
+              "scaleMax": 0.013945038627855816,
+              "wireToIntendedMse": 1.0065910061471122
+            },
+            {
+              "channel": 2,
+              "samples": 4096,
+              "step": 0.015464390602055799,
+              "intendedStep": 0.015466464174404856,
+              "relativeStepError": -0.00013406893299428013,
+              "quantSquared": 69.31191308166264,
+              "wireSquared": 72.37283754690529,
+              "scaleSquared": 0.1811927555197463,
+              "crossTerm": 2.8797317097230777,
+              "scaleBias": -0.006651010265176012,
+              "scaleMax": 0.006737867221631429,
+              "wireToIntendedMse": 1.0441615925625412
+            }
+          ],
+          "nativeDcMatrix": [0.000244140625, 0.001953125, 0.00390625],
+          "nativeGlobalScale": 681,
+          "nativeQuantDc": 24
+        }
+      ],
+      "policy": "Read-only arithmetic decomposition of saved DC coefficients. Intended-grid reconstruction is a diagnostic, not an encoded candidate or measured quality gain. Uses the same quantized integers; re-quantizing with signaled steps has not been tried. No quality or holdout run."
+    }
+  },
+  "sourceVerification": {
+    "passed": true,
+    "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+    "verified": [
+      {
+        "file": "lib/jxl/enc_transforms-inl.h",
+        "sha256": "648dd4badf5c2d2368a8e8cf4e2a2f0b31e9a738409a58e00878c31da7423727",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/dec_transforms-inl.h",
+        "sha256": "60646470e8a00996715e6c7b39ebbf881d91daf222a710b6ed393c4ef6102be0",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/dct_scales.h",
+        "sha256": "a092ad88f8cf8247b094c63abfdc190584cb6b7562453a93e2af602ea5fd6fdb",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/compressed_dc.cc",
+        "sha256": "e202fb05adab4e557cfa87ef164a492f5af0bad5171f68daca97a17ba50bb0c6",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/quantizer.h",
+        "sha256": "7a39e5b239c102d8fc4d6159f6f5c3836151ffe9c8c0eb8dbd2b76fcac3a3f5c",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/enc_group.cc",
+        "sha256": "a677d4534a8e4d405e06d9052be180e6d8cdcd489834868c8712ce30a23ec9ba",
+        "archiveExact": true
+      }
+    ],
+    "scales": [
+      {
+        "size": 1,
+        "k": 0,
+        "vertical": false,
+        "gain": 1.0000000000000007,
+        "source": 1,
+        "absoluteDifference": 6.661338147750939e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 1,
+        "k": 0,
+        "vertical": true,
+        "gain": 1.0000000000000007,
+        "source": 1,
+        "absoluteDifference": 6.661338147750939e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 2,
+        "k": 0,
+        "vertical": false,
+        "gain": 1.0000000000000002,
+        "source": 1,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 2,
+        "k": 0,
+        "vertical": true,
+        "gain": 1.0000000000000002,
+        "source": 1,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 2,
+        "k": 1,
+        "vertical": false,
+        "gain": 0.9017641950288746,
+        "source": 0.9017641950288744,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 2,
+        "k": 1,
+        "vertical": true,
+        "gain": 0.9017641950288746,
+        "source": 0.9017641950288744,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 0,
+        "vertical": false,
+        "gain": 1.0000000000000007,
+        "source": 1,
+        "absoluteDifference": 6.661338147750939e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 0,
+        "vertical": true,
+        "gain": 1.0000000000000007,
+        "source": 1,
+        "absoluteDifference": 6.661338147750939e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 1,
+        "vertical": false,
+        "gain": 0.9748868211368799,
+        "source": 0.9748868211368795,
+        "absoluteDifference": 3.3306690738754696e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 1,
+        "vertical": true,
+        "gain": 0.9748868211368801,
+        "source": 0.9748868211368795,
+        "absoluteDifference": 5.551115123125783e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 2,
+        "vertical": false,
+        "gain": 0.9017641950288746,
+        "source": 0.9017641950288744,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 2,
+        "vertical": true,
+        "gain": 0.9017641950288746,
+        "source": 0.9017641950288744,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 3,
+        "vertical": false,
+        "gain": 0.7870549181591016,
+        "source": 0.7870549181591013,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 4,
+        "k": 3,
+        "vertical": true,
+        "gain": 0.7870549181591016,
+        "source": 0.7870549181591013,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 0,
+        "vertical": false,
+        "gain": 1.0000000000000002,
+        "source": 1,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 0,
+        "vertical": true,
+        "gain": 1.0000000000000002,
+        "source": 1,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 1,
+        "vertical": false,
+        "gain": 0.9936866130906368,
+        "source": 0.9936866130906366,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 1,
+        "vertical": true,
+        "gain": 0.9936866130906368,
+        "source": 0.9936866130906366,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 2,
+        "vertical": false,
+        "gain": 0.9748868211368799,
+        "source": 0.9748868211368796,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 2,
+        "vertical": true,
+        "gain": 0.9748868211368799,
+        "source": 0.9748868211368796,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 3,
+        "vertical": false,
+        "gain": 0.9440180941651672,
+        "source": 0.9440180941651672,
+        "absoluteDifference": 0,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 3,
+        "vertical": true,
+        "gain": 0.9440180941651672,
+        "source": 0.9440180941651672,
+        "absoluteDifference": 0,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 4,
+        "vertical": false,
+        "gain": 0.9017641950288738,
+        "source": 0.9017641950288744,
+        "absoluteDifference": 5.551115123125783e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 4,
+        "vertical": true,
+        "gain": 0.901764195028874,
+        "source": 0.9017641950288744,
+        "absoluteDifference": 4.440892098500626e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 5,
+        "vertical": false,
+        "gain": 0.8490574973847025,
+        "source": 0.8490574973847023,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 5,
+        "vertical": true,
+        "gain": 0.8490574973847025,
+        "source": 0.8490574973847023,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 6,
+        "vertical": false,
+        "gain": 0.7870549181591016,
+        "source": 0.7870549181591013,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 6,
+        "vertical": true,
+        "gain": 0.7870549181591016,
+        "source": 0.7870549181591013,
+        "absoluteDifference": 2.220446049250313e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 7,
+        "vertical": false,
+        "gain": 0.7171081282466045,
+        "source": 0.7171081282466044,
+        "absoluteDifference": 1.1102230246251565e-16,
+        "float32Equal": true
+      },
+      {
+        "size": 8,
+        "k": 7,
+        "vertical": true,
+        "gain": 0.7171081282466045,
+        "source": 0.7171081282466044,
+        "absoluteDifference": 1.1102230246251565e-16,
+        "float32Equal": true
+      }
+    ]
+  },
+  "proposedHelperTests": {
+    "passed": true,
+    "invalidCases": 9,
+    "exactMatrixCases": 3,
+    "ladderCases": 9,
+    "managedPeakBytes": 12,
+    "liveBytesAfter": 0,
+    "rows": [
+      {
+        "distance": 0.45,
+        "matrix": [0.00004865394039342529, 0.0002594876820982682, 0.0007784630462948046],
+        "rounded": [0.000048667192459106445, 0.0002593994140625, 0.0007786750793457031],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [
+          0.00027237394492596323, -0.0003401627200738666, 0.00027237394492596323
+        ]
+      },
+      {
+        "distance": 0.65,
+        "matrix": [0.000045705990349962096, 0.0002437652818664645, 0.0007312958455993935],
+        "rounded": [0.00004571676254272461, 0.00024378299713134766, 0.0007314682006835938],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [0.0002356844842443806, 0.00007267345352679477, 0.0002356844842443806]
+      },
+      {
+        "distance": 0.9,
+        "matrix": [0.000043241891653786364, 0.0002306234221535273, 0.0006918702664605818],
+        "rounded": [0.0000432431697845459, 0.00023066997528076172, 0.0006918907165527344],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [
+          0.000029557697655002713, 0.0002018577592843851, 0.000029557697655002713
+        ]
+      },
+      {
+        "distance": 1.3,
+        "matrix": [0.000040625435008033696, 0.00021666898670951305, 0.0006500069601285391],
+        "rounded": [0.00004062056541442871, 0.0002167224884033203, 0.0006499290466308594],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [
+          -0.00011986563599930555, 0.00024692825041450206, -0.00011986563599930555
+        ]
+      },
+      {
+        "distance": 1.85,
+        "matrix": [0.000038259998816379534, 0.00020405332702069082, 0.0006121599810620725],
+        "rounded": [0.00003826618194580078, 0.0002040863037109375, 0.0006122589111328125],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [
+          0.00016160819687738304, 0.00016160819687760508, 0.00016160819687738304
+        ]
+      },
+      {
+        "distance": 3,
+        "matrix": [0.00003522384992886658, 0.00018786053295395512, 0.0005635815988618653],
+        "rounded": [0.00003522634506225586, 0.00018787384033203125, 0.0005636215209960938],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [
+          0.00007083647569228191, 0.00007083647569228191, 0.00007083647569228191
+        ]
+      },
+      {
+        "distance": 3.8,
+        "matrix": [0.00003384965154221149, 0.00018053147489179459, 0.0005415944246753838],
+        "rounded": [0.000033855438232421875, 0.0001804828643798828, 0.00054168701171875],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [0.0001709527261506416, -0.0002692633621971252, 0.0001709527261506416]
+      },
+      {
+        "distance": 5.35,
+        "matrix": [0.000031926296558785035, 0.00017027358164685354, 0.0005108207449405606],
+        "rounded": [0.00003191828727722168, 0.00017023086547851562, 0.0005106925964355469],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [
+          -0.0002508678558632571, -0.00025086785586336813, -0.0002508678558632571
+        ]
+      },
+      {
+        "distance": 7.5,
+        "matrix": [0.000030134187992390748, 0.00016071566929275064, 0.00048214700787825197],
+        "rounded": [0.00003013014793395996, 0.00016069412231445312, 0.0004820823669433594],
+        "wireExact": true,
+        "idempotent": true,
+        "relativeStepError": [
+          -0.0001340689329941691, -0.0001340689329940581, -0.0001340689329941691
+        ]
+      }
+    ],
+    "reconstruction": [
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "samples": 4096,
+        "beforeSquared": 529.0682505389078,
+        "afterSquared": 340.4885274068299,
+        "ratio": 0.6435625782874119,
+        "changed": 760,
+        "maxError": 0.4998552580090063
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "samples": 4096,
+        "beforeSquared": 350.53869121691895,
+        "afterSquared": 345.3319178511444,
+        "ratio": 0.9851463661608969,
+        "changed": 131,
+        "maxError": 0.49986030008190596
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "samples": 4096,
+        "beforeSquared": 340.134466084718,
+        "afterSquared": 339.98976960852025,
+        "ratio": 0.9995745903734387,
+        "changed": 20,
+        "maxError": 0.4998260973469115
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "samples": 4096,
+        "beforeSquared": 524.0363262639186,
+        "afterSquared": 338.414502356953,
+        "ratio": 0.6457844340098639,
+        "changed": 863,
+        "maxError": 0.49966901891366433
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "samples": 4096,
+        "beforeSquared": 341.0491299338549,
+        "afterSquared": 337.2192533015165,
+        "ratio": 0.9887703081574166,
+        "changed": 131,
+        "maxError": 0.49995926384613654
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "samples": 4096,
+        "beforeSquared": 332.40216785327027,
+        "afterSquared": 332.1824155953318,
+        "ratio": 0.9993388964357313,
+        "changed": 31,
+        "maxError": 0.49972451546778984
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "samples": 4096,
+        "beforeSquared": 2515.894403051673,
+        "afterSquared": 340.11876921091414,
+        "ratio": 0.13518801456784693,
+        "changed": 2967,
+        "maxError": 0.4999933383046482
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "samples": 4096,
+        "beforeSquared": 394.6061042137094,
+        "afterSquared": 347.23649915817754,
+        "ratio": 0.8799572420454054,
+        "changed": 447,
+        "maxError": 0.49977527154942436
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "samples": 4096,
+        "beforeSquared": 344.4266869543322,
+        "afterSquared": 340.83286695407304,
+        "ratio": 0.9895657911062633,
+        "changed": 129,
+        "maxError": 0.4999596343903647
+      }
+    ],
+    "policy": "Only the rounding helper and scalar luma quantization arithmetic were tested. No encoded candidate, new quality configuration or measured BD-rate. The proposal preserves the serialized DC matrix and aligns the quantizer with it."
+  },
+  "proposal": {
+    "patch": "benchmark/jpegxl/lossy-lab/DC-WIRE-ALIGNMENT-PROPOSAL.patch",
+    "base": "Frozen BLOCK-ALLOCATION-AC125-EXPERIMENT.patch, AC 1.25 snapshot",
+    "applies": true,
+    "files": 2,
+    "sourceUnchanged": true,
+    "encoderExecuted": false,
+    "helperTested": true,
+    "beforeSha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730",
+    "afterSha256": "95dccdcaa263ea9d24e1d425f9ee736aa1928d2e695241cf7e04deab09915178",
+    "scope": "Round three DC matrix entries once to their existing emitted F16 values before DC rounding. Preserve serialized matrices, AC decisions, smoothing-off policy, existing DC rounding, entropy selection and all gates. This proposal has no new quality result."
+  },
+  "archive": {
+    "patchPath": "benchmark/jpegxl/lossy-lab/DC-RECONSTRUCTION-AUDIT.patch",
+    "applies": true,
+    "rows": [
+      {
+        "path": "benchmark/jpegxl/lossy-lab/prepare-dc-reconstruction-audit.ts",
+        "sha256": "37c8e114dcd1a64f78999e0d3f19be68a720dc39fa017c9222744b8e40a6b19c"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/dc-reconstruction-observer.ts",
+        "sha256": "9b48caba6d1255adbdcdab307ea8b4ebec8553a645b5ac980c77613c5e673594"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-reconstruction.ts",
+        "sha256": "2378836a8931e5fb3521d64da130232f68b98f7819a0f1b46ebbf56803c96949"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-matrix.ts",
+        "sha256": "d76147f6eefd58e8dc9426e1dec809f9937583f164e296a711ec7759a209cb24"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-source-scales.ts",
+        "sha256": "77e207c392544b2ca1989c89d6cbcfd280e1866ffcb5101ad8ddc012a8327171"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-wire-helper.ts",
+        "sha256": "2a6a9d9c4ca4a5cee68be6d82bf916a926105a15811a6d386f815051648444ae"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-wire-matrix.ts",
+        "sha256": "03ce0d9d04a8b5a53d74c395f8e98cd95cd263ffd04ff6ad76ca6b1ce22ec25a"
+      }
+    ],
+    "policy": "First-party observation and numerical diagnostics only. No new quality configuration. Apply archive, then pass the archived observer path to prepare-dc-reconstruction-audit.ts."
+  },
+  "receipts": [
+    {
+      "path": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/reconstruction.json",
+      "sha256": "0da9483b8e355f78cfd87a3be949a68f592ee91d84b93e2f8297b9651cc18c5a"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/matrix-ac125.json",
+      "sha256": "4faf42f2bff3cd650b31c5c071a768472fb2138efd7537ac1a57b3333858fb88"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/matrix-nonlinear.json",
+      "sha256": "a4eb8a4fa8e0d0ea09108526db8b636a28cac8e2f1b9aa2254abc5a6200c6af3"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/source-checks.json",
+      "sha256": "d28be127e2aa3d5dfadceae28eea341d9438e5c1e90e0754fb63c76d90bc36ae"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/wire-checks.json",
+      "sha256": "1624801db3e5f170eec7cb5ed620015f1af96d6891ec231b922c199484d550c0"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/archive.json",
+      "sha256": "e8ba042e75b3ac282a96e756079fae1046327ff2b9d3b2a725d04bc30b2a04df"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/proposal.json",
+      "sha256": "ef239d6d57b3182aede94ab7b864d06e19abf5515e4dc12bbf12a8a1c5063b78"
+    }
+  ],
+  "validation": {
+    "strictTypeScript": "passed",
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-03T22:56:59.306Z",
+      "endedAt": "2026-11-03T23:10:22.092Z",
+      "code": 0,
+      "signal": null
+    },
+    "repositoryTests": {
+      "passed": 4229,
+      "skipped": 3,
+      "total": 4232
+    },
+    "activeSourceChanged": false
+  },
+  "measuredQualityGain": null,
+  "isolatedSpeed": null,
+  "fullOriginalMemory": null,
+  "newConfigurations": 0,
+  "newHoldoutAttempts": 0,
+  "retained": 0,
+  "promoted": 0,
+  "priorQuality": "Coupled DC remains rejected: full development vips +5.076936/+1.686422/-0.598787%; jSquash +4.018783/+6.409067/+8.169116%. Five admitted development SSIM guards fail. Frozen AC 1.25 still fails two aggregate-reported holdout SSIM guards, worst +10.568972%. No new holdout result.",
+  "decision": "Aaron approved one fixed DC serialization-alignment trial on development-selected AC 1.25 after reviewing this audit. Preserve smoothing off and all other decisions. Trial results belong to dc-wire-20261103; this audit contains no new quality configuration. The proposal is outside active source.",
+  "limits": "Scalar DC-grid squared error is not a perceptual or BD-rate result. The source capture stores Float32 DC; its measured transform-grid rounding is bounded by 2.981e-8 on this cohort. Chroma coupling, entropy cost, full quality, absolute speed and memory remain unmeasured for the proposal. All gates stay unchanged."
+}

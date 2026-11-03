@@ -675,3 +675,22 @@ is rejected and archived outside active source. The companion
 `lossy-lab/DC-COMPLETION-AUDIT.patch` contains first-party decoder inspection,
 saved-stream rate and decision audits, visual-pair selection and correctness
 fixtures; it adds no native probe or runtime dependency.
+
+## DC reconstruction audit and serialization proposal (2026-11-03)
+
+`lossy-lab/DC-RECONSTRUCTION-AUDIT.patch` contains first-party observation,
+saved-stream analysis and helper tests. The audit reads libjxl
+`lib/jxl/enc_transforms-inl.h`, `lib/jxl/dec_transforms-inl.h`,
+`lib/jxl/dct_scales.h`, `lib/jxl/compressed_dc.cc`, `lib/jxl/quantizer.h` and
+`lib/jxl/enc_group.cc` at v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. All six files match the pinned
+archive. The scale checker reads table values at development time to verify our
+existing operator. No new libjxl decision logic or table is ported. Instrumented
+copies preserve existing port headers and identify the observation changes.
+
+`lossy-lab/DC-WIRE-ALIGNMENT-PROPOSAL.patch` adds a first-party helper using our
+existing F16 writer and reader, plus a call from the previously attributed
+strategy writer. It aligns quantization with the serialized DC matrix. The
+patch is prepared against the frozen AC 1.25 experiment and has helper coverage
+only; no candidate encode or quality result exists. Both archives stay outside
+the active implementation and add no runtime dependency.
