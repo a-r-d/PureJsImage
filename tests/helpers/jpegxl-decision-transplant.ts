@@ -178,6 +178,7 @@ export async function verifyDecisionTransplantBrowser() {
     'standalone-forward-small',
     'standalone-forward-paired',
     'standalone-forward-all',
+    'standalone-regularized-half',
     'standalone-guard-coarse',
     'standalone-selector-pairs',
     'standalone-writer-rounding',

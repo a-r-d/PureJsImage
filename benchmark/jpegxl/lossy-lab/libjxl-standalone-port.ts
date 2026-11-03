@@ -67,6 +67,7 @@ export type StandalonePort =
   | 'standalone-selector-pairs'
   | 'standalone-loss75'
   | 'standalone-loss125'
+  | 'standalone-regularized-half'
 
 export function libjxlStandaloneOverrides(
   distance: number,
@@ -75,10 +76,11 @@ export function libjxlStandaloneOverrides(
   requestedMode: StandalonePort,
   directRoundingState = true,
 ): JpegXlDevelopmentDecisions {
+  const regularizedDetail = requestedMode === 'standalone-regularized-half'
   const writerEstimate =
     requestedMode === 'standalone-writer-field'
       ? 'field'
-      : requestedMode === 'standalone-writer-rounding'
+      : requestedMode === 'standalone-writer-rounding' || regularizedDetail
         ? 'rounding'
         : requestedMode === 'standalone-writer-matrices'
           ? 'matrices'
@@ -92,7 +94,7 @@ export function libjxlStandaloneOverrides(
       ? 'small'
       : requestedMode === 'standalone-forward-paired'
         ? 'paired'
-        : requestedMode === 'standalone-forward-all'
+        : requestedMode === 'standalone-forward-all' || regularizedDetail
           ? 'all'
           : undefined
   const coarseAllocation =
@@ -248,6 +250,7 @@ export function libjxlStandaloneOverrides(
             coarseAllocation,
           lossScale,
           directRoundingState,
+          regularizedDetail,
           ...(writerEstimate ? { writerEstimate } : {}),
           ...(writerTransform ? { writerTransform } : {}),
           compactStorage:

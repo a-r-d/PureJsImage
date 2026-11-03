@@ -74,6 +74,7 @@ export function parseLibjxlPort(value: string): LibjxlPort {
     value === 'standalone-forward-small' ||
     value === 'standalone-forward-paired' ||
     value === 'standalone-forward-all' ||
+    value === 'standalone-regularized-half' ||
     value === 'standalone-guard-coarse' ||
     value === 'standalone-selector-pairs' ||
     value === 'standalone-writer-all' ||
@@ -160,6 +161,7 @@ export function libjxlPortOverrides(
     mode === 'standalone-forward-small' ||
     mode === 'standalone-forward-paired' ||
     mode === 'standalone-forward-all' ||
+    mode === 'standalone-regularized-half' ||
     mode === 'standalone-guard-coarse' ||
     mode === 'standalone-selector-pairs' ||
     mode === 'standalone-writer-all' ||

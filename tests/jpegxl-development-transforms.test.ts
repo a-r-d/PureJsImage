@@ -20,6 +20,35 @@ import {
 } from '../src/codecs/jpegxl-vardct-jpeg.ts'
 
 describe('development normative transform kernels', () => {
+  it('preserves paired forward sums across large square and rectangular kernels', () => {
+    for (const strategy of [4, 5, 6, 7, 10, 11, 18, 19, 20]) {
+      const size =
+        (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) *
+        (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) *
+        64
+      for (const amplitude of [0, 0.0001, 1, 1000]) {
+        for (const pattern of [0, 1, 2]) {
+          const input = Float32Array.from({ length: size }, (_, i) =>
+            pattern === 0
+              ? Math.sin(i * 7.13) * amplitude
+              : pattern === 1
+                ? i === size - 1
+                  ? amplitude
+                  : 0
+                : i % 2
+                  ? -amplitude
+                  : amplitude,
+          )
+          const expected = new Float64Array(size),
+            actual = new Float64Array(size)
+          const scratch = new Float64Array(size)
+          forwardSymmetricSelectorTransform(strategy, input, scratch, expected)
+          forwardPairedSelectorTransform(strategy, input, scratch, actual, new Float64Array(64))
+          expect(actual).toEqual(expected)
+        }
+      }
+    }
+  })
   for (const strategy of [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
   ]) {

@@ -172,12 +172,24 @@ export function forwardPairedSelectorTransform(
       pairs[x] = a + b
       pairs[halfWidth + x] = a - b
     }
-    for (let h = 0; h < width; h++) {
-      let sum = 0
-      const offset = (h % 2) * halfWidth
-      for (let x = 0; x < halfWidth; x++)
-        sum += (pairs[offset + x] ?? 0) * (horizontal[h * width + x] ?? 0)
-      scratch[y * width + h] = sum
+    for (let h = 0; h < width; h += 4) {
+      let s0 = 0,
+        s1 = 0,
+        s2 = 0,
+        s3 = 0
+      const at = h * width
+      for (let x = 0; x < halfWidth; x++) {
+        const even = pairs[x] ?? 0,
+          odd = pairs[halfWidth + x] ?? 0
+        s0 += even * (horizontal[at + x] ?? 0)
+        s1 += odd * (horizontal[at + width + x] ?? 0)
+        s2 += even * (horizontal[at + 2 * width + x] ?? 0)
+        s3 += odd * (horizontal[at + 3 * width + x] ?? 0)
+      }
+      scratch[y * width + h] = s0
+      scratch[y * width + h + 1] = s1
+      scratch[y * width + h + 2] = s2
+      scratch[y * width + h + 3] = s3
     }
   }
   for (let h = 0; h < width; h++) {
@@ -187,12 +199,26 @@ export function forwardPairedSelectorTransform(
       pairs[y] = a + b
       pairs[halfHeight + y] = a - b
     }
-    for (let v = 0; v < height; v++) {
-      let sum = 0
-      const offset = (v % 2) * halfHeight
-      for (let y = 0; y < halfHeight; y++)
-        sum += (pairs[offset + y] ?? 0) * (vertical[v * height + y] ?? 0)
-      coefficients[height >= width ? h * height + v : v * width + h] = sum * scale
+    for (let v = 0; v < height; v += 4) {
+      let s0 = 0,
+        s1 = 0,
+        s2 = 0,
+        s3 = 0
+      const at = v * height
+      for (let y = 0; y < halfHeight; y++) {
+        const even = pairs[y] ?? 0,
+          odd = pairs[halfHeight + y] ?? 0
+        s0 += even * (vertical[at + y] ?? 0)
+        s1 += odd * (vertical[at + height + y] ?? 0)
+        s2 += even * (vertical[at + 2 * height + y] ?? 0)
+        s3 += odd * (vertical[at + 3 * height + y] ?? 0)
+      }
+      const out = height >= width ? h * height + v : v * width + h
+      const step = height >= width ? 1 : width
+      coefficients[out] = s0 * scale
+      coefficients[out + step] = s1 * scale
+      coefficients[out + 2 * step] = s2 * scale
+      coefficients[out + 3 * step] = s3 * scale
     }
   }
 }

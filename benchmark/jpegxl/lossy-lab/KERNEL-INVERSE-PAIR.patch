@@ -1,0 +1,32 @@
+diff --git a/benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts b/benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts
+--- a/benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts
++++ b/benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts
+@@ -56,17 +56,20 @@
+   }
+   for (let y = 0; y < height / 2; y++) {
+     const offset = y * height
+-    for (let x = 0; x < width; x++) {
+-      let even = 0,
+-        odd = 0,
+-        at = x
++    for (let x = 0; x < width; x += 2) {
++      let even0 = 0, odd0 = 0, even1 = 0, odd1 = 0, at = x
+       for (let v = 0; v < height; v += 2) {
+-        even += (scratch[at] ?? 0) * (vertical[offset + v] ?? 0)
+-        odd += (scratch[at + width] ?? 0) * (vertical[offset + v + 1] ?? 0)
++        const e = vertical[offset + v] ?? 0, o = vertical[offset + v + 1] ?? 0
++        even0 += (scratch[at] ?? 0) * e
++        odd0 += (scratch[at + width] ?? 0) * o
++        even1 += (scratch[at + 1] ?? 0) * e
++        odd1 += (scratch[at + width + 1] ?? 0) * o
+         at += 2 * width
+       }
+-      destination[y * width + x] = (even + odd) * scale
+-      destination[(height - 1 - y) * width + x] = (even - odd) * scale
++      destination[y * width + x] = (even0 + odd0) * scale
++      destination[(height - 1 - y) * width + x] = (even0 - odd0) * scale
++      destination[y * width + x + 1] = (even1 + odd1) * scale
++      destination[(height - 1 - y) * width + x + 1] = (even1 - odd1) * scale
+     }
+   }
+ }

@@ -1,17 +1,17 @@
 # JPEG XL lossy lab
 
-Step C research stays on jxl-libjxl-ports. Main is unchanged; no promotion or holdout rerun.
-Frozen holdout still has two failed SSIM guards, worst +11.617%; no identities or individual holdout results read.
-Retained development SSIM/3-norm/max: vips -8.003/-5.030/-5.582%; jSquash -8.474/+0.227/+2.571%.
-Last frozen holdout: vips -5.996/-3.605/-2.909%, mean -4.170%; jSquash -6.492/+1.640/+2.704%.
-Prior retained qualification: crops 2.635783x jSquash; 13 MP 41.894s and 1.698729x; prior 21 MP finishes, jSquash aborts.
-Prior managed peaks: crops 8,760,382 bytes; 13 MP 59,139,199; 21 MP 91,010,461, below 137,514,476.
+Step C research stays on jxl-libjxl-ports. Main is unchanged. Exact kernel gains reopen qualification of the frozen regularized selector.
+Fresh regularized holdout has two failed SSIM guards, worst +12.173%; no identities or individual holdout results read.
+Regularized development SSIM/3-norm/max: vips -8.205/-5.199/-5.631%; jSquash -8.726/-0.012/+2.408%.
+Fresh holdout: vips -6.106/-3.672/-3.307%, mean -4.362%; jSquash -6.607/+1.551/+2.296%.
+Fresh regularized qualification: crops 2.293470x jSquash; 13 MP 37.722s and 1.465347x; 21 MP 60.358s, jSquash aborts.
+Fresh managed peaks: development 9,235,833 bytes; 13 MP 59,135,103; 21 MP 90,873,245, below 137,514,476.
 Bundles 614,969/687,801 bytes; dependencies zero. Public codec source is unchanged in this pass.
-Aaron reopened guard repair on 2026-10-29. Fourteen quality experiments complete 2,484 native-valid outputs; all quality modes are archived.
-Best grain guard improves 7.032% to 4.844%, but regularized structure costs 1.058437x control against its 1.016124 allowance. AC1.05 costs 1.058084x against 1.023233. Both fail cost; no new holdout.
-Retained exact writer-rounding state reuse improves that development mode 9.422%/5.806% on two crops; all 42 pairs preserve streams and managed peaks. Default quality mode is unchanged.
-[Latest report](lossy-lab/DETAIL-GUARD-REPORT.md). Zero retained quality gain; this round reaches the approximately-15-experiment plateau.
-Next hypotheses, only after owner continuation: tighter exact selector bounds; bounded post-filter contrast prediction; selective DC only after a block rate/error audit.
+Aaron reopened work on 2026-11-03. Retain four-frequency forward-DCT batching and inverse-Gaborish tap unrolling; reject inverse-column pairing.
+Final 21-triplet ratios: 0.888354/0.912274 versus frozen prototype, 0.989093/0.943527 versus unchanged control; the 1.016124 allowance passes.
+All 576 development streams match frozen native-valid outputs exactly with no managed increase. Restore only regularized-half; other quality trials stay archived.
+Development mean gain over control is 0.161235%; eight admitted main-relative SSIM guards pass, worst +7.579%. The holdout guard fails.
+Next: test cell-local structure pooling on development, compare broad quality and development tails, then measure cost only for a qualifying result.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2734,3 +2734,35 @@ LL-1073 plan: abort a large inverse transform after its first and last eighth of
 Bounded selector round closes with zero retained changes. All three independent patches, 96 measured triplets, 12 warmup triplets, profiles, counts and exactness checks are preserved in [SELECTOR-BOUND-REPORT.md](lossy-lab/SELECTOR-BOUND-REPORT.md) and its JSON. Quality policy is frozen; no holdout data or identities are opened. The known two SSIM guard failures, worst +11.617%, remain. Main, active encoder code, quality targets, absolute speed gates and memory ceilings stay unchanged. The owner-approved three-change limit is exhausted; no fourth trial starts.
 
 Bounded-round validation: all three patches reconstruct the tested modules exactly; all instrumented and timed hashes agree across trials. The separate strict harness check passes. VITEST_MAX_WORKERS=4 npm run check passes all static gates and browser:check, with 4,214 tests passed and three skipped, ending 2026-10-29 16:09:41 UTC. Existing warnings remain. This checkpoint contains reports and archived patches only.
+
+Owner continuation, 2026-11-03: Aaron reopens work toward merge readiness after 04006588. Keep the frozen quality, speed, memory and holdout guards. The previous three-change limit applied to its completed round. Resume with exact transform kernels; reassess the score only if profiling and measurements justify a new quality hypothesis. No merge or release authorization.
+
+LL-1074 plan: refresh frozen regularized-half profiles on the fixed development photo and texture, then share vertical inverse-DCT weights across two adjacent output columns. Preserve each dot product's arithmetic order, buffers and final Float32 values. Compare complete encodes against both frozen regularized-half and unchanged standalone-forward-all control. This is a first-party kernel adaptation, no new port or decision change. Raw root: selector-kernels-20261103.
+
+| LL-1074, 2026-11-03 | Share vertical inverse weights across two output columns. | 156 inverse cases and all timed streams exact; managed peaks unchanged. Fresh candidate profiles: photo score 398.965ms, paired forward 278.764ms, inverse 196.055ms; texture 427.983/419.189/304.870ms across three encodes. | Seven triplets per crop: frozen ratios 0.955447/0.990942, 4/7 faster on each, MAD 0.050360/0.038318; control 1.070492/1.057641. | Weak initial evidence, keep as an isolated candidate for confirmation; no promotion or retention claim. | inconclusive |
+
+LL-1075 plan: batch four forward-DCT frequencies, reusing even/odd input pairs while preserving the accumulation order of each coefficient. No new scratch, tables, pruning or policy changes. Test independently of LL-1074 on both fixed development crops; exact transform and full-stream checks precede a speed claim.
+
+| LL-1075, 2026-11-03 | Four-frequency forward-DCT batching in the selector. | 156 coefficient cases exact; all paired streams and managed peaks exact. | Seven triplets per crop: frozen ratios 0.916052/0.964616, 6/7 and 5/7 faster, MAD 0.019053/0.039228; control ratios 1.007587/0.972723. | Promising initial result; confirm 21 triplets on each crop before retention or qualification. No inverse stacking. | promising |
+
+LL-1075 confirmation: 21 triplets per crop preserve every byte and managed peak. Frozen-prototype ratios are 0.977697 photo (12/21 faster, MAD 0.045340) and 0.950666 texture (17/21, MAD 0.037675). Control ratios 1.012190/0.965903 satisfy the 1.016124 allowance numerically, with a narrow noisy margin on the photo. Retain provisionally for wider exactness and isolated qualification. Initial and confirmation samples remain separate.
+
+LL-1076 plan: unroll the optimized inverse-Gaborish 25-tap convolution, preserving the exact original multiplication and addition order, clamped halo, activity state and caches. Fresh profiles identify both Gaborish read paths among the leading costs. Compare independently of the transform changes, then combine only if the gain repeats. No new weights, maps or allocations.
+
+| LL-1076, 2026-11-03 | Unroll inverse-Gaborish taps in their original order. | Twelve thin/odd/tile-edge encode cases and all timed pairs are exact; managed peaks unchanged. | Seven triplets: frozen ratios 0.926748 photo (7/7 faster, MAD 0.018209) / 0.999557 texture (4/7, MAD 0.063381); control 1.010290/0.967357. | Promising photo gain, texture inconclusive. Confirm its incremental effect in the cumulative stack before retention. | promising |
+
+LL-1077 plan: confirm forward batching across both existing consumers (selector and final geometry rewrite), then measure added Gaborish unrolling against that stack. Use 21 rotating quadruplets per crop: unchanged control, frozen quality prototype, complete forward change, combined kernels. This tests cumulative end-to-end cost and isolates Gaborish contribution without changing quality decisions.
+
+| LL-1077, 2026-11-03 | Confirm complete forward batching and added Gaborish unrolling in 21 rotating quadruplets per crop. | All quality-mode streams exact; managed peaks equal. Forward-only/frozen ratios 0.952257/0.937299 (15/21 and 19/21 faster). | Combined/frozen 0.936826/0.900130 (17/21 and 20/21 faster); Gaborish incremental 0.943199/0.942860 (15/21 and 18/21 faster); combined/control 0.979891/0.929164, both below 1.016124. | Retain both exact kernels provisionally and restore only the frozen regularized-half quality mode for full development parity and fresh entry checks. The inconclusive inverse-pair trial stays out. | development qualification |
+
+LL-1077 cleaned qualification: all 576 fresh development streams match saved regularized-half native-valid outputs; no per-point managed increase, maximum 9,235,833 bytes. Only the regularized mode is restored; rejected local-loss alternatives stay archived. Strict root/harness TypeScript and 110 focused tests pass. Final 21-triplet ratios to frozen prototype are 0.888354/0.912274 (18/21 and 19/21 faster); to unchanged control 0.989093/0.943527, both below 1.016124. Final code includes no inverse-pair kernel and no source or public-option change. Begin fresh isolated 64-crop and 13/21 MP original entry timing before any aggregate holdout refresh.
+
+LL-1078 plan: qualify the frozen regularized-half candidate using the unchanged promotion rules. All 192 fresh crop engine jobs finish, median 2.293470x jSquash. Both originals have native-valid outputs: 13 MP 37.722s, 1.465347x jSquash, managed 59,135,103 bytes; 21 MP 60.358s, managed 90,873,245 bytes. The 21 MP jSquash encoder aborts, so its ratio is unavailable. The development objective and eight admitted main-relative SSIM guards pass (worst +7.579%; no full-band 3-norm admission). Explicitly admit this frozen standalone mode to promotion and run one aggregate-only holdout attempt. No thresholds or ladders change.
+
+| LL-1078, 2026-11-03 | Qualify the frozen regularized selector after exact speed improvements. | Holdout 567 native-valid outputs, 189/189 engine jobs; vips -6.106/-3.672/-3.307%, mean -4.362%; jSquash -6.607/+1.551/+2.296%. Main means -5.498/-8.198/-8.394%. Two of nine admitted SSIM guards fail, worst +12.173%; zero full-band 3-norm admissions. | Isolated crop/original entry gates pass; max holdout managed 26,185,191 bytes. | No promotion. Exact speed gains remain useful; frozen quality mode remains research-only. No per-image holdout identities or values inspected. | holdout guard failure |
+
+LL-1079 plan: apply each existing regularized structural weight to that 8x8 cell's masked luma eighth-power error before pooling. The current transform-wide average scales error in unrelated cells; this tests that approximation without changing the half-strength weight, stabilizer, rounding, quantization or filtering. This differs from the rejected worst-cell merge veto and from replacing error with a postdecode metric. Use the fixed development screen and its existing grain/texture examples; no holdout-guided feature or threshold selection. Prototype in an isolated module copy while the frozen checkpoint completes verification.
+
+| LL-1079, 2026-11-03 | Apply structural weights before cell error pooling. | 80 native-valid outputs; regularized-control +0.110/+0.120/+0.718%; vips -10.625/-5.732/-5.825%; jSquash -11.715/-0.440/+1.303%. Worst paired max +10.374%, partial band. | Concurrent timing excluded; no extra buffers. Fourteen focused prototype checks pass. | Reject: all three means regress. Preserve the isolated source and screen, with no active policy change. | rejected |
+
+LL-1080 plan: retain the transform-wide regularized term but add a second grid of existing 8x8 box moments, shifted half a cell inside transforms larger than 8x8. The current nonoverlapping cells cannot observe structure across their boundaries. Average both grids equally per window, without changing loss strength or stabilizer; use only complete windows, with no new buffers or peer decisions. This tests spatial coverage before any Gaussian implementation or weight changes. The fixed development screen decides whether a full lab is justified.

@@ -6,7 +6,7 @@
  * channel strength used by enc_heuristics.cc at the same revision.
  * Changes: first-party scalar convolution of a bounded 12x12 block halo,
  * clamped borders, existing XYB input and memory ledger, plus optional bounded
- * source-block caching. No SIMD or threading.
+ * source-block caching and unrolled taps in the original summation order. No SIMD or threading.
  */
 import { gaborishSourceCache } from './gaborish-source-cache.ts'
 import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
@@ -18,17 +18,6 @@ const farAxis = 0.013710004822696948,
   mixed = 0.006510206083837737,
   farDiagonal = -0.0014789063378272242
 const norm = 1 / (1 + 4 * (adjacent + diagonal + farAxis + farDiagonal + 2 * mixed))
-const kernel = Float64Array.of(
-  1,
-  adjacent,
-  farAxis,
-  adjacent,
-  diagonal,
-  mixed,
-  farAxis,
-  mixed,
-  farDiagonal,
-)
 
 export function libjxlGaborishContext(
   base: VarDctCoefficientGeometry,
@@ -89,11 +78,32 @@ export function libjxlGaborishContext(
         for (let y = 0; y < 8; y++)
           for (let x = 0; x < 8; x++) {
             let sum = 0
-            for (let dy = -2; dy <= 2; dy++)
-              for (let dx = -2; dx <= 2; dx++)
-                sum +=
-                  (kernel[Math.abs(dy) * 3 + Math.abs(dx)] ?? 0) *
-                  (source[(y + 2 + dy) * 12 + x + 2 + dx] ?? 0)
+            const at = y * 12 + x
+            sum += farDiagonal * (source[at + 0] ?? 0)
+            sum += mixed * (source[at + 1] ?? 0)
+            sum += farAxis * (source[at + 2] ?? 0)
+            sum += mixed * (source[at + 3] ?? 0)
+            sum += farDiagonal * (source[at + 4] ?? 0)
+            sum += mixed * (source[at + 12] ?? 0)
+            sum += diagonal * (source[at + 13] ?? 0)
+            sum += adjacent * (source[at + 14] ?? 0)
+            sum += diagonal * (source[at + 15] ?? 0)
+            sum += mixed * (source[at + 16] ?? 0)
+            sum += farAxis * (source[at + 24] ?? 0)
+            sum += adjacent * (source[at + 25] ?? 0)
+            sum += 1 * (source[at + 26] ?? 0)
+            sum += adjacent * (source[at + 27] ?? 0)
+            sum += farAxis * (source[at + 28] ?? 0)
+            sum += mixed * (source[at + 36] ?? 0)
+            sum += diagonal * (source[at + 37] ?? 0)
+            sum += adjacent * (source[at + 38] ?? 0)
+            sum += diagonal * (source[at + 39] ?? 0)
+            sum += mixed * (source[at + 40] ?? 0)
+            sum += farDiagonal * (source[at + 48] ?? 0)
+            sum += mixed * (source[at + 49] ?? 0)
+            sum += farAxis * (source[at + 50] ?? 0)
+            sum += mixed * (source[at + 51] ?? 0)
+            sum += farDiagonal * (source[at + 52] ?? 0)
             target[y * 8 + x] = sum * norm
           }
       }

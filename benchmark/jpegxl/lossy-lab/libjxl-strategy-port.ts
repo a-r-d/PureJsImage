@@ -24,6 +24,7 @@
  */
 import { selectorTileMask } from './selector-tile-mask.ts'
 import { selectorMaskLoss } from './selector-mask-loss.ts'
+import { selectorRegularizedDetailLoss } from './libjxl-selector-detail-loss.ts'
 import { inverseSelectorTransform } from './selector-inverse.ts'
 import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
 import type {
@@ -97,6 +98,7 @@ export interface StrategyOptions {
   bulkBlockCopy?: boolean
   lossScale?: number
   directRoundingState?: boolean
+  regularizedDetail?: boolean
 }
 
 export function strategyPortOverrides(
@@ -138,6 +140,7 @@ function selectGeometry(
     bulkBlockCopy = false,
     lossScale = 1,
     directRoundingState = false,
+    regularizedDetail = false,
   } = options
   const memory = base.memory
   if (!memory || !base.quantizationMap || !base.globalScale)
@@ -409,6 +412,12 @@ function selectGeometry(
             error *= error
             channelLoss += error
           }
+        if (c === 1 && regularizedDetail) {
+          const source = planes[c]
+          if (!source) throw new Error('Missing luma detail source')
+          const detail = selectorRegularizedDetailLoss(source, spatial, width, height, scale)
+          channelLoss *= (1 + 0.5 * detail) ** 8
+        }
         loss += channelLoss
         if (c === 0 && bw * bh >= 2) {
           const penalty = 1 + Math.min(3, (bw * bh) / 8)

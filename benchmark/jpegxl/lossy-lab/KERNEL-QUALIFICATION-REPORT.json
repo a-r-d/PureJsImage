@@ -1,0 +1,872 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "04006588243f9a1ec6baf7fe294bf2da16f3a77a",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103",
+  "changes": [
+    "Batch four forward DCT frequencies while preserving each dot product order.",
+    "Unroll the existing 25 inverse-Gaborish taps in their original order.",
+    "Restore only the frozen regularized-half standalone finalist."
+  ],
+  "rejected": ["Inverse vertical two-column batching, inconclusive repeated speed."],
+  "experiments": [
+    {
+      "name": "trial1",
+      "rows": [
+        {
+          "id": "im26-3012",
+          "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/trial1-im26-3012-time.json",
+          "summaries": [
+            {
+              "reference": "base",
+              "count": 7,
+              "medianRatio": 0.9554470291940285,
+              "mad": 0.050359725222125507,
+              "faster": 4,
+              "baseMedianMs": 936.8443929999994,
+              "candidateMedianMs": 909.8741570000002,
+              "allBytesEqual": true,
+              "allManagedEqual": true
+            },
+            {
+              "reference": "control",
+              "count": 7,
+              "medianRatio": 1.0704918290508938,
+              "mad": 0.031398016332699674,
+              "faster": 0,
+              "baseMedianMs": 850.1830329999975,
+              "candidateMedianMs": 909.8741570000002,
+              "allBytesEqual": false,
+              "allManagedEqual": true
+            }
+          ]
+        },
+        {
+          "id": "im26-3312",
+          "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/trial1-im26-3312-time.json",
+          "summaries": [
+            {
+              "reference": "base",
+              "count": 7,
+              "medianRatio": 0.9909421354975351,
+              "mad": 0.038317624444266785,
+              "faster": 4,
+              "baseMedianMs": 972.5036180000025,
+              "candidateMedianMs": 963.6948120000015,
+              "allBytesEqual": true,
+              "allManagedEqual": true
+            },
+            {
+              "reference": "control",
+              "count": 7,
+              "medianRatio": 1.0576413420149926,
+              "mad": 0.02737556225034332,
+              "faster": 0,
+              "baseMedianMs": 911.1735460000018,
+              "candidateMedianMs": 963.6948120000015,
+              "allBytesEqual": false,
+              "allManagedEqual": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "trial2-confirm",
+      "rows": [
+        {
+          "id": "im26-3012",
+          "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/trial2-confirm-im26-3012-time.json",
+          "summaries": [
+            {
+              "reference": "base",
+              "count": 21,
+              "medianRatio": 0.9776967667710023,
+              "mad": 0.045340438270865646,
+              "faster": 12,
+              "baseMedianMs": 925.2185549999995,
+              "candidateMedianMs": 911.831680000003,
+              "allBytesEqual": true,
+              "allManagedEqual": true
+            },
+            {
+              "reference": "control",
+              "count": 21,
+              "medianRatio": 1.0121896587463295,
+              "mad": 0.040774256674643405,
+              "faster": 7,
+              "baseMedianMs": 887.4612899999993,
+              "candidateMedianMs": 911.831680000003,
+              "allBytesEqual": false,
+              "allManagedEqual": true
+            }
+          ]
+        },
+        {
+          "id": "im26-3312",
+          "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/trial2-confirm-im26-3312-time.json",
+          "summaries": [
+            {
+              "reference": "base",
+              "count": 21,
+              "medianRatio": 0.9506664063843087,
+              "mad": 0.03767456490230736,
+              "faster": 17,
+              "baseMedianMs": 948.3833400000003,
+              "candidateMedianMs": 887.4171849999984,
+              "allBytesEqual": true,
+              "allManagedEqual": true
+            },
+            {
+              "reference": "control",
+              "count": 21,
+              "medianRatio": 0.9659026257990004,
+              "mad": 0.027574779240484792,
+              "faster": 14,
+              "baseMedianMs": 915.9796939999997,
+              "candidateMedianMs": 887.4171849999984,
+              "allBytesEqual": false,
+              "allManagedEqual": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "trial3",
+      "rows": [
+        {
+          "id": "im26-3012",
+          "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/trial3-im26-3012-time.json",
+          "summaries": [
+            {
+              "reference": "base",
+              "count": 7,
+              "medianRatio": 0.9267481170757851,
+              "mad": 0.018209060153998702,
+              "faster": 7,
+              "baseMedianMs": 992.4038550000005,
+              "candidateMedianMs": 938.0921600000001,
+              "allBytesEqual": true,
+              "allManagedEqual": true
+            },
+            {
+              "reference": "control",
+              "count": 7,
+              "medianRatio": 1.010290424118427,
+              "mad": 0.03916372657328249,
+              "faster": 3,
+              "baseMedianMs": 918.6677409999975,
+              "candidateMedianMs": 938.0921600000001,
+              "allBytesEqual": false,
+              "allManagedEqual": true
+            }
+          ]
+        },
+        {
+          "id": "im26-3312",
+          "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/trial3-im26-3312-time.json",
+          "summaries": [
+            {
+              "reference": "base",
+              "count": 7,
+              "medianRatio": 0.9995566074698508,
+              "mad": 0.06338148150708345,
+              "faster": 4,
+              "baseMedianMs": 967.9166220000006,
+              "candidateMedianMs": 967.4874549999986,
+              "allBytesEqual": true,
+              "allManagedEqual": true
+            },
+            {
+              "reference": "control",
+              "count": 7,
+              "medianRatio": 0.9673571486228093,
+              "mad": 0.06405809067281365,
+              "faster": 4,
+              "baseMedianMs": 1050.6644259999994,
+              "candidateMedianMs": 967.4874549999986,
+              "allBytesEqual": false,
+              "allManagedEqual": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "timings": [
+    {
+      "id": "im26-3012",
+      "final": {
+        "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/clean-im26-3012-time.json",
+        "summaries": [
+          {
+            "reference": "base",
+            "count": 21,
+            "medianRatio": 0.8883541124129484,
+            "mad": 0.04068808015723735,
+            "faster": 18,
+            "baseMedianMs": 932.8681320000014,
+            "candidateMedianMs": 830.7724619999972,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "control",
+            "count": 21,
+            "medianRatio": 0.9890927151103601,
+            "mad": 0.05177847760550325,
+            "faster": 12,
+            "baseMedianMs": 864.0246259999985,
+            "candidateMedianMs": 830.7724619999972,
+            "allBytesEqual": false,
+            "allManagedEqual": true
+          }
+        ]
+      },
+      "cumulative": {
+        "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/combined-im26-3012-time.json",
+        "summaries": [
+          {
+            "reference": "base",
+            "candidate": "forward",
+            "count": 21,
+            "medianRatio": 0.9522567875526514,
+            "mad": 0.03965953010189105,
+            "faster": 15,
+            "baseMedianMs": 929.7558379999991,
+            "candidateMedianMs": 898.5707370000018,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "base",
+            "candidate": "combined",
+            "count": 21,
+            "medianRatio": 0.9368255429054917,
+            "mad": 0.058577676485709995,
+            "faster": 17,
+            "baseMedianMs": 929.7558379999991,
+            "candidateMedianMs": 852.9414300000062,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "forward",
+            "candidate": "combined",
+            "count": 21,
+            "medianRatio": 0.9431985502552661,
+            "mad": 0.03714128430496577,
+            "faster": 15,
+            "baseMedianMs": 898.5707370000018,
+            "candidateMedianMs": 852.9414300000062,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "control",
+            "candidate": "forward",
+            "count": 21,
+            "medianRatio": 1.0513637622252792,
+            "mad": 0.031056319809041222,
+            "faster": 3,
+            "baseMedianMs": 852.6546360000066,
+            "candidateMedianMs": 898.5707370000018,
+            "allBytesEqual": false,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "control",
+            "candidate": "combined",
+            "count": 21,
+            "medianRatio": 0.9798913330666185,
+            "mad": 0.045757690722938116,
+            "faster": 13,
+            "baseMedianMs": 852.6546360000066,
+            "candidateMedianMs": 852.9414300000062,
+            "allBytesEqual": false,
+            "allManagedEqual": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "im26-3312",
+      "final": {
+        "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/clean-im26-3312-time.json",
+        "summaries": [
+          {
+            "reference": "base",
+            "count": 21,
+            "medianRatio": 0.9122739137612639,
+            "mad": 0.04637297920650019,
+            "faster": 19,
+            "baseMedianMs": 951.8684480000011,
+            "candidateMedianMs": 878.2524010000016,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "control",
+            "count": 21,
+            "medianRatio": 0.9435269837789727,
+            "mad": 0.04868965868765873,
+            "faster": 17,
+            "baseMedianMs": 907.5039529999995,
+            "candidateMedianMs": 878.2524010000016,
+            "allBytesEqual": false,
+            "allManagedEqual": true
+          }
+        ]
+      },
+      "cumulative": {
+        "input": ".tmp/jpegxl-lossy-lab/selector-kernels-20261103/combined-im26-3312-time.json",
+        "summaries": [
+          {
+            "reference": "base",
+            "candidate": "forward",
+            "count": 21,
+            "medianRatio": 0.9372994922847088,
+            "mad": 0.032076672079213275,
+            "faster": 19,
+            "baseMedianMs": 931.3066220000001,
+            "candidateMedianMs": 884.7616289999933,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "base",
+            "candidate": "combined",
+            "count": 21,
+            "medianRatio": 0.9001295066264202,
+            "mad": 0.02750447449606097,
+            "faster": 20,
+            "baseMedianMs": 931.3066220000001,
+            "candidateMedianMs": 830.4060270000009,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "forward",
+            "candidate": "combined",
+            "count": 21,
+            "medianRatio": 0.9428597798143692,
+            "mad": 0.027949153411353733,
+            "faster": 18,
+            "baseMedianMs": 884.7616289999933,
+            "candidateMedianMs": 830.4060270000009,
+            "allBytesEqual": true,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "control",
+            "candidate": "forward",
+            "count": 21,
+            "medianRatio": 0.9819518203387838,
+            "mad": 0.04017889316206302,
+            "faster": 12,
+            "baseMedianMs": 914.3674150000006,
+            "candidateMedianMs": 884.7616289999933,
+            "allBytesEqual": false,
+            "allManagedEqual": true
+          },
+          {
+            "reference": "control",
+            "candidate": "combined",
+            "count": 21,
+            "medianRatio": 0.929164449584018,
+            "mad": 0.023042809542204168,
+            "faster": 19,
+            "baseMedianMs": 914.3674150000006,
+            "candidateMedianMs": 830.4060270000009,
+            "allBytesEqual": false,
+            "allManagedEqual": true
+          }
+        ]
+      }
+    }
+  ],
+  "development": {
+    "passed": true,
+    "qualityRoot": ".tmp/jpegxl-lossy-lab/detail-guard-20261029/regularized-half-lab",
+    "bridge": "All 576 fresh streams exactly equal these native-valid scored streams with no managed increase.",
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.72636161938968,
+        "median": -7.5145855271114455,
+        "p90": -2.0537401732634253,
+        "worst": 8.668248052137638
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 2.407703407468068,
+        "median": 3.3759595463350633,
+        "p90": 10.365895540577917,
+        "worst": 20.004517943134225
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -0.011623556192930352,
+        "median": 0.6013996443233101,
+        "p90": 3.8980806536474866,
+        "worst": 10.250830192257519
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.20473866381229,
+        "median": -5.334938302936273,
+        "p90": -1.4787458269927147,
+        "worst": 1.6574331272596137
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -5.630579672318282,
+        "median": -3.968784194284057,
+        "p90": 2.7413589521453736,
+        "worst": 7.416611753344779
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -5.199432909748171,
+        "median": -3.7604946056379327,
+        "p90": -0.8292513662583444,
+        "worst": 2.027948317864791
+      }
+    ],
+    "production": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -7.285806542985837,
+        "median": -5.930691073077537,
+        "p90": 0.49591406143223155,
+        "worst": 7.941872330714032,
+        "fullBandCount": 8
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -10.127464391475458,
+        "median": -7.084413651906006,
+        "p90": -0.9140886679433089,
+        "worst": 12.52726185878582,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -9.745682628400942,
+        "median": -8.358108418987698,
+        "p90": 1.9063623342740594,
+        "worst": 21.161735398490684,
+        "fullBandCount": 0
+      }
+    ],
+    "vipsMean": -6.34491708195958,
+    "objectivePass": true,
+    "productionPass": true,
+    "guardAdmitted": 8,
+    "guardFailures": 0,
+    "worstAdmitted": 7.578624207579877,
+    "parityOutputs": 576
+  },
+  "parity": {
+    "complete": true,
+    "outputs": 576,
+    "images": 64,
+    "maxManagedPeakBytes": 9235833
+  },
+  "speed": {
+    "completedAt": "2026-11-03T14:36:27.022Z",
+    "cropRatio": 2.29347008550702,
+    "originals": [
+      {
+        "id": "im26-2004",
+        "exitCode": 0,
+        "engines": [
+          {
+            "engine": "purejsimage",
+            "receipt": {
+              "status": "encoded",
+              "engine": "purejsimage",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": "standalone-regularized-half",
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "e7af9549643573534bf03b210f95cd707b23abb7cf2fb092887b606a9084662d",
+              "setting": 2,
+              "bytes": 1799640,
+              "encodeMs": 37721.514182,
+              "managedPeakBytes": 59135103,
+              "processPeakRssBytes": 429305856
+            }
+          },
+          {
+            "engine": "jsquash",
+            "receipt": {
+              "status": "encoded",
+              "engine": "jsquash",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "967e08312ebc30005867cdab1762c6d29bdc585672778812a3167192256094c3",
+              "setting": 80,
+              "bytes": 1928555,
+              "encodeMs": 25742.374136,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1925484544
+            }
+          },
+          {
+            "engine": "vips",
+            "receipt": {
+              "status": "encoded",
+              "engine": "vips",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "527f32c8369703529f51dd911b153e184506dc512620694893c8692f630f2919",
+              "setting": 2,
+              "bytes": 1493247,
+              "encodeMs": 9089.600609000001,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1036922880
+            }
+          }
+        ],
+        "managedPass": true,
+        "ratio": 1.465347134755823
+      },
+      {
+        "id": "im26-2400",
+        "exitCode": 1,
+        "engines": [
+          {
+            "engine": "purejsimage",
+            "receipt": {
+              "status": "encoded",
+              "engine": "purejsimage",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+              "width": 4000,
+              "height": 5350,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": "standalone-regularized-half",
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+              "encodedSha256": "866edf9b4a23df618528dcbd0080128843e1b6ccba6d25ae85a361f5681b65f3",
+              "setting": 2,
+              "bytes": 529728,
+              "encodeMs": 60358.183746,
+              "managedPeakBytes": 90873245,
+              "processPeakRssBytes": 506986496
+            }
+          },
+          {
+            "engine": "jsquash",
+            "receipt": null
+          },
+          {
+            "engine": "vips",
+            "receipt": {
+              "status": "encoded",
+              "engine": "vips",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+              "width": 4000,
+              "height": 5350,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+              "encodedSha256": "73bf90d71043a671628d7c31fe3ad616cf80a0a913a387eee7463d1233a90221",
+              "setting": 2,
+              "bytes": 594138,
+              "encodeMs": 13699.98794,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1200340992
+            }
+          }
+        ],
+        "managedPass": true,
+        "ratio": null
+      }
+    ],
+    "policy": "All own encodes must finish, managed <=137514476, measured original ratios <=5. Preserve an unavailable peer ratio explicitly; no holdout is launched by this script."
+  },
+  "cropSpeed": [
+    {
+      "engine": "purejsimage",
+      "effort": 7,
+      "lab": {
+        "count": 64,
+        "mean": 1104.8531964531255,
+        "median": 1110.3062015,
+        "p90": 1182.2076061,
+        "worst": 1305.121979
+      },
+      "watch": null
+    },
+    {
+      "engine": "jsquash",
+      "effort": 7,
+      "lab": {
+        "count": 64,
+        "mean": 487.63670626562504,
+        "median": 484.11627799999997,
+        "p90": 536.0774573,
+        "worst": 577.766474
+      },
+      "watch": null
+    },
+    {
+      "engine": "vips",
+      "effort": 7,
+      "lab": {
+        "count": 64,
+        "mean": 342.45734975000016,
+        "median": 339.68012,
+        "p90": 371.769074,
+        "worst": 424.29387999999994
+      },
+      "watch": null
+    }
+  ],
+  "originals": [
+    {
+      "id": "im26-2004",
+      "receipt": {
+        "status": "encoded",
+        "engine": "purejsimage",
+        "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+        "width": 2945,
+        "height": 4417,
+        "channels": 4,
+        "effort": 7,
+        "strategyPort": "standalone-regularized-half",
+        "allocation": null,
+        "transplantSourceSha256": null,
+        "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+        "encodedSha256": "e7af9549643573534bf03b210f95cd707b23abb7cf2fb092887b606a9084662d",
+        "setting": 2,
+        "bytes": 1799640,
+        "encodeMs": 37721.514182,
+        "managedPeakBytes": 59135103,
+        "processPeakRssBytes": 429305856
+      },
+      "nativeValidated": true,
+      "postScoringPeakRssBytes": 569012224,
+      "failures": []
+    },
+    {
+      "id": "im26-2400",
+      "receipt": {
+        "status": "encoded",
+        "engine": "purejsimage",
+        "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+        "width": 4000,
+        "height": 5350,
+        "channels": 4,
+        "effort": 7,
+        "strategyPort": "standalone-regularized-half",
+        "allocation": null,
+        "transplantSourceSha256": null,
+        "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+        "encodedSha256": "866edf9b4a23df618528dcbd0080128843e1b6ccba6d25ae85a361f5681b65f3",
+        "setting": 2,
+        "bytes": 529728,
+        "encodeMs": 60358.183746,
+        "managedPeakBytes": 90873245,
+        "processPeakRssBytes": 506986496
+      },
+      "nativeValidated": true,
+      "postScoringPeakRssBytes": 750931968,
+      "failures": [
+        {
+          "id": "im26-2400",
+          "engine": "jsquash",
+          "detail": "Aborted()\n"
+        }
+      ]
+    }
+  ],
+  "holdout": {
+    "executionComplete": true,
+    "selected": 63,
+    "completedJobs": 189,
+    "outputs": 567,
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -6.607338226160625,
+        "median": -7.496411065821144,
+        "p90": 3.1779340380961836,
+        "worst": 9.573461221047427
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": 2.295682844476249,
+        "median": 2.0604441092156653,
+        "p90": 8.989797404298626,
+        "worst": 22.459234888379545
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": 1.5511726081573938,
+        "median": 1.6391684137346338,
+        "p90": 5.069995673214434,
+        "worst": 30.02865500715513
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -6.105540712072797,
+        "median": -4.664481235282511,
+        "p90": -0.44986353725086914,
+        "worst": 2.3662644587652455
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -3.3066697587401093,
+        "median": -2.7389160698273964,
+        "p90": 4.74049887532764,
+        "worst": 6.905360079600769
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -3.672359519809862,
+        "median": -2.3955577864951847,
+        "p90": -0.4181993217959966,
+        "worst": 7.349662112015945
+      }
+    ],
+    "vipsMean": -4.361523330207589,
+    "mainMeans": [
+      {
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -5.4983446736633805,
+        "median": -4.946831080189179,
+        "p90": 3.850964533357963,
+        "worst": 12.172879624059666,
+        "fullBandCount": 9
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -8.197701349561273,
+        "median": -6.860652888425554,
+        "p90": -0.4763653960818771,
+        "worst": 10.53283520763053,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -8.394446715817576,
+        "median": -7.909938345816893,
+        "p90": 2.2433925375265855,
+        "worst": 22.8409089615286,
+        "fullBandCount": 0
+      }
+    ],
+    "guards": [
+      {
+        "metric": "ssimulacra2",
+        "comparisons": 63,
+        "admitted": 9,
+        "failures": 2,
+        "worstAdmitted": 12.172879624059666
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "comparisons": 63,
+        "admitted": 0,
+        "failures": 0,
+        "worstAdmitted": null
+      }
+    ],
+    "objectivePass": true,
+    "mainMeansPass": true,
+    "guardsPass": false,
+    "passed": false,
+    "maxManaged": 26185191,
+    "policy": "Aggregate-only holdout review. No identities, per-image values or tuning decisions are emitted."
+  },
+  "validation": {
+    "status": "passed",
+    "startedAt": "2026-11-03T14:38:34.249Z",
+    "endedAt": "2026-11-03T14:50:30.951Z",
+    "code": 0,
+    "signal": null
+  },
+  "mergeReady": false,
+  "remaining": [
+    "Holdout per-image promotion guards",
+    "Full watch and scale",
+    "Two independent decoders",
+    "Public integration and exclusion of peer forcing hooks",
+    "Final review and clean branch"
+  ],
+  "limitations": [
+    "No new public encoder behavior or main change.",
+    "21 MP jSquash aborts; no speed ratio is reported.",
+    "Concurrent quality-run times are diagnostic only.",
+    "Managed peak and whole-worker RSS measure different scopes."
+  ]
+}

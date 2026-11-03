@@ -17,6 +17,8 @@ it.each(['holdout', 'watch', 'scale'] as const)(
     expect(allowsStrategyPortMode(mode, 'standalone-guard-bounded', false)).toBe(false)
     expect(allowsStrategyPortMode(mode, 'standalone-guard-coarse', true)).toBe(true)
     expect(allowsStrategyPortMode(mode, 'standalone-guard-coarse', false)).toBe(false)
+    expect(allowsStrategyPortMode(mode, 'standalone-regularized-half', true)).toBe(true)
+    expect(allowsStrategyPortMode(mode, 'standalone-regularized-half', false)).toBe(false)
     expect(allowsStrategyPortMode(mode, 'standalone-selector-mask-copy', true)).toBe(false)
     expect(allowsStrategyPortMode(mode, 'standalone-guard-hf625', true)).toBe(false)
     expect(allowsStrategyPortMode(mode, 'spatial-source', true)).toBe(false)

@@ -605,9 +605,25 @@ selector multiplier and direct access to our writer activity state are first-par
 adaptations, with no new native infrastructure. Headers and full BSD notices
 remain present; no runtime dependencies or peer decisions are introduced.
 
-The active `libjxl-strategy-port.ts` and `libjxl-standalone-port.ts` retain only
+At checkpoint `2c320e3b`, `libjxl-strategy-port.ts` and `libjxl-standalone-port.ts` retained only
 the first-party activity-state shortcut: read the original context to restore the
 shared writer state, then reuse it across shapes at the same origin. Uncorrelated
 source reads preserve that state. The optional reference path remains available
 for exact-stream regression tests. No additional libjxl logic is taken for this
 speed change. Quality policies and their tests are archived, not promoted.
+
+## Exact kernels and restored finalist, 2026-11-03
+
+The regularized-only `lossy-lab/libjxl-selector-detail-loss.ts` restores the
+previously attributed structure denominator and stabilizer from libjxl
+`tools/ssimulacra2.cc`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. The rejected contrast, unregularized
+and lost-detail variants remain archived. The existing fixed half-strength
+selector multiplier and our writer rounding define the restored development
+mode. No peer decisions are consumed.
+
+`lossy-lab/selector-transforms.ts` batches four frequencies with each original
+dot-product order. `lossy-lab/libjxl-gaborish-port.ts` unrolls its existing 25
+taps in the original order. These are first-party speed adaptations with no
+new constants or source material. The existing port header and full BSD
+notices apply. Qualification remains on the research branch.
