@@ -1,0 +1,22 @@
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_7e8fc6e80f4b35 2913-2914
+benchmark/jpegxl/lossy-lab/DC-WIRE-REPORT.md
+  s_42a303a21f7525::t_7e8fc6e80f4b35 11-12,136-139
+  s_42a303a21f7525::t_ceb752789f5a46 140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "904e753e5e90bc8e90981476b832267b66e62f39",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
