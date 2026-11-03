@@ -1,0 +1,35 @@
+benchmark/jpegxl/lossy-lab/DC-RECONSTRUCTION-AUDIT.json
+  s_42a303a21f7525::t_41b5a18a0686a4 2895,2915
+  s_42a303a21f7525::t_eb541553ee1aba 1-2893,2905-2914,2916-2917
+  s_42a303a21f7525::t_e53b93136dc1ff 2894,2896-2904
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_f27f4d63353749 2897-2898
+  s_42a303a21f7525::t_be443bcd6eb50f 3-4,11-13,16,2887-2894
+  s_42a303a21f7525::t_e08406fe906866 15,2895-2896
+benchmark/jpegxl/lossy-lab/DC-RECONSTRUCTION-AUDIT.md
+  s_42a303a21f7525::t_d4242f3f19dbaf 1-85,89-105,107-108,114-120
+  s_42a303a21f7525::t_e08406fe906866 86-88
+  s_42a303a21f7525::t_f66ba45c70a950 106,109-113
+benchmark/jpegxl/lossy-lab/DC-WIRE-ALIGNMENT-PROPOSAL.patch
+  s_42a303a21f7525::t_36d3b5639a34ad 1-64
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_d4242f3f19dbaf 678-696
+benchmark/jpegxl/lossy-lab/DC-RECONSTRUCTION-AUDIT.patch
+  s_42a303a21f7525::t_4c84a12a73f896 1-866
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4171928f7f8ba40fd40bdfda6ae9dd240423192a",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}

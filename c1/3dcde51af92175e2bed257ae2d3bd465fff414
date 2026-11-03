@@ -1,0 +1,39 @@
+benchmark/jpegxl/lossy-lab/DC-COMPLETION-EXPERIMENT.patch
+  s_42a303a21f7525::t_9afa80032e929c 1-901
+benchmark/jpegxl/lossy-lab/DC-COMPLETION-REPORT.json
+  s_42a303a21f7525::t_07f6fb54c55b2e 4884-4900,4902,4904-4906,4908-4912
+  s_42a303a21f7525::t_36c84de453876d 1-4883,4901,4903,4907,4913-4945
+benchmark/jpegxl/lossy-lab/DC-COMPLETION-AUDIT.patch
+  s_42a303a21f7525::t_36c84de453876d 1-701
+benchmark/jpegxl/lossy-lab/DC-COMPLETION-REPORT.md
+  s_42a303a21f7525::t_0ddc21a60f077a 1-94,99-121
+  s_42a303a21f7525::t_85b2f66a40fd8b 95-98
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_85b2f66a40fd8b 15
+  s_42a303a21f7525::t_d030c8f9e70d17 2881-2884
+  s_42a303a21f7525::t_8cd52b75cb7ca4 4-9,11-14,16
+  s_42a303a21f7525::t_f2638a4a1674ab 2875-2880
+  s_42a303a21f7525::t_a77dfd08cf9a65 3
+  s_42a303a21f7525::t_fc3dcc61f9b8a8 2869-2872
+  s_42a303a21f7525::t_07f6fb54c55b2e 2885-2886
+  s_42a303a21f7525::t_8740980f773bf0 2873-2874
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_fc3dcc61f9b8a8 657-673
+  s_42a303a21f7525::t_85b2f66a40fd8b 674-677
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c13dcde51af92175e2bed257ae2d3bd465fff414",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
