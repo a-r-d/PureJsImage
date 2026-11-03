@@ -1,0 +1,19 @@
+tests/project-contract.test.ts
+  s_9e36e2b8a6dcf3::t_9f338182589de7 341
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4a40c68f6cd6d5bbe58dbee2df6326c0495bdc9c",
+  "prompts": {},
+  "sessions": {
+    "s_9e36e2b8a6dcf3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "48e89486-7b65-4d57-b2ae-2f9ce6392c60",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
