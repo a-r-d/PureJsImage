@@ -1,0 +1,4385 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "8b8c3cc818c1fc1643a20f14b1b3945e822c3b8a",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/dc-quantization-20261103",
+  "authorization": "One fixed coherent native DC trial on development-selected AC 1.25. No sweep, peer maps or holdout tuning; all gates unchanged.",
+  "source": {
+    "base": "8b8c3cc818c1fc1643a20f14b1b3945e822c3b8a",
+    "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+    "source": [
+      {
+        "file": "lib/jxl/enc_modular.cc",
+        "sha256": "4bc466a0c7b2e65c03501eff1a81758d63a45568521a22ceb611cdbc67f0fb7a",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/enc_cache.cc",
+        "sha256": "5d690810759f5ddb6a31746f30c6313b824ceb331143a2a6c8f70ae5300951fb",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/quantizer.h",
+        "sha256": "7a39e5b239c102d8fc4d6159f6f5c3836151ffe9c8c0eb8dbd2b76fcac3a3f5c",
+        "archiveExact": true
+      },
+      {
+        "file": "lib/jxl/modular/encoding/context_predict.h",
+        "sha256": "b47b6ba081411c5aa7a96fe5f773649903355f13575936306d52b37ab498dadd",
+        "archiveExact": true
+      },
+      {
+        "file": "LICENSE",
+        "sha256": "8405932022a556380c2d8c272eff154a923feb197233f348ce5f7334fb0a5ede",
+        "archiveExact": true
+      }
+    ],
+    "modules": [
+      {
+        "file": "jpegxl-jpeg-encode.ts",
+        "sha256": "c21876e0486e57e8a9b0fa0dfd494f500c7d8faacc803f896cf5281b4a3cced8"
+      },
+      {
+        "file": "jpegxl-vardct-encode.ts",
+        "sha256": "15aaffa88c869703fdf0b52fe3843f66cf2596f88aabf358cbecce5023a4a9af"
+      },
+      {
+        "file": "libjxl-block-quantization-port.ts",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+      },
+      {
+        "file": "libjxl-chroma-roundtrip-port.ts",
+        "sha256": "ae42232c47d4ef66d4e96c1eaf5a73dd4d40fc3a262b29a9d63fae9c233bc935"
+      },
+      {
+        "file": "libjxl-dc-quantization-port.ts",
+        "sha256": "7c1f53b360cc25965eb82afd4c55080fc160c30a2c51e797906a6357824a9a30"
+      },
+      {
+        "file": "libjxl-ports.ts",
+        "sha256": "611a9eddd5e8bd6feb8b24772658d21b66cd9a592118ebc74836aedc83de9f56"
+      },
+      {
+        "file": "libjxl-standalone-port.ts",
+        "sha256": "22e9d349e9a847f7ef467bb253524c1ee9687b8d45523eba5e0c1d07bb8c7e69"
+      },
+      {
+        "file": "libjxl-strategy-port.ts",
+        "sha256": "8249c57785d3940358f3a7221faffaee487070433d45e8d4d43f9b6f1782a7c0"
+      },
+      {
+        "file": "run.ts",
+        "sha256": "f370bd25b5d47a32da01210a108b78ad0acccdea2676e0a8b74d789d8bb793cb"
+      },
+      {
+        "file": "strategy-transplant.ts",
+        "sha256": "0f86fd646394076e68e862284c6f939253101be4f7fe6a4ff0f7febce42b1c18"
+      },
+      {
+        "file": "transplant.ts",
+        "sha256": "6145903f2c1f7406ba1b7db83f2853b339547ea7751bd1c9cc8e63dcca33c192"
+      },
+      {
+        "file": "worker.ts",
+        "sha256": "1b00d7605dd19914b790a52728ad365b32106dd86e20826baf0e174cb61d0b24"
+      }
+    ],
+    "policy": "One fixed configuration frozen after fixture checks, before any development quality result. Private writer and forward copies; no active src or public option changes."
+  },
+  "preparation": {
+    "base": "8b8c3cc818c1fc1643a20f14b1b3945e822c3b8a",
+    "mode": "standalone-dc-nonlinear",
+    "source": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125",
+    "files": [
+      {
+        "name": "libjxl-ports",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125"
+      },
+      {
+        "name": "libjxl-standalone-port",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125"
+      },
+      {
+        "name": "libjxl-strategy-port",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125"
+      },
+      {
+        "name": "strategy-transplant",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125"
+      },
+      {
+        "name": "libjxl-chroma-roundtrip-port",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125"
+      },
+      {
+        "name": "libjxl-block-quantization-port",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125"
+      },
+      {
+        "name": "run",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/benchmark/jpegxl/lossy-lab"
+      },
+      {
+        "name": "worker",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/benchmark/jpegxl/lossy-lab"
+      },
+      {
+        "name": "transplant",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/benchmark/jpegxl/lossy-lab"
+      },
+      {
+        "name": "jpegxl-vardct-encode",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/src/codecs"
+      },
+      {
+        "name": "jpegxl-jpeg-encode",
+        "from": "/media/ard/samsung-2tb/projects/PureJsImage/src/codecs"
+      }
+    ],
+    "authorization": "One fixed coherent DC trial on development-selected AC 1.25. No sweep or peer maps. All gates unchanged.",
+    "publicSourceChanged": false
+  },
+  "screen": {
+    "complete": true,
+    "mode": "screen",
+    "variant": "standalone-dc-nonlinear",
+    "images": 16,
+    "regularized": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 3.83747397732346,
+        "median": 3.3295836650038924,
+        "p90": 8.225037249707885,
+        "worst": 9.064531611509006,
+        "fullBandCount": 7
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -0.7660088786006245,
+        "median": -0.4490011517753335,
+        "p90": 0.4764278009270207,
+        "worst": 1.032767134855342,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 2.9173745297765015,
+        "median": 1.3724115036876485,
+        "p90": 8.439412134645224,
+        "worst": 24.75757343264248,
+        "fullBandCount": 0
+      }
+    ],
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": -8.27879716446188,
+        "median": -3.4723197454433197,
+        "p90": 0.46823252792681275,
+        "worst": 6.740513804708191
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 3.791767771816666,
+        "median": 3.533184869354141,
+        "p90": 9.225264710054853,
+        "worst": 21.920342186456594
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -1.709585002598481,
+        "median": 0.0997134266387711,
+        "p90": 3.710752742865462,
+        "worst": 4.812781968956785
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": -7.3651931443437775,
+        "median": -4.118719590914044,
+        "p90": 1.1763244222636169,
+        "worst": 1.433688198719301
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": -3.758223554263909,
+        "median": -2.657795780063604,
+        "p90": 3.04737406441476,
+        "worst": 3.7134862140056986
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -5.926332626194628,
+        "median": -4.457642377181286,
+        "p90": -1.1169588472860448,
+        "worst": -0.44900665692287034
+      }
+    ],
+    "ac125": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 2.6224556969786144,
+        "median": 2.8421874908430595,
+        "p90": 5.017880874864733,
+        "worst": 5.9537457062928665,
+        "fullBandCount": 7
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": 0.9793064136907428,
+        "median": 1.3789795573014854,
+        "p90": 2.6502199500827306,
+        "worst": 3.4212384777590157,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 1.4198783559279091,
+        "median": 0.811641123783448,
+        "p90": 2.7155088257352764,
+        "worst": 17.21425073448004,
+        "fullBandCount": 1
+      }
+    ],
+    "worst": [
+      {
+        "metric": "ssimulacra2",
+        "rows": [
+          {
+            "id": "im26-3014-lab",
+            "metric": "ssimulacra2",
+            "percent": 9.064531611509006,
+            "meanLogRateDifference": 0.08676955419168626,
+            "overlap": {
+              "minimum": 80.47020425,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 80.47020425,
+              "maximum": 94.59407665
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1634-lab",
+            "metric": "ssimulacra2",
+            "percent": 8.566328292461789,
+            "meanLogRateDifference": 0.08219112087991191,
+            "overlap": {
+              "minimum": 72.81811746,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 72.81811746,
+              "maximum": 91.81518712
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1026-lab",
+            "metric": "ssimulacra2",
+            "percent": 7.8837462069539805,
+            "meanLogRateDifference": 0.07588403736603595,
+            "overlap": {
+              "minimum": 65.53478278,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 65.53478278,
+              "maximum": 93.92077196
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "rows": [
+          {
+            "id": "im26-1634-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 1.032767134855342,
+            "meanLogRateDifference": 0.010274705315858881,
+            "overlap": {
+              "minimum": 0.44397,
+              "maximum": 1.307029
+            },
+            "measuredOverlap": {
+              "minimum": 0.44397,
+              "maximum": 1.307029
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1026-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 0.6322022037194264,
+            "meanLogRateDifference": 0.006302121884638122,
+            "overlap": {
+              "minimum": 0.269389,
+              "maximum": 1.574302
+            },
+            "measuredOverlap": {
+              "minimum": 0.269389,
+              "maximum": 1.574302
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3014-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 0.320653398134615,
+            "meanLogRateDifference": 0.0032014040146091864,
+            "overlap": {
+              "minimum": 0.207823,
+              "maximum": 0.534092
+            },
+            "measuredOverlap": {
+              "minimum": 0.207823,
+              "maximum": 0.534092
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliMax",
+        "rows": [
+          {
+            "id": "im26-3014-lab",
+            "metric": "butteraugliMax",
+            "percent": 24.75757343264248,
+            "meanLogRateDifference": 0.2212022556797249,
+            "overlap": {
+              "minimum": 0.5,
+              "maximum": 1.1275501251
+            },
+            "measuredOverlap": {
+              "minimum": 0.4443368316,
+              "maximum": 1.1275501251
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "butteraugliMax",
+            "percent": 9.969687192976858,
+            "meanLogRateDifference": 0.09503457085472965,
+            "overlap": {
+              "minimum": 0.7901622653,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7901622653,
+              "maximum": 4.2450661659
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3312-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.909137076313588,
+            "meanLogRateDifference": 0.06680910150828362,
+            "overlap": {
+              "minimum": 0.7910169363,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7910169363,
+              "maximum": 3.0884070396
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      }
+    ],
+    "managedPeakBytes": 9235969,
+    "elapsedSeconds": 32.908
+  },
+  "lab": {
+    "complete": true,
+    "mode": "lab",
+    "variant": "standalone-dc-nonlinear",
+    "images": 64,
+    "regularized": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": 3.5975691429873535,
+        "median": 3.772296386004441,
+        "p90": 6.041283799579759,
+        "worst": 16.4022282370847,
+        "fullBandCount": 34
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -0.8963567024576405,
+        "median": -0.6832833853002006,
+        "p90": 1.7752884239203774,
+        "worst": 11.534065610611696,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -0.5582725121866803,
+        "median": -1.5781084586024179,
+        "p90": 3.6008416253447475,
+        "worst": 29.112647903357647,
+        "fullBandCount": 0
+      }
+    ],
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -6.03259298513607,
+        "median": -3.809503202134046,
+        "p90": 0.8550612034861602,
+        "worst": 6.907404215479146
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 2.1416331216414433,
+        "median": 2.2008414098625924,
+        "p90": 9.296482865087665,
+        "worst": 23.37698595703735
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -1.2014881260900439,
+        "median": -0.10670053857217213,
+        "p90": 3.2636211545357896,
+        "worst": 5.25704290003801
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -4.938046789570468,
+        "median": -2.200600328971726,
+        "p90": 1.08684119373582,
+        "worst": 3.1436451319404557
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -6.105266472067444,
+        "median": -5.486018796512684,
+        "p90": 2.995543394654173,
+        "worst": 7.49800703394469
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -5.566968432642903,
+        "median": -4.215170703549589,
+        "p90": -1.327232133359014,
+        "worst": 0.9920024427981844
+      }
+    ],
+    "ac125": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": 2.7375784517358706,
+        "median": 3.2076629439073705,
+        "p90": 5.087898081791496,
+        "worst": 14.137853264923478,
+        "fullBandCount": 32
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 0.9730326706097251,
+        "median": 1.4535988624060145,
+        "p90": 2.702301593778972,
+        "worst": 10.302608511260896,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 1.5367383624652524,
+        "median": 0.98270376318904,
+        "p90": 5.346875465091384,
+        "worst": 9.631718738704576,
+        "fullBandCount": 3
+      }
+    ],
+    "production": {
+      "means": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -3.620040929925301,
+          "median": -1.9133682990808865,
+          "p90": 4.372853816160826,
+          "worst": 24.243194538796548,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -10.828696766540979,
+          "median": -7.067065738799767,
+          "p90": -2.7539529302707675,
+          "worst": 11.77788288695208,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -9.827142363761087,
+          "median": -8.054398594900038,
+          "p90": 1.8771224602195744,
+          "worst": 19.854328792417576,
+          "fullBandCount": 1
+        }
+      ],
+      "guards": [
+        {
+          "metric": "ssimulacra2",
+          "admitted": 8,
+          "failures": [],
+          "worst": 7.091537684289705
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "admitted": 0,
+          "failures": [],
+          "worst": null
+        }
+      ]
+    },
+    "worst": [
+      {
+        "metric": "ssimulacra2",
+        "rows": [
+          {
+            "id": "im26-2400-lab",
+            "metric": "ssimulacra2",
+            "percent": 16.4022282370847,
+            "meanLogRateDifference": 0.15188149205630344,
+            "overlap": {
+              "minimum": 79.67213429,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 79.67213429,
+              "maximum": 92.63295025
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1030-lab",
+            "metric": "ssimulacra2",
+            "percent": 12.266343103785237,
+            "meanLogRateDifference": 0.11570392561564312,
+            "overlap": {
+              "minimum": 72.66629074,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 72.66629074,
+              "maximum": 91.83355318
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1026-lab",
+            "metric": "ssimulacra2",
+            "percent": 7.23106294673048,
+            "meanLogRateDifference": 0.06981578696859353,
+            "overlap": {
+              "minimum": 63.59277479,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 63.59277479,
+              "maximum": 94.172197
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "rows": [
+          {
+            "id": "im26-2400-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 11.534065610611696,
+            "meanLogRateDifference": 0.10915987942139826,
+            "overlap": {
+              "minimum": 0.317364,
+              "maximum": 1.096687
+            },
+            "measuredOverlap": {
+              "minimum": 0.317364,
+              "maximum": 1.096687
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2000-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 2.9347561539467506,
+            "meanLogRateDifference": 0.028925166138006855,
+            "overlap": {
+              "minimum": 0.301726,
+              "maximum": 1.597364
+            },
+            "measuredOverlap": {
+              "minimum": 0.301726,
+              "maximum": 1.597364
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2016-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 2.6995978342102536,
+            "meanLogRateDifference": 0.026638015010908282,
+            "overlap": {
+              "minimum": 0.336869,
+              "maximum": 1.16913
+            },
+            "measuredOverlap": {
+              "minimum": 0.336869,
+              "maximum": 1.16913
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliMax",
+        "rows": [
+          {
+            "id": "im26-2400-lab",
+            "metric": "butteraugliMax",
+            "percent": 29.112647903357647,
+            "meanLogRateDifference": 0.25551507688264424,
+            "overlap": {
+              "minimum": 0.7975955009,
+              "maximum": 2.2405567169
+            },
+            "measuredOverlap": {
+              "minimum": 0.7975955009,
+              "maximum": 2.2405567169
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2000-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.609027894836521,
+            "meanLogRateDifference": 0.06399801160269972,
+            "overlap": {
+              "minimum": 0.6682573557,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6682573557,
+              "maximum": 3.6950345039
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1212-lab",
+            "metric": "butteraugliMax",
+            "percent": 5.658916036075339,
+            "meanLogRateDifference": 0.055045946714528504,
+            "overlap": {
+              "minimum": 0.7201656699,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7201656699,
+              "maximum": 3.7258548737
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      }
+    ],
+    "managedPeakBytes": 9422327,
+    "elapsedSeconds": 242.707
+  },
+  "fixtureChecks": {
+    "passed": true,
+    "quantizerCases": 22,
+    "invalidInputs": 4,
+    "chromaCases": 2,
+    "groupResetCases": 2,
+    "controlExactStreams": 3,
+    "policyDistances": 9,
+    "promotionDenials": 3,
+    "rows": [
+      {
+        "width": 1,
+        "height": 17,
+        "distance": 0.65,
+        "bytes": 407,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "distance": 2,
+        "bytes": 339,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "distance": 7,
+        "bytes": 284,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "distance": 0.65,
+        "bytes": 402,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "distance": 2,
+        "bytes": 332,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "distance": 7,
+        "bytes": 265,
+        "managedPeakBytes": 1138757,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 19,
+        "distance": 0.65,
+        "bytes": 1013,
+        "managedPeakBytes": 1140167,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 19,
+        "distance": 2,
+        "bytes": 679,
+        "managedPeakBytes": 1140167,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 17,
+        "height": 19,
+        "distance": 7,
+        "bytes": 422,
+        "managedPeakBytes": 1140167,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 65,
+        "height": 73,
+        "distance": 0.65,
+        "bytes": 7696,
+        "managedPeakBytes": 1167101,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 65,
+        "height": 73,
+        "distance": 2,
+        "bytes": 3609,
+        "managedPeakBytes": 1167096,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 65,
+        "height": 73,
+        "distance": 7,
+        "bytes": 1652,
+        "managedPeakBytes": 1167069,
+        "dcGroups": 1,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 2057,
+        "height": 9,
+        "distance": 0.65,
+        "bytes": 29348,
+        "managedPeakBytes": 1270585,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 2057,
+        "height": 9,
+        "distance": 2,
+        "bytes": 18870,
+        "managedPeakBytes": 1260818,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 2057,
+        "height": 9,
+        "distance": 7,
+        "bytes": 8736,
+        "managedPeakBytes": 1259568,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 9,
+        "height": 2057,
+        "distance": 0.65,
+        "bytes": 29491,
+        "managedPeakBytes": 1270899,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 9,
+        "height": 2057,
+        "distance": 2,
+        "bytes": 17550,
+        "managedPeakBytes": 1259568,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      },
+      {
+        "width": 9,
+        "height": 2057,
+        "distance": 7,
+        "bytes": 7291,
+        "managedPeakBytes": 1259568,
+        "dcGroups": 2,
+        "extraPrecision": 1,
+        "nativeValid": true
+      }
+    ]
+  },
+  "screenDecisionAudit": {
+    "passed": true,
+    "points": 80,
+    "sourceFrozen": true,
+    "rows": [
+      {
+        "id": "im26-1002-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 63630,
+        "beforeBytes": 71017,
+        "afterBytes": 71046
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 35931,
+        "beforeBytes": 41892,
+        "afterBytes": 42008
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 19632,
+        "beforeBytes": 24514,
+        "afterBytes": 24672
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 9983,
+        "beforeBytes": 13710,
+        "afterBytes": 13857
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 5414,
+        "beforeBytes": 8391,
+        "afterBytes": 8504
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 99470,
+        "beforeBytes": 108991,
+        "afterBytes": 109034
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 61084,
+        "beforeBytes": 69078,
+        "afterBytes": 69257
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 35486,
+        "beforeBytes": 42012,
+        "afterBytes": 42419
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 20490,
+        "beforeBytes": 25395,
+        "afterBytes": 25862
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 13123,
+        "beforeBytes": 17195,
+        "afterBytes": 17490
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 94945,
+        "beforeBytes": 104186,
+        "afterBytes": 104164
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 59471,
+        "beforeBytes": 67598,
+        "afterBytes": 67619
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 33173,
+        "beforeBytes": 39845,
+        "afterBytes": 39782
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 17726,
+        "beforeBytes": 22975,
+        "afterBytes": 22963
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 9804,
+        "beforeBytes": 14167,
+        "afterBytes": 14078
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 89484,
+        "beforeBytes": 97777,
+        "afterBytes": 98062
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 56850,
+        "beforeBytes": 63987,
+        "afterBytes": 64292
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 33175,
+        "beforeBytes": 39072,
+        "afterBytes": 39264
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 19676,
+        "beforeBytes": 24389,
+        "afterBytes": 24614
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 12189,
+        "beforeBytes": 16214,
+        "afterBytes": 16386
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 71780,
+        "beforeBytes": 81297,
+        "afterBytes": 81192
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 38707,
+        "beforeBytes": 46786,
+        "afterBytes": 46765
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 22109,
+        "beforeBytes": 28734,
+        "afterBytes": 28799
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 13394,
+        "beforeBytes": 18561,
+        "afterBytes": 18622
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 8351,
+        "beforeBytes": 12641,
+        "afterBytes": 12631
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 91312,
+        "beforeBytes": 100680,
+        "afterBytes": 100307
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 56795,
+        "beforeBytes": 64783,
+        "afterBytes": 64545
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 27376,
+        "beforeBytes": 33706,
+        "afterBytes": 33568
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 12383,
+        "beforeBytes": 17528,
+        "afterBytes": 17455
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 5036,
+        "beforeBytes": 9328,
+        "afterBytes": 9371
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 38807,
+        "beforeBytes": 46806,
+        "afterBytes": 46687
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 16200,
+        "beforeBytes": 22140,
+        "afterBytes": 22183
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 7429,
+        "beforeBytes": 12185,
+        "afterBytes": 12280
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 3745,
+        "beforeBytes": 7557,
+        "afterBytes": 7653
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 2008,
+        "beforeBytes": 5105,
+        "afterBytes": 5242
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 52065,
+        "beforeBytes": 58393,
+        "afterBytes": 58557
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 20438,
+        "beforeBytes": 25217,
+        "afterBytes": 25399
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 7927,
+        "beforeBytes": 11680,
+        "afterBytes": 11894
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 3523,
+        "beforeBytes": 6452,
+        "afterBytes": 6705
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 1823,
+        "beforeBytes": 4188,
+        "afterBytes": 4324
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 51408,
+        "beforeBytes": 59027,
+        "afterBytes": 58760
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 23343,
+        "beforeBytes": 29494,
+        "afterBytes": 29361
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 11302,
+        "beforeBytes": 16074,
+        "afterBytes": 16116
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 4750,
+        "beforeBytes": 8481,
+        "afterBytes": 8613
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 1855,
+        "beforeBytes": 4866,
+        "afterBytes": 4970
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 123900,
+        "beforeBytes": 132896,
+        "afterBytes": 132495
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 88335,
+        "beforeBytes": 95619,
+        "afterBytes": 95404
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 49304,
+        "beforeBytes": 55363,
+        "afterBytes": 55361
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 20057,
+        "beforeBytes": 24551,
+        "afterBytes": 24659
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 7641,
+        "beforeBytes": 11347,
+        "afterBytes": 11503
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 43094,
+        "beforeBytes": 47573,
+        "afterBytes": 47213
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 22409,
+        "beforeBytes": 25344,
+        "afterBytes": 25096
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 10596,
+        "beforeBytes": 12765,
+        "afterBytes": 12601
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 4045,
+        "beforeBytes": 5793,
+        "afterBytes": 5722
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 1216,
+        "beforeBytes": 2636,
+        "afterBytes": 2562
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 36876,
+        "beforeBytes": 42137,
+        "afterBytes": 42277
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 23053,
+        "beforeBytes": 27272,
+        "afterBytes": 27422
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 11831,
+        "beforeBytes": 14881,
+        "afterBytes": 14794
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 4590,
+        "beforeBytes": 7011,
+        "afterBytes": 7014
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 1705,
+        "beforeBytes": 3553,
+        "afterBytes": 3647
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 103414,
+        "beforeBytes": 112167,
+        "afterBytes": 111877
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 65074,
+        "beforeBytes": 72386,
+        "afterBytes": 72263
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 35957,
+        "beforeBytes": 41888,
+        "afterBytes": 41869
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 16766,
+        "beforeBytes": 21119,
+        "afterBytes": 21131
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 7077,
+        "beforeBytes": 10695,
+        "afterBytes": 10757
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 16590,
+        "beforeBytes": 19132,
+        "afterBytes": 19033
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 6071,
+        "beforeBytes": 7864,
+        "afterBytes": 7832
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 1754,
+        "beforeBytes": 3096,
+        "afterBytes": 3085
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 388,
+        "beforeBytes": 1405,
+        "afterBytes": 1335
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 95,
+        "beforeBytes": 853,
+        "afterBytes": 753
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 124041,
+        "beforeBytes": 134969,
+        "afterBytes": 134432
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 84014,
+        "beforeBytes": 93255,
+        "afterBytes": 92853
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 46823,
+        "beforeBytes": 54830,
+        "afterBytes": 54550
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 21033,
+        "beforeBytes": 27080,
+        "afterBytes": 26950
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 11513,
+        "beforeBytes": 16687,
+        "afterBytes": 16660
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.332917705735661, 2, 1.332917705735661],
+        "acSectionsExact": true,
+        "acBytes": 40686,
+        "beforeBytes": 44480,
+        "afterBytes": 44666
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 16545,
+        "beforeBytes": 19277,
+        "afterBytes": 19591
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3330702446724547, 2, 1.3330702446724547],
+        "acSectionsExact": true,
+        "acBytes": 7170,
+        "beforeBytes": 9226,
+        "afterBytes": 9355
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.3333333333333333, 2, 1.3333333333333333],
+        "acSectionsExact": true,
+        "acBytes": 1744,
+        "beforeBytes": 3425,
+        "afterBytes": 3400
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "smoothDc",
+          "quantizationTables"
+        ],
+        "nominalDcRatios": [1.333659013190034, 2, 1.333659013190034],
+        "acSectionsExact": true,
+        "acBytes": 555,
+        "beforeBytes": 1678,
+        "afterBytes": 1632
+      }
+    ]
+  },
+  "isolatedTiming": {
+    "summaries": [
+      {
+        "id": "im26-3012",
+        "pairs": 15,
+        "ratio": 1.0213524856256821,
+        "mad": 0.030488251075978523,
+        "wins": 5,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 879.4249490000002,
+            "bytes": 32832,
+            "managedPeakBytes": 5682267
+          },
+          {
+            "mode": "nonlinear-dc",
+            "medianMs": 898.4667329999975,
+            "bytes": 41869,
+            "managedPeakBytes": 5682267
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "pairs": 15,
+        "ratio": 1.0118212187960731,
+        "mad": 0.04193174308553438,
+        "wins": 7,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 868.7960899999998,
+            "bytes": 7913,
+            "managedPeakBytes": 5678171
+          },
+          {
+            "mode": "nonlinear-dc",
+            "medianMs": 877.2215300000025,
+            "bytes": 9355,
+            "managedPeakBytes": 5680219
+          }
+        ]
+      }
+    ]
+  },
+  "archive": {
+    "base": "8b8c3cc818c1fc1643a20f14b1b3945e822c3b8a",
+    "patchPath": "benchmark/jpegxl/lossy-lab/DC-QUANTIZATION-EXPERIMENT.patch",
+    "applies": true,
+    "rows": [
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-ports.ts",
+        "sha256": "d06dd48ab8dc829713f6cec0309c3103a6c3cde0b4d5f5ca94be10d5fb431175",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+        "sha256": "624eb0c44ec0422a4f5619e8bd206613d32b58259110ffc654b71ce5e40f12a5",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts",
+        "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+        "sha256": "a47a2f7b5e8dc9e21334cbf615e61bc63eead898dbf6cf4cb9f56115344e2595",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts",
+        "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36",
+        "changed": true
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-dc-quantization-port.ts",
+        "sha256": "dbba03cc25872cfaf470307d8ebdfe53b5de8a7669764f5304b001ac64e61486",
+        "changed": true
+      },
+      {
+        "path": "src/codecs/jpegxl-jpeg-encode.ts",
+        "sha256": "b02e4ff26185cfeae61db7fbbae39b4508baecab7774cba6d8d8fe33cd22dfb9",
+        "changed": true
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "7495815638362e1c9a26f4981e9c2f7a984ff1ef5db776be2b957f8428cbe0af",
+        "changed": false
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/transplant.ts",
+        "sha256": "c65aee7084a28755515ec67e2525684165256f603afb700a537c4afec6e79655",
+        "changed": false
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-quantization.ts",
+        "sha256": "e0b6777b541c0b2dc7e31ee686a63ce2bf62de7058092a99ee89062924d86912",
+        "changed": true
+      }
+    ],
+    "policy": "Independent prototype snapshot, normalized import paths. No promotion admission. Contains development-only writer support; not active in public source."
+  },
+  "contextArchive": {
+    "patchPath": "benchmark/jpegxl/lossy-lab/DC-QUANTIZATION-CONTEXT-AUDIT.patch",
+    "applies": true,
+    "rows": [
+      {
+        "path": "benchmark/jpegxl/lossy-lab/prepare-dc-context-audit.ts",
+        "sha256": "7dd9fad08c8a96a23a3b59544d5b90c3d0961e1c7c0c6590b28664ca59c4a3eb"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-context.ts",
+        "sha256": "10ac209bf20218dd9905da31d056afcef13a97d21f1ba759e0043fad4282b2e1"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-screen.ts",
+        "sha256": "112423e8a8608fbad751407e66b74bb1f98e860ea4413c9b382a9f19fb62432b"
+      }
+    ],
+    "policy": "Read-only first-party decoder inspection and existing development bitstreams. No production edits or native internal probe."
+  },
+  "controlBaseline": {
+    "base": "8b8c3cc818c1fc1643a20f14b1b3945e822c3b8a",
+    "width": 17,
+    "height": 19,
+    "rows": [
+      {
+        "distance": 0.65,
+        "bytes": 1013,
+        "sha256": "a87226a678ba7b1ef35339dc9d669be1a48707b94df4a208dfa816a129f0f8a8"
+      },
+      {
+        "distance": 2,
+        "bytes": 679,
+        "sha256": "c22e8b32e1d9adebac982ff5f4b37682e65c75a3c898aea13f6bbc1ced3b467c"
+      },
+      {
+        "distance": 7,
+        "bytes": 420,
+        "sha256": "8658b07ae65b272448b61e755f849c57d8d88bfd2b4e3cd30ccdfd0b116449e3"
+      }
+    ]
+  },
+  "dcContextAudit": {
+    "completed": true,
+    "points": 27,
+    "rows": [
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "mode": "candidate",
+        "bytes": 139362,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 2728,
+        "dcPayloadBits": 60372,
+        "dcGroupBytes": 8679
+      },
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "mode": "ac125",
+        "bytes": 139781,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6, 13]
+          },
+          {
+            "channel": 2,
+            "predictors": [5, 6]
+          }
+        ],
+        "dcHeaderBits": 2032,
+        "dcPayloadBits": 63727,
+        "dcGroupBytes": 9098
+      },
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "mode": "native",
+        "bytes": 116523,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 58602,
+        "dcGroupBytes": 8579
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "mode": "candidate",
+        "bytes": 60421,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 2378,
+        "dcPayloadBits": 43307,
+        "dcGroupBytes": 6172
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "mode": "ac125",
+        "bytes": 60444,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6, 12]
+          },
+          {
+            "channel": 2,
+            "predictors": [3, 5, 6]
+          }
+        ],
+        "dcHeaderBits": 1657,
+        "dcPayloadBits": 43493,
+        "dcGroupBytes": 6195
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "mode": "native",
+        "bytes": 38282,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 41212,
+        "dcGroupBytes": 5971
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "mode": "candidate",
+        "bytes": 10440,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 1898,
+        "dcPayloadBits": 27227,
+        "dcGroupBytes": 3677
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "mode": "ac125",
+        "bytes": 10279,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6, 12]
+          },
+          {
+            "channel": 2,
+            "predictors": [2, 5]
+          }
+        ],
+        "dcHeaderBits": 1864,
+        "dcPayloadBits": 25933,
+        "dcGroupBytes": 3516
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "mode": "native",
+        "bytes": 5366,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 25966,
+        "dcGroupBytes": 3550
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "mode": "candidate",
+        "bytes": 118753,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 2205,
+        "dcPayloadBits": 56229,
+        "dcGroupBytes": 8534
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "mode": "ac125",
+        "bytes": 119077,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 625,
+        "dcPayloadBits": 58820,
+        "dcGroupBytes": 8858
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "mode": "native",
+        "bytes": 104084,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 54798,
+        "dcGroupBytes": 8692
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "mode": "candidate",
+        "bytes": 44616,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 1628,
+        "dcPayloadBits": 39603,
+        "dcGroupBytes": 6037
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "mode": "ac125",
+        "bytes": 44645,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 524,
+        "dcPayloadBits": 39831,
+        "dcGroupBytes": 6066
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "mode": "native",
+        "bytes": 35638,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 38628,
+        "dcGroupBytes": 6540
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "mode": "candidate",
+        "bytes": 9783,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 2,
+            "predictors": [5, 6]
+          }
+        ],
+        "dcHeaderBits": 1278,
+        "dcPayloadBits": 23990,
+        "dcGroupBytes": 3463
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "mode": "ac125",
+        "bytes": 9727,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 2,
+            "predictors": [1]
+          }
+        ],
+        "dcHeaderBits": 1315,
+        "dcPayloadBits": 23540,
+        "dcGroupBytes": 3407
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "mode": "native",
+        "bytes": 6878,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 23603,
+        "dcGroupBytes": 3651
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "mode": "candidate",
+        "bytes": 47950,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6, 13]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 2,
+            "predictors": [5, 6]
+          }
+        ],
+        "dcHeaderBits": 2783,
+        "dcPayloadBits": 28176,
+        "dcGroupBytes": 3942
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "mode": "ac125",
+        "bytes": 47775,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [13]
+          },
+          {
+            "channel": 1,
+            "predictors": [5]
+          },
+          {
+            "channel": 2,
+            "predictors": [5, 6]
+          }
+        ],
+        "dcHeaderBits": 2136,
+        "dcPayloadBits": 26777,
+        "dcGroupBytes": 3767
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "mode": "native",
+        "bytes": 48333,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 27562,
+        "dcGroupBytes": 5157
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "mode": "candidate",
+        "bytes": 10358,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 2,
+            "predictors": [5, 6]
+          }
+        ],
+        "dcHeaderBits": 1373,
+        "dcPayloadBits": 15923,
+        "dcGroupBytes": 2129
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "mode": "ac125",
+        "bytes": 10210,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [13]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 2,
+            "predictors": [4, 6]
+          }
+        ],
+        "dcHeaderBits": 794,
+        "dcPayloadBits": 14738,
+        "dcGroupBytes": 1981
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "mode": "native",
+        "bytes": 7697,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 16594,
+        "dcGroupBytes": 2932
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "mode": "candidate",
+        "bytes": 1578,
+        "precision": 1,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [5, 6, 13]
+          },
+          {
+            "channel": 1,
+            "predictors": [5, 6]
+          },
+          {
+            "channel": 2,
+            "predictors": [5]
+          }
+        ],
+        "dcHeaderBits": 769,
+        "dcPayloadBits": 6424,
+        "dcGroupBytes": 948
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "mode": "ac125",
+        "bytes": 1835,
+        "precision": 0,
+        "smoothDc": false,
+        "useGlobalTree": false,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [5, 13]
+          },
+          {
+            "channel": 1,
+            "predictors": [4]
+          },
+          {
+            "channel": 2,
+            "predictors": [3]
+          }
+        ],
+        "dcHeaderBits": 1013,
+        "dcPayloadBits": 8481,
+        "dcGroupBytes": 1205
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "mode": "native",
+        "bytes": 1561,
+        "precision": 1,
+        "smoothDc": true,
+        "useGlobalTree": true,
+        "transforms": [],
+        "weightedPredictor": {
+          "p1": 16,
+          "p2": 10,
+          "p3a": 7,
+          "p3b": 7,
+          "p3c": 7,
+          "p3d": 0,
+          "p3e": 0,
+          "weights": [13, 12, 12, 12]
+        },
+        "reachable": [
+          {
+            "channel": 0,
+            "predictors": [6]
+          },
+          {
+            "channel": 1,
+            "predictors": [6]
+          },
+          {
+            "channel": 2,
+            "predictors": [6]
+          }
+        ],
+        "dcHeaderBits": 4,
+        "dcPayloadBits": 7325,
+        "dcGroupBytes": 1038
+      }
+    ],
+    "policy": "Read-only existing development bitstreams. First-party decoder inspection copy exports its existing Modular parser. No native internal probe, new encode or parameter change.",
+    "limits": "Reachable predictors are possible leaves after channel/group pruning, not observed usage counts. DC payload excludes any globally shared tree/histogram and matrices; whole-file comparisons remain authoritative."
+  },
+  "visualReview": {
+    "rows": [
+      {
+        "id": "im26-3000-lab",
+        "percent": 19.854328792417576,
+        "candidate": {
+          "setting": 1.85,
+          "bytes": 15984,
+          "encodeMs": 1279.8072900000006,
+          "managedPeakBytes": 5676123,
+          "processPeakRssBytes": 225558528,
+          "ssimulacra2": 82.64295788,
+          "butteraugliMax": 1.7400381565,
+          "butteraugliNorm3": 0.684923
+        },
+        "main": {
+          "setting": 3,
+          "bytes": 15609,
+          "encodeMs": 1541.9764240000004,
+          "managedPeakBytes": 6113883,
+          "processPeakRssBytes": 218742784,
+          "ssimulacra2": 84.07230461,
+          "butteraugliMax": 1.3312487602,
+          "butteraugliNorm3": 0.64461
+        },
+        "candidatePath": ".tmp/jpegxl-lossy-lab/dc-quantization-20261103/lab/standalone-dc-nonlinear-purejsimage/im26-3000-lab/1.85.png",
+        "mainPath": ".tmp/jpegxl-lossy-lab/transplant-20261013-v2/control/lab/transplant-control-purejsimage/im26-3000-lab/3.png"
+      },
+      {
+        "id": "im26-3004-lab",
+        "percent": 10.456471282954404,
+        "candidate": {
+          "setting": 0.65,
+          "bytes": 64858,
+          "encodeMs": 1362.506101,
+          "managedPeakBytes": 8916211,
+          "processPeakRssBytes": 213471232,
+          "ssimulacra2": 91.03847631,
+          "butteraugliMax": 1.2169132233,
+          "butteraugliNorm3": 0.423948
+        },
+        "main": {
+          "setting": 0.9,
+          "bytes": 67965,
+          "encodeMs": 897.658148,
+          "managedPeakBytes": 6436679,
+          "processPeakRssBytes": 219860992,
+          "ssimulacra2": 92.06701486,
+          "butteraugliMax": 0.7853450179,
+          "butteraugliNorm3": 0.387196
+        },
+        "candidatePath": ".tmp/jpegxl-lossy-lab/dc-quantization-20261103/lab/standalone-dc-nonlinear-purejsimage/im26-3004-lab/0.65.png",
+        "mainPath": ".tmp/jpegxl-lossy-lab/transplant-20261013-v2/control/lab/transplant-control-purejsimage/im26-3004-lab/0.9.png"
+      },
+      {
+        "id": "im26-2004-lab",
+        "percent": 3.886154084560308,
+        "candidate": {
+          "setting": 0.9,
+          "bytes": 101885,
+          "encodeMs": 1302.5839120000005,
+          "managedPeakBytes": 5759291,
+          "processPeakRssBytes": 210116608,
+          "ssimulacra2": 86.38079085,
+          "butteraugliMax": 1.1215438843,
+          "butteraugliNorm3": 0.459318
+        },
+        "main": {
+          "setting": 1.85,
+          "bytes": 102393,
+          "encodeMs": 970.2325289999999,
+          "managedPeakBytes": 6327103,
+          "processPeakRssBytes": 198877184,
+          "ssimulacra2": 88.54677856,
+          "butteraugliMax": 0.9164042473,
+          "butteraugliNorm3": 0.433728
+        },
+        "candidatePath": ".tmp/jpegxl-lossy-lab/dc-quantization-20261103/lab/standalone-dc-nonlinear-purejsimage/im26-2004-lab/0.9.png",
+        "mainPath": ".tmp/jpegxl-lossy-lab/transplant-20261013-v2/control/lab/transplant-control-purejsimage/im26-2004-lab/1.85.png"
+      }
+    ],
+    "scope": "Native decoded nearby-size pairs inspected at 512px.",
+    "finding": "Subtle tonal, texture and grain differences; does not localize or dismiss metric peaks. Source remains frozen."
+  },
+  "validation": {
+    "strictTypeScript": "passed",
+    "activeSourceChanged": false,
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-03T20:10:32.825Z",
+      "endedAt": "2026-11-03T20:19:18.372Z",
+      "code": 0,
+      "signal": null
+    },
+    "repositoryTests": {
+      "passed": 4229,
+      "skipped": 3,
+      "total": 4232
+    }
+  },
+  "configurations": 1,
+  "developmentOutputs": 656,
+  "newHoldoutAttempts": 0,
+  "retainedQualityChanges": 0,
+  "promotedChanges": 0,
+  "bundles": {
+    "codecBytes": 614969,
+    "specializedBytes": 687801,
+    "runtimeDependencies": 0
+  },
+  "status": "Rejected. Full development worsens every mean against AC 1.25; regularized mean regression earns no added-time allowance. No holdout or original qualification.",
+  "priorHoldout": "The preceding AC 1.25 holdout still fails two SSIM guards, worst +10.568971938275642%. This trial has no holdout result.",
+  "remaining": "The one approved configuration is exhausted. No parameter sweep or second quality configuration is authorized.",
+  "nextHypotheses": [
+    {
+      "rank": 1,
+      "hypothesis": "Normative DC smoothing with this fixed nonlinear stage.",
+      "evidence": "Native enables it on all nine sampled streams; own modes disable it. Benefit unmeasured."
+    },
+    {
+      "rank": 2,
+      "hypothesis": "Native fixed weighted-predictor DC tree with nonlinear quantization.",
+      "evidence": "Own local header/model bits increase by 5080 and offset more than half the sampled 9169-bit residual saving. Shared-code costs remain necessary."
+    },
+    {
+      "rank": 3,
+      "hypothesis": "Selected-transform low-frequency reconstruction error audit.",
+      "evidence": "Numerical contribution unmeasured."
+    }
+  ]
+}
