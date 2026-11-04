@@ -1,19 +1,19 @@
 # JPEG XL lossy lab
 
-Step C research stays on jxl-libjxl-ports. Chroma DC trial base 904e753e; active source and public encoder behavior stay unchanged.
-One approved reconstructed-luma chroma DC configuration is complete and rejected after its screen. Aligned AC 1.25 and nearest rounding stayed fixed.
-Screen SSIM/3-norm/max against aligned: +0.822/+0.043/+0.217%; vips -8.967/-6.813/-4.926%; jSquash -9.840/-2.559/+2.494%.
-All 80 outputs decode natively. Luma/X DC and AC sections stay exact; B changes in 25,068 cells. Bytes rise 0.092515%; SSIM worsens at 58/80 settings.
-No new full lab or holdout. Prior aligned full development: vips -7.395/-6.474/-7.402%; jSquash -7.982/-1.927/+0.876%.
-Prior aligned main: -6.557/-11.832/-11.031%. Eight admitted SSIM guards pass, worst +4.597758%; zero full-band 3-norm comparisons.
-Prior isolated candidate/control 1.044569/1.031273; crops 2.318200x jSquash. These are not speed results for the chroma trial.
-Prior 13 MP 36.583s, 1.472700x jSquash, managed 59,210,879 bytes. 21 MP 58.464s, managed 91,262,401 bytes; jSquash aborts.
-Managed ceiling stays 137,514,476 bytes. Prior holdout vips -5.779/-4.492/-4.189%, mean -4.820067%; jSquash -6.278/+0.044/+1.487%.
-Two of ten admitted holdout SSIM guards still fail, worst +10.579530%; all coverage retained. Branch is not ready to merge.
-Chroma screen managed peak 9,235,969 bytes; isolated speed and original memory unmeasured. No additional qualification follows rejection.
+Step C research stays on jxl-libjxl-ports. Fixed predictor DC trial base 7115c408; active source and public encoder behavior stay unchanged.
+One approved configuration preserves aligned nominal AC 1.25 allocation, original-luma chroma subtraction and smoothing off.
+Full development SSIM/3-norm/max: vips -10.184/-4.810/-4.548%; jSquash -12.333/-1.230/+3.116%.
+Aligned deltas -2.658/+1.994/+3.049%; regularized -1.839/-0.069/+1.222%, mean gain 0.228588%.
+Main deltas -8.704/-10.154/-8.168%. Eight admitted SSIM guards pass, worst +4.689441%; zero full-band 3-norm comparisons.
+All 576 full-lab outputs decode natively. The 80 screen AC sections are exact; DC adds 1.931233% bytes, mostly residual coding.
+Thirty-pair photo/texture timing 1.018912/1.017860x regularized passes the 1.022858837 allowance; no speedup claim.
+Fresh crops 2.387946x jSquash. 13 MP 39.546s, 1.512916x; 21 MP 68.866s, peer ratio unavailable because jSquash aborts.
+Full-lab managed peak 9,422,327 bytes; originals 59,210,879/91,262,401 bytes, below the 137,514,476 ceiling.
+Holdout vips -7.492/-3.573/-1.657%, mean -4.240602%; jSquash -9.159/-0.215/+3.729%.
+Both prior SSIM guard failures remain, worst +11.202599% versus +8.05%; all ten admissions retained. Reject promotion; branch is not ready to merge.
 Bundles remain 614,969/687,801 bytes; runtime dependencies zero. Peer forcing cleanup remains required before any merge.
-Current evidence: [chroma trial report](lossy-lab/DC-CHROMA-REPORT.md). Fresh check passes 4,229 tests, three skips and browser build checks.
-Next: fixed-allocation predictor DC proposal awaits owner renewal; then fixed-tree clustering costs and display-filtered blue DC error. No further quality configuration is authorized.
+Current evidence: [predictor trial report](lossy-lab/DC-PREDICTOR-REPORT.md). Fresh check passes 4,229 tests, three skips and browser build checks.
+Next: saved-DC residual coding costs, clustered fixed-tree overhead, then predictor cost. One fixed trial complete, zero retained/promoted; another quality configuration needs renewal.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2932,3 +2932,26 @@ Checkpoint validation: twenty repeatable native-valid fixtures include two exact
 The earlier nonlinear trial also changed nominal InitialQuantDC allocation and reconstructed-luma chroma subtraction. This proposal isolates its rounding policy at the aligned allocation; it does not infer quality from scalar error. The existing local entropy selector remains, so its interaction with weighted-predictor rounding is a measured-trial question. Source/BSD attribution and full license verification cover the new named module. No active source changes. Raw: dc-predictor-proposal-20261103; concrete patch and limits: DC-PREDICTOR-PROPOSAL.md.
 
 Proposal validation: fresh VITEST_MAX_WORKERS=4 npm run check passes 340 files and 4,229 tests, with one file and three tests skipped, including static and browser build checks, ending 2026-11-04T00:15:05.467Z. Strict experimental TypeScript passes. The channel-order fixture now uses distinct Y/X/B expected integers; its first version assumed a non-integral constant plane would stay constant under predictor-relative rounding. Exact-grid Y/B inputs repair that premise without changing the quantizer. The five-file archive applies exactly. No image encode, active implementation change, new quality result or holdout access. Owner decision remains pending.
+
+
+Owner renewal, 2026-11-03: Aaron approved one fixed predictor-aware DC rounding trial. Preserve aligned AC 1.25 nominal DC steps, original-luma chroma subtraction, smoothing off and all AC decisions. Apply the source nonlinear rounding rule with its extra DC precision bit. One configuration, no sweep or peer maps, development selection only, all quality/speed/memory/promotion gates unchanged, research branch only.
+
+LL-1118 plan: copy the reviewed proposal into standalone-dc-predictor at base 7115c408, retaining its private first-party precision-bit writer. Run repeatable native-decoder fixtures and the frozen development screen; full lab only if warranted. No promotion admission or public integration is included. Raw: dc-predictor-20261103.
+
+| LL-1118, 2026-11-03 | Apply predictor-relative nonlinear DC rounding at the aligned nominal allocation. | 80 native-valid screen outputs. Aligned -2.133/+2.902/+2.233%; regularized -1.130/+0.873/+3.647%. Vips -11.550/-4.240/-2.836%; jSquash -13.001/-0.460/+4.676%. Combined aligned mean regresses +1.000400%. | Parallel timing excluded; managed peak 9,235,969 bytes. | The targeted SSIM gain warrants measuring the same fixed mode across full development. Butteraugli regressions remain a concern; no promotion admission. | full lab pending |
+
+Twenty repeatable native-valid fixtures include two exact-alpha cases. Three pinned AC 1.25 hashes and three promotion-denial checks pass. All eighty screen HF-global/AC sections, fourteen decision fields, nominal DC matrices and smoothing-off policy remain exact against aligned control. All fourteen prototype hashes remain frozen. Full development uses the same configuration, with no sweep or holdout access.
+
+| LL-1119, 2026-11-03 | Resolve full development and guard coverage for fixed-allocation predictor DC. | 576 native-valid outputs. Aligned -2.658/+1.994/+3.049%; regularized -1.839/-0.069/+1.222%, mean -0.228588%. Vips -10.184/-4.810/-4.548%; jSquash -12.333/-1.230/+3.116%. Main -8.704/-10.154/-8.168%. Eight admitted SSIM guards pass, worst +4.689441%; zero full-band 3-norm admissions. | Concurrent timing excluded; managed peak 9,422,327 bytes. | Main entry quality passes. The combined aligned comparison regresses +0.794900%; the small cumulative gain against regularized allows at most 1.022858837x control time. Measure isolated cost after repository checks finish. | isolated timing pending |
+
+Saved-screen attribution: all eighty files grow, total 2,848,180 to 2,903,185 bytes (+1.931233%). All 55,005 added bytes are in LF-global/DC sections. Model/header cost adds 65,302 bits, residuals 374,713 bits and metadata/padding 25 bits, accounting exactly for the increase. At equal distance, SSIM improves in 78/80, 3-norm in 73/80 and max in 48/80; means are +0.930530 SSIM points, -1.024558% 3-norm and -0.827775% max. These are not BD-rates. Most added cost is residual coding, so header reduction alone cannot recover it. Only five candidate streams use exclusively weighted-predictor leaves; 74 mix weighted with other predictors and one has no weighted leaf. Leaf presence does not measure each predictor's symbol count or prove a different tree would win. No new encode or holdout access in this audit.
+
+LL-1120 timing plan: initial fifteen-pair photo/texture ratios are 1.024846/1.038315, MAD 0.052153/0.024097, against the 1.022858837 allowance. Preserve that failure evidence. The margins are small relative to variation, so take one fixed fifteen-pair confirmation per image and decide using all thirty pairs together, without selecting the faster run. Encoder hashes and configuration stay unchanged; no additional quality trial or sweep. No further repeat if pooled timing fails. Fresh npm run check has completed successfully before both timing runs.
+
+| LL-1120, 2026-11-03 | Confirm fixed predictor DC cost against the small cumulative quality allowance. | All candidate and control timed hashes match their frozen native-valid streams. | Initial ratios 1.024846/1.038315; confirmation 0.992298/0.988463. Pooled thirty-pair medians 1.018912/1.017860, MAD 0.047960/0.029607, 13/30 and 11/30 faster. Candidate medians 2117.627/1792.429ms; managed 5,682,267/5,680,219 bytes. | Pooled ratios pass the predeclared 1.022858837 allowance. Both runs remain in the report; no speedup claim. Advance the unchanged mode to fresh absolute crop/original checks. | absolute qualification pending |
+
+| LL-1121, 2026-11-03 | Qualify frozen predictor DC on fresh crops and both originals. | All 192 crop engine jobs complete with no reuse or failure. Both own originals decode natively and score. 21 MP jSquash aborts and its runner exit 1 is preserved. | Crops 2.387946x jSquash. 13 MP 39.546s, 1.512916x, managed 59,210,879 bytes; 21 MP 68.866s, managed 91,262,401 bytes, peer ratio unavailable. Process peak RSS 426,385,408/514,064,384 bytes, distinct from managed memory. | Entry passes. Recheck all eighty screen AC sections and all fourteen prototype hashes, then admit only this frozen mode to one aggregate-only holdout evaluation. No parameter changes follow admission. | holdout running |
+
+| LL-1122, 2026-11-03 | Evaluate frozen predictor DC on aggregate-only holdout. | 567 native-valid outputs, 189/189 jobs, zero failures. Vips -7.492/-3.573/-1.657%, mean -4.240602%; jSquash -9.159/-0.215/+3.729%. Main -6.605/-8.419/-6.835%. Two of ten admitted SSIM guards fail, worst +11.202599%; zero full-band 3-norm admissions. | Entry speed and original managed ceilings pass; holdout managed peak 26,183,855 bytes. | Reject promotion. All ten previous admissions remain; both prior failures still fail and none are dropped or repaired. No identities or per-image holdout curves inspected. One configuration complete, zero retained/promoted. | rejected |
+
+Final verification: eighteen native-valid fixtures plus two exact-alpha cases, three unchanged-control hashes and three pre-entry denial checks pass. Full check passes 340 files and 4,229 tests with one file and three tests skipped, including static/package/browser build checks. Its longer final worker was inspected briefly in effort-9 alpha-tree training and resumed; it completed without changes before isolated timing. The twelve-file experiment and ten-script audit archives reconstruct exactly. Strict private TypeScript passes. Final integrity confirms all encoder module hashes match pre-holdout admission; only the private fixture allowlist changed from development preparation. No active source, tests, package metadata or lab TypeScript changed. No watch/scale, cold/warm RSS, second-decoder or public-integration phase follows failed holdout. The one-trial allowance is exhausted under LOSSY_STEERING section 9.

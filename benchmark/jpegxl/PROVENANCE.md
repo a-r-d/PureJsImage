@@ -746,3 +746,12 @@ applies. Four source/license files and scalar checks pass; no candidate image
 is encoded at the proposal checkpoint. The separate allocation, caller and
 matrix helper changes restore earlier archived first-party behavior. No native
 infrastructure, peer decisions or runtime dependencies are added.
+
+Aaron approved the fixed predictor configuration. The complete implementation
+and native-valid fixtures are archived in `DC-PREDICTOR-EXPERIMENT.patch`,
+against research base `7115c408`. The private writer signals extra DC precision
+one; no active production source changes. `DC-PREDICTOR-AUDIT.patch` preserves
+first-party stream inspection, alpha fixtures, paired timing and visual-review
+scripts. The saved-stream parser copy exposes an existing first-party decoder
+function without changing its behavior. It is not a native internal probe.
+Results and qualification limits are recorded in `DC-PREDICTOR-REPORT.md`.
