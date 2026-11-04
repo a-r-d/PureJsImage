@@ -795,3 +795,15 @@ and verification. It imports the unchanged reconstruction helpers archived in
 above; no new libjxl code, constants or tables are ported. Native Butteraugli
 and SSIMULACRA2 binaries are development scorers only. Nothing enters the
 runtime bundle, and existing source headers and package/docs notices remain.
+
+## DC perceptual-model screen (2026-11-04)
+
+`lossy-lab/DC-MODEL-SCREEN.patch` contains first-party composition, screening,
+summary and verification scripts plus a fixed plan. It adds no source port.
+The three formulas reuse `libjxl-perceptual-local-port.ts` and
+`libjxl-perceptual-malta-port.ts` from libjxl `lib/jxl/butteraugli/butteraugli.cc`
+and `.h`, plus `libjxl-perceptual-pool-port.ts` from `lib/extras/metrics.cc`,
+v0.12.0 commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. Linear RGB conversion
+and half-resolution averaging reuse `libjxl-display-loss.ts`, recorded above.
+All component code, constants, source/BSD headers and full package/docs notices
+are unchanged. No fitted weights, runtime imports or encoder changes are added.

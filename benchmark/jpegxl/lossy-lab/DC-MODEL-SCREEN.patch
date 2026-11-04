@@ -1,0 +1,685 @@
+diff --git a/benchmark/jpegxl/lossy-lab/dc-screen-models.ts b/benchmark/jpegxl/lossy-lab/dc-screen-models.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-screen-models.ts
+@@ -0,0 +1,43 @@
++import { displayLinearPlanes, downsampleDisplay } from './libjxl-display-loss.ts'
++import { perceptualQuadraticMaps, preparePerceptualLinear } from './libjxl-perceptual-local-port.ts'
++import { mixPerceptualScales, perceptualDirectionalMap } from './libjxl-perceptual-malta-port.ts'
++import { poolNativePerceptual } from './libjxl-perceptual-pool-port.ts'
++
++export const modelNames = [
++  'quadratic_multiscale',
++  'directional_fine',
++  'directional_multiscale',
++] as const
++export type ModelScores = Record<
++  (typeof modelNames)[number],
++  ReturnType<typeof poolNativePerceptual>
++>
++
++export function prepare(rgba: Uint8Array, width: number, height: number) {
++  const linear = displayLinearPlanes(rgba, width, height)
++  return {
++    full: preparePerceptualLinear(linear, width, height),
++    half: preparePerceptualLinear(
++      downsampleDisplay(linear, width, height),
++      Math.ceil(width / 2),
++      Math.ceil(height / 2),
++    ),
++  }
++}
++
++/** First-party composition of unchanged, attributed libjxl component ports. */
++export function evaluate(
++  source: ReturnType<typeof prepare>,
++  decoded: ReturnType<typeof prepare>,
++): ModelScores {
++  const fineQ = perceptualQuadraticMaps(source.full, decoded.full).asymmetric
++  const halfQ = perceptualQuadraticMaps(source.half, decoded.half).asymmetric
++  const fine = perceptualDirectionalMap(source.full, decoded.full, fineQ)
++  const half = perceptualDirectionalMap(source.half, decoded.half, halfQ)
++  const { width, height } = source.full
++  return {
++    quadratic_multiscale: poolNativePerceptual(mixPerceptualScales(fineQ, halfQ, width, height)),
++    directional_fine: poolNativePerceptual(fine),
++    directional_multiscale: poolNativePerceptual(mixPerceptualScales(fine, half, width, height)),
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/run-dc-model-screen.ts b/benchmark/jpegxl/lossy-lab/run-dc-model-screen.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/run-dc-model-screen.ts
+@@ -0,0 +1,164 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { object, number } from '../comparison/model.ts'
++import { parsePreparedManifest, selectPreparedFixtures } from './fixture-selection.ts'
++import { evaluate, prepare, modelNames, type ModelScores } from './dc-screen-models.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-model-screen-20261104'
++const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++const planBytes = await readFile(`${root}/plan.json`)
++const plan = object(JSON.parse(planBytes.toString()))
++assert.ok(Array.isArray(plan.models))
++assert.deepEqual(
++  plan.models.map((v) => object(v).name),
++  modelNames,
++)
++assert.equal(plan.input, '.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104/audit.json')
++const inputBytes = await readFile('.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104/audit.json')
++const input = object(JSON.parse(inputBytes.toString()))
++assert.equal(input.passed, true)
++assert.equal(input.reconstructed, 800)
++assert.ok(Array.isArray(input.rows))
++const inputRows = input.rows.map(object)
++const manifest = parsePreparedManifest(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json', 'utf8')),
++)
++const selection = selectPreparedFixtures(manifest, { mode: 'screen' })
++assert.ok(selection.complete && selection.fixtures.length === 16)
++const sourceFiles = ['dc-screen-models.ts', 'run-dc-model-screen.ts']
++  .map((name) => `benchmark/jpegxl/lossy-lab/${name}`)
++  .concat([
++    'benchmark/jpegxl/lossy-lab/libjxl-display-loss.ts',
++    'benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts',
++    'benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts',
++    'benchmark/jpegxl/lossy-lab/libjxl-perceptual-pool-port.ts',
++    'benchmark/jpegxl/lossy-lab/local-error-predictors.ts',
++  ])
++await mkdir(`${root}/points`, { recursive: true })
++const sourceHashes = await Promise.all(
++  sourceFiles.map(async (path) => ({ path, sha256: hash(await readFile(path)) })),
++)
++await writeFile(
++  `${root}/start.json`,
++  JSON.stringify(
++    {
++      started: new Date().toISOString(),
++      base: plan.base,
++      planHash: hash(planBytes),
++      inputHash: hash(inputBytes),
++      sourceHashes,
++    },
++    null,
++    2,
++  ) + '\n',
++  { flag: 'wx' },
++)
++let states = 0,
++  evaluated = 0
++const output = []
++for (const fixture of selection.fixtures) {
++  assert.equal(fixture.split, 'development')
++  const file = await readFile(fixture.png)
++  assert.equal(hash(file), fixture.fixtureSha256)
++  const png = PNG.sync.read(file)
++  assert.equal(png.width, 512)
++  assert.equal(png.height, 512)
++  const source = prepare(png.data, 512, 512)
++  const cache = new Map<string, ModelScores>()
++  const cases = inputRows.filter((row) => row.id === fixture.id)
++  assert.deepEqual(
++    cases.map((row) => row.distance),
++    [0.5, 1, 2, 4, 7],
++  )
++  for (const row of cases) {
++    assert.equal(row.sourceHash, fixture.fixtureSha256)
++    assert.ok(Array.isArray(row.observations))
++    const modes = row.observations.map(object)
++    assert.deepEqual(
++      modes.map((p) => p.mode),
++      ['aligned', 'predictor'],
++    )
++    const observations = []
++    for (const mode of modes) {
++      assert.ok(Array.isArray(mode.variants))
++      const variants = mode.variants.map(object)
++      assert.deepEqual(
++        variants.map((p) => p.variant),
++        ['actual', 'x', 'y', 'b', 'all'],
++      )
++      const predictions = []
++      for (const variant of variants) {
++        assert.equal(typeof variant.imagePath, 'string')
++        if (typeof variant.imagePath !== 'string') throw new Error('Missing diagnostic PNG')
++        const bytes = await readFile(variant.imagePath),
++          pngHash = hash(bytes)
++        assert.equal(pngHash, variant.pngHash)
++        let predicted = cache.get(pngHash)
++        const reused = predicted !== undefined
++        if (!predicted) {
++          const decoded = PNG.sync.read(bytes)
++          assert.equal(decoded.width, 512)
++          assert.equal(decoded.height, 512)
++          assert.equal(hash(decoded.data), variant.displayHash)
++          predicted = evaluate(source, prepare(decoded.data, 512, 512))
++          cache.set(pngHash, predicted)
++          evaluated++
++        }
++        const native = object(variant.metrics)
++        predictions.push({
++          variant: variant.variant,
++          pngHash,
++          displayHash: variant.displayHash,
++          imagePath: variant.imagePath,
++          reused,
++          native: {
++            maximum: number(native.butteraugliMax),
++            norm3: number(native.butteraugliNorm3),
++          },
++          models: predicted,
++        })
++        states++
++      }
++      observations.push({ mode: mode.mode, streamHash: mode.streamHash, variants: predictions })
++    }
++    const result = {
++      id: fixture.id,
++      distance: row.distance,
++      sourceHash: fixture.fixtureSha256,
++      observations,
++    }
++    output.push(result)
++    await writeFile(
++      `${root}/points/${fixture.id}-${String(row.distance)}.json`,
++      JSON.stringify(result, null, 2) + '\n',
++      { flag: 'wx' },
++    )
++    console.log(
++      `${output.length}/80 pairs; ${states}/800 states; ${evaluated} distinct model evaluations`,
++    )
++  }
++}
++assert.equal(states, 800)
++assert.equal(output.length, 80)
++await writeFile(
++  `${root}/results.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      base: plan.base,
++      completed: new Date().toISOString(),
++      states,
++      evaluated,
++      modelNames,
++      rows: output,
++    },
++    null,
++    2,
++  ) + '\n',
++  { flag: 'wx' },
++)
++console.log(
++  'Completed three fixed formulas on all 800 saved states; no new images or native scoring.',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/dc-model-assessment.ts b/benchmark/jpegxl/lossy-lab/dc-model-assessment.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-model-assessment.ts
+@@ -0,0 +1,22 @@
++import { predictionAgreement } from './local-error-predictors.ts'
++
++export interface Prediction {
++  readonly predicted: number
++  readonly actual: number
++}
++
++/** Unchanged screening rule from PREDICTOR-REPORT.md, applied per cohort/metric. */
++export function assess(pairs: readonly Prediction[]) {
++  const material = predictionAgreement(pairs, 0.1)
++  return {
++    material,
++    nonzero: predictionAgreement(pairs, 1e-6),
++    nativeHarmsAboveOnePercent: pairs.filter((p) => p.actual > 1).length,
++    alwaysBetterAccuracy: material.material ? material.improved / material.material : null,
++    passed:
++      material.material >= 10 &&
++      material.accuracy !== null &&
++      material.accuracy >= 0.8 &&
++      material.missedHarm === 0,
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/summarize-dc-model-screen.ts b/benchmark/jpegxl/lossy-lab/summarize-dc-model-screen.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/summarize-dc-model-screen.ts
+@@ -0,0 +1,191 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import { modelNames } from './dc-screen-models.ts'
++import { assess } from './dc-model-assessment.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-model-screen-20261104'
++const result = object(JSON.parse(await readFile(`${root}/results.json`, 'utf8')))
++assert.equal(result.passed, true)
++assert.ok(Array.isArray(result.rows))
++type Row = ReturnType<typeof object>
++const rows = result.rows.map(object)
++function mode(row: Row, name: string) {
++  assert.ok(Array.isArray(row.observations))
++  const value = row.observations.map(object).find((p) => p.mode === name)
++  assert.ok(value)
++  return value
++}
++function variant(row: Row, name: string) {
++  assert.ok(Array.isArray(row.variants))
++  const value = row.variants.map(object).find((p) => p.variant === name)
++  assert.ok(value)
++  return value
++}
++interface Pair {
++  id: string
++  distance: number
++  cohort: 'actual' | 'restorations'
++  mode: string
++  variant: string
++  before: Row
++  after: Row
++}
++const pairs: Pair[] = []
++for (const row of rows) {
++  assert.equal(typeof row.id, 'string')
++  if (typeof row.id !== 'string') throw new Error('Missing photo identity')
++  const id = row.id,
++    distance = number(row.distance)
++  const aligned = mode(row, 'aligned'),
++    predictor = mode(row, 'predictor')
++  pairs.push({
++    id,
++    distance,
++    cohort: 'actual',
++    mode: 'paired',
++    variant: 'actual',
++    before: variant(aligned, 'actual'),
++    after: variant(predictor, 'actual'),
++  })
++  for (const entry of [aligned, predictor])
++    for (const name of ['x', 'y', 'b', 'all']) {
++      assert.equal(typeof entry.mode, 'string')
++      if (typeof entry.mode !== 'string') throw new Error('Missing mode')
++      pairs.push({
++        id,
++        distance,
++        cohort: 'restorations',
++        mode: entry.mode,
++        variant: name,
++        before: variant(entry, 'actual'),
++        after: variant(entry, name),
++      })
++    }
++}
++assert.equal(pairs.length, 720)
++function comparison(pair: Pair, model: (typeof modelNames)[number], metric: 'maximum' | 'norm3') {
++  const before = number(object(pair.before.native)[metric]),
++    after = number(object(pair.after.native)[metric])
++  assert.ok(before > 0)
++  const pBefore = number(object(object(pair.before.models)[model])[metric])
++  const pAfter = number(object(object(pair.after.models)[model])[metric])
++  return {
++    id: pair.id,
++    distance: pair.distance,
++    cohort: pair.cohort,
++    mode: pair.mode,
++    variant: pair.variant,
++    model,
++    metric,
++    predicted: pAfter - pBefore,
++    actual: 100 * (after / before - 1),
++    before: pBefore,
++    after: pAfter,
++    nativeBefore: before,
++    nativeAfter: after,
++  }
++}
++const assessments: (ReturnType<typeof assess> & {
++  model: (typeof modelNames)[number]
++  cohort: string
++  metric: 'maximum' | 'norm3'
++})[] = []
++const misses = []
++for (const model of modelNames)
++  for (const cohort of ['actual', 'restorations', 'all'])
++    for (const metric of ['maximum', 'norm3'] as const) {
++      const selected = pairs
++        .filter((p) => cohort === 'all' || p.cohort === cohort)
++        .map((p) => comparison(p, model, metric))
++      assessments.push({ model, cohort, metric, ...assess(selected) })
++      if (cohort !== 'all')
++        for (const pair of selected)
++          if (pair.actual > 1 && pair.predicted <= 1e-9) misses.push(pair)
++    }
++const decisions = modelNames.map((model) => {
++  const gates = assessments.filter((row) => row.model === model && row.cohort !== 'all')
++  assert.equal(gates.length, 4)
++  return {
++    model,
++    passed: gates.every((row) => row.passed),
++    failed: gates.filter((row) => !row.passed).map((row) => `${row.cohort}/${row.metric}`),
++  }
++})
++const perVariant = []
++for (const model of modelNames)
++  for (const name of ['x', 'y', 'b', 'all'])
++    for (const metric of ['maximum', 'norm3'] as const) {
++      const selected = pairs
++        .filter((p) => p.cohort === 'restorations' && p.variant === name)
++        .map((p) => comparison(p, model, metric))
++      perVariant.push({ model, variant: name, metric, ...assess(selected) })
++    }
++const perPhoto = rows.reduce((photos: string[], row) => {
++  assert.equal(typeof row.id, 'string')
++  if (typeof row.id === 'string' && !photos.includes(row.id)) photos.push(row.id)
++  return photos
++}, [])
++const photoResults = perPhoto.map((id) => ({
++  id,
++  assessments: modelNames.flatMap((model) =>
++    (['maximum', 'norm3'] as const).map((metric) => ({
++      model,
++      metric,
++      ...assess(pairs.filter((p) => p.id === id).map((p) => comparison(p, model, metric))),
++    })),
++  ),
++}))
++const scoreFidelity = modelNames.map((model) => ({
++  model,
++  metrics: (['maximum', 'norm3'] as const).map((metric) => {
++    const errors: number[] = []
++    for (const row of rows)
++      for (const name of ['aligned', 'predictor']) {
++        const entry = mode(row, name)
++        assert.ok(Array.isArray(entry.variants))
++        for (const p of entry.variants.map(object))
++          errors.push(
++            Math.abs(
++              number(object(object(p.models)[model])[metric]) - number(object(p.native)[metric]),
++            ),
++          )
++      }
++    assert.equal(errors.length, 800)
++    return {
++      metric,
++      maximumAbsoluteError: Math.max(...errors),
++      meanAbsoluteError: errors.reduce((a, b) => a + b, 0) / errors.length,
++    }
++  }),
++}))
++await writeFile(
++  `${root}/summary.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      states: 800,
++      actualPairs: 80,
++      restorationPairs: 640,
++      decisions,
++      assessments,
++      perVariant,
++      photoResults,
++      scoreFidelity,
++      misses,
++      policy:
++        'Only actual and restorations rows enter decisions. All, per-photo and per-variant rows are descriptive, not selection opportunities. Criteria and models remain unchanged from plan.json.',
++      limits:
++        'Sixteen previously inspected screen photos; strongly correlated distances, modes and counterfactuals. A passing model is only a candidate for later independent development validation. No encoder or speed qualification.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify(
++    { decisions, assessments: assessments.filter((row) => row.cohort !== 'all'), scoreFidelity },
++    null,
++    2,
++  ),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-model-assessment.ts b/benchmark/jpegxl/lossy-lab/verify-dc-model-assessment.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-model-assessment.ts
+@@ -0,0 +1,45 @@
++import assert from 'node:assert/strict'
++import { writeFile } from 'node:fs/promises'
++import { assess } from './dc-model-assessment.ts'
++import { prepare, evaluate, modelNames } from './dc-screen-models.ts'
++
++const correct = Array.from({ length: 10 }, (_, i) => ({
++  actual: i < 5 ? 2 : -2,
++  predicted: i < 5 ? 1 : -1,
++}))
++assert.equal(assess(correct).passed, true)
++assert.equal(assess(correct.slice(0, 9)).passed, false)
++const falseSafe = correct.map((p, i) => (i === 0 ? { ...p, predicted: 0 } : p))
++assert.equal(assess(falseSafe).material.accuracy, 0.9)
++assert.equal(assess(falseSafe).material.missedHarm, 1)
++assert.equal(assess(falseSafe).passed, false)
++const wrong = correct.map((p, i) => (i >= 7 ? { ...p, predicted: 1 } : p))
++assert.equal(assess(wrong).material.accuracy, 0.7)
++assert.equal(assess(wrong).passed, false)
++const boundary = correct.map((p, i) => (i >= 8 ? { ...p, predicted: 1 } : p))
++assert.equal(assess(boundary).material.accuracy, 0.8)
++assert.equal(assess(boundary).passed, true)
++assert.equal(assess([...correct, { actual: 0.1, predicted: -1 }]).material.material, 10)
++assert.equal(assess([...correct, { actual: 1, predicted: -1 }]).material.missedHarm, 0)
++assert.throws(() => assess([{ actual: Number.NaN, predicted: 1 }]))
++const rgba = new Uint8Array(19 * 17 * 4)
++for (let p = 0; p < 19 * 17; p++) {
++  rgba[p * 4] = p % 255
++  rgba[p * 4 + 1] = 64
++  rgba[p * 4 + 2] = 128
++  rgba[p * 4 + 3] = 255
++}
++const source = prepare(rgba, 19, 17),
++  identity = evaluate(source, source)
++for (const model of modelNames) assert.deepEqual(identity[model], { maximum: 0, norm3: 0 })
++await writeFile(
++  '.tmp/jpegxl-lossy-lab/dc-model-screen-20261104/assessment-tests.json',
++  JSON.stringify(
++    { passed: true, thresholdChecks: 8, identityModels: 3, invalidScore: 1 },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  'Assessment sample count, accuracy, missed-harm and threshold cases pass; all three odd-size identity models are zero.',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-model-screen.ts b/benchmark/jpegxl/lossy-lab/verify-dc-model-screen.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-model-screen.ts
+@@ -0,0 +1,140 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import { modelNames } from './dc-screen-models.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-model-screen-20261104'
++const hash = (data: Uint8Array) => createHash('sha256').update(data).digest('hex')
++const start = object(JSON.parse(await readFile(`${root}/start.json`, 'utf8')))
++assert.equal(hash(await readFile(`${root}/plan.json`)), start.planHash)
++assert.ok(Array.isArray(start.sourceHashes))
++for (const entry of start.sourceHashes.map(object)) {
++  assert.equal(typeof entry.path, 'string')
++  if (typeof entry.path !== 'string') throw new Error('Missing source')
++  assert.equal(hash(await readFile(entry.path)), entry.sha256)
++}
++const oldBytes = await readFile('.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104/audit.json')
++assert.equal(hash(oldBytes), start.inputHash)
++const old = object(JSON.parse(oldBytes.toString())),
++  result = object(JSON.parse(await readFile(`${root}/results.json`, 'utf8')))
++assert.ok(Array.isArray(old.rows) && Array.isArray(result.rows))
++const oldRows = old.rows.map(object)
++let checked = 0,
++  reused = 0,
++  evaluated = 0
++const keys = new Set<string>()
++const cached = new Map<string, Row>()
++type Row = ReturnType<typeof object>
++for (const row of result.rows.map(object)) {
++  const key = `${String(row.id)}/${String(row.distance)}`
++  assert.equal(keys.has(key), false)
++  keys.add(key)
++  const previous = oldRows.find((v) => v.id === row.id && v.distance === row.distance)
++  assert.ok(previous)
++  assert.equal(row.sourceHash, previous.sourceHash)
++  assert.ok(Array.isArray(row.observations) && Array.isArray(previous.observations))
++  const oldModes = previous.observations.map(object)
++  assert.deepEqual(
++    row.observations.map((v) => object(v).mode),
++    ['aligned', 'predictor'],
++  )
++  let all: Row | undefined
++  for (const mode of row.observations.map(object)) {
++    const priorMode = oldModes.find((v) => v.mode === mode.mode)
++    assert.ok(priorMode)
++    assert.equal(mode.streamHash, priorMode.streamHash)
++    assert.ok(Array.isArray(mode.variants) && Array.isArray(priorMode.variants))
++    assert.deepEqual(
++      mode.variants.map((v) => object(v).variant),
++      ['actual', 'x', 'y', 'b', 'all'],
++    )
++    const priorVariants = priorMode.variants.map(object)
++    for (const variant of mode.variants.map(object)) {
++      const original = priorVariants.find((v) => v.variant === variant.variant)
++      assert.ok(original)
++      assert.equal(variant.pngHash, original.pngHash)
++      assert.equal(variant.displayHash, original.displayHash)
++      assert.equal(variant.imagePath, original.imagePath)
++      assert.equal(typeof variant.imagePath, 'string')
++      if (typeof variant.imagePath !== 'string') throw new Error('Missing image')
++      assert.equal(hash(await readFile(variant.imagePath)), variant.pngHash)
++      assert.deepEqual(variant.native, {
++        maximum: number(object(original.metrics).butteraugliMax),
++        norm3: number(object(original.metrics).butteraugliNorm3),
++      })
++      const scores = object(variant.models)
++      assert.deepEqual(Object.keys(scores), modelNames)
++      for (const model of modelNames)
++        for (const metric of ['maximum', 'norm3'])
++          assert.ok(number(object(scores[model])[metric]) >= 0)
++      const cachedKey = `${String(row.id)}/${String(variant.pngHash)}`
++      if (variant.reused === true) {
++        assert.deepEqual(cached.get(cachedKey), scores)
++        reused++
++      } else {
++        assert.equal(variant.reused, false)
++        assert.equal(cached.has(cachedKey), false)
++        cached.set(cachedKey, scores)
++        evaluated++
++      }
++      if (variant.variant === 'all') {
++        if (all) assert.deepEqual(scores, all)
++        else all = scores
++      }
++      checked++
++    }
++  }
++}
++assert.equal(keys.size, 80)
++assert.equal(checked, 800)
++assert.equal(evaluated, result.evaluated)
++assert.equal(reused + evaluated, 800)
++const license = (await readFile('.tmp/jpegxl-oracles/libjxl-v0.12.0/source/LICENSE', 'utf8')).trim()
++assert.ok((await readFile('THIRD_PARTY_NOTICES', 'utf8')).includes(license))
++assert.ok(
++  (await readFile('docs-astro/src/pages/third-party-notices.astro', 'utf8')).includes(
++    '../../../THIRD_PARTY_NOTICES?raw',
++  ),
++)
++for (const file of [
++  'libjxl-perceptual-local-port.ts',
++  'libjxl-perceptual-malta-port.ts',
++  'libjxl-perceptual-pool-port.ts',
++  'libjxl-display-loss.ts',
++]) {
++  const source = await readFile(`benchmark/jpegxl/lossy-lab/${file}`, 'utf8')
++  assert.ok(
++    source.includes('a7a9c787341cf703dede03c2009fa460cae5e5df') &&
++      source.includes('Copyright (c) the JPEG XL Project Authors. BSD-3-Clause'),
++  )
++}
++await writeFile(
++  `${root}/verification.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      pairs: keys.size,
++      states: checked,
++      evaluated,
++      reused,
++      sourceHashes: start.sourceHashes.length,
++      unchangedPlanAndInputs: true,
++      nativeLabelsExact: true,
++      finiteNonnegativePredictions: true,
++      deduplicatedResultsExact: true,
++      existingHeadersAndFullPackageDocsNotices: true,
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    states: checked,
++    evaluated,
++    reused,
++    sourceHashes: start.sourceHashes.length,
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/dc-model-screen-plan.json b/benchmark/jpegxl/lossy-lab/dc-model-screen-plan.json
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-model-screen-plan.json
+@@ -0,0 +1,45 @@
++{
++  "date": "2026-11-04",
++  "base": "eed47d49f161be20c672015c7d703b0117838f58",
++  "input": ".tmp/jpegxl-lossy-lab/dc-channel-audit-20261104/audit.json",
++  "models": [
++    {
++      "name": "quadratic_multiscale",
++      "formula": "Existing source-masked asymmetric quadratic maps at full and half resolution, mixed as 0.85*fine + 0.5*half; no Malta directional terms."
++    },
++    {
++      "name": "directional_fine",
++      "formula": "Existing source-masked asymmetric quadratic map plus all six libjxl directional Malta costs at full resolution; no half-resolution term."
++    },
++    {
++      "name": "directional_multiscale",
++      "formula": "Existing full directional maps at full and half resolution, mixed as 0.85*fine + 0.5*half. This is the previously validated expensive reference model."
++    }
++  ],
++  "pooling": "All three maps use maximum and native fixed-p=3 pooling: (L3 + L6 + L12)/3. Half-resolution inputs average linear RGB before adaptation. No fitted weights or new constants.",
++  "inputs": "Exactly 800 previously scored diagnostic reconstructions from sixteen frozen development photos at distances 0.5, 1, 2, 4 and 7. Repeated identical PNGs may reuse a score within the same source photo; all 800 observations remain reported.",
++  "cohorts": [
++    {
++      "name": "actual",
++      "comparisons": 80,
++      "definition": "Aligned actual to predictor actual at each photo and distance."
++    },
++    {
++      "name": "restorations",
++      "comparisons": 640,
++      "definition": "Within each saved mode, actual to each fixed X/Y/B/all restoration at each photo and distance."
++    }
++  ],
++  "gate": {
++    "nativeMaterialThresholdPercent": 0.1,
++    "minimumMaterialComparisons": 10,
++    "minimumSignAccuracy": 0.8,
++    "nativeHarmThresholdPercent": 1,
++    "maximumMissedHarms": 0,
++    "predictedZeroTolerance": 1e-9,
++    "rule": "A model must pass each cohort separately on both Butteraugli metrics. Native percentages divide by the before score. Prediction is after minus before model score; use the existing predictionAgreement implementation. Report both native direction counts, trivial baselines, false alarms, abstentions and missed harms. Do not select only favorable channels or distances."
++  },
++  "scope": "One owner-approved screen of at most three formulas; no encoder changes, new images, native scoring, fitting, peer decisions, joint RD or holdout access. No independent development validation is authorized in this round. A survivor is only eligible to propose later validation; it is not a promoted encoder policy.",
++  "cost": "Diagnostic elapsed times may be recorded as overlapping run receipts only, not isolated encoder speed, speed allowance or managed-memory qualification.",
++  "stop": "Stop after the three fixed models, evidence checks and report. Keep all production and promotion gates unchanged."
++}
