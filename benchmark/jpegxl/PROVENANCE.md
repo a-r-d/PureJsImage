@@ -769,3 +769,18 @@ code is ported. The other two archived files are first-party saved-stream
 inspection and cost accounting, including exact DC substream serialization and
 round-trip checks with our existing histogram sharing. They neither encode
 candidate images nor change active source. Results are in `DC-CODING-AUDIT.md`.
+
+## DC display-error audit (2026-11-04)
+
+`lossy-lab/DC-DISPLAY-AUDIT.patch` contains five first-party diagnostics and
+adds no source port. It reuses the existing `libjxl-gaborish-port.ts` from
+`lib/jxl/enc_gaborish.cc` and `libjxl-output-dither-port.ts` from
+`lib/jxl/render_pipeline/stage_write.cc` (`kDither` and `MakeUnsigned`), at
+libjxl v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. Their implementation and source/BSD
+headers are unchanged; complete package/docs notices remain verified.
+Source conversion, selected transforms, DC reconstruction, filtering and error
+accounting reuse first-party code. A private source-conversion copy exports
+existing functions without invoking encoder entry points. The audit reads only
+the frozen saved development screen; it neither writes candidate streams nor
+changes active encoder decisions. See `DC-DISPLAY-AUDIT.md` for the limits.

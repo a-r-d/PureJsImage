@@ -1,0 +1,1033 @@
+diff --git a/benchmark/jpegxl/lossy-lab/prepare-dc-display-audit.ts b/benchmark/jpegxl/lossy-lab/prepare-dc-display-audit.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/prepare-dc-display-audit.ts
+@@ -0,0 +1,62 @@
++import assert from 'node:assert/strict'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { resolve, dirname } from 'node:path'
++import { createHash } from 'node:crypto'
++const root = resolve('.tmp/jpegxl-lossy-lab/dc-display-audit-20261104')
++await mkdir(`${root}/diagnostic`, { recursive: true })
++const path = 'src/codecs/jpegxl-vardct-encode.ts'
++const source = await readFile(path, 'utf8')
++for (const name of ['fillXybBlock', 'linearSrgb', 'defaultForwardMatrix'])
++  assert.ok(source.includes(`const ${name} =`))
++const copy =
++  source
++    .replace(
++      /from (['"])(\.[^'"]+)\1/gu,
++      (_match: string, quote: string, path: string) =>
++        `from ${quote}${resolve('src/codecs', path)}${quote}`,
++    )
++    .replace(
++      /import\((['"])(\.[^'"]+)\1\)/gu,
++      (_match: string, quote: string, path: string) =>
++        `import(${quote}${resolve('src/codecs', path)}${quote})`,
++    ) +
++  '\n// Saved-stream source conversion only. No encoder entry point is invoked.\nexport {fillXybBlock,linearSrgb,defaultForwardMatrix}\n'
++await writeFile(`${root}/diagnostic/source-conversion.ts`, copy)
++const inputs = [
++  path,
++  'src/codecs/jpegxl-vardct-render.ts',
++  'benchmark/jpegxl/lossy-lab/libjxl-gaborish-port.ts',
++  'benchmark/jpegxl/lossy-lab/libjxl-output-dither-port.ts',
++  'benchmark/jpegxl/lossy-lab/selector-transforms.ts',
++  'benchmark/jpegxl/lossy-lab/transform-kernels.ts',
++]
++const hashes = []
++for (const path of inputs)
++  hashes.push({
++    path,
++    sha256: createHash('sha256')
++      .update(await readFile(path))
++      .digest('hex'),
++  })
++await writeFile(
++  `${root}/source.json`,
++  JSON.stringify(
++    {
++      base: '8c6fd19029fc4d3bb10648c2fedb8e040128a1a8',
++      hashes,
++      copySha256: createHash('sha256').update(copy).digest('hex'),
++      policy:
++        'Expose existing first-party input conversion only. Reuse attributed Gaborish and output dither ports. No new port, encoder execution or active source change.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++await writeFile(
++  `${root}/tsconfig.json`,
++  JSON.stringify(
++    { extends: '../../../tsconfig.json', include: ['*.ts', 'diagnostic/*.ts'], exclude: [] },
++    null,
++    2,
++  ) + '\n',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/dc-display-stages.ts b/benchmark/jpegxl/lossy-lab/dc-display-stages.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-display-stages.ts
+@@ -0,0 +1,303 @@
++import assert from 'node:assert/strict'
++import {
++  fillXybBlock,
++  linearSrgb,
++  defaultForwardMatrix,
++} from '../../../.tmp/jpegxl-lossy-lab/dc-display-audit-20261104/diagnostic/source-conversion.ts'
++import { JpegXlEncoderMemory } from '../../../src/codecs/jpegxl-encoder-memory.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
++import { libjxlDitheredRgba } from './libjxl-output-dither-port.ts'
++import { forwardPairedSelectorTransform } from './selector-transforms.ts'
++import { developmentDcGrid } from './transform-kernels.ts'
++import { tracePlanes, type TracePlanes } from './display-error-trace.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import {
++  prepareJpegXlVarDctLowFrequency,
++  decodeJpegXlDct8Section,
++  filterJpegXlDevelopmentPlanes,
++  convertJpegXlNativeXybPlanes,
++  convertJpegXlNativeXybPlanesToLinear,
++} from '../../../src/codecs/jpegxl-vardct-render.ts'
++
++export function sourcePlanes(
++  rgba: Uint8Array,
++  width: number,
++  height: number,
++  useGaborish: boolean,
++) {
++  assert.equal(width % 8, 0)
++  assert.equal(height % 8, 0)
++  const blocksWide = width / 8,
++    blocksHigh = height / 8,
++    source = tracePlanes(width * height),
++    rgb = tracePlanes(width * height),
++    linear = tracePlanes(width * height)
++  const block = [new Float32Array(64), new Float32Array(64), new Float32Array(64)] as const
++  const readBlock = (x: number, y: number, correlated: boolean) => {
++    assert.equal(correlated, false)
++    fillXybBlock(rgba, width, height, x, y, ...block, 4, linearSrgb, defaultForwardMatrix)
++    return block
++  }
++  const memory = new JpegXlEncoderMemory(defaultImageLimits.maxDecodedBytes)
++  const base: VarDctCoefficientGeometry = {
++    colorTransform: 'xyb',
++    chromaSubsampling: [0, 0, 0],
++    shifts: [
++      [0, 0],
++      [0, 0],
++      [0, 0],
++    ],
++    blocksWide,
++    blocksHigh,
++    groupsAcross: Math.ceil(width / 256),
++    groupsDown: Math.ceil(height / 256),
++    dcAcross: 1,
++    dcDown: 1,
++    acComponents: [],
++    dcComponents: [],
++    quantization: [],
++    memory,
++  }
++  const context = libjxlGaborishContext(
++    base,
++    { readBlock, quantize: Math.round },
++    width,
++    height,
++    true,
++  )
++  const filtered = [
++    new Float32Array(width * height),
++    new Float32Array(width * height),
++    new Float32Array(width * height),
++  ] as const
++  try {
++    for (let y = 0; y < blocksHigh; y++)
++      for (let x = 0; x < blocksWide; x++) {
++        const raw = readBlock(x, y, false)
++        for (let py = 0; py < 8; py++)
++          for (let px = 0; px < 8; px++) {
++            const p = (8 * y + py) * width + 8 * x + px,
++              k = py * 8 + px
++            source[0][p] = raw[0][k] ?? 0
++            source[1][p] = raw[1][k] ?? 0
++            source[2][p] = (raw[2][k] ?? 0) + (raw[1][k] ?? 0)
++          }
++        const inverse = useGaborish ? context.readBlock(x, y, false) : raw
++        for (let c = 0; c < 3; c++)
++          for (let py = 0; py < 8; py++)
++            for (let px = 0; px < 8; px++) {
++              const target = filtered[c]
++              assert.ok(target)
++              target[(8 * y + py) * width + 8 * x + px] = inverse[c]?.[py * 8 + px] ?? 0
++            }
++      }
++  } finally {
++    context.release()
++    memory.close()
++  }
++  const idealRaw = tracePlanes(width * height)
++  for (let p = 0; p < width * height; p++) {
++    assert.equal(rgba[p * 4 + 3], 255)
++    for (let c = 0; c < 3; c++) {
++      const rgbChannel = rgb[c],
++        linearChannel = linear[c],
++        ideal = idealRaw[c]
++      assert.ok(rgbChannel && linearChannel && ideal)
++      const value = (rgba[p * 4 + c] ?? 0) / 255
++      rgbChannel[p] = value
++      linearChannel[p] = value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
++      ideal[p] = (filtered[c]?.[p] ?? 0) + (c === 2 ? (filtered[1][p] ?? 0) : 0)
++    }
++  }
++  return { source, filtered, idealRaw, rgb, linear }
++}
++
++export async function openStream(bytes: Uint8Array) {
++  const source = new MemorySource(bytes),
++    logical = new JpegXlCodestreamSource(
++      source,
++      await inspectJpegXlSource(source, resolveJpegXlLimits()),
++    )
++  const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits),
++    frame = frames[0]
++  assert.ok(
++    frame &&
++      frames.length === 1 &&
++      frame.encoding === 'vardct' &&
++      frame.upsampling === 1 &&
++      frame.passCount === 1 &&
++      frame.width === 512 &&
++      frame.height === 512,
++  )
++  assert.ok((frame.frameFlags & 128) !== 0, 'DC smoothing must remain off')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  const rawFrame = { ...frame, gaborish: false, epfIterations: 0 }
++  const memory = new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes)
++  const state = prepareJpegXlVarDctLowFrequency(sections, rawFrame, memory)
++  assert.equal(state.lfGlobal.patches.length, 0)
++  assert.equal(state.lfGlobal.splines.length, 0)
++  assert.equal(state.lfGlobal.noiseLut, undefined)
++  function render(dc?: TracePlanes): readonly [Float32Array, Float32Array, Float32Array] {
++    if (dc)
++      for (let c = 0; c < 3; c++) {
++        const plane: Float64Array | undefined = state.dcPlanes[c],
++          replacement: Float64Array | undefined = dc[c]
++        assert.ok(plane && replacement)
++        plane.set(replacement)
++      }
++    const first = sections[0]
++    assert.ok(first)
++    const decoded = decodeJpegXlDct8Section(
++      first,
++      rawFrame,
++      defaultImageLimits,
++      memory,
++      sections.slice(1),
++      undefined,
++      true,
++      new Map(),
++      state,
++    )
++    try {
++      assert.ok(decoded.dcPlanes)
++      return [
++        Float32Array.from(decoded.dcPlanes[0]),
++        Float32Array.from(decoded.dcPlanes[1]),
++        Float32Array.from(decoded.dcPlanes[2]),
++      ]
++    } finally {
++      decoded.release()
++    }
++  }
++  return { frame, sections, state, render, release: () => state.release() }
++}
++export type Stream = Awaited<ReturnType<typeof openStream>>
++
++/** Source DC from the observed transforms, using the frozen writer's paired kernel. */
++export function sourceDc(source: ReturnType<typeof sourcePlanes>, stream: Stream): TracePlanes {
++  const bw = stream.state.dcGroup.blockWidth,
++    bh = stream.state.dcGroup.blockHeight
++  const result = tracePlanes(bw * bh),
++    raw = [new Float32Array(bw * bh), new Float32Array(bw * bh), new Float32Array(bw * bh)] as const
++  const plane = new Float32Array(4096),
++    scratch = new Float64Array(4096),
++    coefficients = new Float64Array(4096),
++    pairs = new Float64Array(64),
++    grid = new Float64Array(64)
++  for (let by = 0; by < bh; by++)
++    for (let bx = 0; bx < bw; bx++) {
++      const index = by * bw + bx
++      if (!stream.state.dcGroup.strategyFirstBlocks[index]) continue
++      const strategy = stream.state.dcGroup.strategies[index] ?? -1,
++        sw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
++        sh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
++      assert.ok(sw > 0 && sh > 0 && sw * sh <= 64 && bx + sw <= bw && by + sh <= bh)
++      for (let c = 0; c < 3; c++) {
++        const input = source.filtered[c],
++          output = raw[c]
++        assert.ok(input && output)
++        for (let y = 0; y < sh * 8; y++)
++          for (let x = 0; x < sw * 8; x++)
++            plane[y * sw * 8 + x] = input[(by * 8 + y) * stream.frame.width + bx * 8 + x] ?? 0
++        forwardPairedSelectorTransform(strategy, plane, scratch, coefficients, pairs)
++        developmentDcGrid(coefficients, sw, sh, grid)
++        for (let y = 0; y < sh; y++)
++          for (let x = 0; x < sw; x++) output[(by + y) * bw + bx + x] = grid[y * sw + x] ?? 0
++      }
++    }
++  for (let p = 0; p < bw * bh; p++) {
++    result[0][p] = raw[0][p] ?? 0
++    result[1][p] = raw[1][p] ?? 0
++    result[2][p] = (raw[2][p] ?? 0) + (raw[1][p] ?? 0)
++  }
++  return result
++}
++
++export function stages(raw: readonly [Float32Array, Float32Array, Float32Array], stream: Stream) {
++  const { frame, state } = stream
++  const copy = () => [raw[0].slice(), raw[1].slice(), raw[2].slice()] as const
++  const sharpness = Uint8Array.from(state.dcGroup.sharpness),
++    quant = state.dcGroup.quantization,
++    scale = state.lfGlobal.globalScale
++  const gaborish = copy(),
++    epf = copy()
++  filterJpegXlDevelopmentPlanes(
++    gaborish,
++    frame.width,
++    frame.height,
++    quant,
++    sharpness,
++    scale,
++    frame.gaborish,
++    0,
++  )
++  filterJpegXlDevelopmentPlanes(
++    epf,
++    frame.width,
++    frame.height,
++    quant,
++    sharpness,
++    scale,
++    frame.gaborish,
++    frame.epfIterations,
++  )
++  const native = [
++    Float64Array.from(epf[0]),
++    Float64Array.from(epf[1]),
++    Float64Array.from(epf[2]),
++  ] as const
++  const linear = convertJpegXlNativeXybPlanesToLinear(native, frame.opsinInverse),
++    srgb = convertJpegXlNativeXybPlanes(native, frame.opsinInverse)
++  const rgba = libjxlDitheredRgba(srgb, frame.width, frame.height),
++    display = tracePlanes(frame.width * frame.height)
++  for (let c = 0; c < 3; c++) {
++    const plane = display[c]
++    assert.ok(plane)
++    for (let p = 0; p < plane.length; p++) plane[p] = (rgba[4 * p + c] ?? 0) / 255
++  }
++  return { raw, gaborish, epf, linear, srgb, display, rgba }
++}
++
++export type Planes = readonly (Float32Array | Float64Array)[]
++/** Finite differences preserve the DC/AC cross term through nonlinear filters and color. */
++export function decomposition(actual: Planes, correctDc: Planes, reference: Planes) {
++  const channels = []
++  for (let c = 0; c < 3; c++) {
++    const a = actual[c],
++      b = correctDc[c],
++      r = reference[c]
++    assert.ok(a && b && r && a.length === b.length && a.length === r.length)
++    let total = 0,
++      dc = 0,
++      remainder = 0,
++      cross = 0,
++      maximum = 0
++    for (let p = 0; p < a.length; p++) {
++      const d = (a[p] ?? 0) - (b[p] ?? 0),
++        ac = (b[p] ?? 0) - (r[p] ?? 0),
++        e = (a[p] ?? 0) - (r[p] ?? 0)
++      dc += d * d
++      remainder += ac * ac
++      cross += 2 * d * ac
++      total += e * e
++      maximum = Math.max(maximum, Math.abs(e))
++    }
++    const identityError = Math.abs(total - dc - remainder - cross)
++    assert.ok(identityError < 1e-8 * Math.max(1, total))
++    channels.push({ total, dc, remainder, cross, maximum, identityError })
++  }
++  return channels
++}
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-display.ts b/benchmark/jpegxl/lossy-lab/audit-dc-display.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-display.ts
+@@ -0,0 +1,272 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { object, number } from '../comparison/model.ts'
++import { parsePreparedManifest, selectPreparedFixtures } from './fixture-selection.ts'
++import { decodeDisplayStages } from './display-error-trace.ts'
++import {
++  sourcePlanes,
++  sourceDc,
++  openStream,
++  stages,
++  decomposition,
++  type Planes,
++} from './dc-display-stages.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-display-audit-20261104'
++const modes = [
++  {
++    name: 'aligned',
++    directory: '.tmp/jpegxl-lossy-lab/dc-wire-20261103/screen/standalone-dc-wire-purejsimage',
++  },
++  {
++    name: 'predictor',
++    directory:
++      '.tmp/jpegxl-lossy-lab/dc-predictor-20261103/screen/standalone-dc-predictor-purejsimage',
++  },
++] as const
++const names = ['raw', 'gaborish', 'epf', 'linear', 'srgb', 'display'] as const
++const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++const planeHash = (planes: Planes) => {
++  const digest = createHash('sha256')
++  for (const plane of planes)
++    digest.update(new Uint8Array(plane.buffer, plane.byteOffset, plane.byteLength))
++  return digest.digest('hex')
++}
++function maxDifference(a: Planes, b: Planes) {
++  let maximum = 0
++  for (let c = 0; c < 3; c++) {
++    const first = a[c],
++      second = b[c]
++    assert.ok(first && second && first.length === second.length)
++    for (let p = 0; p < first.length; p++)
++      maximum = Math.max(maximum, Math.abs((first[p] ?? 0) - (second[p] ?? 0)))
++  }
++  return maximum
++}
++function pixelParity(a: Uint8Array, b: Uint8Array) {
++  assert.equal(a.length, b.length)
++  let maximum = 0,
++    changed = 0,
++    beyondOne = 0
++  for (let p = 0; p < a.length; p++) {
++    const difference = Math.abs((a[p] ?? 0) - (b[p] ?? 0))
++    maximum = Math.max(maximum, difference)
++    changed += Number(difference !== 0)
++    beyondOne += Number(difference > 1)
++  }
++  assert.equal(beyondOne, 0)
++  return { maximum, changed, beyondOne }
++}
++function localErrors(actual: Planes, source: Planes, width: number, height: number) {
++  let worst32Mean = 0,
++    mean = 0,
++    maximum = 0,
++    boundarySum = 0,
++    boundaryCount = 0,
++    insideSum = 0,
++    insideCount = 0
++  for (let y = 0; y < height; y += 32)
++    for (let x = 0; x < width; x += 32) {
++      let sum = 0,
++        count = 0
++      for (let py = y; py < Math.min(y + 32, height); py++)
++        for (let px = x; px < Math.min(x + 32, width); px++)
++          for (let c = 0; c < 3; c++) {
++            const p = py * width + px,
++              e = (actual[c]?.[p] ?? 0) - (source[c]?.[p] ?? 0),
++              squared = e * e
++            sum += squared
++            count++
++            maximum = Math.max(maximum, Math.abs(e))
++            if (px % 8 === 0 || px % 8 === 7 || py % 8 === 0 || py % 8 === 7) {
++              boundarySum += squared
++              boundaryCount++
++            } else {
++              insideSum += squared
++              insideCount++
++            }
++          }
++      worst32Mean = Math.max(worst32Mean, sum / count)
++      mean += sum / (width * height * 3)
++    }
++  return {
++    mean,
++    worst32Mean,
++    maximum,
++    boundaryMean: boundarySum / boundaryCount,
++    insideMean: insideSum / insideCount,
++  }
++}
++await mkdir(`${root}/points`, { recursive: true })
++const manifest = parsePreparedManifest(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json', 'utf8')),
++)
++const selected = selectPreparedFixtures(manifest, { mode: 'screen' })
++assert.ok(selected.complete && selected.fixtures.length === 16)
++const rows = []
++for (const fixture of selected.fixtures) {
++  const file = await readFile(fixture.png)
++  assert.equal(hash(file), fixture.fixtureSha256)
++  const png = PNG.sync.read(file)
++  assert.equal(png.width, 512)
++  assert.equal(png.height, 512)
++  const unfiltered = sourcePlanes(png.data, png.width, png.height, false)
++  let filtered: ReturnType<typeof sourcePlanes> | undefined
++  const curves = await Promise.all(
++    modes.map(async (mode) => {
++      const curve = object(
++        JSON.parse(await readFile(`${mode.directory}/${fixture.id}-lab/result.json`, 'utf8')),
++      )
++      assert.equal(curve.fixtureSha256, fixture.fixtureSha256)
++      assert.ok(Array.isArray(curve.points))
++      const points = curve.points.map(object)
++      assert.deepEqual(
++        points.map((p) => p.setting),
++        [0.5, 1, 2, 4, 7],
++      )
++      return points
++    }),
++  )
++  for (const distance of [0.5, 1, 2, 4, 7]) {
++    const streamBytes = await Promise.all(
++      modes.map((mode) => readFile(`${mode.directory}/${fixture.id}-lab/${distance}.jxl`)),
++    )
++    const firstBytes = streamBytes[0],
++      secondBytes = streamBytes[1]
++    assert.ok(firstBytes && secondBytes)
++    const streams = [await openStream(firstBytes), await openStream(secondBytes)] as const
++    try {
++      const [first, second] = streams
++      assert.equal(first.frame.gaborish, second.frame.gaborish)
++      if (first.frame.gaborish && !filtered)
++        filtered = sourcePlanes(png.data, png.width, png.height, true)
++      const input = first.frame.gaborish ? filtered : unfiltered
++      assert.ok(input)
++      assert.equal(first.frame.epfIterations, second.frame.epfIterations)
++      for (let i = 1 + first.frame.dcGroupCount; i < first.sections.length; i++)
++        assert.deepEqual(first.sections[i], second.sections[i])
++      for (const key of [
++        'strategies',
++        'strategyFirstBlocks',
++        'quantization',
++        'sharpness',
++        'colorCorrelationX',
++        'colorCorrelationB',
++      ] as const)
++        assert.deepEqual(first.state.dcGroup[key], second.state.dcGroup[key])
++      assert.deepEqual(first.state.lfGlobal.dcQuantization, second.state.lfGlobal.dcQuantization)
++      assert.deepEqual(
++        first.state.lfGlobal.colorCorrelation,
++        second.state.lfGlobal.colorCorrelation,
++      )
++      const dc = sourceDc(input, first)
++      const actual = [stages(first.render(), first), stages(second.render(), second)] as const
++      const corrected = [
++        stages(first.render(dc), first),
++        stages(second.render(dc), second),
++      ] as const
++      for (const name of names)
++        assert.equal(
++          maxDifference(corrected[0][name], corrected[1][name]),
++          0,
++          'Corrected DC must leave identical AC reconstruction',
++        )
++      const references = {
++        raw: input.idealRaw,
++        gaborish: input.source,
++        epf: input.source,
++        linear: input.linear,
++        srgb: input.rgb,
++        display: input.rgb,
++      }
++      const observations = []
++      for (let m = 0; m < modes.length; m++) {
++        const mode = modes[m],
++          rendered = actual[m],
++          ideal = corrected[m],
++          bytes = streamBytes[m],
++          curve = curves[m]
++        assert.ok(mode && rendered && ideal && bytes && curve)
++        const point = curve.find((p) => p.setting === distance)
++        assert.ok(point)
++        assert.equal(point.bytes, bytes.length)
++        const ordinary = await decodeDisplayStages(bytes)
++        for (const name of ['raw', 'gaborish', 'epf'] as const)
++          assert.equal(
++            maxDifference(rendered[name], ordinary[name]),
++            0,
++            `${fixture.id}/${distance}/${mode.name}/${name}`,
++          )
++        assert.equal(maxDifference(rendered.srgb, ordinary.srgb), 0)
++        const nativeFile = await readFile(`${mode.directory}/${fixture.id}-lab/${distance}.png`),
++          native = PNG.sync.read(nativeFile)
++        assert.equal(native.width, 512)
++        assert.equal(native.height, 512)
++        const stageRows = Object.fromEntries(
++          names.map((name) => [name, decomposition(rendered[name], ideal[name], references[name])]),
++        )
++        observations.push({
++          mode: mode.name,
++          bytes: bytes.length,
++          streamHash: hash(bytes),
++          nativePngHash: hash(nativeFile),
++          displayHash: hash(rendered.rgba),
++          nativeParity: pixelParity(rendered.rgba, native.data),
++          decoderStagesExact: true,
++          metrics: {
++            ssimulacra2: number(point.ssimulacra2),
++            butteraugliNorm3: number(point.butteraugliNorm3),
++            butteraugliMax: number(point.butteraugliMax),
++          },
++          stages: stageRows,
++          local: localErrors(rendered.display, input.rgb, 512, 512),
++        })
++      }
++      const difference = Object.fromEntries(
++        names.map((name) => [
++          name,
++          decomposition(actual[1][name], actual[0][name], references[name]),
++        ]),
++      )
++      const row = {
++        id: fixture.id,
++        distance,
++        sourceHash: fixture.fixtureSha256,
++        gaborish: first.frame.gaborish,
++        epfIterations: first.frame.epfIterations,
++        correctedDcStagesExact: true,
++        correctedDcHash: planeHash(dc),
++        correctedRawHash: planeHash(corrected[0].raw),
++        observations,
++        difference,
++      }
++      await writeFile(`${root}/points/${fixture.id}-${distance}.json`, JSON.stringify(row) + '\n', {
++        flag: 'wx',
++      })
++      rows.push(row)
++      console.log(`${fixture.id} d${distance}: exact stages, DC-corrected reconstructions equal`)
++    } finally {
++      for (const stream of streams) stream.release()
++    }
++  }
++}
++assert.equal(rows.length, 80)
++await writeFile(
++  `${root}/audit.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      points: rows.length,
++      rows,
++      policy:
++        'One saved 80-point development screen, two existing modes. Source DC values are diagnostic interventions in reconstruction only; no image encode, new quality configuration, perceptual scoring, peer maps or holdout access.',
++      decomposition:
++        'D=actual-correctedDC; A=correctedDC-reference; total squared error = DC energy + remainder energy + 2 cross. Raw reference is preconditioned source. Gaborish/EPF reference is original source XYB; remainder includes AC error and preconditioning/filter bias. Linear/sRGB/display references are source PNG values. Nonlinear stages use finite differences, not separately filtered error planes.',
++      limits:
++        'Source DC uses the frozen paired writer transform and Float32 grid. Correcting DC is not an encodable candidate and implies neither a bitrate nor a perceptual gain. Norms, channels, grid boundaries and 32x32 windows are unweighted diagnostics, not SSIMULACRA2 or Butteraugli predictors. Existing native scores are reused only.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/summarize-dc-display.ts b/benchmark/jpegxl/lossy-lab/summarize-dc-display.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/summarize-dc-display.ts
+@@ -0,0 +1,226 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-display-audit-20261104'
++const audit = object(JSON.parse(await readFile(`${root}/audit.json`, 'utf8')))
++assert.equal(audit.passed, true)
++assert.ok(Array.isArray(audit.rows))
++const rows = audit.rows.map(object)
++const names = ['raw', 'gaborish', 'epf', 'linear', 'srgb', 'display'] as const
++function observations(row: ReturnType<typeof object>) {
++  assert.ok(Array.isArray(row.observations))
++  return row.observations.map(object)
++}
++function stage(row: ReturnType<typeof object>, name: string) {
++  const values = object(row.stages)[name]
++  assert.ok(Array.isArray(values))
++  return values.map(object)
++}
++function sum(values: readonly ReturnType<typeof object>[], key: string) {
++  return values.reduce((s, row) => s + number(row[key]), 0)
++}
++function group(selected: ReturnType<typeof object>[]) {
++  const before = selected.map((row) => {
++      const p = observations(row)[0]
++      assert.ok(p)
++      return p
++    }),
++    after = selected.map((row) => {
++      const p = observations(row)[1]
++      assert.ok(p)
++      return p
++    })
++  const beforeBytes = sum(before, 'bytes'),
++    afterBytes = sum(after, 'bytes')
++  const stages = names.map((name) => {
++    const channels = [0, 1, 2].map((channel) => {
++      const a = before.map((p) => {
++          const s = stage(p, name)[channel]
++          assert.ok(s)
++          return s
++        }),
++        b = after.map((p) => {
++          const s = stage(p, name)[channel]
++          assert.ok(s)
++          return s
++        })
++      const old = Object.fromEntries(
++          ['total', 'dc', 'remainder', 'cross'].map((key) => [key, sum(a, key)]),
++        ),
++        next = Object.fromEntries(
++          ['total', 'dc', 'remainder', 'cross'].map((key) => [key, sum(b, key)]),
++        )
++      assert.equal(old.remainder, next.remainder)
++      return {
++        channel,
++        before: old,
++        after: next,
++        totalChangePercent: 100 * ((next.total ?? 0) / (old.total ?? 1) - 1),
++        dcChangePercent: 100 * ((next.dc ?? 0) / (old.dc ?? 1) - 1),
++        improved: b.filter((p, i) => number(p.total) < number(a[i]?.total)).length,
++      }
++    })
++    const a = before.flatMap((p) => stage(p, name)),
++      b = after.flatMap((p) => stage(p, name)),
++      oldTotal = sum(a, 'total'),
++      newTotal = sum(b, 'total'),
++      oldDc = sum(a, 'dc'),
++      newDc = sum(b, 'dc'),
++      oldCross = sum(a, 'cross'),
++      newCross = sum(b, 'cross')
++    const differenceEnergy = selected.reduce((total, row) => {
++      const d = object(row.difference)[name]
++      assert.ok(Array.isArray(d))
++      return total + sum(d.map(object), 'dc')
++    }, 0)
++    const improved = before.reduce((n, p, i) => {
++      const q = after[i]
++      assert.ok(q)
++      return n + Number(sum(stage(q, name), 'total') < sum(stage(p, name), 'total'))
++    }, 0)
++    const signAgreement = ['ssimulacra2', 'butteraugliNorm3', 'butteraugliMax'].map((metric) => {
++      let agree = 0,
++        material = 0,
++        materialAgree = 0,
++        worsenedMissed = 0
++      for (let i = 0; i < before.length; i++) {
++        const p = before[i],
++          q = after[i]
++        assert.ok(p && q)
++        const predicted = Math.sign(sum(stage(q, name), 'total') - sum(stage(p, name), 'total'))
++        const old = number(object(p.metrics)[metric]),
++          next = number(object(q.metrics)[metric]),
++          delta = (next - old) * (metric === 'ssimulacra2' ? -1 : 1)
++        agree += Number(predicted === Math.sign(delta))
++        if (Math.abs(delta) > 0.001 * Math.abs(old)) {
++          material++
++          materialAgree += Number(predicted === Math.sign(delta))
++        }
++        worsenedMissed += Number(delta > 0.01 * Math.abs(old) && predicted < 0)
++      }
++      return {
++        metric,
++        agree,
++        total: before.length,
++        material,
++        materialAgree,
++        worsenedAboveOnePercentMissed: worsenedMissed,
++      }
++    })
++    return {
++      name,
++      channels,
++      beforeTotal: oldTotal,
++      afterTotal: newTotal,
++      totalChangePercent: 100 * (newTotal / oldTotal - 1),
++      beforeDc: oldDc,
++      afterDc: newDc,
++      dcChangePercent: 100 * (newDc / oldDc - 1),
++      beforeRemainder: sum(a, 'remainder'),
++      afterRemainder: sum(b, 'remainder'),
++      beforeCross: oldCross,
++      afterCross: newCross,
++      dcContributionChangePercent: (100 * (newDc - oldDc)) / oldTotal,
++      crossContributionChangePercent: (100 * (newCross - oldCross)) / oldTotal,
++      improved,
++      differenceEnergy,
++      signAgreement,
++    }
++  })
++  const metrics = ['ssimulacra2', 'butteraugliNorm3', 'butteraugliMax'].map((metric) => {
++    let delta = 0,
++      percent = 0,
++      improved = 0
++    for (let i = 0; i < before.length; i++) {
++      const p = before[i],
++        q = after[i]
++      assert.ok(p && q)
++      const old = number(object(p.metrics)[metric]),
++        next = number(object(q.metrics)[metric])
++      delta += next - old
++      percent += (next / old - 1) * 100
++      improved += Number((metric === 'ssimulacra2' ? 1 : -1) * (next - old) > 0)
++    }
++    return {
++      metric,
++      meanChange: delta / before.length,
++      meanRelativePercent: metric === 'ssimulacra2' ? null : percent / before.length,
++      improved,
++    }
++  })
++  const local = ['mean', 'worst32Mean', 'maximum', 'boundaryMean', 'insideMean'].map((key) => {
++    const a = before.map((p) => object(p.local)),
++      b = after.map((p) => object(p.local))
++    return {
++      key,
++      before: sum(a, key),
++      after: sum(b, key),
++      changePercent: 100 * (sum(b, key) / sum(a, key) - 1),
++      improved: b.filter((p, i) => number(p[key]) < number(a[i]?.[key])).length,
++    }
++  })
++  return {
++    points: selected.length,
++    beforeBytes,
++    afterBytes,
++    byteChangePercent: 100 * (afterBytes / beforeBytes - 1),
++    gaborish: selected.filter((p) => p.gaborish).length,
++    epfIterations: [...new Set(selected.map((p) => p.epfIterations))],
++    metrics,
++    stages,
++    local,
++  }
++}
++const summary = {
++  passed: true,
++  all: group(rows),
++  distances: [0.5, 1, 2, 4, 7].map((distance) => ({
++    distance,
++    ...group(rows.filter((row) => row.distance === distance)),
++  })),
++  nearFlat: group(rows.filter((row) => row.id === 'im26-3312')),
++  parity: {
++    points: rows.length,
++    correctedDcStagesExact: rows.every((row) => row.correctedDcStagesExact === true),
++    decoderStagesExact: rows.every((row) =>
++      observations(row).every((o) => o.decoderStagesExact === true),
++    ),
++    nativeMaximum: Math.max(
++      ...rows.flatMap((row) =>
++        observations(row).map((o) => number(object(o.nativeParity).maximum)),
++      ),
++    ),
++    nativeChangedSamples: rows.reduce(
++      (n, row) =>
++        n + observations(row).reduce((s, o) => s + number(object(o.nativeParity).changed), 0),
++      0,
++    ),
++  },
++  limits:
++    'Energy changes pool equal-size samples within each reported cohort; coarse images can dominate the all-distance energy totals. Per-distance tables are the primary comparison. Native score changes are means of saved same-distance changes, not new BD-rates. Sign agreement is diagnostic only, not predictor qualification.',
++}
++await writeFile(`${root}/summary.json`, JSON.stringify(summary, null, 2) + '\n')
++console.log(
++  JSON.stringify(
++    {
++      parity: summary.parity,
++      distances: summary.distances.map((g) => ({
++        distance: g.distance,
++        bytes: g.byteChangePercent,
++        ssim: g.metrics[0]?.meanChange,
++        ba3: g.metrics[1]?.meanRelativePercent,
++        max: g.metrics[2]?.meanRelativePercent,
++        stages: g.stages.map((s) => ({
++          stage: s.name,
++          total: s.totalChangePercent,
++          dc: s.dcChangePercent,
++          dcContribution: s.dcContributionChangePercent,
++          crossContribution: s.crossContributionChangePercent,
++          improved: s.improved,
++        })),
++      })),
++    },
++    null,
++    2,
++  ),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-display.ts b/benchmark/jpegxl/lossy-lab/verify-dc-display.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-display.ts
+@@ -0,0 +1,145 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { PNG } from 'pngjs'
++import { object, number } from '../comparison/model.ts'
++import { sourcePlanes, sourceDc, openStream, decomposition } from './dc-display-stages.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-display-audit-20261104'
++const planes = (x: number) => [Float64Array.of(x), Float64Array.of(x), Float64Array.of(x)] as const
++const reinforce = decomposition(planes(2), planes(1), planes(0)),
++  cancel = decomposition(planes(0), planes(1), planes(0)),
++  zero = decomposition(planes(0), planes(0), planes(0))
++for (const row of reinforce)
++  assert.deepEqual(row, { total: 4, dc: 1, remainder: 1, cross: 2, maximum: 2, identityError: 0 })
++for (const row of cancel)
++  assert.deepEqual(row, { total: 0, dc: 1, remainder: 1, cross: -2, maximum: 0, identityError: 0 })
++for (const row of zero)
++  assert.deepEqual(row, { total: 0, dc: 0, remainder: 0, cross: 0, maximum: 0, identityError: 0 })
++assert.throws(() => decomposition(planes(0), [new Float64Array(0)], planes(0)))
++const audit = object(JSON.parse(await readFile(`${root}/audit.json`, 'utf8'))),
++  prior = object(
++    JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/dc-coding-audit-20261103/audit.json', 'utf8')),
++  )
++assert.ok(Array.isArray(audit.rows) && Array.isArray(prior.rows))
++const old = prior.rows.map(object)
++let hashes = 0,
++  identities = 0,
++  maximumRawCrossFraction = 0
++for (const rawRow of audit.rows) {
++  const row = object(rawRow)
++  assert.ok(Array.isArray(row.observations))
++  for (const rawPoint of row.observations) {
++    const point = object(rawPoint)
++    const previous = old.find(
++      (p) =>
++        p.mode === point.mode && p.id === `${String(row.id)}-lab` && p.distance === row.distance,
++    )
++    assert.ok(previous)
++    assert.equal(previous.sha256, point.streamHash)
++    hashes++
++    for (const [stage, values] of Object.entries(object(point.stages))) {
++      assert.ok(Array.isArray(values))
++      for (const channel of values.map(object)) {
++        const total = number(channel.total),
++          dc = number(channel.dc),
++          ac = number(channel.remainder),
++          cross = number(channel.cross)
++        assert.ok(Math.abs(total - dc - ac - cross) < 1e-8 * Math.max(1, total))
++        identities++
++        if (stage === 'raw')
++          maximumRawCrossFraction = Math.max(
++            maximumRawCrossFraction,
++            Math.abs(cross) / Math.max(1e-20, total),
++          )
++      }
++    }
++  }
++}
++assert.equal(hashes, 160)
++assert.equal(identities, 2880)
++assert.ok(
++  maximumRawCrossFraction < 1e-4,
++  'Raw LF and HF reconstruction errors should be orthogonal within numerical precision',
++)
++const sourceReceipt = object(JSON.parse(await readFile(`${root}/source.json`, 'utf8')))
++assert.ok(Array.isArray(sourceReceipt.hashes))
++for (const raw of sourceReceipt.hashes) {
++  const row = object(raw)
++  assert.equal(typeof row.path, 'string')
++  if (typeof row.path !== 'string') throw new Error('Missing source')
++  assert.equal(
++    createHash('sha256')
++      .update(await readFile(row.path))
++      .digest('hex'),
++    row.sha256,
++  )
++}
++const checks = []
++for (const [id, distance] of [
++  ['im26-3012', 0.5],
++  ['im26-3012', 7],
++  ['im26-3312', 1],
++  ['im26-3312', 4],
++] as const) {
++  const png = PNG.sync.read(await readFile(`.tmp/jpegxl-lossy-lab/corpus-512-v2/${id}.png`))
++  const stream = await openStream(
++    await readFile(
++      `.tmp/jpegxl-lossy-lab/dc-wire-20261103/screen/standalone-dc-wire-purejsimage/${id}-lab/${distance}.jxl`,
++    ),
++  )
++  try {
++    const dc = sourceDc(sourcePlanes(png.data, 512, 512, stream.frame.gaborish), stream)
++    let maximumScaledError = 0,
++      maximumExcess = 0,
++      maximumAllowedExcess = 0
++    for (let c = 0; c < 3; c++) {
++      const q = stream.state.dcGroup.dcCoefficients[c < 2 ? c ^ 1 : c]
++      assert.ok(q)
++      const step =
++        (65536 / stream.state.lfGlobal.globalScale / stream.state.lfGlobal.quantDc) *
++        (stream.state.lfGlobal.dcQuantization[c] ?? 0)
++      for (let p = 0; p < q.length; p++) {
++        const target = (dc[c]?.[p] ?? 0) - (c === 2 ? (dc[1][p] ?? 0) : 0),
++          scaled = Math.abs((q[p] ?? 0) - target / step)
++        const bound = (Math.abs(target) * 2 ** -23) / step + 1e-8
++        maximumScaledError = Math.max(maximumScaledError, scaled)
++        maximumExcess = Math.max(maximumExcess, scaled - 0.5)
++        maximumAllowedExcess = Math.max(maximumAllowedExcess, bound)
++        assert.ok(
++          scaled <= 0.5 + bound,
++          `${id}/${distance}/c${c}/p${p}: ${scaled} > ${0.5 + bound}`,
++        )
++      }
++    }
++    checks.push({
++      id,
++      distance,
++      gaborish: stream.frame.gaborish,
++      maximumScaledError,
++      maximumExcess,
++      maximumAllowedExcess,
++    })
++  } finally {
++    stream.release()
++  }
++}
++await writeFile(
++  `${root}/verification.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      scalarCases: 9,
++      invalidExtentCases: 1,
++      frozenStreamHashes: hashes,
++      energyIdentities: identities,
++      maximumRawCrossFraction,
++      sourceChecks: sourceReceipt.hashes.length,
++      sourceDcNearestChecks: checks,
++      scope:
++        'Focused diagnostic correctness. Four fixed screen cases verify source-derived DC against aligned nearest rounding, allowing only the explicit Float32 source capture bound. No encoder or perceptual scorer is invoked.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(JSON.stringify({ passed: true, hashes, identities, maximumRawCrossFraction, checks }))
