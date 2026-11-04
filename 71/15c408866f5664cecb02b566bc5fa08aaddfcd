@@ -1,0 +1,31 @@
+benchmark/jpegxl/lossy-lab/DC-PREDICTOR-PROPOSAL.json
+  s_42a303a21f7525::t_a61d3b243ca008 1-66,68-78,80,84-104,106-115
+  s_42a303a21f7525::t_3fc30e069a9b04 67,79,81-83,105
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_37cbee582a9a3a 732-748
+benchmark/jpegxl/lossy-lab/DC-PREDICTOR-PROPOSAL.md
+  s_42a303a21f7525::t_37cbee582a9a3a 1-64
+  s_42a303a21f7525::t_71c3c376ae7cfa 65-74
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_71c3c376ae7cfa 2933-2934
+  s_42a303a21f7525::t_e7a566dbfa678d 16,2928-2932
+benchmark/jpegxl/lossy-lab/DC-PREDICTOR-PROPOSAL.patch
+  s_42a303a21f7525::t_fa92a1747a3ae6 1-272,274-277,279-301
+  s_42a303a21f7525::t_ab9d5b2fbe65cc 273,278
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7115c408866f5664cecb02b566bc5fa08aaddfcd",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
