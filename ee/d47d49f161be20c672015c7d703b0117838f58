@@ -1,0 +1,31 @@
+benchmark/jpegxl/lossy-lab/DC-CHANNEL-AUDIT.patch
+  s_42a303a21f7525::t_9b0bb743c34c79 109-112
+  s_42a303a21f7525::t_acf15d65a0399e 1-108,113-616
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_942db299720a09 787-797
+benchmark/jpegxl/lossy-lab/DC-CHANNEL-AUDIT.md
+  s_42a303a21f7525::t_2908bde5d812aa 1-2,4-5,7-130,135-178
+  s_42a303a21f7525::t_206907f900ead8 3,6,131-134
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_206907f900ead8 15-16,2976-2981
+  s_42a303a21f7525::t_942db299720a09 2974-2975
+benchmark/jpegxl/lossy-lab/DC-CHANNEL-AUDIT.json
+  s_42a303a21f7525::t_f8b05e358c6a71 1-6861,6863-20021,20023-20026,20029-20082
+  s_42a303a21f7525::t_9b0bb743c34c79 6862,20022,20027-20028
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "eed47d49f161be20c672015c7d703b0117838f58",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
