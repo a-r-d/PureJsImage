@@ -755,3 +755,17 @@ first-party stream inspection, alpha fixtures, paired timing and visual-review
 scripts. The saved-stream parser copy exposes an existing first-party decoder
 function without changing its behavior. It is not a native internal probe.
 Results and qualification limits are recorded in `DC-PREDICTOR-REPORT.md`.
+
+## Saved-development DC coding audit (2026-11-03)
+
+`lossy-lab/DC-CODING-AUDIT.patch` reuses the previously archived
+`lossy-lab/libjxl-fixed-dc-port.ts` from libjxl
+`lib/jxl/modular/encoding/enc_encoding.cc`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. The cutoffs, size pruning,
+bit-depth scaling and weighted-predictor selection are unchanged; only imports
+and formatting differ. Existing source/BSD attribution and complete package/docs
+notices apply. Source and LICENSE match the pinned archive. No further native
+code is ported. The other two archived files are first-party saved-stream
+inspection and cost accounting, including exact DC substream serialization and
+round-trip checks with our existing histogram sharing. They neither encode
+candidate images nor change active source. Results are in `DC-CODING-AUDIT.md`.

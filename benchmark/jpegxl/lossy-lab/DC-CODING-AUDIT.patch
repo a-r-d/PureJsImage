@@ -1,0 +1,542 @@
+diff --git a/benchmark/jpegxl/lossy-lab/prepare-dc-coding-audit.ts b/benchmark/jpegxl/lossy-lab/prepare-dc-coding-audit.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/prepare-dc-coding-audit.ts
+@@ -0,0 +1,72 @@
++import assert from 'node:assert/strict'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { resolve, dirname } from 'node:path'
++import { createHash } from 'node:crypto'
++const root = resolve('.tmp/jpegxl-lossy-lab/dc-coding-audit-20261103')
++const fixedTreeSource = process.argv[2] ?? 'benchmark/jpegxl/lossy-lab/libjxl-fixed-dc-port.ts'
++await mkdir(`${root}/diagnostic`, { recursive: true })
++const rows = []
++for (const [source, name] of [
++  ['src/codecs/jpegxl-decode.ts', 'jpegxl-decode.ts'],
++  ['src/codecs/jpegxl-modular-tree.ts', 'jpegxl-modular-tree.ts'],
++  [fixedTreeSource, 'libjxl-fixed-dc-port.ts'],
++] as const) {
++  const original = await readFile(source, 'utf8')
++  let code = original.replace(
++    /from (['"])(\.[^'"]+)\1/gu,
++    (_match: string, quote: string, path: string) =>
++      `from ${quote}${resolve(dirname(source), path)}${quote}`,
++  )
++  if (name === 'jpegxl-decode.ts') {
++    assert.equal(code.split('const readStandaloneModularProgram = (').length, 2)
++    code = code.replace(
++      'const readStandaloneModularProgram = (',
++      'export const readStandaloneModularProgram = (',
++    )
++    const before = 'const residual = unpackSigned(symbols.readHybridUint(leaf.context, reader))'
++    assert.equal(code.split(before).length, 2)
++    code = code.replace(
++      before,
++      `const packedResidual = symbols.readHybridUint(leaf.context, reader)
++        const residual = unpackSigned(packedResidual)
++        developmentDcTrace?.(leaf.context, packedResidual, leaf.predictor)`,
++    )
++    code += `\n// First-party diagnostic observer. No active decoder or reconstruction changes.
++type DcTrace = (context:number,packedResidual:number,predictor:number)=>void
++let developmentDcTrace:DcTrace|undefined
++export const setDevelopmentDcTrace=(trace:DcTrace|undefined):void=>{developmentDcTrace=trace}
++`
++  }
++  if (name === 'jpegxl-modular-tree.ts') {
++    assert.equal(code.split('const clusterHistograms = (').length, 2)
++    code = code.replace('const clusterHistograms = (', 'export const clusterHistograms = (')
++  }
++  await writeFile(`${root}/diagnostic/${name}`, code)
++  rows.push({
++    source,
++    name,
++    sourceSha256: createHash('sha256').update(original).digest('hex'),
++    diagnosticSha256: createHash('sha256').update(code).digest('hex'),
++  })
++}
++await writeFile(
++  `${root}/tsconfig.json`,
++  JSON.stringify(
++    { extends: '../../../tsconfig.json', include: ['*.ts', 'diagnostic/*.ts'], exclude: [] },
++    null,
++    2,
++  ) + '\n',
++)
++await writeFile(
++  `${root}/source.json`,
++  JSON.stringify(
++    {
++      base: 'cfd2cac820adb99c96c55de3520a05b985791136',
++      rows,
++      policy:
++        'Saved development integers only. Expose existing first-party parser and clustering; add a trace observer. Reuse the archived licensed fixed-tree port unchanged. No image encode, new encoder configuration, peer decisions or holdout access.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-coding.ts b/benchmark/jpegxl/lossy-lab/audit-dc-coding.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-coding.ts
+@@ -0,0 +1,362 @@
++// First-party saved-stream cost diagnostic. Does not emit or score candidate images.
++import assert from 'node:assert/strict'
++import { readFile, readdir, writeFile } from 'node:fs/promises'
++import { isDeepStrictEqual } from 'node:util'
++import { createHash } from 'node:crypto'
++import { object, number } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import {
++  readJpegXlSourceFrameStructures,
++  decodeJpegXlStandaloneModular,
++  defaultJpegXlWeightedPredictor,
++  type JpegXlModularNode,
++} from '../../../src/codecs/jpegxl-decode.ts'
++import {
++  readStandaloneModularProgram,
++  decodeJpegXlStandaloneModular as traceDecode,
++  setDevelopmentDcTrace,
++} from '../../../.tmp/jpegxl-lossy-lab/dc-coding-audit-20261103/diagnostic/jpegxl-decode.ts'
++import {
++  applyJpegXlModularTree,
++  clusterHistograms,
++} from '../../../.tmp/jpegxl-lossy-lab/dc-coding-audit-20261103/diagnostic/jpegxl-modular-tree.ts'
++import { libjxlFixedDcTree } from '../../../.tmp/jpegxl-lossy-lab/dc-coding-audit-20261103/diagnostic/libjxl-fixed-dc-port.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import {
++  JpegXlBitWriter,
++  encodeHybridUintPacked,
++  writeAnsCode,
++  writeAnsValues,
++  writeModularHeader,
++  writeLearnedTree,
++} from '../../../src/codecs/jpegxl-modular-encode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-coding-audit-20261103'
++const inputs = [
++  {
++    mode: 'aligned',
++    path: '.tmp/jpegxl-lossy-lab/dc-wire-20261103/screen/standalone-dc-wire-purejsimage',
++  },
++  {
++    mode: 'predictor',
++    path: '.tmp/jpegxl-lossy-lab/dc-predictor-20261103/screen/standalone-dc-predictor-purejsimage',
++  },
++] as const
++const config = { splitExponent: 4, msbInToken: 2, lsbInToken: 0 } as const
++
++function serialize(
++  nodes: readonly JpegXlModularNode[],
++  residuals: Uint32Array,
++  contexts: Uint16Array,
++  map: Uint8Array,
++  histograms: number,
++  planes: readonly Int32Array[],
++  widths: readonly number[],
++) {
++  const frequencies = Array.from({ length: histograms }, () => new Uint32Array(256))
++  for (let i = 0; i < residuals.length; i++) {
++    const histogram = map[contexts[i] ?? 0],
++      frequency = histogram === undefined ? undefined : frequencies[histogram]
++    assert.ok(frequency)
++    const packed = encodeHybridUintPacked(residuals[i] ?? 0, config)
++    assert.ok(packed <= 0xffff_ffff)
++    const token = packed & 255
++    assert.ok(token < 128, 'Existing clustering uses 128 bins')
++    frequency[token] = (frequency[token] ?? 0) + 1
++  }
++  const writer = new JpegXlBitWriter(undefined, 16 * 1024 * 1024)
++  writeModularHeader(writer, false)
++  writeLearnedTree(writer, nodes)
++  const treeBits = writer.bitPosition
++  const encoding = writeAnsCode(writer, map, frequencies, config)
++  const headerBits = writer.bitPosition
++  writeAnsValues(writer, residuals, contexts, residuals.length, encoding)
++  const bits = writer.bitPosition
++  const bytes = writer.finish()
++  const decoded = decodeJpegXlStandaloneModular(
++    bytes,
++    0,
++    planes.map((plane, c) => ({ width: widths[c] ?? 0, height: plane.length / (widths[c] ?? 0) })),
++    1,
++  )
++  assert.deepEqual(decoded.planes, planes)
++  assert.equal(decoded.endingBitPosition, bits)
++  return {
++    bits,
++    treeBits,
++    modelBits: headerBits - treeBits,
++    headerBits,
++    residualBits: bits - headerBits,
++    histograms,
++    decodedExact: true,
++  }
++}
++
++interface CodingCost {
++  bits: number
++  treeBits: number
++  modelBits: number
++  headerBits: number
++  residualBits: number
++  histograms: number
++  decodedExact: boolean
++}
++interface AuditRow {
++  mode: string
++  id: string
++  distance: number
++  bytes: number
++  sha256: string
++  precision: number
++  rawSamples: number
++  codedSamples: number
++  observed: {
++    bits: number
++    headerBits: number
++    residualBits: number
++    idealTokenBits: number
++    extraBits: number
++    idealResidualBits: number
++    histograms: number
++    lz77: boolean
++    globalTree: boolean
++    weightedDefault: boolean
++    predictorCounts: number[]
++    transforms: unknown
++  }
++  fixed: {
++    leaves: number
++    zeroResiduals: number
++    smallResiduals: number
++    unclustered: CodingCost
++    clustered: CodingCost
++    clusterMs: number
++    applyMs: number
++  }
++}
++const rows: AuditRow[] = []
++for (const input of inputs)
++  for (const id of await readdir(input.path)) {
++    const result = object(JSON.parse(await readFile(`${input.path}/${id}/result.json`, 'utf8')))
++    if (!Array.isArray(result.points)) throw new Error('Missing saved development points')
++    for (const point of result.points.map(object)) {
++      const distance = number(point.setting),
++        bytes = await readFile(`${input.path}/${id}/${distance}.jxl`)
++      assert.equal(bytes.length, number(point.bytes))
++      const source = new MemorySource(bytes),
++        logical = new JpegXlCodestreamSource(
++          source,
++          await inspectJpegXlSource(source, resolveJpegXlLimits()),
++        )
++      const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++      if (
++        !frame ||
++        frame.encoding !== 'vardct' ||
++        frame.sections.length < 2 ||
++        frame.dcGroupCount !== 1
++      )
++        throw new Error('Expected separate single DC group')
++      const sections = await Promise.all(
++        frame.sections.map((s) => logical.read(s.offset, s.length)),
++      )
++      const state = prepareJpegXlVarDctLowFrequency(
++        sections,
++        frame,
++        new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++      )
++      try {
++        const dc = sections[1]
++        assert.ok(dc)
++        const shape = { width: state.dcGroup.blockWidth, height: state.dcGroup.blockHeight }
++        const program = readStandaloneModularProgram(
++          dc,
++          2,
++          [shape, shape, shape],
++          1,
++          state.lfGlobal.globalModularCode,
++        )
++        assert.deepEqual(
++          program.transforms,
++          [],
++          'This comparison preserves the observed no-transform DC policy',
++        )
++        const count = program.channelLayouts.reduce(
++          (sum, layout) => sum + layout.width * layout.height,
++          0,
++        )
++        const predictorCounts = new Uint32Array(14)
++        assert.equal(program.pixelCode.lz77.enabled, false)
++        const frequencies = program.pixelCode.uintConfigs.map(() => new Uint32Array(256))
++        let observedCount = 0,
++          extraBits = 0
++        setDevelopmentDcTrace((context, value, predictor) => {
++          assert.ok(predictor >= 0 && predictor < predictorCounts.length)
++          predictorCounts[predictor] = (predictorCounts[predictor] ?? 0) + 1
++          observedCount++
++          const histogram = program.pixelCode.contextMap[context]
++          assert.ok(histogram !== undefined)
++          const histogramConfig = program.pixelCode.uintConfigs[histogram],
++            frequency = frequencies[histogram]
++          assert.ok(histogramConfig && frequency)
++          const packed = encodeHybridUintPacked(value, histogramConfig)
++          assert.ok(Number.isSafeInteger(packed) && packed <= 0xffff_ffff)
++          frequency[packed & 255] = (frequency[packed & 255] ?? 0) + 1
++          extraBits += (packed >>> 8) & 31
++        })
++        let decoded: ReturnType<typeof traceDecode>
++        try {
++          decoded = traceDecode(dc, 2, [shape, shape, shape], 1, state.lfGlobal.globalModularCode)
++        } finally {
++          setDevelopmentDcTrace(undefined)
++        }
++        assert.equal(observedCount, count)
++        let idealTokenBits = 0
++        for (const frequency of frequencies) {
++          const total = frequency.reduce((sum, n) => sum + n, 0)
++          if (total === 0) continue
++          idealTokenBits += total * Math.log2(total)
++          for (const n of frequency) if (n) idealTokenBits -= n * Math.log2(n)
++        }
++        const precision = (dc[0] ?? 0) & 3
++        assert.deepEqual(
++          decoded.planes.map((plane) => Float64Array.from(plane, (v) => v / 2 ** precision)),
++          state.dcGroup.dcCoefficients,
++        )
++        const planes = decoded.planes,
++          widths = planes.map(() => shape.width),
++          rawCount = planes.reduce((sum, p) => sum + p.length, 0)
++        const nodes = libjxlFixedDcTree(rawCount, 8),
++          leaves = nodes.filter((n) => n.kind === 'leaf').length
++        const start = performance.now()
++        const fixed = applyJpegXlModularTree(nodes, planes, widths, new Uint32Array(rawCount))
++        const applyMs = performance.now() - start
++        const identity = Uint8Array.from({ length: leaves }, (_, i) => i)
++        const unclustered = serialize(
++          nodes,
++          fixed.residuals,
++          fixed.contexts,
++          identity,
++          leaves,
++          planes,
++          widths,
++        )
++        const clusterStart = performance.now()
++        const clustered = clusterHistograms(fixed.residuals, fixed.contexts, leaves)
++        const clusterMs = performance.now() - clusterStart
++        const clusteredCost = serialize(
++          nodes,
++          fixed.residuals,
++          fixed.contexts,
++          clustered.map,
++          clustered.count,
++          planes,
++          widths,
++        )
++        rows.push({
++          mode: input.mode,
++          id,
++          distance,
++          bytes: bytes.length,
++          sha256: createHash('sha256').update(bytes).digest('hex'),
++          precision,
++          rawSamples: rawCount,
++          codedSamples: count,
++          observed: {
++            bits: decoded.endingBitPosition - 2,
++            headerBits: program.residualBitPosition - 2,
++            residualBits: decoded.endingBitPosition - program.residualBitPosition,
++            idealTokenBits,
++            extraBits,
++            idealResidualBits: idealTokenBits + extraBits,
++            histograms: program.pixelCode.uintConfigs.length,
++            lz77: program.pixelCode.lz77.enabled,
++            globalTree: ((dc[0] ?? 0) & 4) !== 0,
++            weightedDefault: isDeepStrictEqual(
++              program.weightedPredictor,
++              defaultJpegXlWeightedPredictor,
++            ),
++            predictorCounts: [...predictorCounts],
++            transforms: program.transforms,
++          },
++          fixed: {
++            leaves,
++            zeroResiduals: fixed.residuals.reduce((sum, v) => sum + Number(v === 0), 0),
++            smallResiduals: fixed.residuals.reduce((sum, v) => sum + Number(v <= 4), 0),
++            unclustered,
++            clustered: clusteredCost,
++            clusterMs,
++            applyMs,
++          },
++        })
++      } finally {
++        state.release()
++      }
++    }
++  }
++assert.equal(rows.length, 160)
++const summaries = inputs.map(({ mode }) => {
++  const selected = rows.filter((row) => row.mode === mode),
++    bytes = selected.reduce((sum, r) => sum + r.bytes, 0)
++  const observedBits = selected.reduce((sum, r) => sum + r.observed.bits, 0)
++  const costs = (name: 'unclustered' | 'clustered') => {
++    const bits = selected.reduce((sum, r) => sum + r.fixed[name].bits, 0)
++    return {
++      bits,
++      deltaBits: bits - observedBits,
++      deltaAsPercentOfOriginalFiles: ((bits - observedBits) / (8 * bytes)) * 100,
++      smaller: selected.filter((r) => r.fixed[name].bits < r.observed.bits).length,
++      headerBits: selected.reduce((sum, r) => sum + r.fixed[name].headerBits, 0),
++      residualBits: selected.reduce((sum, r) => sum + r.fixed[name].residualBits, 0),
++      minHistograms: Math.min(...selected.map((r) => r.fixed[name].histograms)),
++      maxHistograms: Math.max(...selected.map((r) => r.fixed[name].histograms)),
++    }
++  }
++  const predictorCounts = Array.from({ length: 14 }, (_, p) =>
++    selected.reduce((sum, r) => sum + (r.observed.predictorCounts[p] ?? 0), 0),
++  )
++  const residualBits = selected.reduce((sum, r) => sum + r.observed.residualBits, 0),
++    idealResidualBits = selected.reduce((sum, r) => sum + r.observed.idealResidualBits, 0)
++  return {
++    mode,
++    points: selected.length,
++    bytes,
++    rawSamples: selected.reduce((sum, r) => sum + r.rawSamples, 0),
++    codedSamples: selected.reduce((sum, r) => sum + r.codedSamples, 0),
++    observedBits,
++    observedHeaderBits: selected.reduce((sum, r) => sum + r.observed.headerBits, 0),
++    observedResidualBits: residualBits,
++    idealResidualBits,
++    residualBitsAboveIdeal: residualBits - idealResidualBits,
++    residualGapAsPercentOfOriginalFiles: ((residualBits - idealResidualBits) / (8 * bytes)) * 100,
++    predictorCounts,
++    weightedDefault: selected.filter((r) => r.observed.weightedDefault).length,
++    lz77: selected.filter((r) => r.observed.lz77).length,
++    globalTree: selected.filter((r) => r.observed.globalTree).length,
++    unclustered: costs('unclustered'),
++    clustered: costs('clustered'),
++  }
++})
++await writeFile(
++  `${root}/audit.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      points: rows.length,
++      summaries,
++      rows,
++      policy:
++        'Saved development DC integers only. Fixed-tree local color substream and full tree/model/residual bits are serialized and round-trip checked. No full image encoding, perceptual scoring, new encoder configuration, peer-map input or holdout access.',
++      limits:
++        'Global sections remain paid and unchanged. DC color bit deltas exclude final byte padding and TOC changes; they are not exact whole-file size changes or BD-rates. Diagnostic apply/cluster times are not isolated end-to-end speed measurements. Existing first-party clustering and the archived source-port tree are unchanged. Ideal residual bits are empirical zero-order token entropy in the observed histograms plus unchanged extra bits; they exclude finite coder state and do not bound other predictors, context partitions or token configurations.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(JSON.stringify(summaries, null, 2))
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-fixed-dc-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-fixed-dc-port.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-fixed-dc-port.ts
+@@ -0,0 +1,93 @@
++/**
++ * Source: libjxl lib/jxl/modular/encoding/enc_encoding.cc, MakeFixedTree and
++ * PredefinedTree(kWPFixedDC), v0.12.0, a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: scalar TypeScript tree builder using first-party node types and
++ * explicit BFS leaf context IDs. Retains source cutoffs, size pruning and
++ * bit-depth scaling. Existing first-party weighted prediction and ANS write
++ * the shared DC stream; metadata keeps local trees. No native entropy port.
++ */
++import type { JpegXlModularNode } from '../../../src/codecs/jpegxl-decode.ts'
++
++const cutoffs = Int32Array.of(
++  -500,
++  -392,
++  -255,
++  -191,
++  -127,
++  -95,
++  -63,
++  -47,
++  -31,
++  -23,
++  -15,
++  -11,
++  -7,
++  -4,
++  -3,
++  -1,
++  0,
++  1,
++  3,
++  5,
++  7,
++  11,
++  15,
++  23,
++  31,
++  47,
++  63,
++  95,
++  127,
++  191,
++  255,
++  392,
++  500,
++)
++
++export function libjxlFixedDcTree(samples: number, bitdepth: number): readonly JpegXlModularNode[] {
++  if (
++    !Number.isSafeInteger(samples) ||
++    samples < 1 ||
++    !Number.isInteger(bitdepth) ||
++    bitdepth < 1 ||
++    bitdepth > 32
++  )
++    throw new Error('Invalid fixed DC tree extent or depth')
++  const logPixels = Math.ceil(Math.log2(samples))
++  const minGap = logPixels < 14 ? 8 * (14 - logPixels) : 0
++  const multiplier = 2 ** Math.min(4, Math.max(0, bitdepth - 11))
++  const leaf = (): JpegXlModularNode => ({
++    kind: 'leaf',
++    predictor: 6,
++    offset: 0,
++    multiplier: 1,
++    context: 0,
++  })
++  const nodes: JpegXlModularNode[] = [leaf()]
++  const queue = [{ begin: 0, end: cutoffs.length, position: 0 }]
++  for (let i = 0; i < queue.length; i++) {
++    const item = queue[i]
++    if (!item || item.begin + minGap >= item.end) continue
++    const split = Math.floor((item.begin + item.end) / 2)
++    const cutoff = cutoffs[split]
++    if (cutoff === undefined) throw new Error('Missing fixed DC cutoff')
++    nodes[item.position] = {
++      kind: 'branch',
++      property: 15,
++      split: cutoff * multiplier,
++      greater: nodes.length,
++      lessOrEqual: nodes.length + 1,
++    }
++    queue.push({ begin: split + 1, end: item.end, position: nodes.length })
++    nodes.push(leaf())
++    queue.push({ begin: item.begin, end: split, position: nodes.length })
++    nodes.push(leaf())
++  }
++  let context = 0
++  for (let i = 0; i < nodes.length; i++) {
++    const node = nodes[i]
++    if (node?.kind === 'leaf') nodes[i] = { ...node, context: context++ }
++  }
++  return nodes
++}
