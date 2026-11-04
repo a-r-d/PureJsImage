@@ -729,3 +729,20 @@ first-party stream and alpha checks. All eighty development screen outputs
 validate natively, but all three incremental mean BD-rates regress against the
 aligned control. The trial is rejected and remains archived outside active
 source. No new holdout attempt follows it.
+
+## Fixed-allocation predictor DC proposal (2026-11-03)
+
+`lossy-lab/DC-PREDICTOR-PROPOSAL.patch` adds
+`lossy-lab/libjxl-predictor-dc-port.ts`, derived from libjxl
+`lib/jxl/enc_modular.cc`, `QuantizeWP` and `AddVarDCTDC`, with
+`lib/jxl/quantizer.h` and `lib/jxl/modular/encoding/context_predict.h`, v0.12.0
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. It reuses the previously
+ported 0.62 dead zone, nonlinear residual rounding, extra DC precision bit and
+group resets. The adaptation preserves aligned nominal steps and original-luma
+B-Y residuals, uses the serialized F16 matrix and our first-party weighted
+predictor, and omits reconstructed-luma chroma subtraction. Its source/BSD header
+records these changes. The existing full license in package/docs notices
+applies. Four source/license files and scalar checks pass; no candidate image
+is encoded at the proposal checkpoint. The separate allocation, caller and
+matrix helper changes restore earlier archived first-party behavior. No native
+infrastructure, peer decisions or runtime dependencies are added.

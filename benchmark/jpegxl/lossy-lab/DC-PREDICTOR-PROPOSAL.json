@@ -1,0 +1,115 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "checkpoint": "33851153fdb14f111da7b4672550815d20355fb1",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/dc-predictor-proposal-20261103",
+  "authorization": "Prepared for owner review after the single chroma DC trial was rejected. No new candidate image encode or quality configuration is authorized at this checkpoint.",
+  "hypothesis": "The previous nonlinear DC trial changed InitialQuantDC allocation and reconstructed-luma chroma subtraction together with predictor-relative rounding. Test the rounding rule with aligned nominal allocation and original-luma chroma policy fixed.",
+  "changes": [
+    "Restore aligned AC 1.25 nominal DC allocation from the archived DC-WIRE mode.",
+    "Use its existing serialized F16 DC matrix to set the quantizer step.",
+    "Apply libjxl QuantizeWP with the native dead zone and nonlinear residual rounding, including extra DC precision 1.",
+    "Preserve original-luma B-Y residuals, smoothing off, AC decisions and existing entropy selection."
+  ],
+  "checks": {
+    "passed": true,
+    "quantizerCases": 24,
+    "invalidInputs": 4,
+    "groupCases": 4,
+    "stageCases": 2,
+    "allocationDistances": [0.45, 0.65, 0.9, 1.3, 1.85, 3, 3.8, 5.5, 7.5],
+    "helperManagedPeakBytes": 10416,
+    "source": [
+      {
+        "file": "lib/jxl/enc_modular.cc",
+        "sha256": "4bc466a0c7b2e65c03501eff1a81758d63a45568521a22ceb611cdbc67f0fb7a"
+      },
+      {
+        "file": "lib/jxl/quantizer.h",
+        "sha256": "7a39e5b239c102d8fc4d6159f6f5c3836151ffe9c8c0eb8dbd2b76fcac3a3f5c"
+      },
+      {
+        "file": "lib/jxl/modular/encoding/context_predict.h",
+        "sha256": "b47b6ba081411c5aa7a96fe5f773649903355f13575936306d52b37ab498dadd"
+      },
+      {
+        "file": "LICENSE",
+        "sha256": "8405932022a556380c2d8c272eff154a923feb197233f348ce5f7334fb0a5ede"
+      }
+    ],
+    "scope": "Scalar and coefficient-plane checks only. No candidate image encoded, no quality score, bitrate, speed or original-memory result. Nominal allocation fixed; native nonlinear rounding includes one extra DC precision bit."
+  },
+  "proposal": {
+    "patchPath": "benchmark/jpegxl/lossy-lab/DC-PREDICTOR-PROPOSAL.patch",
+    "base": "DC-QUANTIZATION-EXPERIMENT.patch applied at 8b8c3cc818c1fc1643a20f14b1b3945e822c3b8a",
+    "applies": true,
+    "implementationFiles": 4,
+    "scalarCheckFiles": 1,
+    "rows": [
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+        "sha256": "abcad7d6398d6da520053c56520e5f4d15c7d003d430c02cd51623c74fff1aeb"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+        "sha256": "954f9a297e09fbf08c04857d0820aeb2a4a284de56cd7dd55bd054ae6d91805f"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/libjxl-predictor-dc-port.ts",
+        "sha256": "23a6058975ae412422ad7e92bdc30e8f964e9fb55adb38e6fa009e11bcacedfa"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts",
+        "sha256": "a6bd322fd744ca7ca15073624910814a8e3e9ca43dc2dcfe87a52e0b54afd4ea"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-predictor-proposal.ts",
+        "sha256": "e61a88e121cfe8b8c3d306bc09995640123ea4d7a3a7d237a950cf7c0edf3bb3"
+      }
+    ],
+    "encoderExecuted": false,
+    "extraDcPrecision": 1,
+    "rawDcBytesPerCell": 12,
+    "maxPredictorScratchBytes": 10416,
+    "scope": "Prepared proposal only. Restore aligned nominal AC 1.25 DC allocation and serialized matrix, apply native nonlinear predictor-relative rounding, preserve original-luma B-Y residual policy, smoothing off and AC decisions. No quality, bitrate, timing, original-memory or holdout result."
+  },
+  "validation": {
+    "strictTypeScript": "passed",
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-04T00:06:20.782Z",
+      "endedAt": "2026-11-04T00:15:05.467Z",
+      "code": 0,
+      "signal": null
+    },
+    "activeSourceChanged": false
+  },
+  "quality": null,
+  "bitrate": null,
+  "speed": null,
+  "originalMemory": null,
+  "configurationsRun": 0,
+  "retained": 0,
+  "promoted": 0,
+  "newHoldoutAttempts": 0,
+  "mergeReady": false,
+  "memory": "Raw DC staging requires 12 bytes per 8x8 cell plus at most 10,416 bytes for one weighted predictor. This is a storage calculation, not measured encoder peak memory.",
+  "risks": [
+    "The extra precision bit changes representable DC values even though nominal steps stay fixed.",
+    "Scalar error reduction has failed to predict SSIM improvement in earlier trials.",
+    "The existing local entropy selector may not exploit the predictor-relative rounding as native global weighted coding does.",
+    "Speed and original managed memory still require qualification if development quality passes."
+  ],
+  "unchangedEvidence": {
+    "report": "DC-CHROMA-REPORT.json",
+    "lastHoldoutMode": "standalone-dc-wire",
+    "holdoutSsimFailures": 2,
+    "holdoutSsimAdmitted": 10,
+    "worstHoldoutSsimPercent": 10.57952974198,
+    "guardLimitPercent": 8.05,
+    "fullBandNorm3Admissions": 0,
+    "bundles": [614969, 687801],
+    "runtimeDependencies": 0
+  },
+  "decision": "Owner decision requested for exactly one fixed predictor trial. No sweep, peer maps or holdout tuning; every gate unchanged. No full lab unless the screen justifies it."
+}

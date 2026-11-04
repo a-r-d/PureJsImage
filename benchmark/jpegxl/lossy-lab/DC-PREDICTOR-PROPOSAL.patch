@@ -1,0 +1,301 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 52157bf9..2d7e5a70 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -10,8 +10,7 @@
+  * smoothing, high-frequency masking, AC precision or coefficient rounding.
+  * All decisions derive from pixels and distance. No decoder or peer maps.
+  * First-party selected-block allocation trial: AC precision 1.25;
+- * restore native InitialQuantDC for the coherent nonlinear DC stage.
+- * AC 1.25, selection, smoothing and display filters stay frozen.
++ * preserve frozen physical DC steps. All other decisions stay fixed.
+  * First-party activity-state reuse skips filtered reads used only for rounding.
+  */
+ import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
+@@ -157,9 +156,36 @@ export function libjxlStandaloneOverrides(
+   const dc = libjxlDcOverrides(distance, true).dc
+   if (!dc) throw new Error('Missing initial DC quantizer')
+   const quantDc = 1 / (512 * dc.quantization[1])
++  const dcScale =
++    mode === 'standalone-refined-dcquarter'
++      ? 0.25
++      : mode === 'standalone-refined-dcfine' ||
++          mode === 'standalone-refined-dcfine-hfhalf' ||
++          mode === 'standalone-refined-dark-hf' ||
++          mode === 'standalone-refined-chroma75' ||
++          mode === 'standalone-refined-chroma100'
++        ? 0.5
++        : 1
++  const dcChromaScale =
++    mode === 'standalone-refined-chroma75'
++      ? 0.75
++      : mode === 'standalone-refined-chroma100'
++        ? 1
++        : dcScale
++  const chosenDc: NonNullable<JpegXlDevelopmentDecisions['dc']> =
++    dcScale !== 1
++      ? {
++          ...dc,
++          quantization: [
++            dc.quantization[0] * dcChromaScale,
++            dc.quantization[1] * dcScale,
++            dc.quantization[2] * dcChromaScale,
++          ],
++        }
++      : dc
+   return {
+     skipStrategySearch: direct,
+-    dc,
++    dc: chosenDc,
+     globalScale: libjxlInitialGlobalScale(distance, quantDc),
+     rewriteGeometry: (base, sourceContext) => {
+       const context =
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 57fedff3..be63088d 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -4,10 +4,12 @@
+  * a7a9c787341cf703dede03c2009fa460cae5e5df.
+  * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
+  * Changes: call the scalar quantizer/threshold port from our TypeScript writer,
+- * gather source DC for the separately attributed nonlinear stage and bridge B-Y.
++ * gather source DC for the separately attributed nonlinear stage. Preserve B-Y
++ * and quantize against the serialized matrix with fixed nominal allocation.
+  * Existing transform rewriting, memory tracking and packing are first-party.
+  */
+-import { libjxlQuantizeDc } from './libjxl-dc-quantization-port.ts'
++import { libjxlQuantizeDc } from './libjxl-predictor-dc-port.ts'
++import { dcWireMatrix } from './dc-wire-matrix.ts'
+ import {libjxlAdjustSelectedBlockQuantization,libjxlThresholdQuantize} from './libjxl-block-quantization-port.ts'
+ import {
+   packCoefficients,
+@@ -50,6 +52,7 @@ export function rewriteStrategyGeometry(
+     base.blocksHigh !== decisions.blocksHigh
+   )
+     throw new Error('Strategy transplant dimensions differ')
++  const dcMatrix = dcWireMatrix(base.dcQuantization ?? [], memory)
+   const strategies = memory.allocate(Int32Array, decisions.strategies.length)
+   strategies.set(decisions.strategies)
+   const q = memory.allocate(Int32Array, strategies.length)
+@@ -315,7 +318,7 @@ export function rewriteStrategyGeometry(
+       )
+     }
+   }
+-  libjxlQuantizeDc(base, rawDc)
++  libjxlQuantizeDc(base, rawDc, dcMatrix)
+   for (const buffer of [...rawDc, ...source, scratch, ...transformed, dc, thresholds, quantStatistics]) memory.release(buffer)
+   if (pairs) memory.release(pairs)
+   const restored = compactStorage
+@@ -353,6 +356,7 @@ export function rewriteStrategyGeometry(
+       }
+   return {
+     ...base,
++    dcQuantization: dcMatrix,
+     developmentDcExtraPrecision: 1,
+     strategyMap: strategies,
+     developmentFirstBlocks: firstBlocks,
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-predictor-dc-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-predictor-dc-port.ts
+new file mode 100644
+index 00000000..feaec707
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-predictor-dc-port.ts
+@@ -0,0 +1,103 @@
++/**
++ * Source: libjxl lib/jxl/enc_modular.cc, QuantizeWP and AddVarDCTDC;
++ * lib/jxl/quantizer.h and modular/encoding/context_predict.h; v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: scalar TypeScript uses our first-party weighted predictor and memory
++ * ledger. Gather DC at one sample per 8x8 cell; reset prediction per DC group.
++ * Preserve original-luma B-Y residuals and the aligned nominal DC matrix.
++ * The existing extra precision bit is part of this nonlinear rule. Preserve float32
++ * boundaries and round halfway away from zero. Reject out-of-range integers.
++ * No native infrastructure, peer decisions or runtime dependencies.
++ */
++import {
++  defaultJpegXlWeightedPredictor,
++  JpegXlWeightedPredictor,
++} from '../../../src/codecs/jpegxl-decode.ts'
++import type { JpegXlEncoderMemory } from '../../../src/codecs/jpegxl-encoder-memory.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++
++const deadZone = Math.fround(0.62)
++
++/** Quantize a scaled value relative to the current weighted prediction. */
++export function libjxlNonlinearDcValue(value: number, inverseStep: number, prediction: number): number {
++  let residual = Math.fround(Math.fround(value * inverseStep) - prediction)
++  if (residual > -deadZone && residual < deadZone) residual = 0
++  if (!Number.isFinite(residual)) throw new Error('Non-finite DC quantizer input')
++  let rounded = Math.sign(residual) * Math.floor(Math.abs(residual) + 0.5)
++  if (rounded > 2 || rounded < -2)
++    rounded = Math.sign(residual) * Math.floor(Math.abs(residual * 0.5) + 0.5) * 2
++  const result = rounded + prediction
++  if (!Number.isSafeInteger(result) || result < -2_147_483_648 || result > 2_147_483_647)
++    throw new Error('DC quantizer exceeds signed 32-bit range')
++  return result === 0 ? 0 : result
++}
++
++export function libjxlQuantizeDcPlane(
++  source: Float32Array,
++  target: Int32Array,
++  stride: number,
++  originX: number,
++  originY: number,
++  width: number,
++  height: number,
++  inverseStep: number,
++  memory: JpegXlEncoderMemory,
++): void {
++  if (!(inverseStep > 0) || !Number.isFinite(inverseStep) || width < 1 || height < 1 ||
++      originX < 0 || originY < 0 || originX + width > stride ||
++      (originY + height) * stride > source.length || source.length !== target.length)
++    throw new Error('Invalid DC plane geometry or precision')
++  memory.run(() => {
++    const predictor = new JpegXlWeightedPredictor(width, defaultJpegXlWeightedPredictor, {
++      predictions: memory.allocate(Float64Array, 4),
++      predictionErrors: Array.from({ length: 4 }, () => memory.allocate(Uint32Array, (width + 2) * 2)),
++      errors: memory.allocate(Int32Array, (width + 2) * 2),
++    })
++    const properties = memory.allocate(Int32Array, 16)
++    for (let y = 0; y < height; y++) {
++      const row = (originY + y) * stride + originX
++      for (let x = 0; x < width; x++) {
++        const at = row + x
++        const left = x > 0 ? (target[at - 1] ?? 0) : y > 0 ? (target[at - stride] ?? 0) : 0
++        const top = y > 0 ? (target[at - stride] ?? 0) : left
++        const topLeft = x > 0 && y > 0 ? (target[at - stride - 1] ?? 0) : left
++        const topRight = x + 1 < width && y > 0 ? (target[at - stride + 1] ?? 0) : top
++        const topTop = y > 1 ? (target[at - 2 * stride] ?? 0) : top
++        const prediction = predictor.predict(x, y, width, top, left, topRight, topLeft, topTop, properties)
++        const quantized = libjxlNonlinearDcValue(source[at] ?? 0, inverseStep, prediction)
++        target[at] = quantized
++        predictor.update(quantized, x, y)
++      }
++    }
++  })
++}
++
++export function libjxlQuantizeDc(
++  base: VarDctCoefficientGeometry,
++  source: readonly Float32Array[],
++  wireMatrix: readonly [number, number, number],
++): void {
++  const memory = base.memory
++  const width = base.blocksWide, height = base.blocksHigh
++  if (!memory || base.colorTransform !== 'xyb' || base.shifts.some(shift => shift[0] !== 0 || shift[1] !== 0))
++    throw new Error('Predictor DC proposal requires planar XYB 4:4:4')
++  const invGlobal = 65536 / (base.globalScale ?? 0)
++  for (let c = 0; c < 3; c++) {
++    const target = base.dcComponents[c < 2 ? c ^ 1 : c]
++    const plane = source[c]
++    const step = invGlobal * (wireMatrix[c] ?? 0) / (base.quantDc ?? 0)
++    if (!target || !(target.coefficients instanceof Int32Array) || target.coefficientStride !== 1 ||
++        !plane || plane.length !== width * height || !(step > 0) || !Number.isFinite(step))
++      throw new Error('Invalid predictor DC plane or aligned step')
++    // Extra precision 1 represents half nominal steps. Large nonlinear residuals
++    // are rounded to even integers, preserving the nominal step away from prediction.
++    const inverseStep = 2 / step
++    for (let originY = 0; originY < height; originY += 256) {
++      for (let originX = 0; originX < width; originX += 256) {
++        libjxlQuantizeDcPlane(plane, target.coefficients, width, originX, originY,
++          Math.min(256, width - originX), Math.min(256, height - originY), inverseStep, memory)
++      }
++    }
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts b/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts
+new file mode 100644
+index 00000000..76f8ec32
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts
+@@ -0,0 +1,20 @@
++// First-party correction: use the exact serialized DC matrix when quantizing DC.
++// One fixed development trial; no peer maps or public entry point.
++import {JpegXlBitReader} from '../../../src/codecs/jpegxl-bitstream.ts'
++import {JpegXlBitWriter} from '../../../src/codecs/jpegxl-modular-encode.ts'
++import {writeJpegXlDevelopmentF16} from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {type JpegXlEncoderMemory,withJpegXlMemory} from '../../../src/codecs/jpegxl-encoder-memory.ts'
++
++export function dcWireMatrix(values:readonly number[],memory?:JpegXlEncoderMemory):readonly [number,number,number]{
++ if(values.length!==3||values.some(value=>!(value>0)||!Number.isFinite(value))) throw new Error('Invalid DC matrix')
++ return withJpegXlMemory(memory,()=>{
++  const writer=new JpegXlBitWriter(memory,6)
++  for(const value of values) writeJpegXlDevelopmentF16(writer,value*128)
++  const reader=new JpegXlBitReader(writer.finish())
++  const read=():number=>{
++   const bits=reader.readBits(16)
++   return (1+(bits&1023)/1024)*2**(((bits>>>10)&31)-15)/128
++  }
++  return [read(),read(),read()]
++ })
++}
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-predictor-proposal.ts b/benchmark/jpegxl/lossy-lab/verify-dc-predictor-proposal.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-predictor-proposal.ts
+@@ -0,0 +1,65 @@
++import assert from 'node:assert/strict'
++import {readFile,writeFile} from 'node:fs/promises'
++import {execFile} from 'node:child_process'
++import {promisify} from 'node:util'
++import {createHash} from 'node:crypto'
++import {libjxlNonlinearDcValue,libjxlQuantizeDcPlane,libjxlQuantizeDc} from './libjxl-predictor-dc-port.ts'
++import {libjxlPortOverrides} from './libjxl-ports.ts'
++import {libjxlPortOverrides as aligned} from '../../../.tmp/jpegxl-lossy-lab/dc-wire-20261103/prototype/libjxl-ports.ts'
++import type {VarDctCoefficientGeometry} from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {JpegXlEncoderMemory} from '../../../src/codecs/jpegxl-encoder-memory.ts'
++const root='.tmp/jpegxl-lossy-lab/dc-predictor-proposal-20261103'
++const quantizerCases=[[0,0],[0.5,0],[0.619,0],[Math.fround(0.62),1],[1.5,2],[2.49,2],[2.5,2],[2.99,2],[3,4],[3.5,4],[5,6]] as const
++for(const [value,expected] of quantizerCases){
++ assert.equal(libjxlNonlinearDcValue(Math.fround(value),1,0),expected)
++ assert.equal(libjxlNonlinearDcValue(Math.fround(-value),1,0),expected===0?0:-expected)
++}
++assert.equal(libjxlNonlinearDcValue(4.25,2,7),9)
++assert.equal(libjxlNonlinearDcValue(2.75,2,7),5)
++for(const value of [NaN,Infinity,-Infinity,2**32])assert.throws(()=>libjxlNonlinearDcValue(value,1,0))
++const memory=new JpegXlEncoderMemory(1_000_000)
++const input=Float32Array.from({length:260*259},(_,i)=>Math.fround(Math.sin(i)*3+i/290))
++const output=new Int32Array(input.length)
++let groupCases=0
++for(const [y,height] of [[0,256],[256,3]] as const)for(const [x,width] of [[0,256],[256,4]] as const){
++ libjxlQuantizeDcPlane(input,output,260,x,y,width,height,1,memory)
++ const isolated=new Float32Array(width*height),quantized=new Int32Array(width*height)
++ for(let row=0;row<height;row++)isolated.set(input.subarray((y+row)*260+x,(y+row)*260+x+width),row*width)
++ libjxlQuantizeDcPlane(isolated,quantized,width,0,0,width,height,1,memory)
++ for(let row=0;row<height;row++)assert.deepEqual(output.subarray((y+row)*260+x,(y+row)*260+x+width),quantized.subarray(row*width,(row+1)*width))
++ groupCases++
++}
++const matrix=[1,2,4] as const
++let stageCases=0
++for(const sign of [-1,1]){
++ const planes=[new Int32Array(9),new Int32Array(9),new Int32Array(9)]
++ const geometry:VarDctCoefficientGeometry={colorTransform:'xyb',chromaSubsampling:[0,0,0],shifts:[[0,0],[0,0],[0,0]],blocksWide:3,blocksHigh:3,groupsAcross:1,groupsDown:1,dcAcross:1,dcDown:1,acComponents:[],dcComponents:planes.map(coefficients=>({coefficients,coefficientStride:1,blocksPerLineForMcu:3,blocksPerColumnForMcu:3})),quantization:[],globalScale:65536,quantDc:1,dcQuantization:[1.1,2.1,4.1],baseB:1,memory}
++ const source=matrix.map((step,c)=>new Float32Array(9).fill(sign*([0.31,1,2][c]??0)*step))
++ const before=source.map(plane=>plane.slice())
++ libjxlQuantizeDc(geometry,source,matrix)
++ // Each channel uses its aligned step, including Y/X storage permutation.
++ // A half-step result demonstrates the extra bit without changing nominal scale.
++ for(let c=0;c<planes.length;c++)assert.deepEqual(planes[c],new Int32Array(9).fill(sign*([2,1,4][c]??0)))
++ assert.deepEqual(source,before)
++ assert.deepEqual(geometry.dcQuantization,[1.1,2.1,4.1])
++ stageCases++
++}
++assert.equal(memory.liveBytes,0)
++const helperManagedPeakBytes=memory.peakBytes
++memory.close()
++const distances=[0.45,0.65,0.9,1.3,1.85,3,3.8,5.5,7.5]
++for(const distance of distances){
++ const before=aligned('standalone-dc-wire',distance,512,512),after=libjxlPortOverrides('standalone-dc-nonlinear',distance,512,512)
++ assert.deepEqual(after.dc,before.dc)
++ assert.equal(after.globalScale,before.globalScale)
++}
++const revision='a7a9c787341cf703dede03c2009fa460cae5e5df',source=[]
++for(const file of ['lib/jxl/enc_modular.cc','lib/jxl/quantizer.h','lib/jxl/modular/encoding/context_predict.h','LICENSE']){
++ const bytes=await readFile(`.tmp/jpegxl-oracles/libjxl-v0.12.0/source/${file}`)
++ const archived=await promisify(execFile)('tar',['-xOf','.tmp/jpegxl-oracles/libjxl-v0.12.0/source-a7a9c787.tar.gz',`libjxl-${revision}/${file}`],{maxBuffer:1024*1024})
++ assert.equal(bytes.toString(),archived.stdout)
++ if(file==='LICENSE')assert.ok((await readFile('THIRD_PARTY_NOTICES','utf8')).includes(bytes.toString().trim()))
++ source.push({file,sha256:createHash('sha256').update(bytes).digest('hex')})
++}
++await writeFile(`${root}/checks.json`,JSON.stringify({passed:true,quantizerCases:24,invalidInputs:4,groupCases,stageCases,allocationDistances:distances,helperManagedPeakBytes,source,scope:'Scalar and coefficient-plane checks only. No candidate image encoded, no quality score, bitrate, speed or original-memory result. Nominal allocation fixed; native nonlinear rounding includes one extra DC precision bit.'},null,2)+'\n')
++console.log(JSON.stringify({passed:true,quantizerCases:24,invalidInputs:4,groupCases,stageCases,allocationDistances:distances.length,helperManagedPeakBytes,encoderExecuted:false}))
