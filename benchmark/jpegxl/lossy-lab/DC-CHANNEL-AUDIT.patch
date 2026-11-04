@@ -1,0 +1,616 @@
+diff --git a/benchmark/jpegxl/lossy-lab/dc-channel-restoration.ts b/benchmark/jpegxl/lossy-lab/dc-channel-restoration.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-channel-restoration.ts
+@@ -0,0 +1,40 @@
++import assert from 'node:assert/strict'
++import type { TracePlanes } from './display-error-trace.ts'
++
++export const variants = ['actual', 'x', 'y', 'b', 'all'] as const
++export type Variant = (typeof variants)[number]
++
++/** Independent reconstructed XYB DC planes, not coded X/Y/B-minus-Y residuals. */
++export function restoreDc(actual: TracePlanes, source: TracePlanes, variant: Variant): TracePlanes {
++  const selected = variant === 'x' ? 0 : variant === 'y' ? 1 : variant === 'b' ? 2 : -1
++  const result = [actual[0].slice(), actual[1].slice(), actual[2].slice()] as const
++  for (let c = 0; c < 3; c++) {
++    const old = actual[c],
++      ideal = source[c],
++      out = result[c]
++    assert.ok(old && ideal && out && old.length === ideal.length)
++    if (variant === 'all' || selected === c) out.set(ideal)
++  }
++  return result
++}
++
++export function verifyRestoration() {
++  const actual = [Float64Array.of(1, 2), Float64Array.of(3, 4), Float64Array.of(5, 6)] as const
++  const source = [
++    Float64Array.of(11, 12),
++    Float64Array.of(13, 14),
++    Float64Array.of(15, 16),
++  ] as const
++  for (const variant of variants) {
++    const restored = restoreDc(actual, source, variant)
++    const selected = variant === 'x' ? 0 : variant === 'y' ? 1 : variant === 'b' ? 2 : -1
++    for (let c = 0; c < 3; c++) {
++      assert.deepEqual(restored[c], variant === 'all' || selected === c ? source[c] : actual[c])
++      assert.notEqual(restored[c], actual[c])
++      assert.notEqual(restored[c], source[c])
++    }
++  }
++  assert.deepEqual([...actual[0], ...actual[1], ...actual[2]], [1, 2, 3, 4, 5, 6])
++  assert.throws(() => restoreDc(actual, [new Float64Array(0), source[1], source[2]], 'x'))
++  return { variants: 5, channelChecks: 15, invalidExtent: 1, sourceMutation: false }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-channels.ts b/benchmark/jpegxl/lossy-lab/audit-dc-channels.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-channels.ts
+@@ -0,0 +1,223 @@
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { createHash } from 'node:crypto'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { promisify } from 'node:util'
++import { PNG } from 'pngjs'
++import { metrics } from '../comparison/io.ts'
++import { object, number } from '../comparison/model.ts'
++import { parsePreparedManifest, selectPreparedFixtures } from './fixture-selection.ts'
++import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
++import { sourcePlanes, sourceDc, openStream, stages, type Planes } from './dc-display-stages.ts'
++import { restoreDc, variants, verifyRestoration } from './dc-channel-restoration.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104'
++const priorRoot = '.tmp/jpegxl-lossy-lab/dc-display-audit-20261104'
++const base = 'ee4409c1c6e8fe0f89f8e66ecaa2f85688ff7a6a'
++const modes = [
++  {
++    name: 'aligned',
++    directory: '.tmp/jpegxl-lossy-lab/dc-wire-20261103/screen/standalone-dc-wire-purejsimage',
++  },
++  {
++    name: 'predictor',
++    directory:
++      '.tmp/jpegxl-lossy-lab/dc-predictor-20261103/screen/standalone-dc-predictor-purejsimage',
++  },
++] as const
++const command = promisify(execFile)
++const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++const planeHash = (planes: Planes) => {
++  const digest = createHash('sha256')
++  for (const p of planes) digest.update(new Uint8Array(p.buffer, p.byteOffset, p.byteLength))
++  return digest.digest('hex')
++}
++const rootSource = object(JSON.parse(await readFile(`${priorRoot}/source.json`, 'utf8')))
++assert.ok(Array.isArray(rootSource.hashes))
++for (const value of rootSource.hashes) {
++  const row = object(value)
++  assert.equal(typeof row.path, 'string')
++  if (typeof row.path !== 'string') throw new Error('Missing source path')
++  assert.equal(hash(await readFile(row.path)), row.sha256)
++}
++const prior = object(JSON.parse(await readFile(`${priorRoot}/audit.json`, 'utf8')))
++assert.ok(Array.isArray(prior.rows))
++const oldRows = prior.rows.map(object)
++const manifest = parsePreparedManifest(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json', 'utf8')),
++)
++const selected = selectPreparedFixtures(manifest, { mode: 'screen' })
++assert.ok(selected.complete && selected.fixtures.length === 16)
++const ladder = [0.5, 1, 2, 4, 7] as const
++const binaries = await Promise.all(
++  ['butteraugli_main', 'ssimulacra2'].map(async (name) => ({
++    path: `${metrics}/${name}`,
++    sha256: hash(await readFile(`${metrics}/${name}`)),
++  })),
++)
++const helperFiles = await Promise.all(
++  [
++    'benchmark/jpegxl/lossy-lab/dc-display-stages.ts',
++    '.tmp/jpegxl-lossy-lab/dc-display-audit-20261104/diagnostic/source-conversion.ts',
++  ].map(async (path) => ({ path, sha256: hash(await readFile(path)) })),
++)
++await mkdir(`${root}/points`, { recursive: true })
++await mkdir(`${root}/images`, { recursive: true })
++await writeFile(
++  `${root}/plan.json`,
++  JSON.stringify(
++    {
++      base,
++      variants,
++      ladder,
++      fixtures: selected.fixtures.map((f) => f.id),
++      pairs: 80,
++      maximumReconstructions: 800,
++      scorers: binaries,
++      helpers: helperFiles,
++      restorationTests: verifyRestoration(),
++      policy:
++        'Owner-approved bounded channel attribution. Five fixed reconstructions per saved mode and development point. Reconstructed native XYB DC channels only; all saved AC and filter decisions fixed. No encoder entry, new encoded configurations, fitting, peer decisions or holdout reads.',
++      interpretation:
++        'Within-mode restoration benefits and paired-mode differences are diagnostic counterfactuals. They have no attainable bitrate or promotion claim. Channels interact through filters and color conversion; single-channel benefits need not add to the all-channel benefit. Native B restoration differs from coded B-minus-Y allocation.',
++      analysis:
++        'Report full cohort, fixed distances, and the previously recorded 17 Butteraugli-max harms above 1%. Compare each restoration within each mode and between modes. Report actual-render scorer parity before attributing differences; do not select a new configuration.',
++    },
++    null,
++    2,
++  ) + '\n',
++  { flag: 'wx' },
++)
++
++let reconstructed = 0
++const rows = []
++for (const fixture of selected.fixtures) {
++  assert.equal(fixture.split, 'development')
++  const inputBytes = await readFile(fixture.png)
++  assert.equal(hash(inputBytes), fixture.fixtureSha256)
++  const png = PNG.sync.read(inputBytes)
++  assert.equal(png.width, 512)
++  assert.equal(png.height, 512)
++  const unfiltered = sourcePlanes(png.data, 512, 512, false)
++  let filtered: ReturnType<typeof sourcePlanes> | undefined
++  for (const distance of ladder) {
++    const previous = oldRows.find((r) => r.id === fixture.id && r.distance === distance)
++    assert.ok(previous && Array.isArray(previous.observations))
++    const previousModes = previous.observations.map(object)
++    const observations = []
++    let allCorrectedHash: string | undefined
++    for (const mode of modes) {
++      const previousMode = previousModes.find((p) => p.mode === mode.name)
++      assert.ok(previousMode)
++      const path = `${mode.directory}/${fixture.id}-lab/${distance}.jxl`
++      const bytes = await readFile(path)
++      assert.equal(hash(bytes), previousMode.streamHash)
++      const stream = await openStream(bytes)
++      try {
++        if (stream.frame.gaborish && !filtered) filtered = sourcePlanes(png.data, 512, 512, true)
++        const source = stream.frame.gaborish ? filtered : unfiltered
++        assert.ok(source)
++        const ideal = sourceDc(source, stream)
++        assert.equal(planeHash(ideal), previous.correctedDcHash)
++        const actual = [
++          stream.state.dcPlanes[0].slice(),
++          stream.state.dcPlanes[1].slice(),
++          stream.state.dcPlanes[2].slice(),
++        ] as const
++        const renderedVariants = []
++        for (const variant of variants) {
++          assert.ok(reconstructed < 800)
++          const dc = restoreDc(actual, ideal, variant)
++          const decoded = stages(stream.render(dc), stream)
++          reconstructed++
++          if (variant === 'actual') assert.equal(hash(decoded.rgba), previousMode.displayHash)
++          if (variant === 'all') {
++            assert.equal(planeHash(decoded.raw), previous.correctedRawHash)
++            const correctedHash = hash(decoded.rgba)
++            if (allCorrectedHash === undefined) allCorrectedHash = correctedHash
++            else assert.equal(correctedHash, allCorrectedHash)
++          }
++          const name = `${fixture.id}-${distance}-${mode.name}-${variant}`
++          const imagePath = `${root}/images/${name}.png`
++          const diagnosticPng = new PNG({ width: 512, height: 512 })
++          diagnosticPng.data.set(decoded.rgba)
++          const image = PNG.sync.write(diagnosticPng)
++          await writeFile(imagePath, image, { flag: 'wx' })
++          const ba = await command(`${metrics}/butteraugli_main`, [fixture.png, imagePath], {
++            maxBuffer: 1024 * 1024,
++          })
++          const ssim = await command(`${metrics}/ssimulacra2`, [fixture.png, imagePath], {
++            maxBuffer: 1024 * 1024,
++          })
++          const score = parseButteraugliOutput(ba.stdout)
++          const metricsResult = {
++            ssimulacra2: parseSsimulacra2Output(ssim.stdout),
++            butteraugliNorm3: score.norm3,
++            butteraugliMax: score.max,
++          }
++          let squaredError = 0
++          for (let p = 0; p < decoded.rgba.length; p += 4)
++            for (let c = 0; c < 3; c++) {
++              const error = (decoded.rgba[p + c] ?? 0) - (png.data[p + c] ?? 0)
++              squaredError += error * error
++            }
++          renderedVariants.push({
++            variant,
++            dcHash: planeHash(dc),
++            displayHash: hash(decoded.rgba),
++            imagePath,
++            pngHash: hash(image),
++            metrics: metricsResult,
++            displayMse: squaredError / (512 * 512 * 3 * 255 * 255),
++            rawScorerOutput: {
++              butteraugli: ba.stdout,
++              ssimulacra2: ssim.stdout,
++              stderr: ba.stderr + ssim.stderr,
++            },
++          })
++        }
++        observations.push({
++          mode: mode.name,
++          path,
++          streamHash: hash(bytes),
++          bytes: bytes.length,
++          priorMetrics: previousMode.metrics,
++          nativeParity: previousMode.nativeParity,
++          variants: renderedVariants,
++        })
++      } finally {
++        stream.release()
++      }
++    }
++    const row = {
++      id: fixture.id,
++      distance,
++      sourceHash: fixture.fixtureSha256,
++      sourcePng: fixture.png,
++      gaborish: previous.gaborish,
++      epfIterations: previous.epfIterations,
++      priorMaxHarmAboveOnePercent:
++        number(object(previousModes[1]?.metrics).butteraugliMax) >
++        1.01 * number(object(previousModes[0]?.metrics).butteraugliMax),
++      observations,
++    }
++    await writeFile(
++      `${root}/points/${fixture.id}-${distance}.json`,
++      JSON.stringify(row, null, 2) + '\n',
++      { flag: 'wx' },
++    )
++    rows.push(row)
++    console.log(
++      `${rows.length}/80 ${fixture.id} d${distance}: ${reconstructed}/800 reconstructions scored`,
++    )
++  }
++}
++assert.equal(rows.length, 80)
++assert.equal(reconstructed, 800)
++assert.equal(rows.filter((r) => r.priorMaxHarmAboveOnePercent).length, 17)
++await writeFile(
++  `${root}/audit.json`,
++  JSON.stringify({ passed: true, base, points: 80, reconstructed, rows }, null, 2) + '\n',
++  { flag: 'wx' },
++)
++console.log('Complete: 80 pairs, 800 fixed reconstructions; no image encodes or holdout reads.')
+diff --git a/benchmark/jpegxl/lossy-lab/summarize-dc-channels.ts b/benchmark/jpegxl/lossy-lab/summarize-dc-channels.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/summarize-dc-channels.ts
+@@ -0,0 +1,196 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import { variants, type Variant } from './dc-channel-restoration.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104'
++const audit = object(JSON.parse(await readFile(`${root}/audit.json`, 'utf8')))
++assert.equal(audit.passed, true)
++assert.ok(Array.isArray(audit.rows))
++const rows = audit.rows.map(object)
++const names = ['ssimulacra2', 'butteraugliNorm3', 'butteraugliMax'] as const
++type Metric = (typeof names)[number]
++type Row = ReturnType<typeof object>
++function observations(row: Row) {
++  assert.ok(Array.isArray(row.observations))
++  return row.observations.map(object)
++}
++function mode(row: Row, name: string) {
++  const result = observations(row).find((p) => p.mode === name)
++  assert.ok(result)
++  return result
++}
++function variant(row: Row, name: Variant) {
++  assert.ok(Array.isArray(row.variants))
++  const result = row.variants.map(object).find((p) => p.variant === name)
++  assert.ok(result)
++  return result
++}
++function score(row: Row, name: Variant, metric: Metric) {
++  return number(object(variant(row, name).metrics)[metric])
++}
++function difference(row: Row, name: Variant, metric: Metric) {
++  const before = mode(row, 'aligned'),
++    after = mode(row, 'predictor')
++  const divisor = metric === 'ssimulacra2' ? 1 : score(before, 'actual', metric) / 100
++  return (score(after, name, metric) - score(before, name, metric)) / divisor
++}
++function mean(values: readonly number[]) {
++  assert.ok(values.length > 0)
++  return values.reduce((a, b) => a + b, 0) / values.length
++}
++function distribution(values: readonly number[]) {
++  const sorted = [...values].sort((a, b) => a - b)
++  return {
++    mean: mean(values),
++    minimum: sorted[0],
++    maximum: sorted.at(-1),
++    median:
++      ((sorted[Math.floor((sorted.length - 1) / 2)] ?? 0) +
++        (sorted[Math.floor(sorted.length / 2)] ?? 0)) /
++      2,
++  }
++}
++function group(selected: Row[]) {
++  assert.ok(selected.length > 0)
++  const withinModes = ['aligned', 'predictor'].map((modeName) => ({
++    mode: modeName,
++    variants: variants.map((name) => ({
++      variant: name,
++      metrics: names.map((metric) => {
++        const absolute = selected.map((row) => {
++          const p = mode(row, modeName)
++          return score(p, name, metric) - score(p, 'actual', metric)
++        })
++        const relative = selected.map((row) => {
++          const p = mode(row, modeName)
++          return 100 * (score(p, name, metric) / score(p, 'actual', metric) - 1)
++        })
++        return {
++          metric,
++          absolute: distribution(absolute),
++          relativePercent: metric === 'ssimulacra2' ? null : distribution(relative),
++          improved: absolute.filter((v) => (metric === 'ssimulacra2' ? v > 0 : v < 0)).length,
++          worse: absolute.filter((v) => (metric === 'ssimulacra2' ? v < 0 : v > 0)).length,
++          harmsAboveOnePercent:
++            metric === 'ssimulacra2' ? null : relative.filter((v) => v > 1).length,
++        }
++      }),
++    })),
++  }))
++  const paired = variants.map((name) => ({
++    variant: name,
++    metrics: names.map((metric) => {
++      const deltas = selected.map((row) => difference(row, name, metric))
++      const removed = selected.map(
++        (row, index) => difference(row, 'actual', metric) - (deltas[index] ?? 0),
++      )
++      return {
++        metric,
++        unit:
++          metric === 'ssimulacra2'
++            ? 'SSIMULACRA2 points'
++            : 'percent of original actual aligned score',
++        difference: distribution(deltas),
++        removedDifference: distribution(removed),
++        predictorBetter: deltas.filter((v) => (metric === 'ssimulacra2' ? v > 0 : v < 0)).length,
++        predictorWorse: deltas.filter((v) => (metric === 'ssimulacra2' ? v < 0 : v > 0)).length,
++        harmsAboveOnePercent: metric === 'ssimulacra2' ? null : deltas.filter((v) => v > 1).length,
++      }
++    }),
++  }))
++  const interactions = names.map((metric) => {
++    const residuals = selected.map((row) => {
++      const actual = difference(row, 'actual', metric)
++      const sum = (['x', 'y', 'b'] as const).reduce(
++        (sum, v) => sum + actual - difference(row, v, metric),
++        0,
++      )
++      return actual - sum
++    })
++    return {
++      metric,
++      unit:
++        metric === 'ssimulacra2'
++          ? 'SSIMULACRA2 points'
++          : 'percent of original actual aligned score',
++      actualMinusSumOfSingleChannelContributions: distribution(residuals),
++    }
++  })
++  return {
++    points: selected.length,
++    photos: [...new Set(selected.map((row) => row.id))],
++    withinModes,
++    paired,
++    interactions,
++  }
++}
++const parity = names.map((metric) => {
++  const scores = rows.flatMap((row) =>
++    observations(row).map((p) => {
++      const original = number(object(p.priorMetrics)[metric]),
++        current = score(p, 'actual', metric)
++      return { absolute: current - original, relative: 100 * (current / original - 1) }
++    }),
++  )
++  return {
++    metric,
++    maximumAbsoluteDifference: Math.max(...scores.map((p) => Math.abs(p.absolute))),
++    meanAbsoluteDifference: mean(scores.map((p) => Math.abs(p.absolute))),
++    maximumRelativeDifferencePercent:
++      metric === 'ssimulacra2' ? null : Math.max(...scores.map((p) => Math.abs(p.relative))),
++  }
++})
++const priorHarm = rows.filter((row) => row.priorMaxHarmAboveOnePercent === true)
++assert.equal(priorHarm.length, 17)
++for (const row of rows) for (const metric of names) assert.equal(difference(row, 'all', metric), 0)
++const harms = priorHarm.map((row) => ({
++  id: row.id,
++  distance: row.distance,
++  priorDifferencePercent:
++    100 *
++    (number(object(mode(row, 'predictor').priorMetrics).butteraugliMax) /
++      number(object(mode(row, 'aligned').priorMetrics).butteraugliMax) -
++      1),
++  reconstructedMaxDifferences: Object.fromEntries(
++    variants.map((v) => [v, difference(row, v, 'butteraugliMax')]),
++  ),
++  reconstructedSsimDifferences: Object.fromEntries(
++    variants.map((v) => [v, difference(row, v, 'ssimulacra2')]),
++  ),
++}))
++const summary = {
++  passed: true,
++  all: group(rows),
++  distances: [0.5, 1, 2, 4, 7].map((distance) => ({
++    distance,
++    ...group(rows.filter((row) => row.distance === distance)),
++  })),
++  priorHarmCohort: group(priorHarm),
++  harmPoints: harms,
++  parity,
++  currentActualMaxHarmsAboveOnePercent: rows.filter(
++    (row) => difference(row, 'actual', 'butteraugliMax') > 1,
++  ).length,
++  priorHarmCohortStillAboveOnePercent: priorHarm.filter(
++    (row) => difference(row, 'actual', 'butteraugliMax') > 1,
++  ).length,
++  interpretation:
++    'SSIM changes are score points. Within-mode BA changes divide by that mode actual score. Paired BA differences at every variant divide by the original actual aligned score, so removal terms share a denominator. Single-channel contributions are actual paired difference minus restored paired difference, not additive causal shares. The interaction residual is actual minus the three single-channel contributions. No attainable bitrate or encoder policy is inferred.',
++  limits:
++    'A fixed descriptive development audit, with no fitted predictor or validation split. The pre-existing 17 harm cases are a reported subgroup; all 80 pairs are retained. No holdout images or identities are read. Source DC cannot be free in a real stream.',
++}
++await writeFile(`${root}/summary.json`, JSON.stringify(summary, null, 2) + '\n')
++console.log(
++  JSON.stringify(
++    {
++      parity,
++      allWithin: summary.all.withinModes,
++      harmPoints: harms,
++      harmPaired: summary.priorHarmCohort.paired,
++      harmInteractions: summary.priorHarmCohort.interactions,
++    },
++    null,
++    2,
++  ),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-channels.ts b/benchmark/jpegxl/lossy-lab/verify-dc-channels.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-channels.ts
+@@ -0,0 +1,137 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { object, number } from '../comparison/model.ts'
++import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
++import { variants, verifyRestoration } from './dc-channel-restoration.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104'
++const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++const audit = object(JSON.parse(await readFile(`${root}/audit.json`, 'utf8')))
++const plan = object(JSON.parse(await readFile(`${root}/plan.json`, 'utf8')))
++const prior = object(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/dc-display-audit-20261104/audit.json', 'utf8')),
++)
++assert.equal(audit.passed, true)
++assert.equal(audit.reconstructed, 800)
++assert.ok(Array.isArray(audit.rows) && Array.isArray(prior.rows))
++const oldRows = prior.rows.map(object)
++let imageChecks = 0,
++  streamChecks = 0,
++  actualPixelMatches = 0,
++  correctedPixelMatches = 0,
++  sourceChecks = 0
++const keys = new Set<string>()
++for (const row of audit.rows.map(object)) {
++  const key = `${String(row.id)}/${String(row.distance)}`
++  assert.equal(keys.has(key), false)
++  keys.add(key)
++  const previous = oldRows.find((r) => r.id === row.id && r.distance === row.distance)
++  assert.ok(previous)
++  assert.equal(row.sourceHash, previous.sourceHash)
++  assert.equal(typeof row.sourcePng, 'string')
++  if (typeof row.sourcePng !== 'string') throw new Error('Missing source')
++  assert.equal(hash(await readFile(row.sourcePng)), row.sourceHash)
++  sourceChecks++
++  assert.ok(Array.isArray(row.observations) && Array.isArray(previous.observations))
++  const previousModes = previous.observations.map(object)
++  let correctedHash: string | undefined
++  assert.deepEqual(
++    row.observations.map((value) => object(value).mode),
++    ['aligned', 'predictor'],
++  )
++  for (const point of row.observations.map(object)) {
++    const priorMode = previousModes.find((p) => p.mode === point.mode)
++    assert.ok(priorMode)
++    assert.equal(point.streamHash, priorMode.streamHash)
++    assert.equal(typeof point.path, 'string')
++    if (typeof point.path !== 'string') throw new Error('Missing stream')
++    const stream = await readFile(point.path)
++    assert.equal(hash(stream), point.streamHash)
++    assert.equal(stream.length, point.bytes)
++    streamChecks++
++    assert.ok(Array.isArray(point.variants))
++    const values = point.variants.map(object)
++    assert.deepEqual(
++      values.map((value) => value.variant),
++      variants,
++    )
++    for (const value of values) {
++      assert.equal(typeof value.imagePath, 'string')
++      if (typeof value.imagePath !== 'string') throw new Error('Missing diagnostic PNG')
++      const bytes = await readFile(value.imagePath)
++      assert.equal(hash(bytes), value.pngHash)
++      const png = PNG.sync.read(bytes)
++      assert.equal(png.width, 512)
++      assert.equal(png.height, 512)
++      assert.equal(hash(png.data), value.displayHash)
++      imageChecks++
++      const raw = object(value.rawScorerOutput),
++        scores = object(value.metrics)
++      const ba = parseButteraugliOutput(raw.butteraugli),
++        ssim = parseSsimulacra2Output(raw.ssimulacra2)
++      assert.equal(ba.max, number(scores.butteraugliMax))
++      assert.equal(ba.norm3, number(scores.butteraugliNorm3))
++      assert.equal(ssim, number(scores.ssimulacra2))
++      if (value.variant === 'actual') {
++        assert.equal(value.displayHash, priorMode.displayHash)
++        actualPixelMatches++
++      }
++      if (value.variant === 'all') {
++        assert.equal(typeof value.displayHash, 'string')
++        if (typeof value.displayHash !== 'string') throw new Error('Missing pixel hash')
++        if (correctedHash === undefined) correctedHash = value.displayHash
++        else {
++          assert.equal(value.displayHash, correctedHash)
++          correctedPixelMatches++
++        }
++      }
++    }
++  }
++}
++assert.equal(keys.size, 80)
++assert.equal(imageChecks, 800)
++assert.equal(streamChecks, 160)
++assert.equal(actualPixelMatches, 160)
++assert.equal(correctedPixelMatches, 80)
++let toolAndHelperChecks = 0
++for (const key of ['scorers', 'helpers']) {
++  const values = plan[key]
++  assert.ok(Array.isArray(values))
++  for (const value of values.map(object)) {
++    assert.equal(typeof value.path, 'string')
++    if (typeof value.path !== 'string') throw new Error('Missing receipt path')
++    assert.equal(hash(await readFile(value.path)), value.sha256)
++    toolAndHelperChecks++
++  }
++}
++await writeFile(
++  `${root}/verification.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      imageChecks,
++      streamChecks,
++      actualPixelMatches,
++      correctedPixelMatches,
++      sourceChecks,
++      toolAndHelperChecks,
++      restorationTests: verifyRestoration(),
++      limits:
++        'Saved image and stream integrity and exact scorer parsing. No re-encoding or extra metric runs.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    imageChecks,
++    streamChecks,
++    actualPixelMatches,
++    correctedPixelMatches,
++    toolAndHelperChecks,
++  }),
++)

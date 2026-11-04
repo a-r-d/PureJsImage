@@ -784,3 +784,14 @@ accounting reuse first-party code. A private source-conversion copy exports
 existing functions without invoking encoder entry points. The audit reads only
 the frozen saved development screen; it neither writes candidate streams nor
 changes active encoder decisions. See `DC-DISPLAY-AUDIT.md` for the limits.
+
+## DC channel-attribution audit (2026-11-04)
+
+`lossy-lab/DC-CHANNEL-AUDIT.patch` adds four first-party offline diagnostics:
+independent reconstructed-channel restoration, saved-stream scoring, summaries
+and verification. It imports the unchanged reconstruction helpers archived in
+`DC-DISPLAY-AUDIT.patch`. Those helpers reuse the attributed
+`libjxl-gaborish-port.ts` and `libjxl-output-dither-port.ts` sources recorded
+above; no new libjxl code, constants or tables are ported. Native Butteraugli
+and SSIMULACRA2 binaries are development scorers only. Nothing enters the
+runtime bundle, and existing source headers and package/docs notices remain.
