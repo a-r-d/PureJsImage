@@ -1,0 +1,31 @@
+benchmark/jpegxl/lossy-lab/DC-DISPLAY-AUDIT.patch
+  s_42a303a21f7525::t_1ba1b08cd3b178 1-1033
+benchmark/jpegxl/lossy-lab/DC-DISPLAY-AUDIT.json
+  s_42a303a21f7525::t_81fa5f83ed57fe 1-9799
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_4e9f8d4bbf40e5 772-777,780-786
+  s_42a303a21f7525::t_ab1c4156b09263 778-779
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_4e9f8d4bbf40e5 15-16,2964-2971
+  s_42a303a21f7525::t_c25a5b2f63ce90 2972-2973
+benchmark/jpegxl/lossy-lab/DC-DISPLAY-AUDIT.md
+  s_42a303a21f7525::t_a6b30c04edfefe 4-5
+  s_42a303a21f7525::t_4e9f8d4bbf40e5 1-3,6-108,114-152
+  s_42a303a21f7525::t_c25a5b2f63ce90 109-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ee4409c1c6e8fe0f89f8e66ecaa2f85688ff7a6a",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
