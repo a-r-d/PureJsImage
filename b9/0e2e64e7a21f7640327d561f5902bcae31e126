@@ -1,0 +1,29 @@
+benchmark/jpegxl/lossy-lab/DC-MODEL-VALIDATION.md
+  s_42a303a21f7525::t_53a6832406357c 1-201
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_5da23f8de343f9 810-822
+benchmark/jpegxl/lossy-lab/DC-MODEL-VALIDATION.json
+  s_42a303a21f7525::t_423316535beef2 1-70,72-81,83-89,92-25726,25728-25745
+  s_42a303a21f7525::t_53a6832406357c 71,82,90-91,25727
+benchmark/jpegxl/lossy-lab/DC-MODEL-VALIDATION.patch
+  s_42a303a21f7525::t_24c5511d708a38 1-2842
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_b67fd6c0fb82a0 15-16,3000-3007
+  s_42a303a21f7525::t_f7f00a9714e201 2998-2999
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b90e2e64e7a21f7640327d561f5902bcae31e126",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
