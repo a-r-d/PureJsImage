@@ -1,0 +1,2842 @@
+diff --git a/benchmark/jpegxl/lossy-lab/dc-validation-model.ts b/benchmark/jpegxl/lossy-lab/dc-validation-model.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-validation-model.ts
+@@ -0,0 +1,27 @@
++import { displayLinearPlanes, downsampleDisplay } from './libjxl-display-loss.ts'
++import { perceptualQuadraticMaps, preparePerceptualLinear } from './libjxl-perceptual-local-port.ts'
++import { mixPerceptualScales, perceptualDirectionalMap } from './libjxl-perceptual-malta-port.ts'
++import { poolNativePerceptual } from './libjxl-perceptual-pool-port.ts'
++
++/** Same first-party composition as the screened full reference; omit rejected outputs. */
++export function prepare(rgba: Uint8Array, width: number, height: number) {
++  const linear = displayLinearPlanes(rgba, width, height)
++  return {
++    full: preparePerceptualLinear(linear, width, height),
++    half: preparePerceptualLinear(
++      downsampleDisplay(linear, width, height),
++      Math.ceil(width / 2),
++      Math.ceil(height / 2),
++    ),
++  }
++}
++
++export function evaluate(source: ReturnType<typeof prepare>, decoded: ReturnType<typeof prepare>) {
++  const fineQ = perceptualQuadraticMaps(source.full, decoded.full).asymmetric
++  const halfQ = perceptualQuadraticMaps(source.half, decoded.half).asymmetric
++  const fine = perceptualDirectionalMap(source.full, decoded.full, fineQ)
++  const half = perceptualDirectionalMap(source.half, decoded.half, halfQ)
++  return poolNativePerceptual(
++    mixPerceptualScales(fine, half, source.full.width, source.full.height),
++  )
++}
+diff --git a/benchmark/jpegxl/lossy-lab/run-dc-model-validation.ts b/benchmark/jpegxl/lossy-lab/run-dc-model-validation.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/run-dc-model-validation.ts
+@@ -0,0 +1,300 @@
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { createHash } from 'node:crypto'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { promisify } from 'node:util'
++import { PNG } from 'pngjs'
++import { metrics } from '../comparison/io.ts'
++import { object, number } from '../comparison/model.ts'
++import { parsePreparedManifest, selectPreparedFixtures } from './fixture-selection.ts'
++import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
++import {
++  sourcePlanes,
++  sourceDc,
++  openStream,
++  stages,
++} from '../../../.tmp/jpegxl-lossy-lab/dc-display-audit-20261104/stages.ts'
++import {
++  restoreDc,
++  variants,
++} from '../../../.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104/channel.ts'
++import { prepare, evaluate } from './dc-validation-model.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-model-validation-20261104'
++const proposalPath = '.tmp/jpegxl-lossy-lab/dc-model-validation-proposal-20261104/plan.json'
++const proposalBytes = await readFile(proposalPath),
++  proposal = object(JSON.parse(proposalBytes.toString()))
++const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++const command = promisify(execFile)
++const distances = [0.9, 1.85, 3.8] as const
++const modes = [
++  {
++    name: 'aligned',
++    directory: '.tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage',
++  },
++  {
++    name: 'predictor',
++    directory:
++      '.tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage',
++  },
++] as const
++const manifest = parsePreparedManifest(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json', 'utf8')),
++)
++const lab = selectPreparedFixtures(manifest, { mode: 'lab' }),
++  screen = selectPreparedFixtures(manifest, { mode: 'screen' })
++assert.ok(lab.complete && screen.complete)
++assert.equal(lab.fixtures.length, 64)
++assert.equal(screen.fixtures.length, 16)
++const excluded = new Set(screen.fixtures.map((f) => f.id))
++const fixtures = lab.fixtures.filter((f) => !excluded.has(f.id))
++assert.equal(fixtures.length, 48)
++assert.deepEqual(
++  fixtures.map((f) => f.id),
++  proposal.fixtureIds,
++)
++assert.deepEqual(distances, proposal.distances)
++assert.deepEqual(modes, proposal.modes)
++assert.deepEqual(variants, proposal.variants)
++assert.equal(proposal.maximumReconstructions, 1440)
++assert.ok(Array.isArray(proposal.inputs))
++const inputs = proposal.inputs.map(object)
++assert.equal(inputs.length, 288)
++await mkdir(`${root}/points`, { recursive: true })
++await mkdir(`${root}/images`, { recursive: true })
++const sourceReceipt = object(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/dc-display-audit-20261104/source.json', 'utf8')),
++)
++assert.ok(Array.isArray(sourceReceipt.hashes))
++for (const value of sourceReceipt.hashes.map(object)) {
++  assert.equal(typeof value.path, 'string')
++  if (typeof value.path !== 'string') throw new Error('Missing source receipt path')
++  assert.equal(hash(await readFile(value.path)), value.sha256)
++}
++const files = ['dc-validation-model.ts', 'run-dc-model-validation.ts']
++  .map((name) => `benchmark/jpegxl/lossy-lab/${name}`)
++  .concat([
++    '.tmp/jpegxl-lossy-lab/dc-display-audit-20261104/stages.ts',
++    '.tmp/jpegxl-lossy-lab/dc-display-audit-20261104/diagnostic/source-conversion.ts',
++    '.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104/channel.ts',
++    'benchmark/jpegxl/lossy-lab/libjxl-display-loss.ts',
++    'benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts',
++    'benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts',
++    'benchmark/jpegxl/lossy-lab/libjxl-perceptual-pool-port.ts',
++    'benchmark/jpegxl/lossy-lab/local-error-predictors.ts',
++  ])
++const sourceHashes = await Promise.all(
++  files.map(async (path) => ({ path, sha256: hash(await readFile(path)) })),
++)
++const scorerHashes = await Promise.all(
++  ['butteraugli_main', 'ssimulacra2'].map(async (name) => ({
++    path: `${metrics}/${name}`,
++    sha256: hash(await readFile(`${metrics}/${name}`)),
++  })),
++)
++await writeFile(
++  `${root}/plan.json`,
++  JSON.stringify(
++    {
++      ...proposal,
++      status: 'owner-approved-fixed-validation',
++      proposalPath,
++      proposalHash: hash(proposalBytes),
++      started: new Date().toISOString(),
++      sourceHashes,
++      scorerHashes,
++    },
++    null,
++    2,
++  ) + '\n',
++  { flag: 'wx' },
++)
++
++let reconstructed = 0,
++  evaluated = 0
++const rows = []
++for (const fixture of fixtures) {
++  assert.equal(fixture.split, 'development')
++  const file = await readFile(fixture.png)
++  assert.equal(hash(file), fixture.fixtureSha256)
++  const png = PNG.sync.read(file)
++  assert.equal(png.width, 512)
++  assert.equal(png.height, 512)
++  const reference = prepare(png.data, 512, 512),
++    sourceRaw = sourcePlanes(png.data, 512, 512, false)
++  let sourceFiltered: ReturnType<typeof sourcePlanes> | undefined
++  const cache = new Map<string, ReturnType<typeof evaluate>>()
++  for (const distance of distances) {
++    const bytes = await Promise.all(
++      modes.map((mode) => readFile(`${mode.directory}/${fixture.id}-lab/${distance}.jxl`)),
++    )
++    const firstBytes = bytes[0],
++      secondBytes = bytes[1]
++    assert.ok(firstBytes && secondBytes)
++    const streams = [await openStream(firstBytes), await openStream(secondBytes)] as const
++    try {
++      const [first, second] = streams
++      assert.equal(first.frame.gaborish, second.frame.gaborish)
++      assert.equal(first.frame.epfIterations, second.frame.epfIterations)
++      for (let i = 1 + first.frame.dcGroupCount; i < first.sections.length; i++)
++        assert.deepEqual(first.sections[i], second.sections[i])
++      for (const key of [
++        'strategies',
++        'strategyFirstBlocks',
++        'quantization',
++        'sharpness',
++        'colorCorrelationX',
++        'colorCorrelationB',
++      ] as const)
++        assert.deepEqual(first.state.dcGroup[key], second.state.dcGroup[key])
++      assert.deepEqual(first.state.lfGlobal.dcQuantization, second.state.lfGlobal.dcQuantization)
++      assert.deepEqual(
++        first.state.lfGlobal.colorCorrelation,
++        second.state.lfGlobal.colorCorrelation,
++      )
++      if (first.frame.gaborish && !sourceFiltered)
++        sourceFiltered = sourcePlanes(png.data, 512, 512, true)
++      const source = first.frame.gaborish ? sourceFiltered : sourceRaw
++      assert.ok(source)
++      const ideal = sourceDc(source, first)
++      const observations = []
++      let allHash: string | undefined
++      for (let m = 0; m < modes.length; m++) {
++        const mode = modes[m],
++          stream = streams[m],
++          streamBytes = bytes[m]
++        assert.ok(mode && stream && streamBytes)
++        const streamPath = `${mode.directory}/${fixture.id}-lab/${distance}.jxl`
++        const input = inputs.find(
++          (p) => p.id === fixture.id && p.mode === mode.name && p.distance === distance,
++        )
++        assert.ok(input)
++        assert.equal(streamPath, input.path)
++        assert.equal(streamBytes.length, input.bytes)
++        const actual = [
++          stream.state.dcPlanes[0].slice(),
++          stream.state.dcPlanes[1].slice(),
++          stream.state.dcPlanes[2].slice(),
++        ] as const
++        const recorded = []
++        let nativeParity: { maximum: number; changed: number } | undefined
++        for (const variant of variants) {
++          assert.ok(reconstructed < 1440)
++          const decoded = stages(stream.render(restoreDc(actual, ideal, variant)), stream)
++          reconstructed++
++          const displayHash = hash(decoded.rgba)
++          if (variant === 'all') {
++            if (allHash) assert.equal(displayHash, allHash)
++            else allHash = displayHash
++          }
++          if (variant === 'actual') {
++            const native = PNG.sync.read(
++              await readFile(`${mode.directory}/${fixture.id}-lab/${distance}.png`),
++            )
++            assert.equal(native.width, 512)
++            assert.equal(native.height, 512)
++            let maximum = 0,
++              changed = 0
++            for (let p = 0; p < native.data.length; p++) {
++              const error = Math.abs((native.data[p] ?? 0) - (decoded.rgba[p] ?? 0))
++              maximum = Math.max(maximum, error)
++              changed += Number(error !== 0)
++            }
++            assert.ok(maximum <= 1)
++            nativeParity = { maximum, changed }
++          }
++          const imagePath = `${root}/images/${fixture.id}-${distance}-${mode.name}-${variant}.png`
++          const output = new PNG({ width: 512, height: 512 })
++          output.data.set(decoded.rgba)
++          const image = PNG.sync.write(output)
++          await writeFile(imagePath, image, { flag: 'wx' })
++          const ba = await command(`${metrics}/butteraugli_main`, [fixture.png, imagePath], {
++            maxBuffer: 1024 * 1024,
++          })
++          const ssim = await command(`${metrics}/ssimulacra2`, [fixture.png, imagePath], {
++            maxBuffer: 1024 * 1024,
++          })
++          const native = parseButteraugliOutput(ba.stdout)
++          let predicted = cache.get(displayHash)
++          const reused = predicted !== undefined
++          if (!predicted) {
++            predicted = evaluate(reference, prepare(decoded.rgba, 512, 512))
++            cache.set(displayHash, predicted)
++            evaluated++
++          }
++          recorded.push({
++            variant,
++            imagePath,
++            pngHash: hash(image),
++            displayHash,
++            reused,
++            predicted,
++            native: {
++              maximum: native.max,
++              norm3: native.norm3,
++              ssimulacra2: parseSsimulacra2Output(ssim.stdout),
++            },
++            scorerOutput: {
++              butteraugli: ba.stdout,
++              ssimulacra2: ssim.stdout,
++              stderr: ba.stderr + ssim.stderr,
++            },
++          })
++        }
++        assert.ok(nativeParity)
++        observations.push({
++          mode: mode.name,
++          streamPath,
++          streamHash: hash(streamBytes),
++          bytes: streamBytes.length,
++          nativeParity,
++          variants: recorded,
++        })
++      }
++      const row = {
++        id: fixture.id,
++        distance,
++        sourcePng: fixture.png,
++        sourceHash: fixture.fixtureSha256,
++        sharedAcAndDecisions: true,
++        allRestoredIdentical: true,
++        observations,
++      }
++      rows.push(row)
++      await writeFile(
++        `${root}/points/${fixture.id}-${distance}.json`,
++        JSON.stringify(row, null, 2) + '\n',
++        { flag: 'wx' },
++      )
++      console.log(
++        `${rows.length}/144 pairs; ${reconstructed}/1440 states; ${evaluated} distinct model evaluations`,
++      )
++    } finally {
++      for (const stream of streams) stream.release()
++    }
++  }
++}
++assert.equal(reconstructed, 1440)
++assert.equal(rows.length, 144)
++await writeFile(
++  `${root}/results.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      base: proposal.base,
++      completed: new Date().toISOString(),
++      photos: 48,
++      pointPairs: 144,
++      reconstructed,
++      evaluated,
++      model: proposal.model,
++      rows,
++    },
++    null,
++    2,
++  ) + '\n',
++  { flag: 'wx' },
++)
++console.log(
++  'Complete fixed validation: 48 development photos, 144 pairs, 1440 reconstructions. No new encodes or holdout reads.',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/summarize-dc-model-validation.ts b/benchmark/jpegxl/lossy-lab/summarize-dc-model-validation.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/summarize-dc-model-validation.ts
+@@ -0,0 +1,181 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number, string } from '../comparison/model.ts'
++import { predictionAgreement } from './local-error-predictors.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-model-validation-20261104'
++const result = object(JSON.parse(await readFile(`${root}/results.json`, 'utf8')))
++assert.equal(result.passed, true)
++assert.equal(result.reconstructed, 1440)
++assert.ok(Array.isArray(result.rows))
++const rows = result.rows.map(object)
++type Row = ReturnType<typeof object>
++interface Pair {
++  id: string
++  distance: number
++  cohort: 'actual' | 'restorations'
++  mode: string
++  variant: string
++  before: Row
++  after: Row
++}
++function select(row: Row, key: 'observations' | 'variants', field: string, name: string) {
++  const values = row[key]
++  assert.ok(Array.isArray(values))
++  const found = values.map(object).find((value) => value[field] === name)
++  assert.ok(found)
++  return found
++}
++const pairs: Pair[] = []
++for (const row of rows) {
++  const id = string(row.id),
++    distance = number(row.distance)
++  const aligned = select(row, 'observations', 'mode', 'aligned'),
++    predictor = select(row, 'observations', 'mode', 'predictor')
++  pairs.push({
++    id,
++    distance,
++    cohort: 'actual',
++    mode: 'paired',
++    variant: 'actual',
++    before: select(aligned, 'variants', 'variant', 'actual'),
++    after: select(predictor, 'variants', 'variant', 'actual'),
++  })
++  for (const mode of [aligned, predictor])
++    for (const name of ['x', 'y', 'b', 'all']) {
++      pairs.push({
++        id,
++        distance,
++        cohort: 'restorations',
++        mode: string(mode.mode),
++        variant: name,
++        before: select(mode, 'variants', 'variant', 'actual'),
++        after: select(mode, 'variants', 'variant', name),
++      })
++    }
++}
++assert.equal(pairs.filter((p) => p.cohort === 'actual').length, 144)
++assert.equal(pairs.filter((p) => p.cohort === 'restorations').length, 1152)
++function comparison(pair: Pair, metric: 'maximum' | 'norm3') {
++  const before = number(object(pair.before.native)[metric]),
++    after = number(object(pair.after.native)[metric])
++  assert.ok(before > 0)
++  return {
++    id: pair.id,
++    distance: pair.distance,
++    cohort: pair.cohort,
++    mode: pair.mode,
++    variant: pair.variant,
++    actual: 100 * (after / before - 1),
++    predicted:
++      number(object(pair.after.predicted)[metric]) - number(object(pair.before.predicted)[metric]),
++    nativeBefore: before,
++    nativeAfter: after,
++  }
++}
++const assessments = [],
++  misses = []
++for (const cohort of ['actual', 'restorations', 'all'])
++  for (const metric of ['maximum', 'norm3'] as const) {
++    const selected = pairs
++      .filter((p) => cohort === 'all' || p.cohort === cohort)
++      .map((p) => comparison(p, metric))
++    const material = predictionAgreement(selected, 0.1)
++    assessments.push({
++      cohort,
++      metric,
++      material,
++      nonzero: predictionAgreement(selected, 1e-6),
++      nativeHarmsAboveOnePercent: selected.filter((p) => p.actual > 1).length,
++      alwaysBetterAccuracy: material.material ? material.improved / material.material : null,
++      passed:
++        material.material >= 10 &&
++        material.accuracy !== null &&
++        material.accuracy >= 0.8 &&
++        material.missedHarm === 0,
++    })
++    if (cohort !== 'all')
++      for (const row of selected)
++        if (row.actual > 1 && row.predicted <= 1e-9) misses.push({ metric, ...row })
++  }
++const gates = assessments.filter((row) => row.cohort !== 'all')
++assert.equal(gates.length, 4)
++const fidelity = (['maximum', 'norm3'] as const).map((metric) => {
++  const errors: number[] = []
++  for (const row of rows)
++    for (const name of ['aligned', 'predictor']) {
++      const mode = select(row, 'observations', 'mode', name)
++      assert.ok(Array.isArray(mode.variants))
++      for (const value of mode.variants.map(object))
++        errors.push(
++          Math.abs(number(object(value.predicted)[metric]) - number(object(value.native)[metric])),
++        )
++    }
++  assert.equal(errors.length, 1440)
++  return {
++    metric,
++    states: errors.length,
++    maximumAbsoluteError: Math.max(...errors),
++    meanAbsoluteError: errors.reduce((a, b) => a + b, 0) / errors.length,
++  }
++})
++function describe(selected: readonly Pair[]) {
++  const delta = (metric: 'maximum' | 'norm3') => selected.map((p) => comparison(p, metric).actual)
++  const maximum = delta('maximum'),
++    norm3 = delta('norm3')
++  const ssim = selected.map(
++    (p) => number(object(p.after.native).ssimulacra2) - number(object(p.before.native).ssimulacra2),
++  )
++  const mean = (values: readonly number[]) => values.reduce((a, b) => a + b, 0) / values.length
++  return {
++    pairs: selected.length,
++    ssimulacra2Points: mean(ssim),
++    norm3Percent: mean(norm3),
++    maximumPercent: mean(maximum),
++    maxHarmsAboveOnePercent: maximum.filter((p) => p > 1).length,
++    norm3HarmsAboveOnePercent: norm3.filter((p) => p > 1).length,
++    ssimImproves: ssim.filter((p) => p > 0).length,
++    norm3Improves: norm3.filter((p) => p < 0).length,
++    maxWorsens: maximum.filter((p) => p > 0).length,
++  }
++}
++const restorations = ['aligned', 'predictor'].flatMap((mode) =>
++  ['x', 'y', 'b', 'all'].map((variant) => ({
++    mode,
++    variant,
++    ...describe(
++      pairs.filter((p) => p.cohort === 'restorations' && p.mode === mode && p.variant === variant),
++    ),
++  })),
++)
++const summary = {
++  passed: true,
++  modelPassed: gates.every((p) => p.passed),
++  photos: 48,
++  states: 1440,
++  actualPairs: 144,
++  restorationPairs: 1152,
++  assessments,
++  misses,
++  fidelity,
++  descriptiveActual: describe(pairs.filter((p) => p.cohort === 'actual')),
++  descriptiveRestorations: restorations,
++  policy:
++    'Only the four actual/restoration metric gates decide. Combined and channel summaries are descriptive. No formula, threshold or subset changes.',
++  limits:
++    'Separate from the sixteen-photo model screen, but already used by the broader development campaign. Correlated distances and restorations. Butteraugli prediction is not SSIM protection, an encoder policy or speed qualification.',
++}
++await writeFile(`${root}/summary.json`, JSON.stringify(summary, null, 2) + '\n')
++console.log(
++  JSON.stringify(
++    {
++      modelPassed: summary.modelPassed,
++      assessments,
++      fidelity,
++      descriptiveActual: summary.descriptiveActual,
++      descriptiveRestorations: restorations,
++    },
++    null,
++    2,
++  ),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-model-validation.ts b/benchmark/jpegxl/lossy-lab/verify-dc-model-validation.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-model-validation.ts
+@@ -0,0 +1,137 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { object, number, string } from '../comparison/model.ts'
++import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
++
++const root = '.tmp/jpegxl-lossy-lab/dc-model-validation-20261104'
++const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++const plan = object(JSON.parse(await readFile(`${root}/plan.json`, 'utf8')))
++const proposalBytes = await readFile(string(plan.proposalPath))
++assert.equal(hash(proposalBytes), plan.proposalHash)
++const proposal = object(JSON.parse(proposalBytes.toString()))
++for (const key of ['fixtureIds', 'distances', 'modes', 'variants', 'gates', 'inputs'])
++  assert.deepEqual(plan[key], proposal[key])
++assert.ok(Array.isArray(plan.sourceHashes) && Array.isArray(plan.scorerHashes))
++for (const value of [...plan.sourceHashes, ...plan.scorerHashes].map(object))
++  assert.equal(hash(await readFile(string(value.path))), value.sha256)
++const result = object(JSON.parse(await readFile(`${root}/results.json`, 'utf8')))
++assert.ok(
++  Array.isArray(result.rows) && Array.isArray(plan.inputs) && Array.isArray(plan.fixtureIds),
++)
++const inputs = plan.inputs.map(object),
++  ids = plan.fixtureIds.map(string),
++  seen = new Set<string>(),
++  sources = new Set<string>()
++const cached = new Map<string, ReturnType<typeof object>>()
++let states = 0,
++  streams = 0,
++  reused = 0,
++  evaluated = 0,
++  maximumNativePixelDifference = 0,
++  changedNativeSamples = 0
++for (const row of result.rows.map(object)) {
++  const id = string(row.id),
++    key = `${id}/${number(row.distance)}`
++  assert.ok(ids.includes(id) && !seen.has(key))
++  seen.add(key)
++  assert.ok([0.9, 1.85, 3.8].includes(number(row.distance)))
++  assert.equal(row.sharedAcAndDecisions, true)
++  assert.equal(row.allRestoredIdentical, true)
++  if (!sources.has(id)) {
++    assert.equal(hash(await readFile(string(row.sourcePng))), row.sourceHash)
++    sources.add(id)
++  }
++  assert.ok(Array.isArray(row.observations))
++  assert.deepEqual(
++    row.observations.map((p) => object(p).mode),
++    ['aligned', 'predictor'],
++  )
++  let allHash: string | undefined
++  for (const mode of row.observations.map(object)) {
++    const input = inputs.find(
++      (p) => p.id === id && p.distance === row.distance && p.mode === mode.mode,
++    )
++    assert.ok(input)
++    assert.equal(mode.streamPath, input.path)
++    const bytes = await readFile(string(mode.streamPath))
++    assert.equal(hash(bytes), mode.streamHash)
++    assert.equal(bytes.length, input.bytes)
++    streams++
++    const parity = object(mode.nativeParity)
++    maximumNativePixelDifference = Math.max(maximumNativePixelDifference, number(parity.maximum))
++    changedNativeSamples += number(parity.changed)
++    assert.ok(Array.isArray(mode.variants))
++    assert.deepEqual(
++      mode.variants.map((p) => object(p).variant),
++      ['actual', 'x', 'y', 'b', 'all'],
++    )
++    for (const variant of mode.variants.map(object)) {
++      const image = await readFile(string(variant.imagePath))
++      assert.equal(hash(image), variant.pngHash)
++      const png = PNG.sync.read(image)
++      assert.equal(png.width, 512)
++      assert.equal(png.height, 512)
++      assert.equal(hash(png.data), variant.displayHash)
++      const output = object(variant.scorerOutput),
++        native = object(variant.native),
++        ba = parseButteraugliOutput(string(output.butteraugli))
++      assert.deepEqual(native, {
++        maximum: ba.max,
++        norm3: ba.norm3,
++        ssimulacra2: parseSsimulacra2Output(string(output.ssimulacra2)),
++      })
++      const score = object(variant.predicted)
++      assert.deepEqual(Object.keys(score), ['maximum', 'norm3'])
++      assert.ok(number(score.maximum) >= 0 && number(score.norm3) >= 0)
++      const cacheKey = `${id}/${string(variant.displayHash)}`
++      if (variant.reused === true) {
++        assert.deepEqual(score, cached.get(cacheKey))
++        reused++
++      } else {
++        assert.equal(variant.reused, false)
++        assert.ok(!cached.has(cacheKey))
++        cached.set(cacheKey, score)
++        evaluated++
++      }
++      if (variant.variant === 'all') {
++        if (allHash) assert.equal(variant.displayHash, allHash)
++        else allHash = string(variant.displayHash)
++      }
++      states++
++    }
++  }
++}
++assert.equal(seen.size, 144)
++assert.equal(sources.size, 48)
++assert.equal(streams, 288)
++assert.equal(states, 1440)
++assert.equal(evaluated, result.evaluated)
++assert.equal(evaluated + reused, 1440)
++assert.ok(maximumNativePixelDifference <= 1)
++const license = (await readFile('.tmp/jpegxl-oracles/libjxl-v0.12.0/source/LICENSE', 'utf8')).trim()
++assert.ok((await readFile('THIRD_PARTY_NOTICES', 'utf8')).includes(license))
++assert.ok(
++  (await readFile('docs-astro/src/pages/third-party-notices.astro', 'utf8')).includes(
++    '../../../THIRD_PARTY_NOTICES?raw',
++  ),
++)
++const verification = {
++  passed: true,
++  photos: sources.size,
++  pairs: seen.size,
++  streams,
++  states,
++  evaluated,
++  reused,
++  maximumNativePixelDifference,
++  changedNativeSamples,
++  modelAndHelpersUnchanged: true,
++  nativeScorerReceiptsExact: true,
++  allRestoredPairsIdentical: 144,
++  fixedProposalUnchanged: true,
++  fullPackageDocsNotices: true,
++}
++await writeFile(`${root}/verification.json`, JSON.stringify(verification, null, 2) + '\n')
++console.log(JSON.stringify(verification))
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-validation-fixtures.ts b/benchmark/jpegxl/lossy-lab/verify-dc-validation-fixtures.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-validation-fixtures.ts
+@@ -0,0 +1,57 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { object } from '../comparison/model.ts'
++import { parsePreparedManifest } from './fixture-selection.ts'
++import { verifyRestoration } from '../../../.tmp/jpegxl-lossy-lab/dc-channel-audit-20261104/channel.ts'
++import { prepare, evaluate } from './dc-validation-model.ts'
++
++const result = object(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/dc-model-screen-20261104/results.json', 'utf8')),
++)
++assert.ok(Array.isArray(result.rows))
++const row = object(result.rows[0])
++const manifest = parsePreparedManifest(
++  JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json', 'utf8')),
++)
++const fixture = manifest.fixtures.find((f) => f.id === row.id)
++assert.ok(fixture && fixture.split === 'development')
++const source = PNG.sync.read(await readFile(fixture.png)),
++  reference = prepare(source.data, source.width, source.height)
++assert.ok(Array.isArray(row.observations))
++let exact = 0
++for (const mode of row.observations.map(object)) {
++  assert.ok(Array.isArray(mode.variants))
++  for (const value of mode.variants.map(object)) {
++    if (value.variant !== 'actual' && value.variant !== 'all') continue
++    assert.equal(typeof value.imagePath, 'string')
++    if (typeof value.imagePath !== 'string') throw new Error('Missing image')
++    const png = PNG.sync.read(await readFile(value.imagePath))
++    assert.deepEqual(
++      evaluate(reference, prepare(png.data, png.width, png.height)),
++      object(value.models).directional_multiscale,
++    )
++    exact++
++  }
++}
++assert.equal(exact, 4)
++const rgba = new Uint8Array(19 * 17 * 4)
++for (let p = 0; p < 19 * 17; p++) {
++  rgba[p * 4] = p % 255
++  rgba[p * 4 + 1] = 64
++  rgba[p * 4 + 2] = 128
++  rgba[p * 4 + 3] = 255
++}
++const identity = prepare(rgba, 19, 17)
++assert.deepEqual(evaluate(identity, identity), { maximum: 0, norm3: 0 })
++const checks = {
++  passed: true,
++  exactPreviousScreenPredictions: exact,
++  oddSizeIdentity: 1,
++  restoration: verifyRestoration(),
++}
++await writeFile(
++  '.tmp/jpegxl-lossy-lab/dc-model-validation-20261104/fixture-tests.json',
++  JSON.stringify(checks, null, 2) + '\n',
++)
++console.log(JSON.stringify(checks))
+diff --git a/benchmark/jpegxl/lossy-lab/dc-model-validation-plan.json b/benchmark/jpegxl/lossy-lab/dc-model-validation-plan.json
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-model-validation-plan.json
+@@ -0,0 +1,2110 @@
++{
++  "status": "proposal-awaiting-owner-renewal",
++  "base": "44050238375750112935024139e143adda16692d",
++  "objective": "Validate the unchanged full directional multiscale reference on DC interventions outside the sixteen-photo model screen.",
++  "model": "directional_multiscale",
++  "implementation": ".tmp/jpegxl-lossy-lab/dc-model-screen-20261104/models.ts",
++  "selection": "All 48 development lab photos outside the fixed sixteen-photo screen. No quality scores inspected to select them.",
++  "independence": "Separate from this model-screen cohort, not unused by the broader development campaign.",
++  "fixtureIds": [
++    "im26-2026",
++    "im26-3300",
++    "im26-3304",
++    "im26-3302",
++    "im26-1242",
++    "im26-2400",
++    "im26-3008",
++    "im26-2000",
++    "im26-1608",
++    "im26-1212",
++    "im26-1612",
++    "im26-1466",
++    "im26-1214",
++    "im26-1414",
++    "im26-2016",
++    "im26-3006",
++    "im26-3002",
++    "im26-1638",
++    "im26-1020",
++    "im26-1050",
++    "im26-1006",
++    "im26-1606",
++    "im26-1238",
++    "im26-1472",
++    "im26-2408",
++    "im26-1234",
++    "im26-1416",
++    "im26-1410",
++    "im26-3320",
++    "im26-3004",
++    "im26-3010",
++    "im26-1636",
++    "im26-1408",
++    "im26-1468",
++    "im26-1030",
++    "im26-1400",
++    "im26-1058",
++    "im26-3316",
++    "im26-3318",
++    "im26-2018",
++    "im26-1220",
++    "im26-1236",
++    "im26-2008",
++    "im26-1550",
++    "im26-2014",
++    "im26-1204",
++    "im26-1032",
++    "im26-2404"
++  ],
++  "distanceSelection": "Indices 2, 4 and 6 of the existing nine-point ladder, chosen by position without inspecting scores.",
++  "distances": [0.9, 1.85, 3.8],
++  "modes": [
++    {
++      "name": "aligned",
++      "directory": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage"
++    },
++    {
++      "name": "predictor",
++      "directory": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage"
++    }
++  ],
++  "variants": ["actual", "x", "y", "b", "all"],
++  "pointPairs": 144,
++  "maximumReconstructions": 1440,
++  "comparisons": {
++    "actual": 144,
++    "restorations": 1152
++  },
++  "gates": {
++    "metrics": ["butteraugliMax", "butteraugliNorm3"],
++    "cohorts": ["actual", "restorations"],
++    "nativeMaterialThresholdPercent": 0.1,
++    "minimumMaterialComparisons": 10,
++    "minimumSignAccuracy": 0.8,
++    "nativeHarmThresholdPercent": 1,
++    "maximumMissedHarms": 0,
++    "predictedZeroTolerance": 1e-9,
++    "rule": "All four metric/cohort gates must pass. Report direction counts, trivial baselines, abstentions and every missed harm. No subset selection."
++  },
++  "diagnostics": "Reuse verified reconstructed-channel restoration with saved AC/filter decisions. Score fixed reconstructions with native Butteraugli and SSIMULACRA2, then predict Butteraugli with the unchanged passing model. SSIM results are descriptive; the model does not predict SSIM.",
++  "limits": "One fixed validation only. No formula changes, fitting, new encodes, encoder changes, joint RD, peer decisions or holdout access. All quality, speed, memory and promotion gates unchanged. Stop after report; no promotion claim.",
++  "preparation": "Only fixture metadata and file existence/size inspected. No streams decoded, diagnostic images generated or quality scores read by this proposal script.",
++  "inputs": [
++    {
++      "id": "im26-2026",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2026-lab/0.9.jxl",
++      "bytes": 41665
++    },
++    {
++      "id": "im26-2026",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2026-lab/0.9.jxl",
++      "bytes": 42400
++    },
++    {
++      "id": "im26-2026",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2026-lab/1.85.jxl",
++      "bytes": 26231
++    },
++    {
++      "id": "im26-2026",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2026-lab/1.85.jxl",
++      "bytes": 26870
++    },
++    {
++      "id": "im26-2026",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2026-lab/3.8.jxl",
++      "bytes": 15881
++    },
++    {
++      "id": "im26-2026",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2026-lab/3.8.jxl",
++      "bytes": 16629
++    },
++    {
++      "id": "im26-3300",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3300-lab/0.9.jxl",
++      "bytes": 58077
++    },
++    {
++      "id": "im26-3300",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3300-lab/0.9.jxl",
++      "bytes": 58770
++    },
++    {
++      "id": "im26-3300",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3300-lab/1.85.jxl",
++      "bytes": 30537
++    },
++    {
++      "id": "im26-3300",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3300-lab/1.85.jxl",
++      "bytes": 31251
++    },
++    {
++      "id": "im26-3300",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3300-lab/3.8.jxl",
++      "bytes": 15068
++    },
++    {
++      "id": "im26-3300",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3300-lab/3.8.jxl",
++      "bytes": 15675
++    },
++    {
++      "id": "im26-3304",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3304-lab/0.9.jxl",
++      "bytes": 12484
++    },
++    {
++      "id": "im26-3304",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3304-lab/0.9.jxl",
++      "bytes": 12818
++    },
++    {
++      "id": "im26-3304",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3304-lab/1.85.jxl",
++      "bytes": 4807
++    },
++    {
++      "id": "im26-3304",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3304-lab/1.85.jxl",
++      "bytes": 5196
++    },
++    {
++      "id": "im26-3304",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3304-lab/3.8.jxl",
++      "bytes": 1350
++    },
++    {
++      "id": "im26-3304",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3304-lab/3.8.jxl",
++      "bytes": 1704
++    },
++    {
++      "id": "im26-3302",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3302-lab/0.9.jxl",
++      "bytes": 82829
++    },
++    {
++      "id": "im26-3302",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3302-lab/0.9.jxl",
++      "bytes": 83068
++    },
++    {
++      "id": "im26-3302",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3302-lab/1.85.jxl",
++      "bytes": 49618
++    },
++    {
++      "id": "im26-3302",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3302-lab/1.85.jxl",
++      "bytes": 49752
++    },
++    {
++      "id": "im26-3302",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3302-lab/3.8.jxl",
++      "bytes": 19787
++    },
++    {
++      "id": "im26-3302",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3302-lab/3.8.jxl",
++      "bytes": 19977
++    },
++    {
++      "id": "im26-1242",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1242-lab/0.9.jxl",
++      "bytes": 59354
++    },
++    {
++      "id": "im26-1242",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1242-lab/0.9.jxl",
++      "bytes": 60210
++    },
++    {
++      "id": "im26-1242",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1242-lab/1.85.jxl",
++      "bytes": 32601
++    },
++    {
++      "id": "im26-1242",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1242-lab/1.85.jxl",
++      "bytes": 33504
++    },
++    {
++      "id": "im26-1242",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1242-lab/3.8.jxl",
++      "bytes": 17965
++    },
++    {
++      "id": "im26-1242",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1242-lab/3.8.jxl",
++      "bytes": 18704
++    },
++    {
++      "id": "im26-2400",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2400-lab/0.9.jxl",
++      "bytes": 8631
++    },
++    {
++      "id": "im26-2400",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2400-lab/0.9.jxl",
++      "bytes": 9522
++    },
++    {
++      "id": "im26-2400",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2400-lab/1.85.jxl",
++      "bytes": 3655
++    },
++    {
++      "id": "im26-2400",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2400-lab/1.85.jxl",
++      "bytes": 4516
++    },
++    {
++      "id": "im26-2400",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2400-lab/3.8.jxl",
++      "bytes": 1589
++    },
++    {
++      "id": "im26-2400",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2400-lab/3.8.jxl",
++      "bytes": 2450
++    },
++    {
++      "id": "im26-3008",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3008-lab/0.9.jxl",
++      "bytes": 56262
++    },
++    {
++      "id": "im26-3008",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3008-lab/0.9.jxl",
++      "bytes": 57057
++    },
++    {
++      "id": "im26-3008",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3008-lab/1.85.jxl",
++      "bytes": 30329
++    },
++    {
++      "id": "im26-3008",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3008-lab/1.85.jxl",
++      "bytes": 31099
++    },
++    {
++      "id": "im26-3008",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3008-lab/3.8.jxl",
++      "bytes": 16564
++    },
++    {
++      "id": "im26-3008",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3008-lab/3.8.jxl",
++      "bytes": 17414
++    },
++    {
++      "id": "im26-2000",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2000-lab/0.9.jxl",
++      "bytes": 32019
++    },
++    {
++      "id": "im26-2000",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2000-lab/0.9.jxl",
++      "bytes": 32769
++    },
++    {
++      "id": "im26-2000",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2000-lab/1.85.jxl",
++      "bytes": 17767
++    },
++    {
++      "id": "im26-2000",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2000-lab/1.85.jxl",
++      "bytes": 18443
++    },
++    {
++      "id": "im26-2000",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2000-lab/3.8.jxl",
++      "bytes": 8872
++    },
++    {
++      "id": "im26-2000",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2000-lab/3.8.jxl",
++      "bytes": 9518
++    },
++    {
++      "id": "im26-1608",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1608-lab/0.9.jxl",
++      "bytes": 49339
++    },
++    {
++      "id": "im26-1608",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1608-lab/0.9.jxl",
++      "bytes": 50264
++    },
++    {
++      "id": "im26-1608",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1608-lab/1.85.jxl",
++      "bytes": 29328
++    },
++    {
++      "id": "im26-1608",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1608-lab/1.85.jxl",
++      "bytes": 30179
++    },
++    {
++      "id": "im26-1608",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1608-lab/3.8.jxl",
++      "bytes": 18706
++    },
++    {
++      "id": "im26-1608",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1608-lab/3.8.jxl",
++      "bytes": 19396
++    },
++    {
++      "id": "im26-1212",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1212-lab/0.9.jxl",
++      "bytes": 73531
++    },
++    {
++      "id": "im26-1212",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1212-lab/0.9.jxl",
++      "bytes": 74676
++    },
++    {
++      "id": "im26-1212",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1212-lab/1.85.jxl",
++      "bytes": 39901
++    },
++    {
++      "id": "im26-1212",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1212-lab/1.85.jxl",
++      "bytes": 41029
++    },
++    {
++      "id": "im26-1212",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1212-lab/3.8.jxl",
++      "bytes": 20277
++    },
++    {
++      "id": "im26-1212",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1212-lab/3.8.jxl",
++      "bytes": 21330
++    },
++    {
++      "id": "im26-1612",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1612-lab/0.9.jxl",
++      "bytes": 37430
++    },
++    {
++      "id": "im26-1612",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1612-lab/0.9.jxl",
++      "bytes": 38115
++    },
++    {
++      "id": "im26-1612",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1612-lab/1.85.jxl",
++      "bytes": 18287
++    },
++    {
++      "id": "im26-1612",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1612-lab/1.85.jxl",
++      "bytes": 18967
++    },
++    {
++      "id": "im26-1612",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1612-lab/3.8.jxl",
++      "bytes": 9427
++    },
++    {
++      "id": "im26-1612",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1612-lab/3.8.jxl",
++      "bytes": 10052
++    },
++    {
++      "id": "im26-1466",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1466-lab/0.9.jxl",
++      "bytes": 17251
++    },
++    {
++      "id": "im26-1466",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1466-lab/0.9.jxl",
++      "bytes": 18053
++    },
++    {
++      "id": "im26-1466",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1466-lab/1.85.jxl",
++      "bytes": 9632
++    },
++    {
++      "id": "im26-1466",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1466-lab/1.85.jxl",
++      "bytes": 10332
++    },
++    {
++      "id": "im26-1466",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1466-lab/3.8.jxl",
++      "bytes": 6031
++    },
++    {
++      "id": "im26-1466",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1466-lab/3.8.jxl",
++      "bytes": 6599
++    },
++    {
++      "id": "im26-1214",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1214-lab/0.9.jxl",
++      "bytes": 107521
++    },
++    {
++      "id": "im26-1214",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1214-lab/0.9.jxl",
++      "bytes": 108238
++    },
++    {
++      "id": "im26-1214",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1214-lab/1.85.jxl",
++      "bytes": 69594
++    },
++    {
++      "id": "im26-1214",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1214-lab/1.85.jxl",
++      "bytes": 70288
++    },
++    {
++      "id": "im26-1214",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1214-lab/3.8.jxl",
++      "bytes": 39286
++    },
++    {
++      "id": "im26-1214",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1214-lab/3.8.jxl",
++      "bytes": 40005
++    },
++    {
++      "id": "im26-1414",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1414-lab/0.9.jxl",
++      "bytes": 51094
++    },
++    {
++      "id": "im26-1414",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1414-lab/0.9.jxl",
++      "bytes": 51661
++    },
++    {
++      "id": "im26-1414",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1414-lab/1.85.jxl",
++      "bytes": 32799
++    },
++    {
++      "id": "im26-1414",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1414-lab/1.85.jxl",
++      "bytes": 33443
++    },
++    {
++      "id": "im26-1414",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1414-lab/3.8.jxl",
++      "bytes": 19724
++    },
++    {
++      "id": "im26-1414",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1414-lab/3.8.jxl",
++      "bytes": 20325
++    },
++    {
++      "id": "im26-2016",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2016-lab/0.9.jxl",
++      "bytes": 13217
++    },
++    {
++      "id": "im26-2016",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2016-lab/0.9.jxl",
++      "bytes": 14183
++    },
++    {
++      "id": "im26-2016",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2016-lab/1.85.jxl",
++      "bytes": 6066
++    },
++    {
++      "id": "im26-2016",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2016-lab/1.85.jxl",
++      "bytes": 6884
++    },
++    {
++      "id": "im26-2016",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2016-lab/3.8.jxl",
++      "bytes": 2502
++    },
++    {
++      "id": "im26-2016",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2016-lab/3.8.jxl",
++      "bytes": 3210
++    },
++    {
++      "id": "im26-3006",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3006-lab/0.9.jxl",
++      "bytes": 85046
++    },
++    {
++      "id": "im26-3006",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3006-lab/0.9.jxl",
++      "bytes": 86018
++    },
++    {
++      "id": "im26-3006",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3006-lab/1.85.jxl",
++      "bytes": 53071
++    },
++    {
++      "id": "im26-3006",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3006-lab/1.85.jxl",
++      "bytes": 54127
++    },
++    {
++      "id": "im26-3006",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3006-lab/3.8.jxl",
++      "bytes": 30708
++    },
++    {
++      "id": "im26-3006",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3006-lab/3.8.jxl",
++      "bytes": 31767
++    },
++    {
++      "id": "im26-3002",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3002-lab/0.9.jxl",
++      "bytes": 65498
++    },
++    {
++      "id": "im26-3002",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3002-lab/0.9.jxl",
++      "bytes": 66581
++    },
++    {
++      "id": "im26-3002",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3002-lab/1.85.jxl",
++      "bytes": 38332
++    },
++    {
++      "id": "im26-3002",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3002-lab/1.85.jxl",
++      "bytes": 39228
++    },
++    {
++      "id": "im26-3002",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3002-lab/3.8.jxl",
++      "bytes": 22677
++    },
++    {
++      "id": "im26-3002",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3002-lab/3.8.jxl",
++      "bytes": 23483
++    },
++    {
++      "id": "im26-1638",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1638-lab/0.9.jxl",
++      "bytes": 59077
++    },
++    {
++      "id": "im26-1638",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1638-lab/0.9.jxl",
++      "bytes": 59755
++    },
++    {
++      "id": "im26-1638",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1638-lab/1.85.jxl",
++      "bytes": 33178
++    },
++    {
++      "id": "im26-1638",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1638-lab/1.85.jxl",
++      "bytes": 33847
++    },
++    {
++      "id": "im26-1638",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1638-lab/3.8.jxl",
++      "bytes": 18528
++    },
++    {
++      "id": "im26-1638",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1638-lab/3.8.jxl",
++      "bytes": 19157
++    },
++    {
++      "id": "im26-1020",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1020-lab/0.9.jxl",
++      "bytes": 7525
++    },
++    {
++      "id": "im26-1020",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1020-lab/0.9.jxl",
++      "bytes": 8070
++    },
++    {
++      "id": "im26-1020",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1020-lab/1.85.jxl",
++      "bytes": 2789
++    },
++    {
++      "id": "im26-1020",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1020-lab/1.85.jxl",
++      "bytes": 3288
++    },
++    {
++      "id": "im26-1020",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1020-lab/3.8.jxl",
++      "bytes": 1554
++    },
++    {
++      "id": "im26-1020",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1020-lab/3.8.jxl",
++      "bytes": 1952
++    },
++    {
++      "id": "im26-1050",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1050-lab/0.9.jxl",
++      "bytes": 10492
++    },
++    {
++      "id": "im26-1050",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1050-lab/0.9.jxl",
++      "bytes": 11224
++    },
++    {
++      "id": "im26-1050",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1050-lab/1.85.jxl",
++      "bytes": 5702
++    },
++    {
++      "id": "im26-1050",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1050-lab/1.85.jxl",
++      "bytes": 6385
++    },
++    {
++      "id": "im26-1050",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1050-lab/3.8.jxl",
++      "bytes": 3627
++    },
++    {
++      "id": "im26-1050",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1050-lab/3.8.jxl",
++      "bytes": 4130
++    },
++    {
++      "id": "im26-1006",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1006-lab/0.9.jxl",
++      "bytes": 70967
++    },
++    {
++      "id": "im26-1006",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1006-lab/0.9.jxl",
++      "bytes": 71884
++    },
++    {
++      "id": "im26-1006",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1006-lab/1.85.jxl",
++      "bytes": 45716
++    },
++    {
++      "id": "im26-1006",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1006-lab/1.85.jxl",
++      "bytes": 46628
++    },
++    {
++      "id": "im26-1006",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1006-lab/3.8.jxl",
++      "bytes": 27591
++    },
++    {
++      "id": "im26-1006",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1006-lab/3.8.jxl",
++      "bytes": 28444
++    },
++    {
++      "id": "im26-1606",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1606-lab/0.9.jxl",
++      "bytes": 78272
++    },
++    {
++      "id": "im26-1606",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1606-lab/0.9.jxl",
++      "bytes": 78702
++    },
++    {
++      "id": "im26-1606",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1606-lab/1.85.jxl",
++      "bytes": 47149
++    },
++    {
++      "id": "im26-1606",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1606-lab/1.85.jxl",
++      "bytes": 47730
++    },
++    {
++      "id": "im26-1606",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1606-lab/3.8.jxl",
++      "bytes": 27226
++    },
++    {
++      "id": "im26-1606",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1606-lab/3.8.jxl",
++      "bytes": 27836
++    },
++    {
++      "id": "im26-1238",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1238-lab/0.9.jxl",
++      "bytes": 75777
++    },
++    {
++      "id": "im26-1238",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1238-lab/0.9.jxl",
++      "bytes": 76864
++    },
++    {
++      "id": "im26-1238",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1238-lab/1.85.jxl",
++      "bytes": 41691
++    },
++    {
++      "id": "im26-1238",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1238-lab/1.85.jxl",
++      "bytes": 42884
++    },
++    {
++      "id": "im26-1238",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1238-lab/3.8.jxl",
++      "bytes": 23229
++    },
++    {
++      "id": "im26-1238",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1238-lab/3.8.jxl",
++      "bytes": 24163
++    },
++    {
++      "id": "im26-1472",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1472-lab/0.9.jxl",
++      "bytes": 33923
++    },
++    {
++      "id": "im26-1472",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1472-lab/0.9.jxl",
++      "bytes": 34733
++    },
++    {
++      "id": "im26-1472",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1472-lab/1.85.jxl",
++      "bytes": 17575
++    },
++    {
++      "id": "im26-1472",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1472-lab/1.85.jxl",
++      "bytes": 18318
++    },
++    {
++      "id": "im26-1472",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1472-lab/3.8.jxl",
++      "bytes": 9933
++    },
++    {
++      "id": "im26-1472",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1472-lab/3.8.jxl",
++      "bytes": 10587
++    },
++    {
++      "id": "im26-2408",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2408-lab/0.9.jxl",
++      "bytes": 97817
++    },
++    {
++      "id": "im26-2408",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2408-lab/0.9.jxl",
++      "bytes": 98715
++    },
++    {
++      "id": "im26-2408",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2408-lab/1.85.jxl",
++      "bytes": 60588
++    },
++    {
++      "id": "im26-2408",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2408-lab/1.85.jxl",
++      "bytes": 61465
++    },
++    {
++      "id": "im26-2408",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2408-lab/3.8.jxl",
++      "bytes": 33957
++    },
++    {
++      "id": "im26-2408",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2408-lab/3.8.jxl",
++      "bytes": 34827
++    },
++    {
++      "id": "im26-1234",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1234-lab/0.9.jxl",
++      "bytes": 42747
++    },
++    {
++      "id": "im26-1234",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1234-lab/0.9.jxl",
++      "bytes": 43918
++    },
++    {
++      "id": "im26-1234",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1234-lab/1.85.jxl",
++      "bytes": 23914
++    },
++    {
++      "id": "im26-1234",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1234-lab/1.85.jxl",
++      "bytes": 24957
++    },
++    {
++      "id": "im26-1234",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1234-lab/3.8.jxl",
++      "bytes": 13982
++    },
++    {
++      "id": "im26-1234",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1234-lab/3.8.jxl",
++      "bytes": 14933
++    },
++    {
++      "id": "im26-1416",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1416-lab/0.9.jxl",
++      "bytes": 21691
++    },
++    {
++      "id": "im26-1416",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1416-lab/0.9.jxl",
++      "bytes": 22480
++    },
++    {
++      "id": "im26-1416",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1416-lab/1.85.jxl",
++      "bytes": 10529
++    },
++    {
++      "id": "im26-1416",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1416-lab/1.85.jxl",
++      "bytes": 11183
++    },
++    {
++      "id": "im26-1416",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1416-lab/3.8.jxl",
++      "bytes": 3841
++    },
++    {
++      "id": "im26-1416",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1416-lab/3.8.jxl",
++      "bytes": 4405
++    },
++    {
++      "id": "im26-1410",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1410-lab/0.9.jxl",
++      "bytes": 60062
++    },
++    {
++      "id": "im26-1410",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1410-lab/0.9.jxl",
++      "bytes": 60724
++    },
++    {
++      "id": "im26-1410",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1410-lab/1.85.jxl",
++      "bytes": 39351
++    },
++    {
++      "id": "im26-1410",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1410-lab/1.85.jxl",
++      "bytes": 40056
++    },
++    {
++      "id": "im26-1410",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1410-lab/3.8.jxl",
++      "bytes": 25618
++    },
++    {
++      "id": "im26-1410",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1410-lab/3.8.jxl",
++      "bytes": 26123
++    },
++    {
++      "id": "im26-3320",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3320-lab/0.9.jxl",
++      "bytes": 112833
++    },
++    {
++      "id": "im26-3320",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3320-lab/0.9.jxl",
++      "bytes": 113498
++    },
++    {
++      "id": "im26-3320",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3320-lab/1.85.jxl",
++      "bytes": 68571
++    },
++    {
++      "id": "im26-3320",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3320-lab/1.85.jxl",
++      "bytes": 69229
++    },
++    {
++      "id": "im26-3320",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3320-lab/3.8.jxl",
++      "bytes": 35627
++    },
++    {
++      "id": "im26-3320",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3320-lab/3.8.jxl",
++      "bytes": 36389
++    },
++    {
++      "id": "im26-3004",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3004-lab/0.9.jxl",
++      "bytes": 50050
++    },
++    {
++      "id": "im26-3004",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3004-lab/0.9.jxl",
++      "bytes": 50814
++    },
++    {
++      "id": "im26-3004",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3004-lab/1.85.jxl",
++      "bytes": 25832
++    },
++    {
++      "id": "im26-3004",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3004-lab/1.85.jxl",
++      "bytes": 26700
++    },
++    {
++      "id": "im26-3004",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3004-lab/3.8.jxl",
++      "bytes": 14005
++    },
++    {
++      "id": "im26-3004",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3004-lab/3.8.jxl",
++      "bytes": 14965
++    },
++    {
++      "id": "im26-3010",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3010-lab/0.9.jxl",
++      "bytes": 87668
++    },
++    {
++      "id": "im26-3010",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3010-lab/0.9.jxl",
++      "bytes": 88328
++    },
++    {
++      "id": "im26-3010",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3010-lab/1.85.jxl",
++      "bytes": 51901
++    },
++    {
++      "id": "im26-3010",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3010-lab/1.85.jxl",
++      "bytes": 52421
++    },
++    {
++      "id": "im26-3010",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3010-lab/3.8.jxl",
++      "bytes": 27966
++    },
++    {
++      "id": "im26-3010",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3010-lab/3.8.jxl",
++      "bytes": 28644
++    },
++    {
++      "id": "im26-1636",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1636-lab/0.9.jxl",
++      "bytes": 31003
++    },
++    {
++      "id": "im26-1636",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1636-lab/0.9.jxl",
++      "bytes": 31563
++    },
++    {
++      "id": "im26-1636",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1636-lab/1.85.jxl",
++      "bytes": 15072
++    },
++    {
++      "id": "im26-1636",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1636-lab/1.85.jxl",
++      "bytes": 15470
++    },
++    {
++      "id": "im26-1636",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1636-lab/3.8.jxl",
++      "bytes": 7452
++    },
++    {
++      "id": "im26-1636",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1636-lab/3.8.jxl",
++      "bytes": 8055
++    },
++    {
++      "id": "im26-1408",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1408-lab/0.9.jxl",
++      "bytes": 98043
++    },
++    {
++      "id": "im26-1408",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1408-lab/0.9.jxl",
++      "bytes": 98928
++    },
++    {
++      "id": "im26-1408",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1408-lab/1.85.jxl",
++      "bytes": 59359
++    },
++    {
++      "id": "im26-1408",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1408-lab/1.85.jxl",
++      "bytes": 60326
++    },
++    {
++      "id": "im26-1408",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1408-lab/3.8.jxl",
++      "bytes": 29543
++    },
++    {
++      "id": "im26-1408",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1408-lab/3.8.jxl",
++      "bytes": 30309
++    },
++    {
++      "id": "im26-1468",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1468-lab/0.9.jxl",
++      "bytes": 61443
++    },
++    {
++      "id": "im26-1468",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1468-lab/0.9.jxl",
++      "bytes": 61965
++    },
++    {
++      "id": "im26-1468",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1468-lab/1.85.jxl",
++      "bytes": 26860
++    },
++    {
++      "id": "im26-1468",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1468-lab/1.85.jxl",
++      "bytes": 27374
++    },
++    {
++      "id": "im26-1468",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1468-lab/3.8.jxl",
++      "bytes": 10374
++    },
++    {
++      "id": "im26-1468",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1468-lab/3.8.jxl",
++      "bytes": 10886
++    },
++    {
++      "id": "im26-1030",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1030-lab/0.9.jxl",
++      "bytes": 20635
++    },
++    {
++      "id": "im26-1030",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1030-lab/0.9.jxl",
++      "bytes": 21069
++    },
++    {
++      "id": "im26-1030",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1030-lab/1.85.jxl",
++      "bytes": 7439
++    },
++    {
++      "id": "im26-1030",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1030-lab/1.85.jxl",
++      "bytes": 7856
++    },
++    {
++      "id": "im26-1030",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1030-lab/3.8.jxl",
++      "bytes": 2595
++    },
++    {
++      "id": "im26-1030",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1030-lab/3.8.jxl",
++      "bytes": 2983
++    },
++    {
++      "id": "im26-1400",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1400-lab/0.9.jxl",
++      "bytes": 73756
++    },
++    {
++      "id": "im26-1400",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1400-lab/0.9.jxl",
++      "bytes": 74819
++    },
++    {
++      "id": "im26-1400",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1400-lab/1.85.jxl",
++      "bytes": 46182
++    },
++    {
++      "id": "im26-1400",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1400-lab/1.85.jxl",
++      "bytes": 47180
++    },
++    {
++      "id": "im26-1400",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1400-lab/3.8.jxl",
++      "bytes": 27929
++    },
++    {
++      "id": "im26-1400",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1400-lab/3.8.jxl",
++      "bytes": 28969
++    },
++    {
++      "id": "im26-1058",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1058-lab/0.9.jxl",
++      "bytes": 51802
++    },
++    {
++      "id": "im26-1058",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1058-lab/0.9.jxl",
++      "bytes": 52785
++    },
++    {
++      "id": "im26-1058",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1058-lab/1.85.jxl",
++      "bytes": 30703
++    },
++    {
++      "id": "im26-1058",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1058-lab/1.85.jxl",
++      "bytes": 31545
++    },
++    {
++      "id": "im26-1058",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1058-lab/3.8.jxl",
++      "bytes": 18734
++    },
++    {
++      "id": "im26-1058",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1058-lab/3.8.jxl",
++      "bytes": 19549
++    },
++    {
++      "id": "im26-3316",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3316-lab/0.9.jxl",
++      "bytes": 55587
++    },
++    {
++      "id": "im26-3316",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3316-lab/0.9.jxl",
++      "bytes": 56521
++    },
++    {
++      "id": "im26-3316",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3316-lab/1.85.jxl",
++      "bytes": 29665
++    },
++    {
++      "id": "im26-3316",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3316-lab/1.85.jxl",
++      "bytes": 30507
++    },
++    {
++      "id": "im26-3316",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3316-lab/3.8.jxl",
++      "bytes": 13999
++    },
++    {
++      "id": "im26-3316",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3316-lab/3.8.jxl",
++      "bytes": 14807
++    },
++    {
++      "id": "im26-3318",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3318-lab/0.9.jxl",
++      "bytes": 30887
++    },
++    {
++      "id": "im26-3318",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3318-lab/0.9.jxl",
++      "bytes": 31816
++    },
++    {
++      "id": "im26-3318",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3318-lab/1.85.jxl",
++      "bytes": 14942
++    },
++    {
++      "id": "im26-3318",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3318-lab/1.85.jxl",
++      "bytes": 15794
++    },
++    {
++      "id": "im26-3318",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-3318-lab/3.8.jxl",
++      "bytes": 5871
++    },
++    {
++      "id": "im26-3318",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-3318-lab/3.8.jxl",
++      "bytes": 6695
++    },
++    {
++      "id": "im26-2018",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2018-lab/0.9.jxl",
++      "bytes": 16185
++    },
++    {
++      "id": "im26-2018",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2018-lab/0.9.jxl",
++      "bytes": 16880
++    },
++    {
++      "id": "im26-2018",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2018-lab/1.85.jxl",
++      "bytes": 8829
++    },
++    {
++      "id": "im26-2018",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2018-lab/1.85.jxl",
++      "bytes": 9402
++    },
++    {
++      "id": "im26-2018",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2018-lab/3.8.jxl",
++      "bytes": 4606
++    },
++    {
++      "id": "im26-2018",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2018-lab/3.8.jxl",
++      "bytes": 4960
++    },
++    {
++      "id": "im26-1220",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1220-lab/0.9.jxl",
++      "bytes": 99935
++    },
++    {
++      "id": "im26-1220",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1220-lab/0.9.jxl",
++      "bytes": 100664
++    },
++    {
++      "id": "im26-1220",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1220-lab/1.85.jxl",
++      "bytes": 60185
++    },
++    {
++      "id": "im26-1220",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1220-lab/1.85.jxl",
++      "bytes": 60792
++    },
++    {
++      "id": "im26-1220",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1220-lab/3.8.jxl",
++      "bytes": 30069
++    },
++    {
++      "id": "im26-1220",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1220-lab/3.8.jxl",
++      "bytes": 30653
++    },
++    {
++      "id": "im26-1236",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1236-lab/0.9.jxl",
++      "bytes": 39052
++    },
++    {
++      "id": "im26-1236",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1236-lab/0.9.jxl",
++      "bytes": 39689
++    },
++    {
++      "id": "im26-1236",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1236-lab/1.85.jxl",
++      "bytes": 20201
++    },
++    {
++      "id": "im26-1236",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1236-lab/1.85.jxl",
++      "bytes": 20880
++    },
++    {
++      "id": "im26-1236",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1236-lab/3.8.jxl",
++      "bytes": 10445
++    },
++    {
++      "id": "im26-1236",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1236-lab/3.8.jxl",
++      "bytes": 11108
++    },
++    {
++      "id": "im26-2008",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2008-lab/0.9.jxl",
++      "bytes": 57012
++    },
++    {
++      "id": "im26-2008",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2008-lab/0.9.jxl",
++      "bytes": 57859
++    },
++    {
++      "id": "im26-2008",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2008-lab/1.85.jxl",
++      "bytes": 30243
++    },
++    {
++      "id": "im26-2008",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2008-lab/1.85.jxl",
++      "bytes": 31113
++    },
++    {
++      "id": "im26-2008",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2008-lab/3.8.jxl",
++      "bytes": 16320
++    },
++    {
++      "id": "im26-2008",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2008-lab/3.8.jxl",
++      "bytes": 17099
++    },
++    {
++      "id": "im26-1550",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1550-lab/0.9.jxl",
++      "bytes": 48089
++    },
++    {
++      "id": "im26-1550",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1550-lab/0.9.jxl",
++      "bytes": 48746
++    },
++    {
++      "id": "im26-1550",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1550-lab/1.85.jxl",
++      "bytes": 19642
++    },
++    {
++      "id": "im26-1550",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1550-lab/1.85.jxl",
++      "bytes": 20344
++    },
++    {
++      "id": "im26-1550",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1550-lab/3.8.jxl",
++      "bytes": 8155
++    },
++    {
++      "id": "im26-1550",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1550-lab/3.8.jxl",
++      "bytes": 8824
++    },
++    {
++      "id": "im26-2014",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2014-lab/0.9.jxl",
++      "bytes": 70172
++    },
++    {
++      "id": "im26-2014",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2014-lab/0.9.jxl",
++      "bytes": 70876
++    },
++    {
++      "id": "im26-2014",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2014-lab/1.85.jxl",
++      "bytes": 31805
++    },
++    {
++      "id": "im26-2014",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2014-lab/1.85.jxl",
++      "bytes": 32465
++    },
++    {
++      "id": "im26-2014",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2014-lab/3.8.jxl",
++      "bytes": 11816
++    },
++    {
++      "id": "im26-2014",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2014-lab/3.8.jxl",
++      "bytes": 12376
++    },
++    {
++      "id": "im26-1204",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1204-lab/0.9.jxl",
++      "bytes": 61398
++    },
++    {
++      "id": "im26-1204",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1204-lab/0.9.jxl",
++      "bytes": 62270
++    },
++    {
++      "id": "im26-1204",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1204-lab/1.85.jxl",
++      "bytes": 33976
++    },
++    {
++      "id": "im26-1204",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1204-lab/1.85.jxl",
++      "bytes": 34680
++    },
++    {
++      "id": "im26-1204",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1204-lab/3.8.jxl",
++      "bytes": 17751
++    },
++    {
++      "id": "im26-1204",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1204-lab/3.8.jxl",
++      "bytes": 18275
++    },
++    {
++      "id": "im26-1032",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1032-lab/0.9.jxl",
++      "bytes": 46714
++    },
++    {
++      "id": "im26-1032",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1032-lab/0.9.jxl",
++      "bytes": 47543
++    },
++    {
++      "id": "im26-1032",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1032-lab/1.85.jxl",
++      "bytes": 27701
++    },
++    {
++      "id": "im26-1032",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1032-lab/1.85.jxl",
++      "bytes": 28422
++    },
++    {
++      "id": "im26-1032",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-1032-lab/3.8.jxl",
++      "bytes": 16626
++    },
++    {
++      "id": "im26-1032",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-1032-lab/3.8.jxl",
++      "bytes": 17333
++    },
++    {
++      "id": "im26-2404",
++      "mode": "aligned",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2404-lab/0.9.jxl",
++      "bytes": 124493
++    },
++    {
++      "id": "im26-2404",
++      "mode": "predictor",
++      "distance": 0.9,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2404-lab/0.9.jxl",
++      "bytes": 125363
++    },
++    {
++      "id": "im26-2404",
++      "mode": "aligned",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2404-lab/1.85.jxl",
++      "bytes": 84575
++    },
++    {
++      "id": "im26-2404",
++      "mode": "predictor",
++      "distance": 1.85,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2404-lab/1.85.jxl",
++      "bytes": 85542
++    },
++    {
++      "id": "im26-2404",
++      "mode": "aligned",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/im26-2404-lab/3.8.jxl",
++      "bytes": 43344
++    },
++    {
++      "id": "im26-2404",
++      "mode": "predictor",
++      "distance": 3.8,
++      "path": ".tmp/jpegxl-lossy-lab/dc-predictor-20261103/lab/standalone-dc-predictor-purejsimage/im26-2404-lab/3.8.jxl",
++      "bytes": 44117
++    }
++  ]
++}

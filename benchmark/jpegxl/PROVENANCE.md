@@ -807,3 +807,16 @@ v0.12.0 commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. Linear RGB conversion
 and half-resolution averaging reuse `libjxl-display-loss.ts`, recorded above.
 All component code, constants, source/BSD headers and full package/docs notices
 are unchanged. No fitted weights, runtime imports or encoder changes are added.
+
+## Independent DC model validation (2026-11-04)
+
+`lossy-lab/DC-MODEL-VALIDATION.patch` contains first-party validation and reporting
+scripts plus the fixed proposal. Its model composition is the unchanged full
+directional multiscale row from `DC-MODEL-SCREEN.patch`; the two rejected outputs
+are omitted. It reuses the same attributed perceptual ports from libjxl v0.12.0
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`, recorded above. Reconstruction
+and channel restoration reuse the earlier display/channel audit helpers and
+their attributed Gaborish and output-dither ports. No new code, constant or table
+is taken from libjxl. Source headers and complete package/docs notices remain
+unchanged. Native metrics are development scorers only; nothing enters the
+runtime bundle.
