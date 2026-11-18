@@ -1,0 +1,31 @@
+benchmark/jpegxl/lossy-lab/SOURCE-CHOOSER-FIT.json
+  s_42a303a21f7525::t_8fc7abce520ddf 1-229
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_f9bc1115942d11 3328
+  s_42a303a21f7525::t_7496bba2926572 3,12,17,3327
+benchmark/jpegxl/lossy-lab/SOURCE-CHOOSER-AUDIT.patch
+  s_42a303a21f7525::t_5dc2da46e02435 1-404
+benchmark/jpegxl/lossy-lab/FULL-CURVE-CHOICE-REPORT.md
+  s_42a303a21f7525::t_7496bba2926572 57-60
+benchmark/jpegxl/lossy-lab/SOURCE-CHOOSER-REPORT.md
+  s_42a303a21f7525::t_7496bba2926572 1-47,51-71
+  s_42a303a21f7525::t_f9bc1115942d11 48-50
+benchmark/jpegxl/lossy-lab/README.md
+  s_42a303a21f7525::t_7496bba2926572 25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "707c781a125cd029095b483c55827035b81745a7",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
