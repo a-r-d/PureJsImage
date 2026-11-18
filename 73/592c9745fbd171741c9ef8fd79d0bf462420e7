@@ -1,0 +1,32 @@
+benchmark/jpegxl/lossy-lab/MATCHED-BUDGET-EXPERIMENT.patch
+  s_42a303a21f7525::t_da57a57378e3aa 1-612
+benchmark/jpegxl/lossy-lab/SAVED-FRONTIER-REPORT.md
+  s_42a303a21f7525::t_db9ca6034da551 56-58
+benchmark/jpegxl/lossy-lab/README.md
+  s_42a303a21f7525::t_db9ca6034da551 14-16
+benchmark/jpegxl/lossy-lab/MATCHED-BUDGET-REPORT.json
+  s_42a303a21f7525::t_7d2baab72fc4bd 1-762
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_db9ca6034da551 3,6-7,12,3309-3310
+  s_42a303a21f7525::t_c4a88e9b6a965f 3311
+benchmark/jpegxl/lossy-lab/MATCHED-BUDGET-REPORT.md
+  s_42a303a21f7525::t_c4a88e9b6a965f 58-62
+  s_42a303a21f7525::t_586e65b2bf7540 74-90
+  s_42a303a21f7525::t_db9ca6034da551 1-57,63-73,91-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "73592c9745fbd171741c9ef8fd79d0bf462420e7",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
