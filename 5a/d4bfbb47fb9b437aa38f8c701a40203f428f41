@@ -1,0 +1,31 @@
+benchmark/jpegxl/lossy-lab/BLOCK-BUDGET-REPORT.md
+  s_42a303a21f7525::t_a29baeea82fdcb 54-56
+benchmark/jpegxl/lossy-lab/README.md
+  s_42a303a21f7525::t_a29baeea82fdcb 22-24
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_a29baeea82fdcb 3,11,16,3324
+  s_42a303a21f7525::t_70f454fe26f054 3325
+benchmark/jpegxl/lossy-lab/FULL-CURVE-CHOICE-AUDIT.patch
+  s_42a303a21f7525::t_7a6235acb292bf 1-299
+benchmark/jpegxl/lossy-lab/FULL-CURVE-CHOICE-REPORT.md
+  s_42a303a21f7525::t_70f454fe26f054 62-65
+  s_42a303a21f7525::t_a29baeea82fdcb 1-61,66-81
+benchmark/jpegxl/lossy-lab/FULL-CURVE-CHOICE-REPORT.json
+  s_42a303a21f7525::t_7a6235acb292bf 1-1108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5ad4bfbb47fb9b437aa38f8c701a40203f428f41",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
