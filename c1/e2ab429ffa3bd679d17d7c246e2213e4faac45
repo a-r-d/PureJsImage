@@ -1,0 +1,140 @@
+benchmark/jpegxl/lossy-lab/decision-replay.patch
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1-878
+benchmark/jpegxl/lossy-lab/prepare-codec.ts
+  s_42a303a21f7525::t_6aa3cdfb99383f 1-2,4-25,29-48,55-78
+  s_42a303a21f7525::t_8ac56e967df4e1 3,26-28,49-54
+benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 35-36
+playwright.config.ts
+  s_42a303a21f7525::t_6aa3cdfb99383f 2-4
+package.json
+  s_42a303a21f7525::t_6aa3cdfb99383f 555,719
+benchmark/jpegxl/lossy-lab/selector-tile-mask.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 10-11
+benchmark/jpegxl/lossy-lab/transplant.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1,6,17-18
+src/codecs/jpegxl-jpeg-encode.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 87-88,134-135,141,846,907,939,991,1057,1059,1097,1154,1160-1163,1177,1294,1338,1365,1371,1398,1460,1464,1763,1785,2170,2175,2198-2199,2201,2219,3198-3200
+benchmark/jpegxl/lossy-lab/libjxl-dc-port.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 9
+benchmark/jpegxl/lossy-lab/feature-transplant.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 10
+  s_42a303a21f7525::t_8ade51a4bcf227 14,107,109-114,116-117,119-120
+benchmark/jpegxl/lossy-lab/libjxl-strategy-mask.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 9-10
+benchmark/jpegxl/lossy-lab/geometry-display-change.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 5
+benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 9
+benchmark/jpegxl/lossy-lab/libjxl-gaborish-port.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 12-13
+benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1-2
+docs-astro/src/data/package-metrics.json
+  s_42a303a21f7525::t_7aff7a8240d055 179
+  s_42a303a21f7525::t_4c0ef2b4381b55 571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/lossy-lab/selector-block-cache.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1-2
+scripts/check-package-types.ts
+  s_42a303a21f7525::t_46409af2b2af51 9,242-243,824
+  s_42a303a21f7525::t_7aff7a8240d055 237-241
+benchmark/jpegxl/lossy-lab/allocation.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1
+benchmark/jpegxl/lossy-lab/development-decisions.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1-41
+tests/jpegxl-geometry-display.test.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 7
+benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 6,11
+benchmark/jpegxl/lossy-lab/README.md
+  s_42a303a21f7525::t_fffb9a04816d96 3-10
+benchmark/jpegxl/lossy-lab/PACKAGE-ISOLATION-REPORT.md
+  s_42a303a21f7525::t_147d4f1fc37db8 105-112,127
+  s_42a303a21f7525::t_f33ce3b9c4267a 98-104,113,126
+  s_42a303a21f7525::t_a1a8a14d3e17ac 26-27,76-78
+  s_42a303a21f7525::t_9870b93e11b728 50-53
+  s_42a303a21f7525::t_0ab020c32886fe 49,120-125
+  s_42a303a21f7525::t_ad729957104dd0 1-25,28-48,82-97,114-119
+  s_42a303a21f7525::t_f6d90979356d2b 54-64
+  s_42a303a21f7525::t_6e678b9d7c1df1 65-75
+  s_42a303a21f7525::t_669e3f79de972c 79-81
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_ad729957104dd0 969-978
+benchmark/jpegxl/lossy-lab/PACKAGE-ISOLATION-EXPERIMENT.patch
+  s_42a303a21f7525::t_0ce51f798ee8a4 1-9,11-31,33-34,39,42-47,49-430,597,599-649,652-653,661,663-667,679-685,689-696
+  s_42a303a21f7525::t_9c0f0037b052a3 32,37-38,40-41,48,598,650-651,654-660,662,687-688
+  s_42a303a21f7525::t_a674848d2f31ce 35-36
+  s_42a303a21f7525::t_886a879c984ff8 10,484-596,668-678,686
+  s_42a303a21f7525::t_62b6ea06932129 431-483
+benchmark/jpegxl/lossy-lab/geometry-display.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 5
+benchmark/jpegxl/lossy-lab/source-transplant.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1-2
+benchmark/jpegxl/lossy-lab/PACKAGE-ISOLATION-REPORT.json
+  s_42a303a21f7525::t_abbe053f9d6263 10094,10096,10098-11533
+  s_42a303a21f7525::t_75819a678c32e2 313,315,329-1808,10095
+  s_42a303a21f7525::t_62b6ea06932129 86-89,1811-4852,10092
+  s_42a303a21f7525::t_81dd2a39a0412d 11542-11551
+  s_42a303a21f7525::t_9c0f0037b052a3 47,99,11534-11540,11563-11567
+  s_42a303a21f7525::t_0ce51f798ee8a4 1-42,44-46,48-85,98,100-312,314,316-328,1809-1810,10093,10097,11541,11552-11562,11568-11577
+  s_42a303a21f7525::t_886a879c984ff8 43,90-97,4853-4855,4857,4860-4893,10091
+  s_42a303a21f7525::t_8aa3bd609c6983 4856,4858-4859,4894-10090
+benchmark/generated/package-metrics.json
+  s_42a303a21f7525::t_7aff7a8240d055 179
+  s_42a303a21f7525::t_eca0d9ade5ecc2 571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/lossy-lab/audit-local-rate.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 3,7
+benchmark/jpegxl/lossy-lab/libjxl-initial-quant-port.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 12-13
+docs-astro/src/data/documentation-data.json
+  s_42a303a21f7525::t_7aff7a8240d055 129
+  s_42a303a21f7525::t_19106977a6c169 109-111
+scripts/check-browser-build.ts
+  s_42a303a21f7525::t_8ade51a4bcf227 35-37
+src/codecs/jpegxl-vardct-encode.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 698-699,777-778,816,1132,1278-1279,1677,1703,1774,1850,1908-1910,2754
+benchmark/jpegxl/lossy-lab/run.ts
+  s_42a303a21f7525::t_fffb9a04816d96 16,90
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_6e678b9d7c1df1 3297-3298
+  s_42a303a21f7525::t_f33ce3b9c4267a 3293-3294
+  s_42a303a21f7525::t_669e3f79de972c 10,3303-3304
+  s_42a303a21f7525::t_9870b93e11b728 3289-3290
+  s_42a303a21f7525::t_0ab020c32886fe 3281-3288
+  s_42a303a21f7525::t_f6d90979356d2b 3291-3292
+  s_42a303a21f7525::t_a1a8a14d3e17ac 3301-3302
+  s_42a303a21f7525::t_d72877eb500310 3295-3296
+  s_42a303a21f7525::t_147d4f1fc37db8 3-6,8-9,11-13,3299-3300
+benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 19-20
+vitest.config.ts
+  s_42a303a21f7525::t_6aa3cdfb99383f 2-4
+scripts/check-jpegxl-package-boundary.ts
+  s_42a303a21f7525::t_8ac56e967df4e1 5-6
+  s_42a303a21f7525::t_46409af2b2af51 2-3,7-16,19-20,22-24
+  s_42a303a21f7525::t_7aff7a8240d055 17-18
+  s_42a303a21f7525::t_71b88ed2b5a4da 1,4,21
+README.md
+  s_42a303a21f7525::t_19106977a6c169 463
+  s_42a303a21f7525::t_d0ae54b80fb87c 482
+benchmark/jpegxl/lossy-lab/gaborish-source-cache.ts
+  s_42a303a21f7525::t_7a5ca2009e4a7a 1-2
+src/codecs/jpegxl-modular-encode.ts
+  s_42a303a21f7525::t_8ade51a4bcf227 4203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c1e2ab429ffa3bd679d17d7c246e2213e4faac45",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
