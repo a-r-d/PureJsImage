@@ -1,0 +1,35 @@
+benchmark/jpegxl/lossy-lab/BLOCK-BUDGET-REPORT.json
+  s_42a303a21f7525::t_c36ea80e31b45e 1-3,5,22-920
+  s_42a303a21f7525::t_0da35259eef748 4,6-21
+benchmark/jpegxl/lossy-lab/BLOCK-QUANTIZATION-REPORT.md
+  s_42a303a21f7525::t_39794401103bdc 58-59
+benchmark/jpegxl/lossy-lab/BLOCK-BUDGET-REPORT.md
+  s_42a303a21f7525::t_73fe154726697e 35-39
+  s_42a303a21f7525::t_25922a3d0c49ae 32-34
+  s_42a303a21f7525::t_39794401103bdc 1-31,40-58,63-78
+  s_42a303a21f7525::t_5e3aba0c9a8562 59-62
+benchmark/jpegxl/lossy-lab/BLOCK-BUDGET-AUDIT.patch
+  s_42a303a21f7525::t_c36ea80e31b45e 1-2,4-151,164-204,206-210,236-277,279-305,307-330
+  s_42a303a21f7525::t_0da35259eef748 3,152-163,205,211-235,278,306
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_39794401103bdc 3,10,15,3321
+  s_42a303a21f7525::t_5e3aba0c9a8562 3322
+benchmark/jpegxl/lossy-lab/README.md
+  s_42a303a21f7525::t_39794401103bdc 19-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0b6554cd0153c420aa65963a4559db97cfc6775a",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
