@@ -1,0 +1,32 @@
+benchmark/jpegxl/lossy-lab/RATE-TARGET-REPORT.md
+  s_42a303a21f7525::t_11f50abae4dd50 65-89,148
+  s_42a303a21f7525::t_ab62a08e54254e 90-113,149-151
+  s_42a303a21f7525::t_19bc236d521ba3 122-125
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_11f50abae4dd50 8,3317-3318
+  s_42a303a21f7525::t_19bc236d521ba3 3319
+  s_42a303a21f7525::t_ab62a08e54254e 9
+benchmark/jpegxl/lossy-lab/RATE-TARGET-CAP-AUDIT.json
+  s_42a303a21f7525::t_a00de875b2808b 1-758
+benchmark/jpegxl/lossy-lab/RATE-TARGET-EXPERIMENT.patch
+  s_42a303a21f7525::t_e91747a3092098 745-906
+  s_42a303a21f7525::t_a00de875b2808b 578-744
+benchmark/jpegxl/lossy-lab/RATE-TARGET-SSIM-TRANSFER.json
+  s_42a303a21f7525::t_7a981798d24b77 1-778
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e1df3c82eff0b75ca58e416d311d52b961e9a905",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6.2-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
