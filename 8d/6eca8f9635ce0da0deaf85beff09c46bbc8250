@@ -1,0 +1,21 @@
+benchmark/jpegxl/lossy-lab-log.md
+  s_fb44c3e6b9dfb0::t_a4d00dec5c882b 3,3541-3556
+benchmark/jpegxl/LOSSY_LIBJXL_REOPENING.md
+  s_fb44c3e6b9dfb0::t_c7c50597484ec2 127-128,146-170
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8d6eca8f9635ce0da0deaf85beff09c46bbc8250",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
