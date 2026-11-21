@@ -4,6 +4,18 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Search palette color orders for RGB8 JPEG XL lossless input at effort 7 and 9,
+  as RGBA8 input already did. A 513x257 image with 246 colors shrinks from 5,504
+  to 2,247 bytes, below the 2,262-byte RGBA8 file. On the 104 RGB8 images of the
+  synthetic lossless corpus, 30 files are 10.6% smaller and none grows. RGB8
+  palette images take a median 3.9 times as long at these efforts, and a
+  1024x768 palette image takes 27 seconds instead of 15. When `maxWorkingBytes`
+  is too small for the order search, the encoder now keeps its earlier candidate
+  for RGB8 and RGBA8 input instead of failing.
+- Lossy effort 7 and 9 judge exact palettes by this RGB stream, so more palette
+  images keep exact colors. A 128x128 gray ramp at distance 4 now encodes
+  exactly in 1,187 bytes instead of a 2,812-byte VarDCT file.
+
 - Give every docs site page Open Graph and Twitter share tags. Pages without
   their own image use a new 1200 x 630 site card. Publish the JPEG XL
   flat-palette evidence file that the comparison page links to, point the TIFF

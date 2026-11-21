@@ -378,7 +378,7 @@ describe('JPEG XL actual encoder allocations', () => {
     expect(counters(run.encoder).peak).toBeLessThanOrEqual(96 * 1024 * 1024)
     expect(run.result().bytes).toBeGreaterThan(0)
     expectClosed(run.encoder)
-  }, 60_000)
+  }, 120_000)
   it('rejects the reviewed 512x512 effort-7 reproduction before workspace allocation', async () => {
     const run = await prepare(
       { effort: 7 },

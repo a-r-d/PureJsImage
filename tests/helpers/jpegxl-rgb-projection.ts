@@ -3,9 +3,11 @@ import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
 import { MemorySource } from '../../src/source.ts'
 
+// Opaque RGBA input that staged a full RGB copy peaked at 989,670 to 992,326 bytes here.
+// The optional palette order search raises the current peak to at most 967,824 bytes.
 const width = 96,
   height = 80,
-  budget = 950_000
+  budget = 975_000
 type Format = 'rgb8' | 'rgba8'
 const require = (condition: boolean, message: string): void => {
   if (!condition) throw new Error(message)

@@ -144,13 +144,45 @@ describe('Opaque JPEG XL color tools', () => {
       expect(alphaError).toBe(0)
     }, 60_000)
 
+  it('keeps exact gray levels when the ordered palette stream beats VarDCT', async () => {
+    const width = 128,
+      height = 128,
+      rgb = new Uint8Array(width * height * 3)
+    // Separable grain on a diagonal ramp. A brightness-ordered palette codes it in about
+    // 1.2 KB, below the 2.8 KB VarDCT stream at distance 4.
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++) {
+        const grain = (Math.imul(x + 1, 1597334677) ^ Math.imul(y + 1, 3812015801)) >>> 28
+        rgb.fill((x + y + grain) & 255, (y * width + x) * 3, (y * width + x) * 3 + 3)
+      }
+    const pair = opaquePair(rgb)
+    for (const [format, pixels] of [
+      ['rgb8', pair.rgb],
+      ['rgba8', pair.rgba],
+    ] as const) {
+      const result = await encodeDecode(pixels, width, height, format, 4)
+      expect(result.color).toEqual(pair.rgb)
+      expect(result.alpha.every((value) => value === 255)).toBe(true)
+      expect(result.bytes.length).toBeLessThan(1_400)
+      const frames = await readJpegXlSourceFrameStructures(
+        new MemorySource(result.bytes),
+        defaultImageLimits,
+      )
+      expect(frames[0]?.encoding).toBe('modular')
+    }
+  }, 60_000)
+
   it('does not replace a textured grayscale photo merely because it has a small palette', async () => {
     const width = 128,
       height = 128,
       rgb = new Uint8Array(width * height * 3)
+    // Per-pixel hashed grain: its exact 256-level palette stream (about 9.4 KB) stays
+    // larger than VarDCT at distance 4 (about 3.2 KB).
     for (let y = 0; y < height; y++)
       for (let x = 0; x < width; x++) {
-        const grain = (Math.imul(x + 1, 1597334677) ^ Math.imul(y + 1, 3812015801)) >>> 28
+        let hash = Math.imul((x * 73856093) ^ (y * 19349663), 0x9e3779b1)
+        hash = Math.imul(hash ^ (hash >>> 15), 0x85ebca6b)
+        const grain = (hash ^ (hash >>> 13)) >>> 28
         const value = (x + y + grain) & 255
         rgb.fill(value, (y * width + x) * 3, (y * width + x) * 3 + 3)
       }
@@ -301,7 +333,7 @@ describe('Opaque JPEG XL public replacement tools', () => {
     expectSameColor(a.color, pair.rgb)
     expectSameColor(b.color, pair.rgb)
     expect(b.alpha.every((value) => value === 255)).toBe(true)
-  }, 60_000)
+  }, 120_000)
 
   it('admits the same large white document and rejects true alpha', () => {
     const width = 2800,

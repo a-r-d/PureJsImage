@@ -115,10 +115,10 @@ describe('JPEG XL document reference patches', () => {
       const original = Uint8Array.from(pixels)
       const result = await encodeLosslessPatchFixture({ ...tile, width, height, pixels })
       // The independently exact baseline has a 40-byte container prefix.
-      expect(result.encoded.length).toBe(format === 'rgb8' ? 5255 : 3980)
+      expect(result.encoded.length).toBe(format === 'rgb8' ? 5184 : 3980)
       let checksum = 0x811c9dc5
       for (const byte of result.encoded) checksum = Math.imul(checksum ^ byte, 0x01000193) >>> 0
-      expect(checksum).toBe(format === 'rgb8' ? 501593494 : 2157783432)
+      expect(checksum).toBe(format === 'rgb8' ? 1939134088 : 2157783432)
       expect(result.ownedLive).toBe(0)
       expect(pixels).toEqual(original)
       const frames = await readJpegXlSourceFrameStructures(
@@ -376,7 +376,7 @@ describe('JPEG XL lossy screenshot patches', () => {
     expect(samples).toBe(pixels.length)
     expect(Math.sqrt(sumSquared / samples)).toBeLessThan(3)
     expect(sumSquared).toBe(0)
-  }, 15_000)
+  }, 60_000)
 
   it('does not classify a nonflat gradient as a screenshot', () => {
     const width = 512,

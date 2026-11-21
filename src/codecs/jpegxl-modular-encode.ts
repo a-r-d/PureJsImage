@@ -3341,45 +3341,53 @@ const encodeSingleGroupSection = (
     }
     if (
       effort >= 7 &&
-      format === 'rgba8' &&
+      isRgb8(format) &&
       width * height <= 1_048_576 &&
       prepared.transforms.palette?.deltaCount === 0
     ) {
       // Actual encoded bytes choose the order; the original palette remains a size floor.
+      // RGB and RGBA input search the same orders, so opaque layouts compress alike.
+      // The search is optional: a working-limit refusal keeps the complete earlier candidates.
       for (const order of ['luma', 'morton', 'hue'] as const) {
         await checkpoint?.()
-        const candidate = await withJpegXlMemoryAsync(memory, async () => {
-          const ordered = reorderPalettePlanes(prepared, order, memory)
-          const variants = [encodePrepared(ordered, false), encodePrepared(ordered, true)]
-          await checkpoint?.()
-          variants.push(encodePrepared(ordered, false, true))
-          await checkpoint?.()
-          variants.push(encodePrepared(ordered, true, true))
-          await checkpoint?.()
-          try {
-            const extra = await withJpegXlMemoryAsync(memory, async () => {
-              const floor = variants.reduce((smallest, value) =>
-                value.length < smallest.length ? value : smallest,
-              )
-              const candidate = await encodeGroupCandidate(
-                ordered,
-                effort,
-                candidateLimit,
-                memory,
-                checkpoint,
-                true,
-              )
-              if (candidate.bytes.length >= floor.length) return undefined
-              return candidate.bytes
-            })
-            if (extra) variants.push(extra)
-          } catch (error) {
-            rethrowJpegXlNonLimitError(error)
-          }
-          return variants.reduce((smallest, variant) =>
-            variant.length < smallest.length ? variant : smallest,
-          )
-        })
+        let candidate: Uint8Array
+        try {
+          candidate = await withJpegXlMemoryAsync(memory, async () => {
+            const ordered = reorderPalettePlanes(prepared, order, memory)
+            const variants = [encodePrepared(ordered, false), encodePrepared(ordered, true)]
+            await checkpoint?.()
+            variants.push(encodePrepared(ordered, false, true))
+            await checkpoint?.()
+            variants.push(encodePrepared(ordered, true, true))
+            await checkpoint?.()
+            try {
+              const extra = await withJpegXlMemoryAsync(memory, async () => {
+                const floor = variants.reduce((smallest, value) =>
+                  value.length < smallest.length ? value : smallest,
+                )
+                const candidate = await encodeGroupCandidate(
+                  ordered,
+                  effort,
+                  candidateLimit,
+                  memory,
+                  checkpoint,
+                  true,
+                )
+                if (candidate.bytes.length >= floor.length) return undefined
+                return candidate.bytes
+              })
+              if (extra) variants.push(extra)
+            } catch (error) {
+              rethrowJpegXlNonLimitError(error)
+            }
+            return variants.reduce((smallest, variant) =>
+              variant.length < smallest.length ? variant : smallest,
+            )
+          })
+        } catch (error) {
+          rethrowJpegXlNonLimitError(error)
+          continue
+        }
         candidates.push(candidate)
       }
     }

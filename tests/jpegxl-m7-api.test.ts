@@ -125,6 +125,82 @@ describe('JPEG XL M7 explicit encoding modes', () => {
     expect(rows).toBe(frameHeight)
   })
 
+  it('compresses a small RGB palette as well as the same opaque RGBA palette', async () => {
+    const frameWidth = 128,
+      frameHeight = 64
+    // 237 colors in 8x8 cells; the first-seen palette order codes poorly.
+    const rgb = new Uint8Array(frameWidth * frameHeight * 3)
+    const rgba = new Uint8Array(frameWidth * frameHeight * 4).fill(255)
+    for (let y = 0; y < frameHeight; y++)
+      for (let x = 0; x < frameWidth; x++) {
+        const pattern = ((x >>> 3) + (y >>> 3)) & 3
+        const variation =
+          pattern === 0
+            ? (x & 7) * 3 + (y & 7) * 5 - 28
+            : pattern === 1
+              ? (x & 7) < 4
+                ? -24
+                : 24
+              : pattern === 2
+                ? (y & 7) < 4
+                  ? -29
+                  : 29
+                : (x & 7) === 3 && (y & 7) === 3
+                  ? 40
+                  : 0
+        for (let channel = 0; channel < 3; channel++) {
+          const value =
+            72 + channel * 32 + variation + (((x >>> 3) * 17 + (y >>> 3) * 11 + channel * 13) % 39)
+          rgb[(y * frameWidth + x) * 3 + channel] = value
+          rgba[(y * frameWidth + x) * 4 + channel] = value
+        }
+      }
+    const encodeLossless = async (format: 'rgb8' | 'rgba8', data: Uint8Array) => {
+      const sink = new Uint8ArraySink()
+      const encoder = await jpegxlCodec.createEncoder?.(sink, {
+        width: frameWidth,
+        height: frameHeight,
+        pixelFormat: format,
+        colorSemantics: format === 'rgb8' ? { ...semantics, alpha: 'none' } : semantics,
+        options: { mode: 'lossless', effort: 7 },
+        limits: defaultImageLimits,
+      })
+      if (!encoder) throw new Error('Missing encoder')
+      await encoder.write({
+        x: 0,
+        y: 0,
+        width: frameWidth,
+        height: frameHeight,
+        stride: frameWidth * (format === 'rgb8' ? 3 : 4),
+        format,
+        data,
+      })
+      await encoder.finish()
+      return sink.toUint8Array()
+    }
+    const fromRgb = await encodeLossless('rgb8', rgb)
+    const fromRgba = await encodeLossless('rgba8', rgba)
+    expect(fromRgb.length).toBeLessThanOrEqual(fromRgba.length)
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(fromRgb),
+      defaultImageLimits,
+      { colorOutput: 'preserve' },
+    )
+    if (!decoder) throw new Error('Missing decoder')
+    let rows = 0
+    for await (const block of decoder.decode()) {
+      expect(block.format).toBe('rgb8')
+      for (let y = 0; y < block.height; y++) {
+        expect(block.data.subarray(y * block.stride, y * block.stride + frameWidth * 3)).toEqual(
+          rgb.subarray((block.y + y) * frameWidth * 3, (block.y + y + 1) * frameWidth * 3),
+        )
+        rows++
+      }
+      block.release?.()
+    }
+    expect(rows).toBe(frameHeight)
+  })
+
   it('uses compact exact color for small transparent artwork while normalizing invisible RGB', async () => {
     const frameWidth = 64,
       frameHeight = 64
