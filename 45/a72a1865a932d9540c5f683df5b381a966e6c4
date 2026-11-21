@@ -1,0 +1,63 @@
+.github/workflows/ci.yml
+  s_fb44c3e6b9dfb0::t_7339c4b9467984 77-78
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_b2f7c68108db5a 7-14
+benchmark/results/tiff-competitor-conformance.json
+  s_fb44c3e6b9dfb0::t_41b101b3161333 10
+benchmark/results/tiff-competitor-conformance.md
+  s_fb44c3e6b9dfb0::t_d674997e332af3 5
+docs-astro/src/data/library-comparison.ts
+  s_fb44c3e6b9dfb0::t_306a3b3b08ea38 210
+docs-astro/src/layouts/SiteLayout.astro
+  s_fb44c3e6b9dfb0::t_472480479953f3 45-59,71,73-74,76-84,88
+docs-astro/src/pages/api.astro
+  s_fb44c3e6b9dfb0::t_c018316c9c18c2 5
+docs-astro/src/pages/geo.astro
+  s_fb44c3e6b9dfb0::t_703f509e5be388 76
+docs-astro/src/pages/index.astro
+  s_fb44c3e6b9dfb0::t_b769ecb3c0cc69 117
+docs-astro/src/pages/jpeg-xl/convert.astro
+  s_fb44c3e6b9dfb0::t_2ddd863ad427c6 5
+docs-astro/src/pages/ome-zarr.astro
+  s_fb44c3e6b9dfb0::t_f710241a0a73a0 161
+docs-astro/src/pages/performance.astro
+  s_fb44c3e6b9dfb0::t_0f8410cf4946e7 119
+docs-astro/src/pages/scientific-formats.astro
+  s_fb44c3e6b9dfb0::t_5c969070165c70 15
+docs-astro/src/pages/scientific/platform.astro
+  s_fb44c3e6b9dfb0::t_56da6be2357150 9
+docs-astro/src/pages/tiff-comparison.astro
+  s_fb44c3e6b9dfb0::t_01c0ad0d1723fe 98
+package-lock.json
+  s_fb44c3e6b9dfb0::t_f604db6b24e985 30,4371-4373,4377,11445-11447,11451,11461-11463
+package.json
+  s_fb44c3e6b9dfb0::t_f28151fe0efffd 783
+playwright.config.ts
+  s_fb44c3e6b9dfb0::t_df8babd2a0e73b 29-36
+playwright.viewers.config.ts
+  s_fb44c3e6b9dfb0::t_70b21f2c5bd3e8 20-27
+scripts/build-docs-site.ts
+  s_fb44c3e6b9dfb0::t_bc48d1a8ea4f39 106,113-128
+scripts/compare-tiff-competitors.ts
+  s_fb44c3e6b9dfb0::t_4ea543bdaa8a6d 560
+scripts/jpegxl-showcase-assets.ts
+  s_fb44c3e6b9dfb0::t_c3c0e0f7bb74cc 1,37,109-120
+tests/project-contract.test.ts
+  s_fb44c3e6b9dfb0::t_677fd03fd119d3 341
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "45a72a1865a932d9540c5f683df5b381a966e6c4",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
