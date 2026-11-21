@@ -1,0 +1,19 @@
+docs-astro/src/pages/third-party-notices.astro
+  s_fb44c3e6b9dfb0::t_042ea5c68ca1a9 6-10,13-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a8432aa2aa7f89b25fb5ec80a1a313bc08f0783b",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
