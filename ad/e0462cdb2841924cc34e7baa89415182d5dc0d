@@ -1,0 +1,48 @@
+tests/helpers/jpegxl-rgb-projection.ts
+  s_fb44c3e6b9dfb0::t_319601409c47e2 6-7,10
+tests/jpegxl-opaque-color-tools.test.ts
+  s_fb44c3e6b9dfb0::t_aeffadef120d55 179-185
+  s_fb44c3e6b9dfb0::t_a55ce2e309b9eb 336
+  s_fb44c3e6b9dfb0::t_7df03ca96d368c 175-178
+  s_fb44c3e6b9dfb0::t_12c22789df6762 147,151-152,156-174
+tests/jpegxl-rgb-projection.test.ts
+  s_fb44c3e6b9dfb0::t_319601409c47e2 8
+tests/jpegxl-m7-api.test.ts
+  s_fb44c3e6b9dfb0::t_15e34fd1f0910b 128-130,132-203
+  s_fb44c3e6b9dfb0::t_1a6ae35f88d936 131
+tests/jpegxl-encoder-memory.test.ts
+  s_fb44c3e6b9dfb0::t_a55ce2e309b9eb 381
+src/codecs/jpegxl-modular-encode.ts
+  s_fb44c3e6b9dfb0::t_302cc59bb7d4c5 3344,3349-3350,3353-3390
+README.md
+  s_fb44c3e6b9dfb0::t_5b79cef535d429 463,482
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_4bbdd7cfaa4aa8 10
+  s_fb44c3e6b9dfb0::t_ecfb7ee9b17ddb 7-9,18
+  s_fb44c3e6b9dfb0::t_b3b171c6534d8b 11-17
+tests/jpegxl-document-patches.test.ts
+  s_fb44c3e6b9dfb0::t_428ba22170c516 118,121
+  s_fb44c3e6b9dfb0::t_a55ce2e309b9eb 379
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_27aa07b1555b4e 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_f492b0c9f96bf6 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_04ee3b52c130cf 109-111,129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ade0462cdb2841924cc34e7baa89415182d5dc0d",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
