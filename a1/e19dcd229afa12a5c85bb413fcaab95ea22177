@@ -1,0 +1,27 @@
+README.md
+  s_fb44c3e6b9dfb0::t_8a5aa46795fb71 463,482
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_8a5aa46795fb71 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+tests/jpegxl-libjxl-strategy-port.test.ts
+  s_fb44c3e6b9dfb0::t_d89767ccaee01e 273,308
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_8a5aa46795fb71 109-111,129
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_8a5aa46795fb71 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a1e19dcd229afa12a5c85bb413fcaab95ea22177",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
