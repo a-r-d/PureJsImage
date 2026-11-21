@@ -1,0 +1,25 @@
+src/codecs/jpegxl-vardct-encode.ts
+  s_fb44c3e6b9dfb0::t_e91aaed617bb15 2397-2400
+src/codecs/jpegxl-modular-encode.ts
+  s_fb44c3e6b9dfb0::t_b66092ff43037f 5096-5125,5910-5914
+benchmark/jpegxl/lossy-lab/decision-replay.patch
+  s_fb44c3e6b9dfb0::t_316b8cb83c2600 896,909-920,928,943,952
+tests/jpegxl-flat-palette.test.ts
+  s_fb44c3e6b9dfb0::t_92c3f352612106 1,7,29,33,149-150,152
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "efd51d7448d69e246e59ddd10294d755071affa8",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
