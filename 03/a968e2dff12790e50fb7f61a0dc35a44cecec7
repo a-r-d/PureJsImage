@@ -1,0 +1,24 @@
+tests/jpegxl-flat-palette.test.ts
+  s_fb44c3e6b9dfb0::t_da7d8f0dda556c 146
+benchmark/jpegxl/production-program/render-baseline.ts
+  s_fb44c3e6b9dfb0::t_e3f898ea7366c5 62-64
+  s_fb44c3e6b9dfb0::t_a01df3bb49912f 52-61,65,67
+tests/jpegxl-libjxl-policy.test.ts
+  s_fb44c3e6b9dfb0::t_da7d8f0dda556c 67-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "03a968e2dff12790e50fb7f61a0dc35a44cecec7",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
