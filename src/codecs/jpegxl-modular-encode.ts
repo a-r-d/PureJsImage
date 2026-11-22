@@ -1460,19 +1460,18 @@ const palettePlanes = (
 
 type PaletteOrder = 'luma' | 'morton' | 'hue'
 
-/** Reorder an existing palette without changing any source color or alpha sample. */
-const reorderPalettePlanes = (
+/** List source palette colors in coded order for one sort key. */
+const paletteOrder = (
   prepared: Readonly<PreparedModularPlanes>,
   orderMode: PaletteOrder,
   memory?: JpegXlEncoderMemory,
-): PreparedModularPlanes =>
+): Uint16Array =>
   withJpegXlMemory(memory, () => {
     const sourcePalette = prepared.planes.values[0]
-    const sourceIndices = prepared.planes.values[1]
     const transform = prepared.transforms.palette
-    if (!sourcePalette || !sourceIndices || !transform || transform.deltaCount !== 0)
+    if (!sourcePalette || !transform || transform.deltaCount !== 0)
       throw invalidJpegXlInput('regular palette is unavailable')
-    const { colorCount, channelCount } = transform
+    const { colorCount } = transform
     const order = allocateJpegXlArray(memory, Uint16Array, colorCount)
     const keys = new Array<number>(colorCount)
     for (let color = 0; color < colorCount; color++) {
@@ -1511,6 +1510,37 @@ const reorderPalettePlanes = (
       }
     }
     order.sort((left, right) => (keys[left] ?? 0) - (keys[right] ?? 0) || left - right)
+    return order
+  })
+
+/** True when an order keeps the first-seen color order or equals an order already searched. */
+const repeatsPaletteOrder = (order: Uint16Array, searched: readonly Uint16Array[]): boolean => {
+  let identity = true
+  for (let color = 0; color < order.length && identity; color++) identity = order[color] === color
+  if (identity) return true
+  for (const earlier of searched) {
+    let same = earlier.length === order.length
+    for (let color = 0; color < order.length && same; color++)
+      same = earlier[color] === order[color]
+    if (same) return true
+  }
+  return false
+}
+
+/** Reorder an existing palette without changing any source color or alpha sample. */
+const reorderPalettePlanes = (
+  prepared: Readonly<PreparedModularPlanes>,
+  order: Uint16Array,
+  memory?: JpegXlEncoderMemory,
+): PreparedModularPlanes =>
+  withJpegXlMemory(memory, () => {
+    const sourcePalette = prepared.planes.values[0]
+    const sourceIndices = prepared.planes.values[1]
+    const transform = prepared.transforms.palette
+    if (!sourcePalette || !sourceIndices || !transform || transform.deltaCount !== 0)
+      throw invalidJpegXlInput('regular palette is unavailable')
+    const { colorCount, channelCount } = transform
+    if (order.length !== colorCount) throw invalidJpegXlInput('palette order length differs')
     const inverse = allocateJpegXlArray(memory, Uint16Array, colorCount)
     for (let color = 0; color < colorCount; color++) inverse[order[color] ?? 0] = color
     const indices = allocateJpegXlArray(memory, Int32Array, sourceIndices.length)
@@ -3348,10 +3378,16 @@ const encodeSingleGroupSection = (
       // Actual encoded bytes choose the order; the original palette remains a size floor.
       // RGB and RGBA input search the same orders, so opaque layouts compress alike.
       // The search is optional: a working-limit refusal keeps the complete earlier candidates.
-      for (const order of ['luma', 'morton', 'hue'] as const) {
+      // An order equal to the first-seen order or to an earlier order would repeat a finished
+      // search with identical bytes, so only new orders are encoded.
+      const searched: Uint16Array[] = []
+      for (const mode of ['luma', 'morton', 'hue'] as const) {
         await checkpoint?.()
         let candidate: Uint8Array
         try {
+          const order = paletteOrder(prepared, mode, memory)
+          if (repeatsPaletteOrder(order, searched)) continue
+          searched.push(order)
           candidate = await withJpegXlMemoryAsync(memory, async () => {
             const ordered = reorderPalettePlanes(prepared, order, memory)
             const variants = [encodePrepared(ordered, false), encodePrepared(ordered, true)]

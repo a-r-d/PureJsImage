@@ -8,8 +8,10 @@ All notable changes to PureJsImage are documented in this file.
   as RGBA8 input already did. A 513x257 image with 246 colors shrinks from 5,504
   to 2,247 bytes, below the 2,262-byte RGBA8 file. On the 104 RGB8 images of the
   synthetic lossless corpus, 30 files are 10.6% smaller and none grows. RGB8
-  palette images take a median 3.9 times as long at these efforts, and a
-  1024x768 palette image takes 27 seconds instead of 15. When `maxWorkingBytes`
+  palette images take a median 3.3 times as long at these efforts, and a
+  1024x768 palette image takes 27 seconds instead of 15. Orders that repeat the
+  first-seen order or an earlier order are skipped with no change in output, so
+  2- and 3-color RGBA8 icons encode about 40% faster. When `maxWorkingBytes`
   is too small for the order search, the encoder now keeps its earlier candidate
   for RGB8 and RGBA8 input instead of failing.
 - Lossy effort 7 and 9 judge exact palettes by this RGB stream, so more palette
