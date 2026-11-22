@@ -80,8 +80,23 @@ jobs:
       - name: Build package for executable public examples
         run: npm run build
 
+      # Wikimedia rate-limits shared runners, so keep the checksum-pinned photo in the Actions cache.
+      - name: Restore pinned JPEG XL workbench input
+        id: tundra-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: benchmark/corpus/files/tundra-4000x3000.jpg
+          key: corpus-tundra-4000x3000-af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6
+
       - name: Prepare pinned JPEG XL workbench input
         run: npm run fixtures:prepare -- tundra-4000x3000
+
+      - name: Save pinned JPEG XL workbench input
+        if: steps.tundra-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: benchmark/corpus/files/tundra-4000x3000.jpg
+          key: corpus-tundra-4000x3000-af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6
 
       - name: Prepare pinned HDF5 browser fixture
         run: npm run fixtures:hdf5:prepare

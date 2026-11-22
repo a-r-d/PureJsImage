@@ -3,8 +3,12 @@ import { rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 
 const redirectStatuses: ReadonlySet<number> = new Set([301, 302, 303, 307, 308])
+// Shared CI runners can be rate limited by public hosts; these answers are worth retrying.
+const retryStatuses: ReadonlySet<number> = new Set([429, 503])
 const defaultMaximumBytes = 64 * 1024 * 1024
 const maximumRedirects = 5
+const maximumAttempts = 5
+const maximumRetryDelayMilliseconds = 60_000
 
 export type DownloadFetch = (url: URL, init: { readonly redirect: 'manual' }) => Promise<Response>
 
@@ -16,12 +20,25 @@ export interface PinnedDownloadOptions {
   readonly fetch?: DownloadFetch
   readonly maximumBytes?: number
   readonly url: string
+  /** Waits between rate-limited attempts; tests replace the timer. */
+  readonly wait?: (milliseconds: number) => Promise<void>
 }
 
 const fetchFromNetwork: DownloadFetch = (url, init) => {
   // Only a validated, approved HTTPS URL reaches this request; no local file contents are sent.
   // codeql[js/file-access-to-http]
   return globalThis.fetch(url, init)
+}
+
+const waitFor = (milliseconds: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds))
+
+/** Honor a numeric Retry-After header, otherwise back off from 10 seconds, capped at 60. */
+const retryDelay = (response: Response, attempt: number): number => {
+  const header = response.headers.get('retry-after')
+  const seconds = header === null ? Number.NaN : Number(header)
+  const requested = Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : 5_000 * 2 ** attempt
+  return Math.min(maximumRetryDelayMilliseconds, requested)
 }
 
 const validatedDestination = (allowedDirectory: string, destination: string): string => {
@@ -150,7 +167,17 @@ export const downloadPinnedFile = async (options: PinnedDownloadOptions): Promis
 
   await rm(temporary, { force: true })
   try {
-    const response = await fetchWithValidatedRedirects(options.url, options.allowedHosts, fetch)
+    let response = await fetchWithValidatedRedirects(options.url, options.allowedHosts, fetch)
+    for (
+      let attempt = 1;
+      retryStatuses.has(response.status) && attempt < maximumAttempts;
+      attempt++
+    ) {
+      const delay = retryDelay(response, attempt)
+      if (response.body !== null) await response.body.cancel()
+      await (options.wait ?? waitFor)(delay)
+      response = await fetchWithValidatedRedirects(options.url, options.allowedHosts, fetch)
+    }
     if (!response.ok) throw new Error(`Download failed: HTTP ${response.status}`)
 
     const data = await readResponse(response, maximumBytes)

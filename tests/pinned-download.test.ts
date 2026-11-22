@@ -56,6 +56,50 @@ describe('pinned benchmark downloads', () => {
     await expect(readFile(`${destination}.download`)).rejects.toMatchObject({ code: 'ENOENT' })
   })
 
+  it('retries rate-limited responses with Retry-After and bounded backoff', async () => {
+    const directory = await temporaryDirectory()
+    const destination = join(directory, 'fixture.bin')
+    const data = Uint8Array.of(5, 6, 7)
+    const answers = [
+      new Response(null, { status: 429, headers: { 'retry-after': '3' } }),
+      new Response(null, { status: 503 }),
+      new Response(data, { status: 200 }),
+    ]
+    const waits: number[] = []
+    await downloadPinnedFile({
+      allowedDirectory: directory,
+      allowedHosts,
+      destination,
+      expectedSha256: sha256(data),
+      fetch: async () => answers.shift() ?? new Response(null, { status: 500 }),
+      url: 'https://fixtures.example/fixture.bin',
+      wait: async (milliseconds) => {
+        waits.push(milliseconds)
+      },
+    })
+    expect(waits).toEqual([3_000, 20_000])
+    expect(new Uint8Array(await readFile(destination))).toEqual(data)
+
+    let requests = 0
+    await expect(
+      downloadPinnedFile({
+        allowedDirectory: directory,
+        allowedHosts,
+        destination: join(directory, 'limited.bin'),
+        expectedSha256: sha256(data),
+        fetch: async () => {
+          requests++
+          return new Response(null, { status: 429, headers: { 'retry-after': '600' } })
+        },
+        url: 'https://fixtures.example/limited.bin',
+        wait: async (milliseconds) => {
+          expect(milliseconds).toBe(60_000)
+        },
+      }),
+    ).rejects.toThrow('Download failed: HTTP 429')
+    expect(requests).toBe(5)
+  })
+
   it('preserves an existing destination and cleans temporary data on checksum failure', async () => {
     const directory = await temporaryDirectory()
     const destination = join(directory, 'fixture.bin')
