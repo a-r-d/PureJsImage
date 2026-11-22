@@ -1,0 +1,20 @@
+benchmark/jpegxl/LOSSY_LIBJXL_REOPENING.md
+  s_fb44c3e6b9dfb0::t_d6fce8ed18d587 183-189
+  s_fb44c3e6b9dfb0::t_92c5a420e1fff5 190-195,197-198
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "31f94bf2584d7ffaa14091b4cca6a9812a44195d",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
