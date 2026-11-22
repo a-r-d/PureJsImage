@@ -1,0 +1,24 @@
+.github/workflows/ci.yml
+  s_fb44c3e6b9dfb0::t_7ff10b33c2f1b4 83-90,94-99
+  s_fb44c3e6b9dfb0::t_9c1058fe3cae41 100
+tests/pinned-download.test.ts
+  s_fb44c3e6b9dfb0::t_bf3369dfa037ca 59-102
+benchmark/lib/pinned-download.ts
+  s_fb44c3e6b9dfb0::t_f5f6cb96cf8b20 6-7,10-11,23-24,33-43,170-180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f2d914e2c4e31c2e134afe998a3bc93bc96f4539",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
