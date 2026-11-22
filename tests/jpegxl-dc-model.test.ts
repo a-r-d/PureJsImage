@@ -4,6 +4,7 @@ import {
   verifyJpegXlDcModel,
   verifyLargeJpegXlDcAllocationRecovery,
 } from './helpers/jpegxl-dc-model.ts'
+import { establishedJpegXlCodec } from './helpers/jpegxl-established-encoder.ts'
 
 it('keeps the shared opaque path usable when every optional sharpness-map allocation fails', async () => {
   const result = await verifyLargeJpegXlDcAllocationRecovery(4, 33, 65)
@@ -33,7 +34,8 @@ it('recovers large opaque images after optional filter-map allocation failure', 
 }, 120_000)
 
 it('preserves opaque gradient precision above four megapixels within its working budget', async () => {
-  const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
+  // The public encoder uses the libjxl policy here; keep the established DC precision under test.
+  const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 4, establishedJpegXlCodec)
   // Expanded color DC saves 3,635 bytes; both decoders retain exact grids and the memory bound.
   expect(result.bytes).toBe(43736)
   expect(result.encodedChecksum).toBe(1447552200)
@@ -45,10 +47,14 @@ it('preserves opaque gradient precision above four megapixels within its working
   expect(result.ownedPeak).toBeLessThanOrEqual(67_108_864)
   expect(result.ownedLive).toBe(0)
   expect(result.ownedAllocations).toBe(0)
+  // The public libjxl-policy stream stays within the working budget. Its distance follows
+  // libjxl, so distance 4 encodes at internal distance 4.76 with slightly more error.
+  expect((await verifyJpegXlDcModel(67_108_864, 2049, 2048)).meanColorError).toBeLessThan(2.4)
 }, 420_000)
 
 it('preserves fine-quality opaque gradients within the original working budget', async () => {
-  const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
+  // The public encoder uses the libjxl policy here; keep the established fine policy under test.
+  const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54, establishedJpegXlCodec)
   // Expanded color DC saves 4,644 fine bytes; both decoder grids and all hard bounds are unchanged.
   expect(result.bytes).toBe(1497124)
   expect(result.encodedChecksum).toBe(2751884134)
@@ -79,7 +85,8 @@ it('returns the preceding fine-quality stream after optional rate-map allocation
 }, 120_000)
 
 it('encodes textured gradients with learned DC models and the photo filter', async () => {
-  const result = await verifyJpegXlDcModel()
+  // The public encoder uses the libjxl policy here; keep the established photo filter under test.
+  const result = await verifyJpegXlDcModel(16_777_216, 513, 257, 4, establishedJpegXlCodec)
   // Expanded color DC saves 35 bytes; complete pixels and both independent grids match the baseline.
   expect(result.bytes).toBe(2393)
   expect(result.encodedChecksum).toBe(1569612896)

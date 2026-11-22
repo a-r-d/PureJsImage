@@ -68,17 +68,22 @@ export interface JpegXlForwardAcModelEstimate {
   readonly frequencies: readonly Uint32Array[]
 }
 
-export interface JpegXlDevelopmentOrderFamily {
+/** One signaled coefficient order: its wire slot, natural order and leading DC count. */
+export interface JpegXlOrderFamily {
   readonly wire: number
   readonly natural: Uint32Array
   readonly skip: number
 }
 export interface VarDctCoefficientGeometry {
-  readonly developmentOrderFamilies?: readonly JpegXlDevelopmentOrderFamily[]
-  readonly developmentFirstBlocks?: Uint8Array
-  readonly developmentCorrelation?: import('./jpegxl-vardct-jpeg.ts').JpegXlJpegColorCorrelation
-  readonly developmentFilters?: Readonly<{
+  /** Explicit order families replace the default ones when the transform menu needs more. */
+  readonly orderFamilies?: readonly JpegXlOrderFamily[]
+  /** Marks each transform's first block; replaces alignment-derived leaders. */
+  readonly firstBlocks?: Uint8Array
+  /** Frame loop filters; omitted geometry keeps Gaborish off and derives EPF from sharpness. */
+  readonly loopFilters?: Readonly<{
     gaborish: boolean
+    /** Scales the default Gaborish weights; omitted or 1 signals the default filter. */
+    gaborishStrength?: number
     epfIterations: number
   }>
   readonly colorTransform: 'none' | 'ycbcr' | 'xyb'
@@ -96,8 +101,8 @@ export interface VarDctCoefficientGeometry {
   readonly quantization: readonly Int32Array[]
   readonly dcQuantization?: readonly number[]
   readonly smoothDc?: boolean
-  readonly xScale?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
-  readonly bScale?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+  readonly xScale?: 0 | 1 | 2 | 3
+  readonly bScale?: 1 | 2
   readonly acScale?: number
   readonly baseB?: number
   readonly defaultMatrices?: boolean
@@ -906,10 +911,7 @@ const writeForwardDcColorPlanes = (
           return bitLength < originalBits ? { bytes: alternative.finish(), bitLength } : undefined
         })
         if (learned) writer.memory?.release(originalBytes)
-        let selected = learned ?? {
-          bytes: originalBytes,
-          bitLength: originalBits,
-        }
+        let selected = learned ?? { bytes: originalBytes, bitLength: originalBits }
         try {
           const expanded = encodeForwardModularColorGroup(
             {
@@ -970,7 +972,7 @@ const writeDcGroup = (
   writeDcMetadata(writer, planes.slice(3), encoding, localTree, searchMetadata, advancedSearch)
 }
 
-export const writeJpegXlDevelopmentF16 = (writer: JpegXlBitWriter, value: number): void => {
+const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
   if (!Number.isFinite(value) || value < 0)
     throw invalidJpegXlInput('half-precision value is invalid')
   if (value === 0) {
@@ -990,8 +992,6 @@ export const writeJpegXlDevelopmentF16 = (writer: JpegXlBitWriter, value: number
   writer.writeBits((encodedExponent << 10) | mantissa, 16)
 }
 
-const writeF16 = writeJpegXlDevelopmentF16
-
 const writeComponentBlockContexts = (
   writer: JpegXlBitWriter,
   geometry: Readonly<JpegDerivedGeometry>,
@@ -1004,7 +1004,7 @@ const writeComponentBlockContexts = (
     (geometry.strategyMap?.includes(10) ?? false) || (geometry.strategyMap?.includes(11) ?? false)
   const usesFamilyContext = (order: number): boolean =>
     familyContexts &&
-    ((geometry.developmentOrderFamilies !== undefined && order !== 0) ||
+    ((geometry.orderFamilies !== undefined && order !== 0) ||
       order === 1 ||
       (hasDct16 && order === 2) ||
       (hasDct32 && order === 3) ||
@@ -1057,11 +1057,7 @@ interface SharedAlphaCode {
     transforms: SharedAlphaGroup['transforms']
   }>[]
 }
-const sharedAlphaHybridConfig = {
-  splitExponent: 2,
-  msbInToken: 0,
-  lsbInToken: 0,
-}
+const sharedAlphaHybridConfig = { splitExponent: 2, msbInToken: 0, lsbInToken: 0 }
 
 const prepareSharedAlphaCode = (
   geometry: Readonly<JpegDerivedGeometry>,
@@ -1127,19 +1123,9 @@ const prepareSharedAlphaCode = (
     const shifted = (node: JpegXlModularNode): JpegXlModularNode =>
       node.kind === 'leaf'
         ? { ...node, context: node.context + 1 }
-        : {
-            ...node,
-            greater: node.greater + 2,
-            lessOrEqual: node.lessOrEqual + 2,
-          }
+        : { ...node, greater: node.greater + 2, lessOrEqual: node.lessOrEqual + 2 }
     const nodes: JpegXlModularNode[] = [
-      {
-        kind: 'branch',
-        property: 1,
-        split: firstGroupId - 1,
-        greater: 1,
-        lessOrEqual: 2,
-      },
+      { kind: 'branch', property: 1, split: firstGroupId - 1, greater: 1, lessOrEqual: 2 },
       shifted(root),
       { kind: 'leaf', predictor: 5, offset: 0, multiplier: 1, context: 0 },
       ...commonNodes.slice(1).map(shifted),
@@ -1177,12 +1163,7 @@ const prepareSharedAlphaCode = (
       geometry.memory?.release(group.plan.residualContexts)
     }
     const compact = compactAcHistograms(frequencies, 96, geometry.memory)
-    return {
-      nodes,
-      contextMap: compact.contextMap,
-      frequencies: compact.frequencies,
-      groups,
-    }
+    return { nodes, contextMap: compact.contextMap, frequencies: compact.frequencies, groups }
   })
 
 const writeSharedAlphaPlane = (
@@ -1239,16 +1220,16 @@ const writeLfGlobal = (
   ])
   writeComponentBlockContexts(writer, geometry)
   writer.writeBits(0, 1)
-  writeU32(writer, geometry.developmentCorrelation?.colorFactor ?? 84, [
+  writeU32(writer, 84, [
     { value: 84 },
     { value: 256 },
     { bits: 8, offset: 2 },
     { bits: 16, offset: 258 },
   ])
-  writeF16(writer, geometry.developmentCorrelation?.baseCorrelationX ?? 0)
-  writeF16(writer, geometry.developmentCorrelation?.baseCorrelationB ?? geometry.baseB ?? 0)
-  writer.writeBits(128 + (geometry.developmentCorrelation?.yToXDc ?? 0), 8)
-  writer.writeBits(128 + (geometry.developmentCorrelation?.yToBDc ?? 0), 8)
+  writeF16(writer, 0)
+  writeF16(writer, geometry.baseB ?? 0)
+  writer.writeBits(128, 8)
+  writer.writeBits(128, 8)
   writer.writeBits(1, 1)
   if (shared) writeLearnedTree(writer, shared.nodes)
   else writeModularTree(writer, 5)
@@ -1262,10 +1243,7 @@ const writeLfGlobal = (
           shared ? sharedAlphaHybridConfig : acHybridConfig,
         ),
       })
-    : Object.freeze({
-        kind: 'prefix',
-        encoding: writePrefixCode(writer, 1, frequencies),
-      })
+    : Object.freeze({ kind: 'prefix', encoding: writePrefixCode(writer, 1, frequencies) })
   recordColorBits?.(writer.bitPosition)
   if (geometry.alpha) {
     if (geometry.groupsAcross * geometry.groupsDown === 1)
@@ -1422,7 +1400,7 @@ const optimizedCoefficientOrders = (
 export function* learnJpegXlForwardCoefficientOrders(
   geometry: Readonly<VarDctCoefficientGeometry>,
 ): Generator<void, readonly Uint32Array[], void> {
-  const families = geometry.developmentOrderFamilies ?? forwardOrderFamilies
+  const families = geometry.orderFamilies ?? forwardOrderFamilies
   let familyCount = 2
   if (geometry.strategyMap) {
     for (let index = 0; index < geometry.strategyMap.length; index++) {
@@ -1463,10 +1441,8 @@ export function* learnJpegXlForwardCoefficientOrders(
               if (extentX === 0 || extentY === 0)
                 throw unsupportedOperation('JPEG XL forward order strategy is not supported')
               if (
-                geometry.developmentFirstBlocks
-                  ? geometry.developmentFirstBlocks[
-                      (blockY + y) * geometry.blocksWide + blockX + x
-                    ] !== 1
+                geometry.firstBlocks
+                  ? geometry.firstBlocks[(blockY + y) * geometry.blocksWide + blockX + x] !== 1
                   : (x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0
               )
                 continue
@@ -1564,19 +1540,11 @@ const acBlockContextCount = (geometry: Readonly<JpegDerivedGeometry>): 3 | 6 | 1
     : geometry.familyContexts
       ? 12
       : 6
-const acHybridConfig = Object.freeze({
-  splitExponent: 3,
-  msbInToken: 1,
-  lsbInToken: 0,
-})
+const acHybridConfig = Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 })
 
 // All visited AC values are nonzero counts or signed coefficients bounded to +/-4095.
 // Reuse one bounded module table; the existing group buffer can hold the packed words.
-const denseAcHybridConfig = Object.freeze({
-  splitExponent: 4,
-  msbInToken: 1,
-  lsbInToken: 0,
-})
+const denseAcHybridConfig = Object.freeze({ splitExponent: 4, msbInToken: 1, lsbInToken: 0 })
 const acHybridCandidates: readonly HybridUintEncoding[] = Object.freeze([
   denseAcHybridConfig,
   Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 }),
@@ -1706,8 +1674,13 @@ const compactAcHistograms = (
     let costs: Readonly<{ best: Float64Array; logs: Float64Array }> | undefined
     let previousAssignments: Uint8Array | undefined
     for (let iteration = 0; iteration < iterations; iteration += 1) {
-      for (const previous of compact) memory?.release(previous)
-      compact = Array.from({ length: target }, () => allocateJpegXlArray(memory, Uint32Array, 512))
+      if (iteration === 0) {
+        compact = Array.from({ length: target }, () =>
+          allocateJpegXlArray(memory, Uint32Array, 512),
+        )
+      } else {
+        for (const values of compact) values.fill(0, 0, symbolCount)
+      }
       for (const histogram of active) {
         const destination = compact[assignments[histogram] ?? 0]
         const values = frequencies[histogram]
@@ -1721,7 +1694,7 @@ const compactAcHistograms = (
         values.reduce((total, frequency) => total + frequency, 0),
       )
       // Admit optional scratch after the original centroid allocations already fit.
-      // Subsequent iterations replace identically sized centroids; release scratch before remapping.
+      // Later iterations reuse the centroids; release optional scratch before remapping.
       if (iteration === 0) {
         try {
           costs = withJpegXlMemory(memory, () => ({
@@ -1842,7 +1815,7 @@ const visitAcGroup = (
   contextsNeeded = true,
 ): void =>
   withJpegXlMemory(geometry.memory, () => {
-    const families = geometry.developmentOrderFamilies ?? forwardOrderFamilies
+    const families = geometry.orderFamilies ?? forwardOrderFamilies
     const groupX = group % geometry.groupsAcross
     const groupY = Math.floor(group / geometry.groupsAcross)
     const blockX = groupX * 32
@@ -1872,8 +1845,8 @@ const visitAcGroup = (
         if (extentX === 0 || extentY === 0)
           throw unsupportedOperation('JPEG XL forward AC strategy is not supported')
         if (
-          geometry.developmentFirstBlocks
-            ? geometry.developmentFirstBlocks[(blockY + y) * geometry.blocksWide + blockX + x] !== 1
+          geometry.firstBlocks
+            ? geometry.firstBlocks[(blockY + y) * geometry.blocksWide + blockX + x] !== 1
             : (x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0
         )
           continue
@@ -2040,7 +2013,8 @@ const forwardAcModelEstimate = (
       acBlockContextCount(geometry),
       acHybridConfig,
       undefined,
-      geometry.developmentOrderFamilies,
+      geometry.orderFamilies,
+      false,
     )
     if (encoding.kind !== 'ans')
       throw invalidJpegXlInput('Forward order estimate requires ANS frequencies')
@@ -2057,7 +2031,8 @@ const forwardAcModelEstimate = (
         acBlockContextCount(geometry),
         acHybridConfig,
         undefined,
-        geometry.developmentOrderFamilies,
+        geometry.orderFamilies,
+        false,
       )
       bits += repeated.bitPosition
     }
@@ -2214,7 +2189,7 @@ const writeHfGlobal = (
       acBlockContextCount(geometry),
       hybridConfig,
       histogramConfigs,
-      geometry.developmentOrderFamilies,
+      geometry.orderFamilies,
     )
   if (geometry.progressive) writePass()
   return writePass()
@@ -2279,7 +2254,8 @@ const writeHfPass = (
   blockContextCount: 3 | 6 | 12,
   hybridConfig: Readonly<HybridUintEncoding>,
   histogramConfigs?: readonly HybridUintEncoding[],
-  families: readonly JpegXlDevelopmentOrderFamily[] = forwardOrderFamilies,
+  families: readonly JpegXlOrderFamily[] = forwardOrderFamilies,
+  preparePayload = true,
 ): AcEncoding => {
   let usedOrders = useClusteredAns ? 1 : 0
   if (
@@ -2335,11 +2311,7 @@ const writeHfPass = (
     )
     writeCoefficientOrderPermutations(
       writer,
-      signaledOrders.map((order) => ({
-        order,
-        natural: naturalJpegXlOrder,
-        skip: 1,
-      })),
+      signaledOrders.map((order) => ({ order, natural: naturalJpegXlOrder, skip: 1 })),
       false,
     )
   }
@@ -2364,6 +2336,7 @@ const writeHfPass = (
       hybridConfig,
       false,
       histogramConfigs,
+      preparePayload,
     ),
   })
 }
@@ -2758,7 +2731,15 @@ function* coefficientSectionSteps(
           }
           const writer = new JpegXlBitWriter(geometry.memory),
             contextMap = allocateJpegXlArray(geometry.memory, Uint8Array, 1)
-          const encoding = writeAnsCode(writer, contextMap, [frequencies], config)
+          const encoding = writeAnsCode(
+            writer,
+            contextMap,
+            [frequencies],
+            config,
+            false,
+            undefined,
+            false,
+          )
           const normalized = encoding.histograms[0]?.frequencies
           if (!normalized) throw invalidJpegXlInput('Missing candidate normalized frequencies')
           let cost = writer.bitPosition
@@ -2815,7 +2796,8 @@ function* coefficientSectionSteps(
           acBlockContextCount(geometry),
           denseAcHybridConfig,
           compactAc.histogramConfigs,
-          geometry.developmentOrderFamilies,
+          geometry.orderFamilies,
+          false,
         )
         return writer.bitPosition * passes + refinedPayloadBits
       })
@@ -3309,11 +3291,21 @@ export const varDctCodestreamParts = (
   }
   writeU32(writer, 0, jpegXlNameLengthDistribution)
   writer.writeBits(0, 1)
-  const gaborish = geometry.developmentFilters?.gaborish ?? false
-  const epfIterations =
-    geometry.developmentFilters?.epfIterations ?? (geometry.sharpnessMap ? 2 : 0)
+  const gaborish = geometry.loopFilters?.gaborish ?? false
+  const gaborishStrength = geometry.loopFilters?.gaborishStrength ?? 1
+  const epfIterations = geometry.loopFilters?.epfIterations ?? (geometry.sharpnessMap ? 2 : 0)
   writer.writeBits(gaborish ? 1 : 0, 1)
-  if (gaborish) writer.writeBits(0, 1)
+  if (gaborish) {
+    if (!(gaborishStrength > 0 && gaborishStrength <= 1))
+      throw invalidJpegXlInput('Gaborish strength must be above 0 and at most 1')
+    writer.writeBits(gaborishStrength === 1 ? 0 : 1, 1)
+    // Custom weights scale the default adjacent and diagonal weights for X, Y and B.
+    if (gaborishStrength !== 1)
+      for (let channel = 0; channel < 3; channel++) {
+        writeF16(writer, gaborishStrength * 1.1 * 0.104699568)
+        writeF16(writer, gaborishStrength * 1.1 * 0.055680538)
+      }
+  }
   writer.writeBits(epfIterations, 2)
   if (epfIterations > 0) writer.writeBits(0, 3)
   writeU64(writer, 0)

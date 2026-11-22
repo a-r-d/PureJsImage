@@ -3,6 +3,7 @@ import { selectDevelopmentCorpus } from './corpus.ts'
 import { type CurvePoint, type Engine, parsePoint } from './model.ts'
 
 export type LabMode = 'screen' | 'lab' | 'scale' | 'speed' | 'holdout' | 'watch'
+
 export interface PreparedFixture {
   readonly id: string
   readonly png: string

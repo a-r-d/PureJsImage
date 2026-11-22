@@ -5,14 +5,15 @@ import {
 } from './helpers/jpegxl-fine-photo.ts'
 import { createHash } from 'node:crypto'
 import { expect, it, vi } from 'vitest'
-import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import * as memory from '../src/codecs/jpegxl-encoder-memory.ts'
 import { limitExceeded } from '../src/errors.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
+import { establishedJpegXlCodec } from './helpers/jpegxl-established-encoder.ts'
 
 // The complete original stream was independently reproduced in JXLENC-2231.
 // Inject only the optional nine-Q allocation; keep the original 32-MiB cap.
+// The established encoder owns this fallback; the public libjxl policy fits the cap.
 it('retains original JPEG XL bytes when optional fine quantizer scratch is unavailable', async () => {
   const width = fineAllocationWidth,
     height = fineAllocationHeight,
@@ -36,7 +37,7 @@ it('retains original JPEG XL bytes when optional fine quantizer scratch is unava
   const allocation = vi.spyOn(memory, 'allocateJpegXlArray').mockImplementation(rejectMenu)
   try {
     const sink = new Uint8ArraySink()
-    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    const encoder = await establishedJpegXlCodec.createEncoder?.(sink, {
       width,
       height,
       pixelFormat: 'rgba8',

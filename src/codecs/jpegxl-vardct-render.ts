@@ -595,10 +595,10 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
 
 const strategyDequantization = makeStrategyDequantization()
 
-/** Internal development tools reuse the reference decoder's normative matrices. */
-export const jpegXlDevelopmentDequantization = (strategy: number): readonly Float64Array[] => {
+/** Normative dequantization matrices for one transform strategy, shared with the encoder. */
+export const jpegXlDequantizationMatrices = (strategy: number): readonly Float64Array[] => {
   const tables = strategyDequantization.get(strategy)
-  if (!tables) throw invalidJpegXlInput('development transform matrix is missing')
+  if (!tables) throw invalidJpegXlInput('transform matrix is missing')
   return tables
 }
 
@@ -958,7 +958,6 @@ const populateLowestFrequencies = (
     }
   }
 }
-export const populateJpegXlDevelopmentLowestFrequencies = populateLowestFrequencies
 
 const inverseDct2TopBlock = (
   coefficients: Float64Array,
@@ -1225,8 +1224,8 @@ const inverseAfv = (
   )
 }
 
-/** Internal conformance kernel. Coefficients use the decoder's native layout. */
-export const inverseJpegXlDevelopmentTransform = (
+/** Normative inverse transform of one block; coefficients use the decoder's native layout. */
+export const inverseJpegXlTransform = (
   strategy: number,
   coefficients: Float64Array,
   intermediate: Float64Array,
@@ -1243,7 +1242,7 @@ export const inverseJpegXlDevelopmentTransform = (
     coefficients.length !== width * height ||
     output.length !== width * height
   )
-    throw invalidJpegXlInput('development inverse transform extent differs')
+    throw invalidJpegXlInput('inverse transform extent differs')
   if (strategy === 0) inverseDct8Native(coefficients, intermediate, output, width, 0, 0, active)
   else if (strategy === 1) inverseHornuss(coefficients, intermediate, output, width, 0, 0)
   else if (strategy === 2) inverseDct2TopBlock(coefficients, output, width, 0, 0)
@@ -1256,8 +1255,13 @@ export const inverseJpegXlDevelopmentTransform = (
   else inverseDctRectangle(coefficients, width, height, intermediate, output, width, 0, 0, active)
 }
 
+type LoopFilterParameters = Pick<
+  JpegXlFrameStructure,
+  'gaborishWeights' | 'epfWeights' | 'epfSigma' | 'epfSharpness'
+>
+
 const applyDefaultGaborish = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   planes: readonly Float32Array[],
   stride: number,
   width: number,
@@ -1820,7 +1824,7 @@ const applyDefaultEpfStage2 = (
 }
 
 const applyCustomEpfStage = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   planes: readonly [Float32Array, Float32Array, Float32Array],
   output: readonly [Float32Array, Float32Array, Float32Array],
   stride: number,
@@ -2081,7 +2085,7 @@ const applyDefaultEpfStage0 = (
 }
 
 const applyDefaultEpfStage = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   planes: readonly [Float32Array, Float32Array, Float32Array],
   stride: number,
   width: number,
@@ -2171,7 +2175,7 @@ const applyDefaultEpfStage = (
 }
 
 const makeEpfInverseSigmas = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   quantization: Int32Array<ArrayBufferLike>,
   sharpness: Int32Array<ArrayBufferLike>,
   globalScale: number,
@@ -5087,7 +5091,9 @@ export const jpegXlLinearToSrgb = (value: number): number =>
   value < 0 ? -linearToSrgb(-value) : linearToSrgb(value)
 
 export const convertJpegXlNativeXybPlanesToLinear = (
-  planes: readonly [Float64Array, Float64Array, Float64Array],
+  planes:
+    | readonly [Float64Array, Float64Array, Float64Array]
+    | readonly [Float32Array, Float32Array, Float32Array],
   custom: JpegXlFrameStructure['opsinInverse'],
   signal?: AbortSignal,
 ): readonly [Float64Array, Float64Array, Float64Array] => {

@@ -1,8 +1,10 @@
+import type { ImageCodec } from '../src/codec.ts'
 import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
+import { establishedJpegXlCodec } from './helpers/jpegxl-established-encoder.ts'
 import { MemorySource } from '../src/source.ts'
 import { encodeJpegXlFamilyContextFixture } from './helpers/jpegxl-family-contexts.ts'
 
@@ -24,10 +26,11 @@ const encode = async (
   height: number,
   distance: number,
   maxWorkingBytes = 268435456,
+  codec: ImageCodec = jpegxlCodec,
 ) => {
   const original = pixels.slice(),
     sink = new Uint8ArraySink()
-  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+  const encoder = await codec.createEncoder?.(sink, {
     width,
     height,
     pixelFormat: 'rgba8',
@@ -143,8 +146,10 @@ describe('JPEG XL opaque palette compression', () => {
   })
 
   it('recovers the original primary stream when optional palette storage cannot fit', async () => {
+    // This photo-like stripe pattern takes the libjxl policy in the public encoder. The
+    // established encoder's primary stream is the fallback under test here.
     const pixels = graphic(),
-      encoded = await encode(pixels, 128, 128, 2, 1500000)
+      encoded = await encode(pixels, 128, 128, 2, 1500000, establishedJpegXlCodec)
     // Shared opaque precision changes the bounded fallback, qualified by both decoders.
     expect(encoded.length).toBe(11393)
     expect(sha256(encoded)).toBe('404d4d52a88f8e1e037e1e81987215a9157a77a42455567172fc69838a6ea882')

@@ -4,7 +4,6 @@ import {
   fineAllocationHeight,
 } from './jpegxl-fine-photo.ts'
 import type { ImageCodec } from '../../src/codec.ts'
-import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { JpegXlCodestreamSource, inspectJpegXlSource } from '../../src/codecs/jpegxl-container.ts'
 import { readJpegXlSourceFrameStructures } from '../../src/codecs/jpegxl-decode.ts'
 import { resolveJpegXlLimits } from '../../src/codecs/jpegxl-limits.ts'
@@ -13,6 +12,7 @@ import { prepareJpegXlVarDctLowFrequency } from '../../src/codecs/jpegxl-vardct-
 import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
 import { MemorySource, readExactly } from '../../src/source.ts'
+import { establishedJpegXlCodec } from './jpegxl-established-encoder.ts'
 
 export const conePhotoWidth = 2057
 export const conePhotoHeight = 2040
@@ -218,12 +218,22 @@ const verifyPhoto = async (
 }
 
 // Complete cone alternatives moved to effort 9; keep the same fixture and quality limits.
+// The public encoder uses the libjxl policy for this photo, so both photo checks keep the
+// established cone search and fine channel/spatial policy under test.
 export const verifyConePhoto = (sink = new Uint8ArraySink()) =>
-  verifyPhoto(1.25, sink, jpegxlCodec, conePhotoWidth, conePhotoHeight, createConePhoto(), 9)
+  verifyPhoto(
+    1.25,
+    sink,
+    establishedJpegXlCodec,
+    conePhotoWidth,
+    conePhotoHeight,
+    createConePhoto(),
+    9,
+  )
 
 export const verifyFinePhoto = (
   sink = new Uint8ArraySink(),
-  codec: Pick<ImageCodec, 'createEncoder' | 'createDecoder'> = jpegxlCodec,
+  codec: Pick<ImageCodec, 'createEncoder' | 'createDecoder'> = establishedJpegXlCodec,
 ) =>
   verifyPhoto(
     0.56,

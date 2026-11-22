@@ -1030,6 +1030,8 @@ const ansHistogramEncoding = (
 }
 
 export interface AnsEncoding {
+  // Cost-only models retain serialized frequencies without allocating payload lookup tables.
+  readonly payloadTables?: boolean
   readonly contextMap: Uint8Array
   readonly config: HybridUintEncoding
   readonly histogramConfigs?: readonly HybridUintEncoding[]
@@ -1043,6 +1045,7 @@ export const writeAnsCode = (
   config: Readonly<HybridUintEncoding>,
   lz77 = false,
   histogramConfigs?: readonly HybridUintEncoding[],
+  preparePayload = true,
 ): AnsEncoding => {
   const memory = writer.memory
   return withJpegXlMemory(memory, () => {
@@ -1129,8 +1132,13 @@ export const writeAnsCode = (
       config: Object.freeze({ ...config }),
       ...(histogramConfigs ? { histogramConfigs } : {}),
       histograms: Object.freeze(
-        serialized.map((histogram) => ansHistogramEncoding(histogram, memory)),
+        serialized.map((histogram) =>
+          preparePayload
+            ? ansHistogramEncoding(histogram, memory)
+            : { frequencies: histogram, residuals: [] },
+        ),
       ),
+      payloadTables: preparePayload,
     })
   })
 }
@@ -1171,6 +1179,8 @@ export const writeAnsPackedValues = (
   encoding: Readonly<AnsEncoding>,
   scratch?: Int32Array,
 ): void => {
+  if (encoding.payloadTables === false)
+    throw invalidJpegXlInput('ANS payload tables were not prepared')
   const memory = writer.memory
   withJpegXlMemory(memory, () => {
     const renormalizedWords = scratch ?? allocateJpegXlArray(memory, Int32Array, count)
@@ -3109,9 +3119,18 @@ const encodeSingleGroupSection = (
   checkpoint?: () => Promise<void>,
   maximumPaletteColors = 1024,
   sourceChannels?: 4,
+  budgetBytes?: number,
 ): Promise<Uint8Array> => {
   return withJpegXlMemoryAsync(memory, async () => {
     const candidateLimit = resolveJpegXlLimits().maxCodestreamBytes
+    // The lossy exact-palette check only asks whether this stream fits its budget.
+    // On the measured corpus a learned tree shrinks its fixed-context input by at
+    // most 2.9 times, so a learned search starting above 4 times the budget cannot
+    // change that answer and is skipped. Without a budget every search runs.
+    const beyondBudget = (bytes: number): boolean =>
+      budgetBytes !== undefined && bytes > budgetBytes * 4
+    const smallestCandidate = (): number =>
+      candidates.reduce((smallest, candidate) => Math.min(smallest, candidate.length), Infinity)
     const predictorSearches = new WeakMap<
       Readonly<PreparedModularPlanes>,
       SingleGroupPredictorSearch
@@ -3246,7 +3265,7 @@ const encodeSingleGroupSection = (
       prepared.planes.values.length <= 4 &&
       !prepared.transforms.squeeze &&
       !prepared.transforms.scalarPalettes
-    if (learnedEligible) {
+    if (learnedEligible && !beyondBudget(smallestCandidate())) {
       await checkpoint?.()
       try {
         const learned = await encodeGroupCandidate(
@@ -3274,7 +3293,8 @@ const encodeSingleGroupSection = (
       (spatial || learnedEligible) &&
       !prepared.transforms.palette &&
       format !== 'gray8' &&
-      format !== 'gray16'
+      format !== 'gray16' &&
+      !beyondBudget(smallestCandidate())
     ) {
       const current = prepared.transforms.useRct ? 6 : 0
       try {
@@ -3396,26 +3416,27 @@ const encodeSingleGroupSection = (
             await checkpoint?.()
             variants.push(encodePrepared(ordered, true, true))
             await checkpoint?.()
-            try {
-              const extra = await withJpegXlMemoryAsync(memory, async () => {
-                const floor = variants.reduce((smallest, value) =>
-                  value.length < smallest.length ? value : smallest,
-                )
-                const candidate = await encodeGroupCandidate(
-                  ordered,
-                  effort,
-                  candidateLimit,
-                  memory,
-                  checkpoint,
-                  true,
-                )
-                if (candidate.bytes.length >= floor.length) return undefined
-                return candidate.bytes
-              })
-              if (extra) variants.push(extra)
-            } catch (error) {
-              rethrowJpegXlNonLimitError(error)
-            }
+            const floor = variants.reduce((smallest, value) =>
+              value.length < smallest.length ? value : smallest,
+            )
+            if (!beyondBudget(floor.length))
+              try {
+                const extra = await withJpegXlMemoryAsync(memory, async () => {
+                  const candidate = await encodeGroupCandidate(
+                    ordered,
+                    effort,
+                    candidateLimit,
+                    memory,
+                    checkpoint,
+                    true,
+                  )
+                  if (candidate.bytes.length >= floor.length) return undefined
+                  return candidate.bytes
+                })
+                if (extra) variants.push(extra)
+              } catch (error) {
+                rethrowJpegXlNonLimitError(error)
+              }
             return variants.reduce((smallest, variant) =>
               variant.length < smallest.length ? variant : smallest,
             )
@@ -3441,6 +3462,7 @@ const encodeSingleGroupSection = (
           checkpoint,
           256,
           sourceChannels,
+          budgetBytes,
         ),
       )
     }
@@ -4234,22 +4256,6 @@ const encodeGroupCandidate = (
     return Object.freeze({ ...selected, plan: undefined })
   })
 
-/** Internal decision-transplant writer: exact native planes, with our entropy search. */
-export const encodeJpegXlDevelopmentModularGroup = async (
-  planes: Readonly<ModularPlanes>,
-  memory: JpegXlEncoderMemory,
-): Promise<Uint8Array> =>
-  (
-    await encodeGroupCandidate(
-      { planes, transforms: { useRct: false } },
-      7,
-      memory.outputLimit,
-      memory,
-      undefined,
-      false,
-    )
-  ).bytes
-
 const hasSparse16BitChannels = (pixels: Uint8Array, memory?: JpegXlEncoderMemory): boolean =>
   withJpegXlMemory(memory, () => {
     const seen = allocateJpegXlArray(memory, Uint8Array, 65_536)
@@ -4627,6 +4633,7 @@ const encodeFrameSections = (
   checkpoint?: () => Promise<void>,
   evidence?: ModularGroupSearchEvidence[],
   sourceChannels?: 4,
+  budgetBytes?: number,
 ): Promise<readonly Uint8Array[]> => {
   return withJpegXlMemoryAsync(memory, async () => {
     const groupDimension = 1_024
@@ -4673,6 +4680,7 @@ const encodeFrameSections = (
           checkpoint,
           1024,
           sourceChannels,
+          budgetBytes,
         ),
       ])
     }
@@ -5139,6 +5147,36 @@ const quantizeFlatPalette = (
 export const hasOpaque8BitAlpha = (pixels: Uint8Array): boolean => {
   for (let offset = 3; offset < pixels.length; offset += 4) if (pixels[offset] !== 255) return false
   return true
+}
+
+/** True when at least a quarter of the complete 8x8 blocks have one exact RGB color. */
+export const hasManyFlatBlocks = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  channels: 3 | 4,
+): boolean => {
+  const blocksWide = Math.floor(width / 8),
+    blocksHigh = Math.floor(height / 8)
+  let flat = 0
+  for (let by = 0; by < blocksHigh; by++)
+    for (let bx = 0; bx < blocksWide; bx++) {
+      const first = (by * 8 * width + bx * 8) * channels
+      const red = pixels[first],
+        green = pixels[first + 1],
+        blue = pixels[first + 2]
+      let constant = true
+      for (let y = 0; y < 8 && constant; y++) {
+        let at = ((by * 8 + y) * width + bx * 8) * channels
+        for (let x = 0; x < 8; x++, at += channels)
+          if (pixels[at] !== red || pixels[at + 1] !== green || pixels[at + 2] !== blue) {
+            constant = false
+            break
+          }
+      }
+      if (constant) flat++
+    }
+  return flat > 0 && flat * 4 >= blocksWide * blocksHigh
 }
 
 // Keep a Modular candidate for artwork with a bounded visible-color palette.
@@ -5924,7 +5962,13 @@ const encodeLossyCodestream = (
         limits,
         frame,
       )
-    const parts = await encodeForward()
+    // Opaque 8-bit sRGB photos use the libjxl-derived transform and quantization decisions.
+    // Artwork, screenshots and documents with many flat blocks keep the established encoder.
+    const libjxlPolicy =
+      opaqueSdrColor &&
+      !options.progressive &&
+      !hasManyFlatBlocks(pixels, width, height, colorStride)
+    const parts = await encodeForward(libjxlPolicy ? { libjxlPolicy } : undefined)
     const header = parts[0]
     if (!header) throw invalidJpegXlInput('forward header is missing')
     const primary = {
@@ -5948,6 +5992,9 @@ const encodeLossyCodestream = (
       !options.progressive &&
       (format === 'rgb8' || options.alphaBitDepth === 8)
     ) {
+      // An exact palette must save 5% against the established lossy stream. The libjxl
+      // policy writes leaner lossy streams, so there an exact palette wins at equal cost.
+      const exactMargin = libjxlPolicy ? 20 : 19
       let smallPalette = false
       try {
         const modular = await withJpegXlMemoryAsync(memory, async () => {
@@ -5971,6 +6018,9 @@ const encodeLossyCodestream = (
           if (normalized)
             for (let offset = 0; offset < normalized.length; offset += 4)
               if (normalized[offset + 3] === 0) normalized.fill(0, offset, offset + 3)
+          // An opaque exact palette wins only at or below this many bytes; the lossless
+          // search skips learned trees that cannot reach it.
+          const exactBudgetBytes = Math.floor((cost(selected) * exactMargin) / 160)
           if (opaqueSdrColor && format === 'rgba8') {
             // Both opaque layouts compare the same actual RGB lossless stream. Read its
             // color planes through the RGBA stride instead of staging a full RGB bitmap.
@@ -5988,10 +6038,11 @@ const encodeLossyCodestream = (
                 false,
                 false,
                 4,
+                exactBudgetBytes,
               )
               return canonical.byteLength * 8
             })
-            if (!(colorBits * 20 <= cost(selected) * 19)) return undefined
+            if (!(colorBits * 20 <= cost(selected) * exactMargin)) return undefined
             const candidate = await encodeCodestream(
               pixels,
               width,
@@ -6011,6 +6062,11 @@ const encodeLossyCodestream = (
             { ...options, mode: 'lossless' },
             memory,
             checkpoint,
+            undefined,
+            false,
+            false,
+            undefined,
+            opaqueSdrColor ? exactBudgetBytes : undefined,
           )
           const measured = opaqueSdrColor
             ? { ...candidate, colorBits: candidate.byteLength * 8 }
@@ -6018,7 +6074,7 @@ const encodeLossyCodestream = (
           // Translucent visible palettes must retain exact colors: a smaller DC
           // payload can lower the lossy stream below the palette without removing
           // its color error. Allocation refusal still keeps the completed fallback.
-          return !opaqueSdrColor || cost(measured) * 20 <= cost(selected) * 19
+          return !opaqueSdrColor || cost(measured) * 20 <= cost(selected) * exactMargin
             ? measured
             : undefined
         })
@@ -6067,8 +6123,8 @@ const encodeLossyCodestream = (
         }
       }
     }
-    // Effort 9 retains the complete strategy alternative for every input layout.
-    if (options.effort === 9) {
+    // Effort 9 retains the complete strategy alternative for the established encoder.
+    if (options.effort === 9 && !libjxlPolicy) {
       try {
         await checkpoint()
         const alternateParts = await encodeForward({
@@ -6174,6 +6230,7 @@ const encodeCodestream = (
   localColor = false,
   smallFast = false,
   sourceChannels?: 4,
+  budgetBytes?: number,
 ): Promise<EncodedJpegXlCodestream> => {
   return withJpegXlMemoryAsync(memory, async () => {
     if (sourceChannels !== undefined && (format !== 'rgb8' || options.effort < 7))
@@ -6215,6 +6272,7 @@ const encodeCodestream = (
             checkpoint,
             evidence,
             sourceChannels,
+            budgetBytes,
           )
     const sectionBytes = jpegXlPartsByteLength(sections)
     const remainingOutputBytes = (memory?.outputLimit ?? 134_217_728) - sectionBytes

@@ -4,6 +4,24 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Encode opaque 8-bit sRGB photos at JPEG XL lossy effort 7 and 9 with
+  transform, quantization and loop-filter decisions ported from libjxl v0.12.0
+  (BSD-3-Clause, see `THIRD_PARTY_NOTICES`). On this path `distance` follows
+  libjxl's scale. On 64 development photos a given distance gives a median
+  SSIMULACRA2 within 0.5 of wasm-vips, with files 4% to 11% smaller. Callers
+  who already use effort 7 or 9 get much smaller files at the same distance
+  (6,873 instead of 14,892 bytes on the test photo at distance 1), so lower the
+  distance to keep the earlier quality. Artwork with many flat blocks,
+  progressive output, visible alpha, other color and bit depths, efforts 1, 3
+  and 5, and encodes that exceed `maxWorkingBytes` keep the established
+  encoder. Effort 9 uses the effort-7 decisions. The JPEG XL bundle ceilings
+  rise to 640,000 and 713,000 minified bytes.
+
+- Speed up the exact-palette check that JPEG XL lossy effort 7 and 9 run on
+  images with at most 2,048 colors. The check now skips learned-tree searches
+  whose starting stream is more than four times the size the palette must beat.
+  On the development photos in that range the encoded files are unchanged and
+  the slowest encode falls from 25.7 to 3.4 seconds.
 - Search palette color orders for RGB8 JPEG XL lossless input at effort 7 and 9,
   as RGBA8 input already did. A 513x257 image with 246 colors shrinks from 5,504
   to 2,247 bytes, below the 2,262-byte RGBA8 file. On the 104 RGB8 images of the

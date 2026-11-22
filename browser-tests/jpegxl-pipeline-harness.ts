@@ -9,6 +9,7 @@ export {
 } from '../tests/helpers/jpegxl-dc-model.ts'
 export { verifyDct16Orders } from '../tests/helpers/jpegxl-dct16-orders.ts'
 export { verifyDenseLosslessTraining } from '../tests/helpers/jpegxl-dense-training.ts'
+export { establishedJpegXlCodec } from '../tests/helpers/jpegxl-established-encoder.ts'
 export { verifyJpegXlFamilyContexts } from '../tests/helpers/jpegxl-family-contexts.ts'
 export {
   verifyFastLosslessChannels,

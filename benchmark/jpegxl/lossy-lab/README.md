@@ -1,5 +1,104 @@
 # JPEG XL lossy lab
 
+This folder measures the public JPEG XL lossy encoder against wasm-vips and
+jSquash. `run.ts` encodes the frozen development or holdout crops with each
+engine through `worker.ts`, scores them with SSIMULACRA2 and Butteraugli, and
+writes BD-rates. `summarize-port.ts` compares one run against a saved reference
+run, such as main, and reports the SSIM guards. The holdout split runs only with
+Aaron's approval and is read as aggregates.
+
+The libjxl research campaign also kept replay, transplant and port experiments
+here, with a patch that rebuilt two encoder files under `.tmp`. Those scripts,
+their tests, the 86 archived experiment patches and the 64 raw JSON reports were
+removed before merging to main. The Markdown reports below and
+`../lossy-lab-log.md` keep the results. On the `jxl-libjxl-ports` branch, the
+code and patches are in commit `0d25cdd9` and the raw JSON reports in `055dc2c6`.
+
+The [saved development rate and quality report](SAVED-FRONTIER-REPORT.md)
+compares three saved standalone modes. Only 32 of 576 actual byte budgets
+admit a replacement, and the worst development SSIM guard stays unchanged.
+The [matched-byte trial](MATCHED-BUDGET-REPORT.md) completes the 24 frozen
+development encodes of the aligned DC mode. Two streams fit their original
+budgets and neither improves SSIM while preserving both Butteraugli scores.
+The [rate-targeting follow-up](RATE-TARGET-REPORT.md) fits 21 of 24 fresh
+development encodes within budget, with zero qualifying replacements.
+The [selected-block byte-budget audit](BLOCK-BUDGET-REPORT.md) verifies
+1,152 archived candidate streams and finds three qualifying replacements
+of 576 budgets, all outside the development SSIM guard cohort.
+The [whole-photo curve audit](FULL-CURVE-CHOICE-REPORT.md) finds headroom
+when each photo keeps one mode across all nine settings. Hindsight
+selection lowers the worst development SSIM guard from +7.579% to +4.844%.
+The [source-only chooser test](SOURCE-CHOOSER-REPORT.md) finds no cutoff
+that makes two safe writer switches on the 16 calibration photos.
+The [second source-only signal](SOURCE-NOISE-CHOOSER-REPORT.md) also
+fails calibration with a maximum of one safe switch.
+The [writer scope report](WRITER-SCOPE-REPORT.md) records the selected-block
+development screens and the rectangular transforms involved in local
+peak-error regressions. The bounded display helper now covers those
+transforms with exact numerical parity.
+
+The [prepared source report](SELECTOR-SOURCE-REPORT.md) records three exact-output
+selector trials. The retained development path skips 30% of selector source
+reads and sample copies on two crops. Complete encode time is effectively
+unchanged, and all measured fresh process memory comparisons pass. The historical
+quality guards remain unresolved.
+
+The [AC model state report](RATE-AC-STATE-REPORT.md) rejects two further exact-output
+trials. Smaller histograms change streams at a fixed memory budget; shorter scans
+have no convincing timing gain. An optimistic bound cannot prune the losing order
+candidates. Fresh timing measures remaining overhead against an updated control;
+it does not replace the earlier qualification against the frozen control.
+No encoder change or new quality policy is retained, and the holdout stays closed.
+
+The [scratch reduction report](RATE-SCRATCH-REPORT.md) records three trials.
+Reusing clustering buffers and skipping unused payload tables cuts ordinary
+writer scratch requests by about 30%, with exact output and neutral elapsed
+time. The combination without DC caching passes the measured memory guard.
+All 576 development streams, nine browser fixtures, 24 budget comparisons and
+the full repository check pass. Quality failures still block merging.
+
+The [rate ownership report](RATE-OWNERSHIP-REPORT.md) finishes the checked DC
+cache's integration experiment. It owns bounded scratch, releases it correctly,
+and reclaims optional state under memory pressure. Repeated rate probes are
+faster, but warm process peaks rise about 7% even with the same writer executing
+on both sides. The prototype stays archived. This changes no quality decisions
+and does not repair the merge guards.
+
+The [rate-state report](RATE-STATE-REPORT.md) records three exact-output
+experiments. Reusing checked DC metadata lowers batch rate-estimation time
+by 35–37%, but process memory rises in several cases and complete selector
+cost remains unqualified. The prototype is archived; no new encoder policy
+or production change is retained. Quality guards still block merging.
+
+The [simple selector report](OBVIOUS-SELECTOR-REPORT.md) records two small
+first-party speed changes after six focused trials. Twenty-one complete-encode
+pairs improve the photo by 4.0% and texture by 2.2%, with unchanged output across
+all 576 development points and no added managed storage. Quality is unchanged.
+The research branch still needs its quality guards and public forcing cleanup
+before merge.
+
+The [source and control report](SOURCE-CONTROL-REPORT.md) records seven failed
+quality policies and useful development observation callbacks. Reusing the
+writer pass saves 6-8% versus recomputing source transforms. Guarded region
+exchanges are too slow; same-transform moment proxies worsen native quality
+and actual stream sizes. Retain only callbacks and their focused tests. The
+work stays on `jxl-libjxl-ports`. Production code and main are unchanged;
+holdout stays closed.
+The earlier [bounded protection](BOUNDED-PROTECTION-REPORT.md),
+[SSIM diagnostic](SSIM-PROTECTION-REPORT.md),
+[filter-loss](FILTER-LOSS-REPORT.md) and
+[sampled reconstruction](SAMPLED-AR-REPORT.md) reports preserve prior results.
+Step C was approved after the allocation checkpoint below.
+
+The 2026-10-14 allocation checkpoint is recorded in
+[LOSSY_LIBJXL_REOPENING.md](../LOSSY_LIBJXL_REOPENING.md). It replaces the separate
+component strategy and metric targets: mean BD-rate against vips at most +2%,
+with every metric at most +5%. Existing speed, memory and remaining promotion
+checks continue. A large coherent port requires a separate approval. The [allocation report](ALLOCATION-REPORT.md) records 4,288 valid encodes.
+Its best full-lab mean was +2.704%, missing +2%; Step C awaited approval at that
+checkpoint. The older checkpoints below retain their original gates and
+measurements.
+
 The [2026-10-13 owner decision](../LOSSY_LIBJXL_REOPENING.md) reopens source-informed
 lossy work. Read it before the older decisions below. Decision transplants precede
 source ports; the development option is rejected by the public codec. Current
@@ -10,11 +109,25 @@ Step 1 is complete. All nine development rows pass emitted-map checks and native
 decoding on all 80 screen and 576 lab points. The all-maps row measures +3.39%
 SSIMULACRA2, +1.64% Butteraugli 3-norm and -0.20% Butteraugli max against vips.
 It takes 1,027ms at distance 2, or 2.10x jSquash. Transform and filter prototypes
-exceed the 3x crop target. No source decision logic is ported yet. The complete
+exceed the 3x crop target. The complete
 table, texture comparisons, timing scope and first-port ranking are in the report.
 The remaining gap includes unsignaled preconditioning as well as rounding and
 entropy coding. Holdout and original qualification remain closed until a port
 clears the normal development gates.
+
+The first Step 2 screen stopped under the owner's three-component rule. Ten source-port
+variants and one writer control complete 880 screen encodes with no execution
+failures. Transform selection, inverse Gaborish and DC precision yield no
+promotable gain. Their quality tradeoffs, diagnostic encode times and source
+adaptations are in [PORT-REPORT.md](PORT-REPORT.md). The licensed TypeScript
+experiments stay on `jxl-libjxl-ports`; no new heuristic enters the public encoder.
+
+Aaron reopened the investigation after that report. The
+[coupled decision report](COUPLED-REPORT.md) tests AC quantization, transforms,
+chroma, filters and DC together. Matching DC removes a large rate mismatch:
+the 64-photo replay is +3.323% SSIM, +1.581% 3-norm and +0.475% max against vips.
+SSIM failed the then-current promotion gate. The earlier single-component results remain
+preserved and do not establish that the coupled pipeline is ineffective.
 
 Follow [the promotion-entry decision](../LOSSY_PROMOTION_ENTRY.md),
 [the steering plan](../LOSSY_STEERING.md),

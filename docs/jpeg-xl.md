@@ -318,6 +318,31 @@ independent alpha precision can be declared in 16-bit storage. Missing or
 incompatible semantics still fail validation. Float rows require a deliberate
 representable integer output conversion before lossless JXL encoding.
 
+## Lossy photos at effort 7 and 9
+
+At lossy effort 7 and 9, opaque 8-bit sRGB photos use transform, quantization
+and loop-filter decisions ported from libjxl v0.12.0. The ported modules keep
+libjxl's BSD-3-Clause notice; see `THIRD_PARTY_NOTICES`. Other input keeps the
+established VarDCT encoder.
+
+| Input at lossy effort 7 or 9 | Encoder |
+| --- | --- |
+| `rgb8`, or `rgba8` whose alpha is all 255, with 8-bit sRGB color | libjxl-derived decisions |
+| Images where at least a quarter of the 8x8 blocks are one flat color, such as artwork, screenshots and documents | Established encoder |
+| Progressive output, visible alpha, more than 8 bits, or non-sRGB color | Established encoder |
+| The libjxl-derived path needs more than `maxWorkingBytes` | Established encoder |
+
+- `distance` follows libjxl's scale on this path. On 64 development photos, a
+  given distance from 0.25 to 11.6 gives a median SSIMULACRA2 within 0.5 of
+  libjxl (wasm-vips 0.0.19), with files 4% to 11% smaller.
+- The established encoder uses its own distance scale and spends more bytes at
+  the same distance. On the policy test photo at distance 1, the libjxl-derived
+  path writes 6,873 bytes and the established encoder 14,892.
+- Effort 9 uses the same decisions as effort 7.
+- Images with at most 2,048 visible colors still compare an exact lossless
+  palette and keep it when it is no larger than the lossy stream.
+- A 21-megapixel photo peaks at 121.5 MB of managed encoder memory.
+
 ## Exact JPEG reconstruction
 
 The separate coefficient API preserves eligible original JPEG bytes:

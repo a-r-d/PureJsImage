@@ -2,6 +2,7 @@ import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
 import { MemorySource } from '../../src/source.ts'
+import { establishedJpegXlCodec } from './jpegxl-established-encoder.ts'
 
 const checksum = (bytes: Uint8Array): number => {
   let value = 0x811c9dc5
@@ -9,7 +10,11 @@ const checksum = (bytes: Uint8Array): number => {
   return value >>> 0
 }
 
-/** Nonconstant complete large windows, including gradients, edges and texture. */
+/**
+ * Nonconstant complete large windows, including gradients, edges and texture. The public
+ * encoder uses the libjxl policy for this opaque RGB input, so this keeps the established
+ * encoder's large-window reconstruction under test.
+ */
 export async function verifyJpegXlLargePlaneReconstruction(
   distances: readonly number[] = [2, 7],
   effort: 7 | 9 = 7,
@@ -29,7 +34,7 @@ export async function verifyJpegXlLargePlaneReconstruction(
       []
   for (const distance of distances) {
     const sink = new Uint8ArraySink(),
-      encoder = await jpegxlCodec.createEncoder?.(sink, {
+      encoder = await establishedJpegXlCodec.createEncoder?.(sink, {
         width,
         height,
         pixelFormat: 'rgb8',

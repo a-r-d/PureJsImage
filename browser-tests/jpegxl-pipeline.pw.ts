@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import { object } from '../benchmark/jpegxl/comparison/model.ts'
 import {
+  establishedJpegXlCodec,
   runJpegXlPipelines,
   verifyCoefficientEntropyFloor,
   verifyDenseLosslessTraining,
@@ -92,7 +93,9 @@ for (const maxWorkingBytes of [undefined, 15_989_965]) {
 test('JPEG XL weighted DC compression preserves textured gradients across runtimes', async ({
   page,
 }) => {
-  const expected = await verifyJpegXlDcModel()
+  // The public encoder uses the libjxl policy here; keep the established photo filter under
+  // test in both runtimes, as tests/jpegxl-dc-model.test.ts does.
+  const expected = await verifyJpegXlDcModel(16_777_216, 513, 257, 4, establishedJpegXlCodec)
   // Expanded color DC saves 35 bytes; complete Node pixels and both independent grids are exact.
   expect(expected.bytes).toBe(2393)
   expect(expected.encodedChecksum).toBe(1569612896)
@@ -106,7 +109,8 @@ test('JPEG XL weighted DC compression preserves textured gradients across runtim
   await page.goto('/codec-validation.html')
   const result: unknown = await page.evaluate(async () => {
     const path = '/jpegxl-pipeline.js'
-    return (await import(path)).verifyJpegXlDcModel()
+    const harness = await import(path)
+    return harness.verifyJpegXlDcModel(16_777_216, 513, 257, 4, harness.establishedJpegXlCodec)
   })
   expect(object(result)).toEqual(expected)
 })
@@ -116,7 +120,8 @@ test('JPEG XL opaque DC precision above four megapixels matches Node in a real b
 }) => {
   // Both complete compression-first searches need headroom on shared CI CPUs.
   test.setTimeout(1_200_000)
-  const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
+  // The public encoder uses the libjxl policy here; keep the established DC precision under test.
+  const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 4, establishedJpegXlCodec)
   // Expanded color DC saves 3,635 bytes; complete pixels and both decoder grids remain exact.
   expect(expected.bytes).toBe(43_736)
   expect(expected.encodedChecksum).toBe(1447552200)
@@ -131,7 +136,8 @@ test('JPEG XL opaque DC precision above four megapixels matches Node in a real b
   await page.goto('/codec-validation.html')
   const result: unknown = await page.evaluate(async () => {
     const path = '/jpegxl-pipeline.js'
-    return (await import(path)).verifyJpegXlDcModel(67_108_864, 2049, 2048)
+    const harness = await import(path)
+    return harness.verifyJpegXlDcModel(67_108_864, 2049, 2048, 4, harness.establishedJpegXlCodec)
   })
   expect(object(result)).toEqual(expected)
 })
@@ -167,6 +173,8 @@ for (const recovery of [false, true])
   }) => {
     test.setTimeout(recovery ? 240_000 : 600_000)
     // Expanded color DC saves 4,644 bytes each; exact pixels and the 1.6/64 MiB bounds remain.
+    // The public encoder uses the libjxl policy for the fine stream, so that case keeps the
+    // established fine policy under test. Recovery falls back to the established encoder.
     const expected = recovery
       ? {
           bytes: 1497084,
@@ -189,7 +197,8 @@ for (const recovery of [false, true])
           alphaError: 0,
           meanColorError: 1.5778136184317553,
           inputChecksum: 2068954295,
-          ownedPeak: 27376349,
+          // The established test encoder stages 8 fewer managed bytes than the former public path.
+          ownedPeak: 27376341,
           ownedLive: 0,
           ownedAllocations: 0,
         }
@@ -209,7 +218,7 @@ for (const recovery of [false, true])
       const harness = await import(path)
       return recovery
         ? harness.verifyLargeJpegXlDcAllocationRecovery(0.54)
-        : harness.verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
+        : harness.verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54, harness.establishedJpegXlCodec)
     }, recovery)
     expect(object(result)).toEqual(expected)
   })
@@ -280,7 +289,13 @@ for (const maxWorkingBytes of [268435456, 1500000] as const)
   test(`JPEG XL flat palette compression and natural working fallback agree across runtimes, budget=${maxWorkingBytes}`, async ({
     page,
   }) => {
-    const expected = await verifyFlatPaletteGraphic(maxWorkingBytes)
+    // The bounded fallback's primary stream comes from the established encoder, as in
+    // tests/jpegxl-flat-palette.test.ts; the public encoder uses the libjxl policy there.
+    const fallback = maxWorkingBytes === 1500000
+    const expected = await verifyFlatPaletteGraphic(
+      maxWorkingBytes,
+      fallback ? establishedJpegXlCodec : undefined,
+    )
     // Exact palette selection and the qualified bounded fallback match the Node snapshots.
     expect(expected.bytes).toBe(maxWorkingBytes === 1500000 ? 11393 : 904)
     expect(expected.maximumAlphaError).toBe(0)
@@ -288,10 +303,17 @@ for (const maxWorkingBytes of [268435456, 1500000] as const)
     expect(expected.ownedAllocations).toBe(0)
     expect(expected.ownedPeak).toBeLessThanOrEqual(maxWorkingBytes)
     await page.goto('/codec-validation.html')
-    const result: unknown = await page.evaluate(async (maxWorkingBytes) => {
-      const path = '/jpegxl-pipeline.js'
-      return (await import(path)).verifyFlatPaletteGraphic(maxWorkingBytes)
-    }, maxWorkingBytes)
+    const result: unknown = await page.evaluate(
+      async ({ maxWorkingBytes, fallback }) => {
+        const path = '/jpegxl-pipeline.js'
+        const harness = await import(path)
+        return harness.verifyFlatPaletteGraphic(
+          maxWorkingBytes,
+          fallback ? harness.establishedJpegXlCodec : undefined,
+        )
+      },
+      { maxWorkingBytes, fallback },
+    )
     const actual = object(result)
     expect(actual.bytes).toBe(expected.bytes)
     expect(actual.encodedChecksum).toBe(expected.encodedChecksum)

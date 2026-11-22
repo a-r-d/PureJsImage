@@ -1,3 +1,4 @@
+import type { ImageCodec } from '../../src/codec.ts'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { createJpegXlEncodeOperation } from '../../src/pipeline.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
@@ -39,6 +40,7 @@ export async function encodeEffortFixture(
   effort: 7 | 9,
   distance = 3,
   mode: 'lossy' | 'lossless' = 'lossy',
+  codec: Pick<ImageCodec, 'createEncoder'> = jpegxlCodec,
 ) {
   const { width, height, channels, depth } = fixture
   const format: PixelFormat =
@@ -80,7 +82,7 @@ export async function encodeEffortFixture(
       : { mode, effort }
   createJpegXlEncodeOperation(options)
   const sink = new Uint8ArraySink()
-  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+  const encoder = await codec.createEncoder?.(sink, {
     width,
     height,
     pixelFormat: format,

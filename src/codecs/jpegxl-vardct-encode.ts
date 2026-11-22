@@ -28,6 +28,11 @@ import {
   varDctCodestreamParts,
 } from './jpegxl-jpeg-encode.ts'
 import {
+  jpegXlLibjxlFrameParameters,
+  jpegXlLibjxlPolicyDistance,
+} from './jpegxl-libjxl-quant-field.ts'
+import { rewriteJpegXlLibjxlGeometry } from './jpegxl-libjxl-strategy.ts'
+import {
   encodeHybridUintPacked,
   hasOpaque8BitAlpha,
   hasSmallVisiblePalette,
@@ -112,6 +117,60 @@ const linearSrgb = Float32Array.from({ length: 256 }, (_, value) => {
 })
 const bias = 0.0037930732552754493
 const biasRoot = Math.cbrt(bias)
+
+/** Fill one XYB block from 8-bit RGB(A), caching exact conversions by RGB value. */
+const fillMemoizedXybBlock = (
+  pixels: Uint8Array,
+  width: number,
+  blockX: number,
+  blockY: number,
+  xPlane: Float32Array,
+  yPlane: Float32Array,
+  bPlane: Float32Array,
+  channels: 3 | 4,
+  transfer: Float32Array,
+  matrix: Float32Array,
+  keys: Uint32Array,
+  xs: Float32Array,
+  ys: Float32Array,
+  bs: Float32Array,
+): void => {
+  const m0 = matrix[0] ?? 0,
+    m1 = matrix[1] ?? 0,
+    m2 = matrix[2] ?? 0,
+    m3 = matrix[3] ?? 0,
+    m4 = matrix[4] ?? 0,
+    m5 = matrix[5] ?? 0,
+    m6 = matrix[6] ?? 0,
+    m7 = matrix[7] ?? 0,
+    m8 = matrix[8] ?? 0
+  for (let y = 0; y < 8; y++) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * channels
+    for (let x = 0; x < 8; x++, offset += channels) {
+      const r = pixels[offset] ?? 0
+      const g = pixels[offset + 1] ?? 0
+      const b = pixels[offset + 2] ?? 0
+      const key = (r << 16) | (g << 8) | b
+      const slot = ((r * 73856093) ^ (g * 19349663) ^ (b * 83492791)) & (keys.length - 1)
+      if (keys[slot] !== key + 1) {
+        const red = transfer[r] ?? 0
+        const green = transfer[g] ?? 0
+        const blue = transfer[b] ?? 0
+        const mixedRed = Math.cbrt(m0 * red + m1 * green + m2 * blue + bias) - biasRoot
+        const mixedGreen = Math.cbrt(m3 * red + m4 * green + m5 * blue + bias) - biasRoot
+        const mixedBlue = Math.cbrt(m6 * red + m7 * green + m8 * blue + bias) - biasRoot
+        xs[slot] = (mixedRed - mixedGreen) / 2
+        ys[slot] = (mixedRed + mixedGreen) / 2
+        bs[slot] = mixedBlue - (mixedRed + mixedGreen) / 2
+        keys[slot] = key + 1
+      }
+      const index = y * 8 + x
+      xPlane[index] = xs[slot] ?? 0
+      yPlane[index] = ys[slot] ?? 0
+      bPlane[index] = bs[slot] ?? 0
+    }
+  }
+}
 // The default sRGB matrix maps 8-bit RGB into [0, 1]. The extra endpoint
 // covers its final floating-point rounding at white without a hot-loop clamp.
 const lookupCubeRoot = (linear: number, table: Float32Array): number => {
@@ -411,12 +470,15 @@ export const encodeJpegXlVarDct8 = (
 }
 
 export interface JpegXlForwardFrameOptions {
-  readonly developmentDecisions?: import('./jpegxl-development-decisions.ts').JpegXlDevelopmentDecisions
   readonly reference?: boolean
   readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
   readonly strategyPolicy?: 'rate-distortion'
   readonly compressionSearch?: boolean
   readonly coneSearch?: boolean
+  /** Use the libjxl-derived effort-7 transform, quantization and filter decisions. */
+  readonly libjxlPolicy?: boolean
+  /** Gaborish strength from the policy distance map, set by `encodeJpegXlVarDct8Async`. */
+  readonly libjxlGaborish?: number
 }
 
 const usesForwardCoefficientOrderSearch = (
@@ -549,7 +611,8 @@ const encodeJpegXlVarDct8CandidateAsync = (
       frame.strategyPolicy ?? 'conservative',
       frame.compressionSearch !== false,
       frame.coneSearch === true,
-      frame.developmentDecisions,
+      frame.libjxlPolicy === true,
+      frame.libjxlGaborish ?? 0,
     )
     await checkpoint()
     let next = steps.next()
@@ -631,12 +694,14 @@ export const encodeJpegXlVarDct8Async = async (
   limits: Readonly<ImageLimits> = defaultImageLimits,
   frame: Readonly<JpegXlForwardFrameOptions> = {},
 ): Promise<readonly Uint8Array[]> => {
+  // The policy encodes at its calibrated internal distance; its fallback keeps the request.
+  const policy = frame.libjxlPolicy === true ? jpegXlLibjxlPolicyDistance(distance) : undefined
   const encode = (options: Readonly<JpegXlForwardFrameOptions>): Promise<readonly Uint8Array[]> =>
     encodeJpegXlVarDct8CandidateAsync(
       pixels,
       width,
       height,
-      distance,
+      policy?.distance ?? distance,
       memory,
       checkpoint,
       channels,
@@ -646,12 +711,17 @@ export const encodeJpegXlVarDct8Async = async (
       progressive,
       color,
       limits,
-      options,
+      policy ? { ...options, libjxlGaborish: policy.gaborishStrength } : options,
     )
   try {
     return await withJpegXlMemoryAsync(memory, async () => {
       const baseline = await encode({ ...frame, coneSearch: false })
-      if (frame.compressionSearch === false || frame.coneSearch === false || effort !== 9)
+      if (
+        frame.compressionSearch === false ||
+        frame.coneSearch === false ||
+        effort !== 9 ||
+        frame.libjxlPolicy === true
+      )
         return baseline
       try {
         const candidate = await encode({ ...frame, coneSearch: true })
@@ -662,7 +732,27 @@ export const encodeJpegXlVarDct8Async = async (
       }
     })
   } catch (error) {
-    if (!isJpegXlLimitExceeded(error) || frame.compressionSearch === false) throw error
+    if (!isJpegXlLimitExceeded(error)) throw error
+    // The libjxl policy keeps every quantized AC group. When that exceeds the working
+    // budget, the established encoder and its bounded optional fallbacks take over.
+    if (frame.libjxlPolicy === true)
+      return encodeJpegXlVarDct8Async(
+        pixels,
+        width,
+        height,
+        distance,
+        memory,
+        checkpoint,
+        channels,
+        effort,
+        imageHeader,
+        sampleDepth,
+        progressive,
+        color,
+        limits,
+        { ...frame, libjxlPolicy: false },
+      )
+    if (frame.compressionSearch === false) throw error
     return encode({ ...frame, compressionSearch: false, coneSearch: false })
   }
 }
@@ -683,7 +773,8 @@ function* prepare8(
   strategyPolicy: 'conservative' | 'rate-distortion' = 'conservative',
   compressionSearch = true,
   coneSearch = false,
-  decisions?: import('./jpegxl-development-decisions.ts').JpegXlDevelopmentDecisions,
+  libjxlPolicy = false,
+  libjxlGaborish = 0,
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidJpegXlInput('dimensions must be positive safe integers')
@@ -695,14 +786,14 @@ function* prepare8(
   validateImageDimensions(width, height, 1, limits, channels * sampleBytes)
   if (pixels.length !== width * height * channels * sampleBytes)
     throw invalidJpegXlInput('RGB8 extent is inconsistent')
-  if (!Number.isFinite(distance) || distance < 0.25 || distance > 25)
+  // The policy's internal distance range is checked by its frame parameters.
+  if (!libjxlPolicy && (!Number.isFinite(distance) || distance < 0.25 || distance > 25))
     throw invalidJpegXlInput('forward conformance distance must be between 0.25 and 25')
   const quantAc = 4
+  const libjxl = libjxlPolicy ? jpegXlLibjxlFrameParameters(distance, libjxlGaborish) : undefined
   const ownGlobalScale = Math.round(65536 / (distance * quantAc))
-  const globalScale = decisions?.globalScale ?? ownGlobalScale
+  const globalScale = libjxl?.globalScale ?? ownGlobalScale
   const effectiveDistance = 65536 / ownGlobalScale / quantAc
-  if (!Number.isInteger(globalScale) || globalScale < 1 || globalScale > 73728)
-    throw invalidJpegXlInput('development global scale is invalid')
   const sdrInput =
     (channels === 3 || channels === 4) &&
     sampleDepth === 8 &&
@@ -715,6 +806,8 @@ function* prepare8(
   const sdrColor = effort >= 7 && sdrInput
   const sdrAlpha = sdrColor && channels === 4
   const sdrOpaqueColor = sdrColor && opaqueSdrInput
+  if (libjxl && (!sdrOpaqueColor || progressive))
+    throw invalidJpegXlInput('libjxl policy requires opaque 8-bit sRGB effort 7 or 9 input')
   let rgbDcPolicy = channels === 3 || ((effort === 3 || effort === 5) && opaqueSdrInput)
   let smallVisiblePalette: boolean | undefined
   if (sdrOpaqueColor) {
@@ -781,26 +874,15 @@ function* prepare8(
     (progressive || !sdrOpaqueColor || !photoContext || (!compressionSearch && distance > 1))
   const photoColorQuantization = originalDarkAc || originalPhotoAc
   const smoothColorDc = baselineColorPrecision || photoColorQuantization
-  const ownDcQuantization = moderateSdrDc
-    ? originalPhotoAc
-      ? [distance < 2 ? 1 / 8192 : 1 / 16384, 1 / 2048, 1 / 1024]
-      : [1 / 16384, 1 / 4096, 1 / 2048]
-    : baselineColorPrecision
-      ? [1 / 8192, 1 / 1024, 1 / 512]
-      : [1 / 16384, 1 / 16384, 1 / 16384]
-  const forcedDc = decisions?.dc
-  const dcQuantization = forcedDc
-    ? forcedDc.quantization.map(
-        (q) => ((65536 / forcedDc.globalScale / forcedDc.quantDc) * q) / effectiveDistance,
-      )
-    : ownDcQuantization
-  const dcCorrelation = decisions?.correlation?.parameters
-  const dcRatioX = dcCorrelation
-    ? dcCorrelation.baseCorrelationX + dcCorrelation.yToXDc / dcCorrelation.colorFactor
-    : 0
-  const dcRatioB = dcCorrelation
-    ? dcCorrelation.baseCorrelationB - 1 + dcCorrelation.yToBDc / dcCorrelation.colorFactor
-    : 0
+  const dcQuantization = libjxl
+    ? libjxl.dcSteps.map((step) => step / effectiveDistance)
+    : moderateSdrDc
+      ? originalPhotoAc
+        ? [distance < 2 ? 1 / 8192 : 1 / 16384, 1 / 2048, 1 / 1024]
+        : [1 / 16384, 1 / 4096, 1 / 2048]
+      : baselineColorPrecision
+        ? [1 / 8192, 1 / 1024, 1 / 512]
+        : [1 / 16384, 1 / 16384, 1 / 16384]
   const deferredDc =
     effort === 1 &&
     channels !== 4 &&
@@ -816,16 +898,6 @@ function* prepare8(
   const correlationB = allocateJpegXlArray(memory, Int32Array, colorTilesAcross * colorTilesDown)
   const quantizationMap = allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh)
   quantizationMap.fill(quantAc)
-  if (decisions?.quantizationMap && decisions.quantizationMap.length !== quantizationMap.length)
-    throw invalidJpegXlInput('development quant field extent differs')
-  if (
-    decisions?.correlation &&
-    (decisions.correlation.x.length !== correlationX.length ||
-      decisions.correlation.b.length !== correlationB.length)
-  )
-    throw invalidJpegXlInput('development correlation extent differs')
-  if (decisions?.filters && decisions.filters.sharpness.length !== quantizationMap.length)
-    throw invalidJpegXlInput('development sharpness extent differs')
   let optionalBlockMapRefused = false
   const optionalBlockMap = (): Uint8Array | undefined => {
     try {
@@ -841,8 +913,11 @@ function* prepare8(
     yy >= 0.000064 &&
     yy < 0.005 &&
     ((meanY > 0.5 && activity < 1.5) || (meanY < 0.5 && activity > 1.5))
+  // The libjxl policy selects transforms after this pass; skip the established search.
   const strategyMap =
-    effort >= 5 ? allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh) : undefined
+    effort >= 5 && !libjxl
+      ? allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh)
+      : undefined
   const components: VarDctCoefficientPlane[] = Array.from({ length: 3 }, () => ({
     blocksPerLineForMcu: blocksWide,
     blocksPerColumnForMcu: blocksHigh,
@@ -918,6 +993,51 @@ function* prepare8(
   if (cubeRootTable) {
     for (let index = 0; index < cubeRootTable.length; index++)
       cubeRootTable[index] = Math.cbrt(index / 16_384 + bias) - biasRoot
+  }
+  let memoizedFill: ((blockX: number, blockY: number) => void) | undefined
+  // The libjxl policy reads each source block several times. On aligned crops up to
+  // 512x512, cache exact XYB per RGB value; relinquish the cache under memory pressure.
+  if (
+    libjxl &&
+    effort === 7 &&
+    channels === 4 &&
+    sampleBytes === 1 &&
+    (width & 7) === 0 &&
+    (height & 7) === 0 &&
+    width * height <= 512 * 512
+  ) {
+    try {
+      const slots = 4096
+      const planeBytes = slots * Float32Array.BYTES_PER_ELEMENT
+      const storage = memory.allocate(Uint32Array, 4 * slots)
+      const keys = storage.subarray(0, slots)
+      const xs = new Float32Array(storage.buffer, planeBytes, slots)
+      const ys = new Float32Array(storage.buffer, 2 * planeBytes, slots)
+      const bs = new Float32Array(storage.buffer, 3 * planeBytes, slots)
+      memoizedFill = (blockX, blockY) =>
+        fillMemoizedXybBlock(
+          pixels,
+          width,
+          blockX,
+          blockY,
+          xPlane,
+          yPlane,
+          bPlane,
+          channels,
+          transfer,
+          matrix,
+          keys,
+          xs,
+          ys,
+          bs,
+        )
+      memory.registerReclaimer(() => {
+        memoizedFill = undefined
+        memory.release(storage)
+      })
+    } catch (error) {
+      rethrowJpegXlNonLimitError(error)
+    }
   }
   // Select the storage kernel once. Grayscale never expands to an RGB bitmap.
   const defaultFillColor =
@@ -1092,7 +1212,9 @@ function* prepare8(
             }
           }
         }
-      : defaultFillColor
+      : memoizedFill
+        ? (blockX: number, blockY: number) => (memoizedFill ?? defaultFillColor)(blockX, blockY)
+        : defaultFillColor
   const alphaMask =
     channels === 4 && effort > 1 && !sdrOpaqueColor
       ? allocateJpegXlArray(memory, Uint8Array, 64)
@@ -1150,11 +1272,6 @@ function* prepare8(
     for (let blockX = 0; blockX < blocksWide; blockX++) {
       fill(blockX, blockY)
       const offset = blockY * blocksWide + blockX
-      let dcMeanY = 0
-      if (dcCorrelation) {
-        for (let position = 0; position < 64; position++) dcMeanY += yPlane[position] ?? 0
-        dcMeanY /= 64
-      }
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel]
         const component = components[channel]
@@ -1163,8 +1280,7 @@ function* prepare8(
         for (let position = 0; position < 64; position++) sum += plane[position] ?? 0
         means[channel] = sum / 64
         component.coefficients[offset] = Math.round(
-          (sum / 64 - (channel === 0 ? dcRatioX : channel === 2 ? dcRatioB : 0) * dcMeanY) /
-            (effectiveDistance * (dcQuantization[channel] ?? 0)),
+          sum / (64 * effectiveDistance * (dcQuantization[channel] ?? 0)),
         )
       }
       if (effort > 1) {
@@ -1243,10 +1359,6 @@ function* prepare8(
   memory.release(covarianceY)
   memory.release(covarianceX)
   memory.release(covarianceB)
-  if (decisions?.correlation) {
-    correlationX.set(decisions.correlation.x)
-    correlationB.set(decisions.correlation.b)
-  }
   if (effort >= 5) {
     let cache: Float32Array | undefined, keys: Float64Array | undefined
     try {
@@ -1314,12 +1426,8 @@ function* prepare8(
         : acRateWeightY
     }
     const tile = Math.floor(blockY / 8) * colorTilesAcross + Math.floor(blockX / 8)
-    const ratioX =
-      (dcCorrelation?.baseCorrelationX ?? 0) +
-      (correlationX[tile] ?? 0) / (dcCorrelation?.colorFactor ?? 84)
-    const ratioB =
-      (dcCorrelation ? dcCorrelation.baseCorrelationB - 1 : 0) +
-      (correlationB[tile] ?? 0) / (dcCorrelation?.colorFactor ?? 84)
+    const ratioX = (correlationX[tile] ?? 0) / 84
+    const ratioB = (correlationB[tile] ?? 0) / 84
     for (let position = 0; position < 64; position++) {
       xPlane[position] = (xPlane[position] ?? 0) - ratioX * (yPlane[position] ?? 0)
       bPlane[position] = (bPlane[position] ?? 0) - ratioB * (yPlane[position] ?? 0)
@@ -1710,8 +1818,6 @@ function* prepare8(
       for (let x = 0; x < blocksWide; x++) {
         fillCorrelated(x, y)
         const index = y * blocksWide + x
-        if (decisions?.quantizationMap)
-          quantizationMap[index] = decisions.quantizationMap[index] ?? 0
         let localScale = 65536 / globalScale / (quantizationMap[index] ?? quantAc)
         errors.fill(Infinity)
         let baselineBits = measureStrategy(0, localScale)
@@ -1719,13 +1825,7 @@ function* prepare8(
         // DCT energy equals pixel variance. The floors avoid spending bits on
         // tiny residuals, including decorrelated X chroma.
         // One bounded refinement retains the existing quantizer as the fallback.
-        if (
-          !decisions?.quantizationMap &&
-          effort >= 7 &&
-          (channels === 3 || sdrOpaqueColor) &&
-          distance > 1 &&
-          distance < 5
-        ) {
+        if (effort >= 7 && (channels === 3 || sdrOpaqueColor) && distance > 1 && distance < 5) {
           let relativeError = 0
           // Progressive passes retain chroma precision; refine their luminance
           // contrast without promoting small decorrelated chroma residuals to Q8.
@@ -1751,7 +1851,7 @@ function* prepare8(
           const strength = Math.min(1, distance - 1, 5 - distance)
           const refined = current + Math.round(Math.max(0, target - current) * strength)
           if (refined > current) {
-            if (!decisions?.quantizationMap) quantizationMap[index] = refined
+            quantizationMap[index] = refined
             localScale = 65536 / globalScale / refined
             baselineBits = measureStrategy(0, localScale)
           }
@@ -1822,12 +1922,7 @@ function* prepare8(
 
   // Preserve original selected transforms and DC. The allocation budget belongs
   // to output X0/half-Y; the source scores came from the unchanged original pass.
-  if (
-    !decisions?.quantizationMap &&
-    sourceScores &&
-    strategyMap &&
-    hasFineAllocationVariation(sourceScores)
-  ) {
+  if (sourceScores && strategyMap && hasFineAllocationVariation(sourceScores)) {
     let rates: Float64Array | undefined
     try {
       const blocks = blocksWide * blocksHigh
@@ -1903,7 +1998,7 @@ function* prepare8(
                 )
               : oldQ
           cost += rates?.[i * 9 + q - 4] ?? 0
-          if (apply && !decisions?.quantizationMap) quantizationMap[i] = q
+          if (apply) quantizationMap[i] = q
         }
         return cost
       }
@@ -1961,17 +2056,9 @@ function* prepare8(
           const source = planes[channel],
             destination = dct16Planes[channel]
           if (!source || !destination) throw invalidInput('Missing DCT16 color')
-          const ratio = correlated ? 0 : channel === 0 ? dcRatioX : channel === 2 ? dcRatioB : 0
-          if (ratio === 0) {
-            for (let y = 0; y < 8; y++)
-              for (let x = 0; x < 8; x++)
-                destination[(dy * 8 + y) * 16 + dx * 8 + x] = source[y * 8 + x] ?? 0
-          } else {
-            for (let y = 0; y < 8; y++)
-              for (let x = 0; x < 8; x++)
-                destination[(dy * 8 + y) * 16 + dx * 8 + x] =
-                  (source[y * 8 + x] ?? 0) - ratio * (yPlane[y * 8 + x] ?? 0)
-          }
+          for (let y = 0; y < 8; y++)
+            for (let x = 0; x < 8; x++)
+              destination[(dy * 8 + y) * 16 + dx * 8 + x] = source[y * 8 + x] ?? 0
         }
       }
   }
@@ -2090,16 +2177,6 @@ function* prepare8(
     for (let y = 0; y + 1 < blocksHigh; y += 2) {
       for (let x = 0; x + 1 < blocksWide; x += 2) {
         const at = y * blocksWide + x
-        const forcedQuantizer = decisions?.quantizationMap?.[at]
-        // One transform signals one quantizer. Keep a forced field exact by
-        // refusing merges across cells with different imported values.
-        if (
-          forcedQuantizer !== undefined &&
-          (decisions?.quantizationMap?.[at + 1] !== forcedQuantizer ||
-            decisions?.quantizationMap?.[at + blocksWide] !== forcedQuantizer ||
-            decisions?.quantizationMap?.[at + blocksWide + 1] !== forcedQuantizer)
-        )
-          continue
         if (
           strategyMap[at] !== 0 ||
           strategyMap[at + 1] !== 0 ||
@@ -2214,7 +2291,6 @@ function* prepare8(
             bestQuantizer = 0
           for (let quantizerIndex = 0; quantizerIndex < dct16Quantizers.length; quantizerIndex++) {
             const quantizer = dct16Quantizers[quantizerIndex] ?? 4
-            if (forcedQuantizer !== undefined && quantizer !== forcedQuantizer) continue
             const scale = 65536 / globalScale / quantizer
             let inRange = true
             quantized16.fill(0)
@@ -2324,19 +2400,14 @@ function* prepare8(
     bScale = 1
     bAc = 1.25
   }
-  if (decisions?.quantizationMap) quantizationMap.set(decisions.quantizationMap)
-  if (decisions?.filters) {
-    if (sharpnessMap) memory.release(sharpnessMap)
-    sharpnessMap = allocateJpegXlArray(memory, Uint8Array, decisions.filters.sharpness.length)
-    sharpnessMap.set(decisions.filters.sharpness)
-  }
   const hasDct16 = strategyMap?.includes(4) ?? false
   let groupCoefficientOffsets = hasDct16
     ? allocateJpegXlArray(memory, Int32Array, 32 * 32)
     : undefined
-  const acStorage = Array.from({ length: 3 }, () =>
-    allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
-  )
+  // The libjxl policy supplies its own AC groups; the established group scratch stays unused.
+  const acStorage: Int16Array[] = libjxl
+    ? []
+    : Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64))
   let largePlanes: readonly [Float32Array, Float32Array, Float32Array] | undefined
   let largeTransformed: readonly [Float32Array, Float32Array, Float32Array] | undefined
   let largeIntermediate: Float32Array | undefined
@@ -2446,7 +2517,6 @@ function* prepare8(
     return [largePlanes, largeTransformed, largeIntermediate] as const
   }
   const largeColorGeometry =
-    !decisions?.quantizationMap &&
     originalPhotoAc &&
     // Preserve preceding geometry after a LIMIT instead of searching four larger optional maps.
     !optionalBlockMapRefused &&
@@ -2833,10 +2903,10 @@ function* prepare8(
     acComponents: components,
     dcComponents: [second, first, third],
     quantization,
-    dcQuantization:
-      decisions?.globalScale !== undefined || decisions?.dc
-        ? dcQuantization.map((q) => (q * effectiveDistance * globalScale * quantAc) / 65536)
-        : dcQuantization,
+    // The libjxl policy reports physical DC steps, independent of its AC global scale.
+    dcQuantization: libjxl
+      ? dcQuantization.map((q) => (q * effectiveDistance * globalScale * quantAc) / 65536)
+      : dcQuantization,
     ...(smoothColorDc ? { smoothDc: true } : {}),
     defaultMatrices: true,
     globalScale,
@@ -2848,8 +2918,6 @@ function* prepare8(
     effort,
     progressive,
     baseB: 1,
-    ...(dcCorrelation ? { developmentCorrelation: dcCorrelation } : {}),
-    ...(decisions?.filters ? { developmentFilters: decisions.filters } : {}),
     loadAc,
     deferredDc,
     memory,
@@ -3012,16 +3080,26 @@ function* prepare8(
   }
   // Start retaining groups only after strategy/Q selection has finished.
   retainAcGroups = effort >= 7 && groupsAcross * Math.ceil(blocksHigh / 32) > 1
-  if (decisions?.rewriteGeometry) {
-    return decisions.rewriteGeometry(resultGeometry, {
-      readBlock: (x, y, correlated) => {
-        if (correlated) fillCorrelated(x, y)
-        else fill(x, y)
-        return planes
+  if (libjxl)
+    return rewriteJpegXlLibjxlGeometry(
+      resultGeometry,
+      {
+        readBlock: (x, y, correlated) => {
+          if (correlated) fillCorrelated(x, y)
+          else fill(x, y)
+          return planes
+        },
+        quantize: quantizeAc,
+        zeroQuantizationThresholds:
+          quantizeAc === rateAwareAc
+            ? defaultJpegXlQuantizationBiases.map((value) => value / 2)
+            : [0.5, 0.5, 0.5],
       },
-      quantize: quantizeAc,
-    })
-  }
+      distance,
+      libjxlGaborish,
+      width,
+      height,
+    )
   return resultGeometry
 }
 

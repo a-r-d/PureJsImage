@@ -3,8 +3,23 @@
 ## Reopening on 2026-10-13
 
 [The owner decision](LOSSY_LIBJXL_REOPENING.md) allows source-informed ports and
-bitstream decision transplants. Step 1 comes before any port. No new libjxl
-decision logic has been ported in this change.
+bitstream decision transplants. Step 1 came before all ports and was committed
+as `b2666b83`. Aaron then authorized Step 2. The current ports below are
+development experiments; they are not selected by the public encoder.
+
+| Our module | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-dc-quantization-port.ts` and DC integration preserved in `DC-QUANTIZATION-EXPERIMENT.patch` | libjxl `lib/jxl/enc_modular.cc`, QuantizeWP and AddVarDCTDC; `lib/jxl/quantizer.h`; `lib/jxl/modular/encoding/context_predict.h`; v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | One approved coherent nonlinear DC trial. Predictor-relative dead zone 0.62, extra precision bit, even larger residuals, reconstructed-Y chroma DC subtraction and group resets. Scalar TypeScript reuses our first-party weighted predictor, restores B from B-Y, preserves float32 boundaries and explicitly checks integer range. InitialQuantDC and AC 1.25 reuse existing ports. The full BSD license remains in package/docs notices; no native infrastructure, peer maps or runtime dependencies. Rejected after 656 native-valid development outputs; no active implementation remains. |
+| Read-only `audit-native-dc-precision.ts`, preserved in `BLOCK-ALLOCATION-DC-AUDIT.patch` | libjxl `lib/jxl/enc_modular.cc`, `enc_cache.cc`, `common.h`, `encode.cc`; v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Source/bitstream diagnostic only. Verifies four source files against the pinned archive and uses our decoder to compare raw and assembled DC groups from existing development streams. Records nonlinear DC quantization as an unported hypothesis. No encoder logic, constants or infrastructure are ported by this diagnostic. |
+| `lossy-lab/libjxl-standalone-port.ts` and the selected-block modules preserved in `BLOCK-ALLOCATION-*-EXPERIMENT.patch` | Existing ports of libjxl `lib/jxl/enc_heuristics.cc`, `lib/jxl/enc_adaptive_quantization.cc`, `lib/jxl/quant_weights.h` and `lib/jxl/enc_group.cc`; v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Reuse the corrected selected-block pass unchanged. First-party allocation trials multiply the floating AC field by 0.8 or 1.25 with physical DC/global scale fixed, or restore the existing InitialQuantDC physical steps with AC fixed. No new source constants or algorithms. Each independent archive includes the previously validated 19-test block-quantization suite; this round also runs 36 fixture cases and 27 own-stream decision audits. |
+| `lossy-lab/libjxl-block-quantization-port.ts`, previously preserved in `BLOCK-QUANTIZATION-*-EXPERIMENT.patch` | libjxl `lib/jxl/enc_group.cc`, AdjustQuantBlockAC, QuantizeBlockAC, QuantizeRoundtripYBlockAC and ComputeCoefficients; v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Development-only raw quantizer adjustment, quadrant dead zones, sparse/high-frequency/activity rules and error/magnitude tables. The integrated spatial rounding experiment uses the archived quadrant thresholds at fixed raw quantization. Scalar TypeScript uses our physical matrix steps and double precision, restores B from our B-Y plane, and owns bounded scratch. Corrected versions clamp final precision to our decoder's 1..256 range. The initial rectangle-ID mapping error is preserved and marked invalid. |
+| Archived changes to `lossy-lab/libjxl-chroma-roundtrip-port.ts`, `strategy-transplant.ts` and `libjxl-strategy-port.ts` in the same four patches | libjxl `lib/jxl/enc_group.cc` and the previously ported `lib/jxl/enc_ac_strategy.cc`; v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Integrate the maximum channel quantizer proposal, luma thresholds and reconstructed-luma chroma residuals in our writer; preserve our separate DC representation. One configuration also evaluates that stage inside transform selection. Another restores the existing source selection proxy. No new proxy weights. Nineteen corrected-port tests accompany each corrected patch. |
+| `lossy-lab/libjxl-chroma-roundtrip-port.ts` | libjxl `lib/jxl/enc_group.cc`, QuantizeRoundtripYBlockAC and ComputeCoefficients, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Quantize and reconstruct Y before forming chroma residuals. Uses our existing rounding policy and normative bias values. Bridges our B-minus-original-Y working plane to prediction from reconstructed Y; no native thresholds, SIMD or infrastructure copied. |
+| `lossy-lab/libjxl-quantization-port.ts` | libjxl `lib/jxl/enc_ac_strategy.cc` and `lib/jxl/enc_adaptive_quantization.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Transform selection's sixteenth-norm quantization estimate and AdjustQuantField's distance-dependent maximum/mean blend. Scalar TypeScript consumes our raw quantizers, normalizes the norm by its maximum, and rounds the final adjusted field to wire integer precision. This does not port InitialQuantField or its perceptual refinement loop. |
+| `lossy-lab/libjxl-strategy-port.ts` | libjxl-tiny `encoder/enc_ac_strategy.cc`, `8eae18172059d54f5c734ca814f23b96eebff859`; libjxl `lib/jxl/enc_ac_strategy.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Tiny coefficient entropy/loss constants and rectangular split costs; v0.12 entropy estimate, spatial eighth-norm loss, channel/ringing weights, distance modulation, small-transform biases and hierarchical square/rectangle costs. Scalar TypeScript uses our transforms, quantizer and writer. Maximum-footprint quantization replaces the sixteenth norm. Tiny masking is constant one. Floating merge passes are omitted. The optional error guard is our own. |
+| `lossy-lab/libjxl-strategy-mask.ts` | libjxl `lib/jxl/enc_adaptive_quantization.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Cubic-root/gamma derivative ratio, pixel Laplacian mask and five-by-five mask-blur weights. Scalar loops consume our XYB samples with padded extents and clamped borders. Managed full-plane scratch is development-only and requires a bounded replacement before production promotion. |
+| `lossy-lab/libjxl-gaborish-port.ts` | libjxl `lib/jxl/enc_gaborish.cc` and `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Five inverse-Gaborish weights, normalization and unit channel strength. Our scalar convolution uses a bounded 12x12 block halo and clamped borders. No SIMD, threading or source memory infrastructure is copied. |
+| `lossy-lab/libjxl-dc-port.ts` | libjxl `lib/jxl/enc_adaptive_quantization.cc` and `lib/jxl/quant_weights.h`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | InitialQuantDC distance curve and DC matrix constants. Return physical DC precision to our writer while preserving its AC scale; test DC smoothing separately. |
 
 Source reading order: libjxl-tiny commit
 `8eae18172059d54f5c734ca814f23b96eebff859`, then libjxl v0.12.0 commit
@@ -19,13 +34,24 @@ forward transforms, including AFV and DCT64. It re-encodes decoded native Modula
 reference samples with our entropy writer, and inverts our decoder's signaled
 Gaborish kernel mathematically. These development modules contain no libjxl
 decision-logic port. Source reads of `enc_heuristics.cc` and `enc_gaborish.cc`
-establish the order of patch subtraction and preconditioning; libjxl's optimized
-5x5 preconditioner is not yet copied. Signaled-map replay therefore still leaves
+established the order of patch subtraction and preconditioning in Step 1, before
+the optimized 5x5 preconditioner was ported in Step 2. Signaled-map replay leaves
 unsignaled pixel preconditioning in the residual, along with quantizer rounding
 and entropy coding.
 
-Future ports must add our file, source file, exact commit and material taken to
-this inventory, and the required source header to each module.
+The strategy experiment also tests our actual rate-aware rounding and normative
+reconstruction biases in place of the source model's nearest-integer estimate.
+This is an explicitly measured adaptation, not an exact reproduction of libjxl.
+The joint Gaborish/strategy experiment computes masking before preconditioning
+and transform costs after it, preserving the source ordering.
+The reopened coupled investigation adds `spatial-source`: it uses the source
+quantization norm and field adjustment instead of maximum-only aggregation.
+It also uses unscaled normative matrices inside the source cost estimate;
+signaled chroma scales remain applied by the writer.
+Trials starting from extracted peer fields use final signaled quantizers, not
+the unsignaled initial floating-point field used inside native selection.
+All further ports must add our file, source file, exact commit and material taken
+to this inventory, and the required source header to each module.
 
 This inventory follows [LOSSY_STEERING.md](LOSSY_STEERING.md). It describes the
 current tracked first-party encoder as of 2026-10-09. It changes no runtime
@@ -123,3 +149,830 @@ tracked large selector. The interrupted fine prototype is also not production.
 The provenance gaps above remain open. No runtime value has been rewritten, and
 no new independence, compression, speed or quality result is claimed by this
 inventory.
+
+Allocation sweep, 2026-10-14: `lossy-lab/allocation.ts` reuses the already recorded
+`libjxl-dc-port.ts` InitialQuantDC port. The geometric blend and global AC scale
+are owner-specified experiments implemented by first-party development hooks;
+no additional libjxl code or constants are introduced. The native-map Gaborish
+diagnostic reuses `libjxl-gaborish-port.ts` with all signaled maps fixed.
+
+Step C, 2026-10-14 (libjxl v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`):
+
+| Our module | Source file | Material taken and adaptation |
+| --- | --- | --- |
+| `lossy-lab/libjxl-initial-quant-port.ts` | `lib/jxl/enc_adaptive_quantization.cc`, `lib/jxl/quantizer.cc`, `lib/jxl/enc_heuristics.cc` | InitialQuantField local differences, fuzzy erosion, mask/gamma/HF/blue modulation, distance dampening, initial global-scale policy. Scalar TypeScript and Math functions; our B-Y plane is converted algebraically for blue modulation. Managed scratch and floating precision through selection. |
+| `lossy-lab/libjxl-quantization-port.ts` | `lib/jxl/enc_adaptive_quantization.cc`, `lib/jxl/enc_ac_strategy.cc` | Extend the existing AdjustQuantField port to preserve fractional values until final raw-field rounding. |
+| `lossy-lab/libjxl-standalone-port.ts` | `lib/jxl/enc_heuristics.cc` | Initial field before inverse Gaborish, transform selection before field rounding. Reuses attributed DC, selector and Gaborish ports; keeps our CfL, chroma scales, EPF and coefficient writer. No peer decisions. |
+| `lossy-lab/libjxl-filter-port.ts` | `lib/jxl/enc_frame.cc`, `lib/jxl/enc_heuristics.cc` | Effort-7 Gaborish admission, EPF iteration thresholds, sharpness 4 and no-Gaborish initial-field distance rescale. The direct research variant uses these defaults to avoid deriving EPF from the discarded own transform search. |
+
+Selector speed adaptations in `libjxl-strategy-port.ts` and
+`selector-block-cache.ts` are first-party: a bounded tile cache, nonnegative
+partial-cost pruning, Y-first scoring with the original accumulation order,
+and tile-local traversal. `selector-transforms.ts` derives direct forward
+formulas from our normative inverse transforms. The compact search menu is an
+explicit research approximation, evaluated separately from the full selector.
+
+Step C continuation, 2026-10-14, uses the same v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`:
+
+| Our module | Source file | Material taken and adaptation |
+| --- | --- | --- |
+| `lossy-lab/selector-tile-mask.ts` | `lib/jxl/enc_adaptive_quantization.cc` | Existing Laplacian and Blur1x1Masking port evaluated per 64x64 tile with a three-pixel halo. Preserves the full-plane formula, Float32 storage and accumulation order while bounding scratch. |
+
+The optional three-block-row luma ring in `libjxl-initial-quant-port.ts` preserves
+the initial-field formula and removes the full luma plane. The quarter-resolution
+mask and block field remain proportional to image area. The optional half-strength
+HF modulation, EPF sharpness and iteration experiments are first-party adaptations
+of the already attributed ports. `selector-transforms.ts` and `selector-inverse.ts`
+use mathematical DCT symmetry to share dot products at mirrored samples; these
+are first-party formulas, without additional source-code ports.
+The continuation also measures physical InitialQuantDC step multipliers of 0.5
+and 0.25, DC smoothing off, and our ordinary AC rounding as independent diagnostic
+variants. The AC global scale retains the original source policy during DC-step
+experiments. These are first-party parameter adaptations, not new source ports.
+
+Further development-only allocation diagnostics retain half-size luma DC steps
+and vary chroma DC steps to 0.75 or 1 times InitialQuantDC. The rejected dark-HF
+variant blends HF strength from the source value to half strength using mean
+XYB luminance. These are first-party adaptations of the attributed formulas.
+
+Guard investigation, 2026-10-14: the coherent mode also measures DC smoothing
+off and global HF strengths 0.375 and 0.625. These are first-party parameter
+adaptations of the previously attributed InitialQuantField formula. No additional
+source material or peer decisions are introduced. A first-party contiguous
+intermediate DCT experiment was measured and removed after a speed regression.
+
+The follow-up Gaborish source cache and signed-byte AC storage with Int16
+exceptions are first-party storage adaptations. The Gaborish weights and
+convolution accumulation order are unchanged. Coefficient compaction changes
+no quantized value; dense planes retain their original Int16 storage.
+
+The writer-estimate continuation tests final AdjustQuantField wire precision,
+our rate-aware rounding with normative reconstruction bias, and signaled chroma
+matrix scales inside the existing selector. It also tests 0.75 and 1.25
+multipliers of the attributed information-loss weight. These are first-party
+adaptations of `libjxl-strategy-port.ts` and `libjxl-standalone-port.ts`; their
+libjxl source files and v0.12.0 revision are unchanged. No new source material
+or peer maps are consumed. `forwardPairedSelectorTransform` in
+`selector-transforms.ts` is a first-party optimization that reuses mirrored
+pixel sums and preserves the existing arithmetic order.
+
+The channel-rounding continuation in `libjxl-strategy-port.ts` separates actual
+writer rounding for luma and chroma, normative reconstruction bias after integer
+rounding, and nearest decoded-centroid rounding without a rate penalty. These
+are first-party experiments on the existing attributed selector, not additional
+libjxl ports. All six aliases in `libjxl-standalone-port.ts` retain the same field,
+DC and filter policy and use the already verified paired-input transform.
+
+These six rejected variants are archived in `lossy-lab/CENTROID-EXPERIMENT.patch`
+and removed from the active TypeScript modules after measurement. The patch
+preserves the modules' existing attribution and adds the focused tests needed
+to reproduce the experiments.
+
+The 2026-10-15 merge-guard continuation adds a first-party per-cell luma error
+constraint to the attributed standalone selector. `lossy-lab/selector-merge-guard.ts`
+contains bounded tile-footprint copying and budget checks, with no third-party
+source. The selector tests eighth-power and RMS residual budgets, optional luma
+writer rounding and relative tolerances. Existing libjxl file/revision attribution
+is unchanged; no additional source material or peer decisions are consumed.
+The same continuation tests a soft penalty for the worst per-cell luma norm
+increase and 0.9/1.1 multipliers on the coherent initial AC precision field.
+These are first-party cost/allocation experiments on the attributed ports.
+
+`lossy-lab/selector-inverse-weights.ts` is a first-party inverse-DCT optimization.
+It copies existing cosine weights into dot-product order, hoists coefficient
+orientation/strides, and preserves the arithmetic order of `selector-inverse.ts`.
+No libjxl source is copied for this optimization. It adds a bounded constant cache
+of at most 21,760 bytes across all supported DCT dimensions (5,376 bytes for the
+retained compact menu), with no source-sized scratch allocation.
+
+The rejected 2026-10-15 guard and AC-allocation code, its tests and the measured
+inverse variant are reproducible from `lossy-lab/MERGE-EXPERIMENT.patch` on base
+`a9275832`. Only the inverse-weight optimization remains active after cleanup.
+
+The next 2026-10-15 continuation tests first-party initial-field multipliers
+1.025, 1.05 and 1.075 on the retained inverse selector. The existing DC,
+global-scale, filter and high-frequency policy is unchanged. These adjustments
+consume no new source material or peer decisions. The allocation variants are
+rejected and preserved in `lossy-lab/AC-FOLLOWUP-EXPERIMENT.patch` for base
+`6f282d51`; they are removed from active code.
+
+| Our file | Source file and revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/selector-mask-loss.ts` | libjxl `lib/jxl/enc_ac_strategy.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Eighth-power spatial loss, already ported in `libjxl-strategy-port.ts`. First-party row traversal preserves arithmetic order while removing per-pixel division and remainder. Uses the existing bounded mask with no additional allocation. |
+
+The same continuation tests a bulk TypedArray copy for contiguous 8-pixel-wide
+candidate planes and complementary fine/coarse distance envelopes for AC
+precision. These are first-party adaptations with no new third-party material.
+The combined mask/copy mode retains all 576 development streams exactly and
+adds no allocation. Separate component modes remain explicit development
+comparators; neither is selected individually. The source, measurements and
+control against unchanged Git source are recorded in `lossy-lab/AC-FOLLOWUP-REPORT.md`.
+
+The guard-focused follow-up freezes the coarse allocation envelope together
+with the exact mask/copy kernel as `standalone-guard-coarse`. This reconsiders
+the average-neutral envelope because it lowers the worst admitted development
+SSIM regression from 7.677% to 7.192%. The envelope is our own development fit,
+not an additional libjxl port. It multiplies the existing floating initial field
+before selection and wire rounding, retains physical DC/global scale and uses
+no peer decisions. Promotion eligibility remains explicit and restricted to the
+frozen standalone finalists.
+
+The next 2026-10-15 continuation tests first-party error estimates in
+`selector-dc-error.ts`, `selector-gaborish-error.ts` and
+`selector-correlation-error.ts`. DC reconstruction uses our existing forward
+DC grid and normative low-frequency reconstruction. Filtering uses our
+decoder's default Gaborish kernel with candidate-local clamped borders.
+Correlation propagates luma error through the decoder's AC and DC CfL ratios,
+including the existing B-minus-Y working-plane convention. These experiments
+consume no new third-party code, source constants or peer decisions. Combined
+trials reuse the already attributed quantizer, matrices and selector. Scratch
+view reuse and row coefficient traversal preserve the existing arithmetic.
+
+The same continuation reads the pipeline ordering in libjxl
+`lib/jxl/enc_heuristics.cc`, v0.12.0
+`a7a9c787341cf703dede03c2009fa460cae5e5df`: CfL maps are computed after inverse
+Gaborish. `selector-source-correlation.ts` adapts our existing block-centered
+covariance estimator to that filtered source, once per bounded selector tile.
+It ports no libjxl CfL estimator or constants. Channel-separated trials and
+initial-quantizer-squared weighting are first-party experiments.
+
+All fifteen continuation trials are rejected or unretained after the screens,
+two full labs and isolated cost comparisons. Their modules, selector options
+and tests are preserved in `lossy-lab/SELECTOR-ERROR-EXPERIMENT.patch` for
+`c706e64d`; they are removed from active code. The active encoder and tests
+return exactly to that revision. No additional third-party port is promoted.
+
+| Archived module | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/selector-source-correlation.ts`, in `SELECTOR-ERROR-EXPERIMENT.patch` | libjxl `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Post-Gaborish CfL ordering only. The covariance estimator, bounded tile execution and optional quantizer weighting are ours; no native CfL search code or constants are copied. The archived module carries the source, revision and BSD-3 header. |
+
+## Native coefficient CfL continuation, 2026-10-17
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-cfl-port.ts` | libjxl `lib/jxl/enc_chroma_from_luma.cc` and `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Quantization-weighted AC fitting, fast least-squares and clipped Newton objective, regularization, 2.6 shrinkage, signed rounding and bounds, DCT8 initial fit followed by selected-transform/raw-quant final fit. Scalar double accumulators, Float32 weighted coefficients, existing first-party transforms and shared bounded selector scratch. B-minus-Y uses an equivalent zero-base residual. DC correlation stays at our default. No peer maps or runtime dependency. |
+
+Stage-separated, writer-scaled and shrinkage-free diagnostics use the same
+attributed solver. A following selector experiment restores the already
+attributed native small-transform menu while keeping our existing 32-pixel
+maximum merge footprint. Separate half-transform, AFV and incumbent-driven
+adaptive menus are first-party speed experiments. No new constants are taken.
+
+All nineteen screens and the complete-menu/final-field full lab are rejected.
+The new port, all trial aliases and tests are preserved in
+`lossy-lab/CFL-MENU-EXPERIMENT.patch` for `fba646a8` (encoder source matches
+`c706e64d`). The patch applies cleanly; these experiments are removed from
+active code. `lossy-lab/CFL-MENU-REPORT.md` records the measurements and the
+remaining hypotheses. No new source logic is promoted.
+
+## Reconstruction-driven EPF continuation, 2026-10-17
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-ar-port.ts` | libjxl `lib/jxl/enc_heuristics.cc`, ComputeARHeuristics and ComputeBlockL2Distance, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Sharpness candidates, distance threshold, squared initial masking, XYB weights and no-smoothing preference. Reconstruct our final coefficients using existing first-party normative transforms and filters on 64x64 tiles with an eight-pixel halo. Preserve unsmoothed DC; the iteration diagnostic restores native iteration counts. Other modes keep the retained one-iteration cap. Error accumulators use doubles. No peer maps. The native histogram multiplier simplifies exactly to one because its integer count/total ratio is always zero. Additional menus, luma-only and unmasked losses, and minimum-gain guards are first-party experiments. |
+
+Source audit correction: `encode.cc` maps effort to `10 - effort`; `common.h`
+defines kKitten=2 and kSquirrel=3. `FindBestQuantizer` in
+`enc_adaptive_quantization.cc` runs normal perceptual refinement only through
+kKitten. It therefore skips that refinement at our effort-7 target.
+The existing full BSD-3 license and npm/docs inclusion remain unchanged.
+
+All nine AR screens are rejected. The port, its source header and tests are
+preserved in `lossy-lab/AR-FORWARD-EXPERIMENT.patch` for `1f8d6a5a`; active AR
+code, aliases and normative-kernel exports are removed. The same patch also
+preserves the separate first-party writer experiment. Its existing transform
+kernels contain no new third-party decision logic.
+
+## Sampled, rate-aware AR investigation, 2026-10-17
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-sampled-ar-port.ts` | libjxl `lib/jxl/enc_heuristics.cc`, ComputeARHeuristics and ComputeBlockL2Distance, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Squared initial masking and XYB error weights. Adapt reconstruction to sampled patches of our emitted coefficients, retain one EPF iteration, include sharpness four, and test the native preference for zero separately. Coarse-region decisions, map-rate objective and the cached image-wide distortion normalization are first-party adaptations. Reconstruction, Gaborish and EPF use our first-party decoder formulas. No peer maps. |
+| `lossy-lab/sampled-tile-mask.ts` | libjxl `lib/jxl/enc_adaptive_quantization.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Laplacian gamma and Blur1x1Masking constants already attributed in selector-tile-mask.ts, adapted to variable sampled patch dimensions. Float32 intermediates and clamped padded borders remain. |
+
+`lossy-lab/sampled-sharpness-cost.ts` estimates our writer's predictor-5 residual
+histogram, with entropy and alphabet charges. It is first-party development code.
+The estimate is used to choose maps; actual complete encoded bytes determine all
+reported BD-rates and gates. The existing full BSD-3 license and its npm/docs
+inclusion remain unchanged.
+
+All twelve sampled AR screens are rejected under the quality and speed rules.
+The licensed modules, aliases and focused tests are preserved in
+`lossy-lab/SAMPLED-AR-EXPERIMENT.patch` for `9924201c`; active encoder and
+benchmark module paths return to that retained control. No public source changes.
+
+## Filter distortion model investigation, 2026-10-18
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-filter-loss.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap, EdgeDiffMap and MakePositiveXYB, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Corrected structural-error formula, C2=0.0009, normalized X and B-Y, and separate added-edge/lost-detail measures. Four-pixel box moments replace Gaussian neighborhoods. Two pooled XYB scales approximate linear-RGB downsampling. Channel/scale weights, gradient diagnostics and native-loss mixing are first-party adaptations. This sampled surrogate is not the SSIMULACRA2 metric. Actual native scores remain the gates. |
+| `lossy-lab/libjxl-ssim-weights.ts` | libjxl `tools/ssimulacra2.cc`, Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Exact 108 feature weights in Float64Array. The sampled proxy uses the first three scales and preserves separate mean and L4 structure, added-edge and lost-detail terms. |
+| `lossy-lab/filter-loss-diagnostic.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap and EdgeDiffMap, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Offline four-scale feature diagnosis on actual decoded development PNGs, using four-pixel box neighborhoods and linear-RGB downsampling. Uses our forward color constants. Reports features rather than substituting for native scores. |
+| `lossy-lab/libjxl-filter-gaussian-loss.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap, EdgeDiffMap, MakePositiveXYB and Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Three-scale sampled feature loss with native mean/L4 weights. First-party separable seven-tap Gaussian at sigma 1.5 replaces recursive Gaussian filtering; edges clamp to the sampled patch. XYB pooling approximates native linear-RGB pooling. Optional compact moment vectors support image-wide pooling before fourth roots and a normalized pointwise blend. No score polynomial or complete-metric claim. |
+| `lossy-lab/filter-loss-region-audit.ts` | libjxl `lib/jxl/enc_heuristics.cc`, ComputeBlockL2Distance, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Offline comparison of the attributed native loss with Gaussian feature loss on sixteen fixed development regions. Individual own sharpness interventions are decoded and scored natively. First-party predicted-pixel parity checks cover uniform and changing sharpness maps. No native decisions enter the encoder. |
+
+The sampled reconstruction and masking modules restored for this investigation
+retain their headers and previous provenance. No peer maps or runtime dependencies.
+The full BSD-3 license remains in THIRD_PARTY_NOTICES and the docs-site copy.
+
+All thirteen filter-loss screens are rejected under the quality and speed rules.
+The restored sampled port, new losses, causal diagnostics, aliases and focused
+tests are preserved in `lossy-lab/FILTER-LOSS-EXPERIMENT.patch` for `1e10c5f4`.
+The archive passes `git apply --check`. Active encoder and benchmark paths
+return to that retained writer; no public codec source changes.
+
+## Display loss and metric sensitivity, 2026-10-27
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-display-loss.ts` | libjxl `tools/ssimulacra2.cc`, Downsample, MakePositiveXYB, SSIMMap, EdgeDiffMap and Msssim::Score; `lib/jxl/enc_xyb.cc`; `tools/gauss_blur.cc` and `.h`; v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Offline scalar display-RGB diagnostic. Corrected SSIM and detail terms, native XYB normalization, linear-RGB scale order and three/six scales. Compares finite Gaussian/cosine support, zero/clamped borders and float/double moments. Math.cbrt, direct convolution and scalar arithmetic replace native approximations and SIMD. No exact-metric or runtime-selector claim. |
+| `lossy-lab/libjxl-ssim-blur.ts` | libjxl `tools/gauss_blur.cc`, CreateRecursiveGaussian, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Sigma-1.5 radius, frequencies, normalization and moment equations for the three cosine coefficients. A first-party scalar 3x3 solve evaluates the finite cosine kernel. No native recursive, SIMD, threading or image infrastructure. Float recurrence drift is not reproduced. |
+| `lossy-lab/libjxl-ssim-weights.ts` | libjxl `tools/ssimulacra2.cc`, Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Restore the previously attributed 108 weights for the offline three/six-scale audit. No changed values. |
+
+The replay, geometric permutation, larger-region intervention and report scripts
+are first-party development harnesses. They call the pinned public metric and
+decoder binaries only as development oracles. No peer decisions, runtime
+dependencies or new public codec imports. The full BSD-3 license remains in
+the npm package's THIRD_PARTY_NOTICES and its docs-site copy.
+
+## Frequency allocation and score cost, 2026-10-27
+
+The `lossy-lab/frequency-error.ts`, `audit-frequency-error.ts` and
+`profile-selector.ts` tools are first-party offline diagnostics. They reuse the
+already attributed display-XYB conversion and the existing orthonormal DCT basis.
+No new libjxl constants, tables or heuristics are imported. The rejected source
+band allocation and six score-cost adaptations are archived with their original
+module attribution headers. Active encoder decisions and scoring return to
+`bb43c721`; no public codec source or runtime dependency changes.
+
+## Selected-transform error and pruning, 2026-10-28
+
+The selected-coefficient audit and frequency-dependent rounding trials are
+first-party diagnostics, archived in `lossy-lab/SELECTED-EXPERIMENT.patch` against
+`c10c99be`. They reuse the existing normative decoder centroid constants and
+attributed transforms; no new libjxl component is ported. Seven rounding variants
+are rejected and removed from active code.
+
+The retained changes in `lossy-lab/libjxl-strategy-port.ts` are first-party
+lower bounds on the already attributed selector's cost. They include the known
+luma cost, minimum remaining channel entropy and the remaining rectangle
+partition budget. Winning cost arithmetic, decisions and streams are unchanged
+on the measured corpus. The module keeps its libjxl source header; the full
+BSD-3 license remains in the npm package and docs-site notices. No public codec
+source, runtime dependencies or peer-decision inputs are added.
+
+## Display-stage coefficient audit, 2026-10-28
+
+`lossy-lab/display-error-trace.ts`, `trace-rounding-display.ts` and
+`summarize-display-trace.ts` are first-party offline diagnostics. They call the
+existing decoder for raw XYB, Gaborish, EPF and display conversion, and reuse the
+already attributed inverse-filter context for the source reference. No new
+libjxl implementation, constants or tables are imported.
+
+The filtered rate-cost and nonzero-preserving rounding experiments reuse our
+existing normative centroid constants, default filter weights and logarithmic
+rate proxy. Their analytical DCT response and trial policies are first-party.
+Existing port-module attribution headers are preserved in the experiment
+archive. No public codec source, runtime dependency or peer-map input is added.
+
+## Local contrast and actual entropy costs, 2026-10-28
+
+`lossy-lab/local-rate-audit.ts` and `audit-local-rate.ts` are first-party offline
+diagnostics. They reuse the existing decoder to inspect signaled entropy models
+and the existing writer's unpadded color-bit counter. Contrast statistics and
+coefficient subset interventions are first-party. Native metric distance maps
+are development oracle outputs; no metric implementation is ported. The earlier
+rounding archive is temporarily restored only to reproduce the rejected trial,
+then removed again. No public codec source, peer-map input or runtime dependency
+is added.
+
+## Perceptual component validation, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-local-port.ts` ports selected components from
+`lib/jxl/butteraugli/butteraugli.cc` and `.h`, libjxl v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`: OpsinDynamicsImage/Gamma/absorbance
+constants, Gaussian kernels and border rules, LF/MF/HF/UHF separation and range
+shaping, source activity and fuzzy erosion, MaskY/MaskDcY, frequency/channel
+weights and asymmetric quadratic loss. It uses scalar TypeScript, Float64,
+Math.log and SDR intensity 80. It deliberately omits Malta directional errors
+and coarse-scale mixing, and is only an offline component ablation. It is not
+the native Butteraugli metric, an encoder decision or a public import. The
+existing complete BSD-3 license in THIRD_PARTY_NOTICES remains included in the
+npm package and the docs site's notices page. No runtime dependency is added.
+
+`lossy-lab/libjxl-perceptual-malta-port.ts` ports `MaltaUnit` (both stencils),
+`MaltaDiffMapT`, band weights/norms in `DiffmapPsychoImage`, and
+`AddSupersampled2x` from the same v0.12.0 `butteraugli.cc` and commit above.
+The diagnostic uses explicit coordinate stencils, scalar Float64 arithmetic,
+zero padding and fixed `hf_asymmetry=1`; it omits SIMD, threading and native
+memory infrastructure. The half-resolution input reuses the existing attributed
+linear-RGB downsampling helper. These routines remain outside the encoder and
+public bundle. The original quadratic ablations remain available separately.
+
+`lossy-lab/libjxl-perceptual-pool-port.ts` ports fixed-p=3 `ComputeDistanceP`
+from `lib/extras/metrics.cc`, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. The reported native score averages
+L3, L6 and L12. The port uses scalar Float64 sums, checks finite nonnegative
+input and also reports maximum distance. Plain L3 remains an explicitly named
+ablation; it is not labeled as native-equivalent pooling.
+
+## Ordered output dithering diagnostic, 2026-10-28
+
+`lossy-lab/libjxl-output-dither-port.ts` ports `kDither` and RGB8
+`MakeUnsigned` from libjxl `lib/jxl/render_pipeline/stage_write.cc`, v0.12.0,
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. It removes repeated SIMD row
+padding, retains the 32x32 values and channel offsets, uses scalar float
+arithmetic and ties-to-even rounding, and accepts an explicit crop origin.
+This is an offline reconstruction diagnostic, with no public decoder change.
+The original texture is Christoph Peters's CC0 blue noise, as credited by
+libjxl and the author's [download page](https://momentsingraphics.de/BlueNoise.html#Downloads).
+The existing packaged/docs THIRD_PARTY_NOTICES includes the full libjxl BSD-3
+license; the texture attribution is also recorded there. No runtime dependency.
+
+## Exact perceptual diagnostic optimization, 2026-10-28
+
+The same attributed perceptual modules now accept bounded output windows.
+`libjxl-perceptual-local-port.ts` precomputes Gaussian indices and normalization;
+`libjxl-perceptual-malta-port.ts` restricts padded support and unrolls the fixed
+stencils in their original accumulation order. `libjxl-display-loss.ts` caches
+its existing 8-bit Float32 transfer values. No new source constants or native
+infrastructure are taken. `local-perceptual-region.ts` derives separate fine
+and half-resolution support from the existing kernels. These are first-party
+optimizations of the already recorded v0.12.0 ports, with identical reference
+scores. Attribution headers and the packaged/docs license remain in place.
+
+## Complete-map preparation optimization, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-local-port.ts` shares Gaussian tap loads across
+four adjacent pixels and fuses the Opsin channel adaptation with the final
+XYB writes. These are first-party traversal changes to the already attributed
+`lib/jxl/butteraugli/butteraugli.cc` and `.h` port from v0.12.0,
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. Constants, operation order
+within each sum, and measured outputs stay identical. No new libjxl code or
+constants were taken. The source header records both changes.
+
+`lossy-lab/FULLMAP-SPEED-EXPERIMENT.patch` preserves the preceding allocation
+and coefficient-reuse experiments against this retained checkpoint, including
+the attributed quantization trial below. `FULLMAP-MASK-EXPERIMENT.patch`
+preserves the rejected first-party omission of the unused decoded mask and
+applies after that archive. Historical patches remain unchanged. Full libjxl
+BSD notices remain in the package and docs site. No runtime dependencies.
+
+## Complete-map bounded buffers and directional kernels, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-malta-port.ts` specializes the existing fixed
+directional stencils and reuses identical high-frequency sums at their original
+addition positions. `lossy-lab/libjxl-perceptual-local-port.ts` accepts existing
+Gaussian output buffers and retains only the horizontal rows needed for each
+vertical sum. Incompatible overlapping output views retain a full intermediate.
+These are first-party implementation changes to the recorded
+`lib/jxl/butteraugli/butteraugli.cc` and `.h` ports, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. No source constants, masks or
+thresholds change, and no additional native code is taken. Headers record the
+changes; the full libjxl BSD license remains in the package and docs notices.
+
+`lossy-lab/FULLMAP-SPEED-ROUND2-EXPERIMENT.patch` restores the measured
+complete-map prototype and the previously attributed quantization/reuse
+prerequisites against this checkpoint. The encoder policy remains archived.
+
+## Gaussian traversal and overlapping samples, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-local-port.ts` shares Gaussian coefficients and
+indices across eight output pixels and reuses overlapping horizontal samples
+between successive taps. These are first-party implementation changes to the
+recorded `lib/jxl/butteraugli/butteraugli.cc` and `.h` port, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. Tap order, normalization, source
+constants, buffers and boundary behavior are unchanged. No additional native
+code is taken. The module header records the changes; the full libjxl BSD
+license remains in the package and docs notices. No runtime dependencies.
+
+`lossy-lab/FULLMAP-SPEED-ROUND3-EXPERIMENT.patch` restores the measured
+complete-map prototype and its previously attributed prerequisites.
+`lossy-lab/FULLMAP-GAUSSIAN-VERTICAL-EXPERIMENT.patch` layers the rejected
+first-party vertical traversal on it. The encoder policy remains archived.
+
+## Sparse output and coefficient reuse trial, 2026-10-28
+
+`lossy-lab/SPARSE-ALLOCATION-EXPERIMENT.patch` extends the existing attributed
+perceptual modules with optional output sampling. It preserves all source bands,
+stencils, constants and operation order at sampled locations. The accompanying
+coefficient reuse in `strategy-transplant.ts` is first-party development tooling.
+No additional libjxl code or constants were taken. Both changes and their
+fixtures are archived because no quality policy passes the cost gate; active
+modules are restored. Apply the preceding `JOINT-ALLOCATION-EXPERIMENT.patch`
+before this layer. Existing v0.12.0 attribution and BSD notices remain in force.
+
+## Reconstruction-driven quantization trial, 2026-10-28
+
+`lossy-lab/libjxl-quant-refine-port.ts` ports `TileDistMap` and the first
+`FindBestQuantization` update from libjxl `lib/jxl/enc_adaptive_quantization.cc`,
+v0.12.0, commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. It retains the 1.2
+tile-norm factor, 16th norm, 0.2 low-error exponent, high-error precision update
+and 250:1/asymmetry bounds. Changes: fixed raw scale/DC, one iteration, margin
+zero, normalized scalar accumulation and our dithered reconstruction map.
+This is a development trial of logic native libjxl uses above effort 7.
+The module is BSD-3-Clause; the full license is in `THIRD_PARTY_NOTICES`.
+The trial failed the development guard and is preserved, with its fixtures,
+in `lossy-lab/JOINT-ALLOCATION-EXPERIMENT.patch`. It is not in the active module graph.
+
+## Fixed quadratic channels and shared directional scratch, 2026-10-29
+
+`lossy-lab/libjxl-perceptual-local-port.ts` specializes the three fixed
+quadratic channels and hoists their plane references. Each DC, AC and penalty
+sum keeps its addition order. `lossy-lab/libjxl-perceptual-malta-port.ts`
+reuses one padded difference plane across the six directional bands and adds
+each band's cost directly into the existing cost plane, in the original order.
+These are first-party implementation changes to the recorded
+`lib/jxl/butteraugli/butteraugli.cc` and `.h` ports, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. No additional native code,
+constants or thresholds were taken. Module headers record the changes. The
+full libjxl BSD license remains in the package and docs notices, and there
+are no runtime dependencies.
+
+`lossy-lab/FULLMAP-SPEED-ROUND4-EXPERIMENT.patch` restores the measured
+complete-map prototype and its previously attributed prerequisites.
+`lossy-lab/FULLMAP-INTERIOR-MASK-EXPERIMENT.patch` layers the rejected
+first-party interior-mask specialization on it. The encoder policy remains
+archived because it does not pass the cost gate.
+
+## Selector local-detail experiments, 2026-10-29
+
+`lossy-lab/libjxl-selector-detail-loss.ts`, preserved in
+`lossy-lab/DETAIL-GUARD-EXPERIMENT.patch` for base `97c76933`, reuses the SSIM structure denominator
+and 0.0009 stabilizer from `tools/ssimulacra2.cc`, libjxl v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`, as previously recorded for
+`libjxl-display-loss.ts`. It uses first-party 8x8 box moments on preconditioned
+luma residuals and excludes DC, Gaussian windows, other channels and scales.
+Contrast-only, unregularized and lost-detail variants are first-party alternatives. The
+selector multiplier and direct access to our writer activity state are first-party
+adaptations, with no new native infrastructure. Headers and full BSD notices
+remain present; no runtime dependencies or peer decisions are introduced.
+
+At checkpoint `2c320e3b`, `libjxl-strategy-port.ts` and `libjxl-standalone-port.ts` retained only
+the first-party activity-state shortcut: read the original context to restore the
+shared writer state, then reuse it across shapes at the same origin. Uncorrelated
+source reads preserve that state. The optional reference path remains available
+for exact-stream regression tests. No additional libjxl logic is taken for this
+speed change. Quality policies and their tests are archived, not promoted.
+
+## Exact kernels and restored finalist, 2026-11-03
+
+The regularized-only `lossy-lab/libjxl-selector-detail-loss.ts` restores the
+previously attributed structure denominator and stabilizer from libjxl
+`tools/ssimulacra2.cc`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. The rejected contrast, unregularized
+and lost-detail variants remain archived. The existing fixed half-strength
+selector multiplier and our writer rounding define the restored development
+mode. No peer decisions are consumed.
+
+`lossy-lab/selector-transforms.ts` batches four frequencies with each original
+dot-product order. `lossy-lab/libjxl-gaborish-port.ts` unrolls its existing 25
+taps in the original order. These are first-party speed adaptations with no
+new constants or source material. The existing port header and full BSD
+notices apply. Qualification remains on the research branch.
+
+## Structural follow-up archives, 2026-11-03
+
+`lossy-lab/STRUCTURE-LOCAL-EXPERIMENT.patch` and
+`lossy-lab/STRUCTURE-OVERLAP-EXPERIMENT.patch` adapt the same previously ported
+structure denominator and stabilizer from `tools/ssimulacra2.cc`, v0.12.0
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. Their cell pooling and overlapping
+windows are first-party experiments. The writer-coupling archive reuses existing
+ports; the DC error-diffusion helper is first-party. All four are rejected and
+remain outside the active implementation.
+
+`lossy-lab/STRUCTURE-METRIC-DIAGNOSTIC.patch` preserves development-only
+`build-ssim-probe.ts` and `audit-ssim-features.ts`. The former enables the existing
+raw-score macro when separately compiling the same unmodified native metric
+source. The latter parses the source's 108 weights and native feature output,
+then compares saved development outputs at matched bytes. It does not implement
+the metric or affect encoder decisions. The audit header names the source and
+revision; the existing full BSD notices apply. No runtime dependency is added.
+
+`lib/jxl/enc_group.cc` at that revision was read to identify
+`AdjustQuantBlockAC` and its caller. No code, constants or tables from that pass
+have been ported in this follow-up.
+
+## Coupled DC completion trial (2026-11-03)
+
+The development archive `lossy-lab/DC-COMPLETION-EXPERIMENT.patch` adds
+`lossy-lab/libjxl-fixed-dc-port.ts` from libjxl
+`lib/jxl/modular/encoding/enc_encoding.cc`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. It takes `MakeFixedTree`, the
+`kWPFixedDC` cutoffs, weighted predictor selection, small-image pruning and
+bit-depth scaling. The TypeScript adaptation uses our node representation and
+assigns breadth-first leaf contexts explicitly. The caller follows
+`lib/jxl/enc_modular.cc`'s predefined VarDCT DC chunk sample count and bitdepth 8.
+Our existing weighted predictor and ANS implementation share this tree over DC
+groups, with one histogram per leaf. Metadata and alpha keep local trees; no
+native entropy clustering or infrastructure is ported. The same experiment
+turns on the existing normative DC smoothing flag and reuses the separately
+attributed nonlinear DC port. The module contains the source and BSD-3 header;
+the complete libjxl license remains in the package and docs notices. This mode
+is rejected and archived outside active source. The companion
+`lossy-lab/DC-COMPLETION-AUDIT.patch` contains first-party decoder inspection,
+saved-stream rate and decision audits, visual-pair selection and correctness
+fixtures; it adds no native probe or runtime dependency.
+
+## DC reconstruction audit and serialization proposal (2026-11-03)
+
+`lossy-lab/DC-RECONSTRUCTION-AUDIT.patch` contains first-party observation,
+saved-stream analysis and helper tests. The audit reads libjxl
+`lib/jxl/enc_transforms-inl.h`, `lib/jxl/dec_transforms-inl.h`,
+`lib/jxl/dct_scales.h`, `lib/jxl/compressed_dc.cc`, `lib/jxl/quantizer.h` and
+`lib/jxl/enc_group.cc` at v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. All six files match the pinned
+archive. The scale checker reads table values at development time to verify our
+existing operator. No new libjxl decision logic or table is ported. Instrumented
+copies preserve existing port headers and identify the observation changes.
+
+`lossy-lab/DC-WIRE-ALIGNMENT-PROPOSAL.patch` adds a first-party helper using our
+existing F16 writer and reader, plus a call from the previously attributed
+strategy writer. It aligns quantization with the serialized DC matrix. The
+patch is prepared against the frozen AC 1.25 experiment and has helper coverage
+only; no candidate encode or quality result exists. Both archives stay outside
+the active implementation and add no runtime dependency.
+
+The subsequently approved fixed trial is preserved in
+`lossy-lab/DC-WIRE-EXPERIMENT.patch`. It applies the same first-party matrix
+alignment to the development-selected AC 1.25 mode and reuses its attributed
+libjxl selector, quantizer and chroma ports without taking new source material.
+The archive includes the correction and focused native-decoder fixtures;
+qualification remains separate from active source integration.
+
+`lossy-lab/DC-WIRE-AUDIT.patch` preserves first-party saved-stream checks,
+native alpha fixtures and isolated timing scripts. It takes no new native code
+or constants. The fixed alignment trial is rejected for promotion because two
+holdout SSIM guards still fail; the implementation stays archived.
+
+## Reconstructed-luma chroma DC trial (2026-11-03)
+
+`lossy-lab/DC-CHROMA-PROPOSAL.patch` adds
+`lossy-lab/libjxl-dc-correlation-port.ts` from libjxl
+`lib/jxl/enc_modular.cc`, `AddVarDCTDC`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. It takes subtraction of
+reconstructed luma before chroma DC quantization. The TypeScript adaptation
+restores B from our B-Y representation and preserves Float64 arithmetic,
+existing physical allocation and nearest rounding. The caller processes Y
+first and reuses 512 bytes of scratch. It takes no native infrastructure,
+nonlinear quantizer, precision setting or smoothing policy. The helper has the
+source/BSD header and scalar coverage before any proposed candidate encode.
+The pinned source and full license match the archive; the existing package and
+docs notices apply. The companion audit uses first-party arithmetic on saved
+development streams and source planes, with no peer decisions or holdout data.
+
+Aaron approved one fixed configuration. `DC-CHROMA-EXPERIMENT.patch` preserves
+the complete trial and fixtures; `DC-CHROMA-TRIAL-AUDIT.patch` preserves three
+first-party stream and alpha checks. All eighty development screen outputs
+validate natively, but all three incremental mean BD-rates regress against the
+aligned control. The trial is rejected and remains archived outside active
+source. No new holdout attempt follows it.
+
+## Fixed-allocation predictor DC proposal (2026-11-03)
+
+`lossy-lab/DC-PREDICTOR-PROPOSAL.patch` adds
+`lossy-lab/libjxl-predictor-dc-port.ts`, derived from libjxl
+`lib/jxl/enc_modular.cc`, `QuantizeWP` and `AddVarDCTDC`, with
+`lib/jxl/quantizer.h` and `lib/jxl/modular/encoding/context_predict.h`, v0.12.0
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. It reuses the previously
+ported 0.62 dead zone, nonlinear residual rounding, extra DC precision bit and
+group resets. The adaptation preserves aligned nominal steps and original-luma
+B-Y residuals, uses the serialized F16 matrix and our first-party weighted
+predictor, and omits reconstructed-luma chroma subtraction. Its source/BSD header
+records these changes. The existing full license in package/docs notices
+applies. Four source/license files and scalar checks pass; no candidate image
+is encoded at the proposal checkpoint. The separate allocation, caller and
+matrix helper changes restore earlier archived first-party behavior. No native
+infrastructure, peer decisions or runtime dependencies are added.
+
+Aaron approved the fixed predictor configuration. The complete implementation
+and native-valid fixtures are archived in `DC-PREDICTOR-EXPERIMENT.patch`,
+against research base `7115c408`. The private writer signals extra DC precision
+one; no active production source changes. `DC-PREDICTOR-AUDIT.patch` preserves
+first-party stream inspection, alpha fixtures, paired timing and visual-review
+scripts. The saved-stream parser copy exposes an existing first-party decoder
+function without changing its behavior. It is not a native internal probe.
+Results and qualification limits are recorded in `DC-PREDICTOR-REPORT.md`.
+
+## Saved-development DC coding audit (2026-11-03)
+
+`lossy-lab/DC-CODING-AUDIT.patch` reuses the previously archived
+`lossy-lab/libjxl-fixed-dc-port.ts` from libjxl
+`lib/jxl/modular/encoding/enc_encoding.cc`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. The cutoffs, size pruning,
+bit-depth scaling and weighted-predictor selection are unchanged; only imports
+and formatting differ. Existing source/BSD attribution and complete package/docs
+notices apply. Source and LICENSE match the pinned archive. No further native
+code is ported. The other two archived files are first-party saved-stream
+inspection and cost accounting, including exact DC substream serialization and
+round-trip checks with our existing histogram sharing. They neither encode
+candidate images nor change active source. Results are in `DC-CODING-AUDIT.md`.
+
+## DC display-error audit (2026-11-04)
+
+`lossy-lab/DC-DISPLAY-AUDIT.patch` contains five first-party diagnostics and
+adds no source port. It reuses the existing `libjxl-gaborish-port.ts` from
+`lib/jxl/enc_gaborish.cc` and `libjxl-output-dither-port.ts` from
+`lib/jxl/render_pipeline/stage_write.cc` (`kDither` and `MakeUnsigned`), at
+libjxl v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. Their implementation and source/BSD
+headers are unchanged; complete package/docs notices remain verified.
+Source conversion, selected transforms, DC reconstruction, filtering and error
+accounting reuse first-party code. A private source-conversion copy exports
+existing functions without invoking encoder entry points. The audit reads only
+the frozen saved development screen; it neither writes candidate streams nor
+changes active encoder decisions. See `DC-DISPLAY-AUDIT.md` for the limits.
+
+## DC channel-attribution audit (2026-11-04)
+
+`lossy-lab/DC-CHANNEL-AUDIT.patch` adds four first-party offline diagnostics:
+independent reconstructed-channel restoration, saved-stream scoring, summaries
+and verification. It imports the unchanged reconstruction helpers archived in
+`DC-DISPLAY-AUDIT.patch`. Those helpers reuse the attributed
+`libjxl-gaborish-port.ts` and `libjxl-output-dither-port.ts` sources recorded
+above; no new libjxl code, constants or tables are ported. Native Butteraugli
+and SSIMULACRA2 binaries are development scorers only. Nothing enters the
+runtime bundle, and existing source headers and package/docs notices remain.
+
+## DC perceptual-model screen (2026-11-04)
+
+`lossy-lab/DC-MODEL-SCREEN.patch` contains first-party composition, screening,
+summary and verification scripts plus a fixed plan. It adds no source port.
+The three formulas reuse `libjxl-perceptual-local-port.ts` and
+`libjxl-perceptual-malta-port.ts` from libjxl `lib/jxl/butteraugli/butteraugli.cc`
+and `.h`, plus `libjxl-perceptual-pool-port.ts` from `lib/extras/metrics.cc`,
+v0.12.0 commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. Linear RGB conversion
+and half-resolution averaging reuse `libjxl-display-loss.ts`, recorded above.
+All component code, constants, source/BSD headers and full package/docs notices
+are unchanged. No fitted weights, runtime imports or encoder changes are added.
+
+## Independent DC model validation (2026-11-04)
+
+`lossy-lab/DC-MODEL-VALIDATION.patch` contains first-party validation and reporting
+scripts plus the fixed proposal. Its model composition is the unchanged full
+directional multiscale row from `DC-MODEL-SCREEN.patch`; the two rejected outputs
+are omitted. It reuses the same attributed perceptual ports from libjxl v0.12.0
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`, recorded above. Reconstruction
+and channel restoration reuse the earlier display/channel audit helpers and
+their attributed Gaborish and output-dither ports. No new code, constant or table
+is taken from libjxl. Source headers and complete package/docs notices remain
+unchanged. Native metrics are development scorers only; nothing enters the
+runtime bundle.
+
+## Local perceptual state reuse (2026-11-04)
+
+`lossy-lab/local-perceptual-state.ts` is first-party cache orchestration. It
+copies unchanged control score maps and recomputes changed support using the
+existing local preparation and directional ports recorded above. Those ports
+come from libjxl `lib/jxl/butteraugli/butteraugli.cc` and `.h`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. No new source code, constants, weights
+or tables are ported. Their source headers and full package/docs notices remain
+unchanged. The cache, tests and saved-stream benchmark scripts are development
+only and do not enter the runtime bundle or change encoder decisions.
+
+## SSIM protection diagnostic, 2026-11-15
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-ssim-protection-port.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap, EdgeDiffMap, MakePositiveXYB and Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Reuse the existing attributed display conversion, linear-RGB pyramid and all feature weights. The retained helper keeps all six physical scales. First-party rolling 5x5 uniform box moments replace cosine convolution, keeping corrected structure and added-edge/lost-detail mean/L4 pooling. Rejected scale omissions and their full reference remain only in the private experiment archive. Float64 moments and zero borders remain. Development-only, no public encoder import or fitted weights. |
+
+The archived experimental copy of `libjxl-display-loss.ts` adds an optional first
+physical scale with unchanged weight indices. The active original is unchanged. The full
+BSD-3 notice and npm/docs inclusion remain unchanged. Native scorers and encoder
+promotion gates are unchanged by the offline SSIM model thresholds.
+
+The private copies below are restored by `SSIM-PROTECTION-EXPERIMENT.patch`
+under `.tmp/jpegxl-lossy-lab/ssim-protection-20261115/experiment/`. Each keeps its
+original copyright/source header; they are not public package imports.
+
+| Private experiment file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `libjxl-ssim-protection-port.ts` | libjxl `tools/ssimulacra2.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Full six-formula screen, including rejected scale omissions; same features and weights as the retained box helper. |
+| `libjxl-display-loss.ts` | libjxl `tools/ssimulacra2.cc`, `tools/gauss_blur.cc` and `lib/jxl/enc_xyb.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Copy the existing attributed display diagnostic and add a first physical scale without renumbering weights. |
+| `libjxl-ssim-blur.ts` | libjxl `tools/gauss_blur.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Exact copy of the previously attributed scalar cosine-kernel construction. |
+| `libjxl-ssim-weights.ts` | libjxl `tools/ssimulacra2.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Exact copy of the previously attributed 108 feature weights. |
+
+## Bounded SSIM and combined protection, 2026-11-15
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/local-ssim-state.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap, EdgeDiffMap, MakePositiveXYB and Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Reuse the attributed six-scale box features, weights and display conversion recorded above. First-party fixed tile feature sums and bounded RGB/XYB updates preserve global mean/L4 pooling, scale phase and full changed support. No additional native code, constants, weights or tables. Header records source, revision, copyright, BSD-3 and adaptations. |
+
+`lossy-lab/geometry-display-change.ts` adapts this repository's
+`geometry-display.ts` reconstruction to one changed regular AC transform and
+complete Gaborish/one-pass EPF support. It reuses the existing attributed output
+dither port with global coordinates. It adds no native source material.
+
+`BOUNDED-PROTECTION-EXPERIMENT.patch` preserves the rejected first-party combined
+selector, temporary lab-worker aliases and typed measurement scripts. The
+selector reuses the attributed SSIM and Butteraugli helpers already recorded in
+this file. Its orchestration, own-coefficient proposals and schedule are
+first-party. No source port, fitted weight or peer decision is added by that
+policy. The active lab worker is restored to its base version. All helpers stay
+outside public package paths. Complete BSD-3 notices and their npm/docs inclusion
+remain unchanged; native metrics remain development scorers only.
+
+## Source and control observation reuse, 2026-11-15
+
+The retained change adds first-party development callbacks to
+`lossy-lab/libjxl-standalone-port.ts`, `libjxl-strategy-port.ts` and
+`strategy-transplant.ts`. They expose the existing selected writer buffers and
+still-live filtered context without new source-derived decisions or weights.
+The first two files retain their attributed libjxl `enc_heuristics.cc` and
+`enc_ac_strategy.cc` sources, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`, and libjxl-tiny
+`encoder/enc_ac_strategy.cc`, commit
+`8eae18172059d54f5c734ca814f23b96eebff859`, recorded above. Their headers now
+identify the first-party observer adaptation. `strategy-transplant.ts` is our
+existing first-party writer orchestration.
+
+`SOURCE-CONTROL-EXPERIMENT.patch` preserves the rejected coefficient policies,
+shared display preparation, bounded collectors and typed measurement scripts.
+Their source-domain contrast/count rules are first-party experiments. They reuse
+existing normative transforms, coefficient centroids, attributed SSIM/Butteraugli
+components and dither helpers; no new libjxl source code, constant, weight or
+table is ported. Copies of original `aca2c2fc` modules redirect only first-party
+imports for the baseline comparison and preserve their original source headers.
+The preceding uncommitted SSIM helpers are included as archive prerequisites.
+
+Everything stays outside the public package graph. Complete BSD-3 notices and
+npm/docs inclusion remain unchanged. Native scorers remain development oracles;
+no runtime dependency or new encoder policy is retained.
+
+## Simple selector reductions, 2026-11-16 UTC
+
+The source-row copy expansion and DC extent check in
+`lossy-lab/libjxl-strategy-port.ts` are first-party exact-output reductions.
+They preserve the previously attributed selector formulas, constants, order and
+decisions. No new libjxl code, table or heuristic is ported. Its existing source
+header and the full npm/docs BSD-3 notice remain unchanged.
+`OBVIOUS-SELECTOR-EXPERIMENT.patch` preserves six independent trials and their
+retained combination against the session snapshot, including the earlier
+uncommitted observation callbacks. Seven restored sources match exactly.
+
+## Final-rate state audit, 2026-11-17
+
+`lossy-lab/RATE-STATE-EXPERIMENT.patch` preserves first-party token-cache,
+DC-metadata reuse and stable-sort experiments. Its generators mirror our own
+`src/codecs/jpegxl-jpeg-encode.ts`, `jpegxl-vardct-encode.ts` and development
+transplant orchestration from `aca2c2fc` with the recorded prior research
+changes. No third-party code, constant, weight or table is added. Existing
+attributed ports, full license notices and runtime dependency boundaries stay
+unchanged. All new prototypes remain outside the package graph.
+
+## Rate-state ownership qualification, 2026-11-18
+
+`lossy-lab/RATE-OWNERSHIP-EXPERIMENT.patch` preserves the first-party ownership
+continuation of the DC-metadata cache. Its generator mirrors our own writer
+and forward encoder from research checkpoint `699557fe`, adds scoped compact
+snapshots and memory-pressure reclamation, and leaves AC model training intact.
+The private probes compare unchanged streams and complete rebuilt-model
+estimates. No third-party code, constant, weight or table is added. The
+prototype remains outside the package graph; existing source attributions and
+the full npm/docs BSD-3 notice are unchanged.
+
+## Rate-model scratch reduction, 2026-11-18
+
+The centroid reuse and cost-only ANS models in `src/codecs/jpegxl-jpeg-encode.ts`
+and `src/codecs/jpegxl-modular-encode.ts` are first-party allocation reductions
+against `5ea42e9f204dec6b6d59de0272917842994ce7bd`. They reuse the repository's
+existing clustering and serialization algorithms, preserving their arithmetic,
+headers and frequencies. No libjxl code, constant, weight, mask or table is
+newly ported. Existing source attributions and full npm/docs notices remain.
+
+`lossy-lab/RATE-SCRATCH-EXPERIMENT.patch` preserves the private generators and
+measurement runners for all three trials, including rejected DC-cache
+combinations. These mirrors are development-only. The retained source has no
+experimental global switches, cross-model cache or new runtime dependency.
+
+## AC model state and cost audit, 2026-11-18
+
+`lossy-lab/RATE-AC-STATE-EXPERIMENT.patch` preserves first-party raw-histogram
+capacity and bounded-scan trials against `a97d219f`, plus read-only order and
+entropy-bound observations and current-policy timing. The private generators
+mirror this repository's existing writer and forward encoder. No new libjxl
+code, constant, heuristic or table is ported. Both implementation trials remain
+archived outside the package graph. Existing source headers and the full npm/docs
+BSD-3 notice remain unchanged.
+
+## Prepared selector input reuse
+
+`lossy-lab/libjxl-strategy-port.ts` reuses a prepared source block across the
+existing small-transform menu. This is a first-party change to source data flow
+against `b455a551`. It preserves the existing attributed selection formulas
+and does not port additional third-party code or constants. The standalone
+development orchestration enables the change only for `standalone-regularized-half`.
+`lossy-lab/SELECTOR-SOURCE-EXPERIMENT.patch` preserves the private variants and
+their benchmark runners. Existing BSD-3 attribution and notices apply as before.
+
+## Decision replay package isolation
+
+The lab-only `lossy-lab/decision-replay.patch` preserves this repository's
+forward writer and coefficient writer from `551b5d7f`. The public writers
+exclude their replay branches while retaining the verified `a97d219f`
+allocation work. Existing attributed libjxl decision ports are unchanged.
+The materialized lab writers share the first-party Modular writer and decoder
+with the package. No new libjxl code, constants or runtime dependency enters
+the distribution. The full JPEG XL notice remains in the package and docs.

@@ -1,3 +1,4 @@
+import type { ImageCodec } from '../../src/codec.ts'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { JpegXlEncoderMemory } from '../../src/codecs/jpegxl-encoder-memory.ts'
 import {
@@ -100,11 +101,12 @@ export const verifyJpegXlDcModel = async (
   width = 513,
   height = 257,
   distance = 4,
+  codec: Pick<ImageCodec, 'createEncoder'> = jpegxlCodec,
 ) => {
   const pixels = jpegXlDcModelPixels(width, height)
   const original = pixels.slice()
   const sink = new Uint8ArraySink()
-  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+  const encoder = await codec.createEncoder?.(sink, {
     width,
     height,
     pixelFormat: 'rgba8',

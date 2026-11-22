@@ -32,8 +32,8 @@ test('JPEG XL original-photo selection preserves independently verified samples'
     bScale: 1,
     samples: 2057 * 2040 * 4,
     alphaError: 0,
-    // The verified RGB/context lifetime repair lowers tracked storage.
-    ownedPeak: 48159330,
+    // The established-encoder test helper stages pixels outside the public palette probe.
+    ownedPeak: 48157021,
     ownedLive: 0,
     ownedAllocations: 0,
   })

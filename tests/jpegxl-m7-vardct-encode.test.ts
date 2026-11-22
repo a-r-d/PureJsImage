@@ -196,12 +196,13 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
         it(`reduces asymmetric coefficient streams without changing ${depth}-bit pixels, progressive=${progressive}, opaque=${opaque}`, async () => {
           const result = await verifyJpegXlCoefficientOrders(depth, progressive, opaque)
           // Shared color/order policy and progressive luminance refinement change digests qualified by both decoders.
+          // The libjxl policy sets the opaque 8-bit non-progressive digest; no native decoder has checked it here.
           const checksum =
             depth === 8
               ? opaque
                 ? progressive
                   ? 512707449
-                  : 2067343795
+                  : 1812100009
                 : 2042671564
               : opaque
                 ? 3248784091

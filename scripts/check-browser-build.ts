@@ -32,6 +32,9 @@ for (const [input, metadata] of Object.entries(result.metafile.inputs)) {
 if (output.includes('from"node:') || output.includes("from'node:")) {
   throw new Error('Browser bundle contains a Node built-in import')
 }
+if (Object.keys(result.metafile.inputs).some((input) => input.includes('jpegxl-lab-codec/'))) {
+  throw new Error('Default browser bundle contains the JPEG XL decision replay writer')
+}
 if (
   Object.keys(result.metafile.inputs).some(
     (input) => input.includes('/accelerators/') || input.includes('/accelerator-entries/'),

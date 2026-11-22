@@ -1,3 +1,4 @@
+import type { ImageCodec } from '../../src/codec.ts'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
@@ -25,11 +26,14 @@ const checksum = (bytes: Uint8Array): number => {
   return value
 }
 
-export const verifyFlatPaletteGraphic = async (maxWorkingBytes: number) => {
+export const verifyFlatPaletteGraphic = async (
+  maxWorkingBytes: number,
+  codec: Pick<ImageCodec, 'createEncoder'> = jpegxlCodec,
+) => {
   const pixels = flatPaletteGraphic(),
     original = pixels.slice(),
     sink = new Uint8ArraySink()
-  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+  const encoder = await codec.createEncoder?.(sink, {
     width: 128,
     height: 128,
     pixelFormat: 'rgba8',

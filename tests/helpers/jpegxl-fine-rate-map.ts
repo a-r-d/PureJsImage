@@ -9,6 +9,7 @@ import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
 import { MemorySource } from '../../src/source.ts'
 import { jpegXlDcModelPixels } from './jpegxl-dc-model.ts'
+import { establishedJpegXlCodec } from './jpegxl-established-encoder.ts'
 
 type Owned = ReturnType<JpegXlEncoderMemory['allocate']>
 class RefuseFineRateMap extends JpegXlEncoderMemory {
@@ -44,13 +45,15 @@ const copyParts = (parts: readonly Uint8Array[]): Uint8Array => {
   return output
 }
 
+// The public encoder uses the libjxl policy for this opaque input, which has no fine rate map.
+// Encode the established public stream through the public request shape instead.
 const verifyPublicFineRateMap = async (pixels: Uint8Array, before: Uint8Array) => {
   const width = 129,
     height = 65,
     budget = 16_777_216
   const encode = async (): Promise<Uint8Array> => {
     const sink = new Uint8ArraySink()
-    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    const encoder = await establishedJpegXlCodec.createEncoder?.(sink, {
       width,
       height,
       pixelFormat: 'rgba8',

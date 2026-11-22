@@ -58,7 +58,8 @@ it('releases color model storage after scratch or output refusal', () => {
 it('keeps public gradient pixels, exact alpha and the original owner ceiling', async () => {
   const result = await verifyJpegXlDcModel()
   expect(result.inputChecksum).toBe(3720133924)
-  expect(result.decodedChecksum).toBe(4003423285)
+  // The libjxl policy keeps the learned DC color model and changes the decoded grid.
+  expect(result.decodedChecksum).toBe(2027744996)
   expect(result.alphaError).toBe(0)
   expect(result.ownedPeak).toBeLessThanOrEqual(16_777_216)
   expect(result.ownedLive).toBe(0)

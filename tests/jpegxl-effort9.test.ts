@@ -4,6 +4,7 @@ import {
   encodeEffortFixture,
   verifyEffortFixture,
 } from './helpers/jpegxl-effort9.ts'
+import { establishedJpegXlCodec } from './helpers/jpegxl-established-encoder.ts'
 import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
 import { encodeJpegXlVarDct8Async } from '../src/codecs/jpegxl-vardct-encode.ts'
 import { createJpegXlEncodeOperation } from '../src/pipeline.ts'
@@ -19,8 +20,9 @@ describe('slow JPEG XL effort 9', () => {
   it('runs additional searches on a small RGB image and retains the smaller complete stream', async () => {
     const fixture = effortFixtures[0]
     if (!fixture) throw new Error('RGB effort fixture missing')
-    const fast = await encodeEffortFixture(fixture, 7)
-    const slow = await encodeEffortFixture(fixture, 9)
+    // The public libjxl policy skips these searches for now; keep them under test.
+    const fast = await encodeEffortFixture(fixture, 7, 3, 'lossy', establishedJpegXlCodec)
+    const slow = await encodeEffortFixture(fixture, 9, 3, 'lossy', establishedJpegXlCodec)
     expect(slow.bytes).not.toEqual(fast.bytes)
     expect(slow.bytes.length).toBeLessThanOrEqual(fast.bytes.length)
   }, 120_000)

@@ -6,6 +6,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 import packageJson from '../package.json' with { type: 'json' }
+import { checkJpegXlPackageBoundary } from './check-jpegxl-package-boundary.ts'
 
 const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)))
 const fixtureRoot = join(repositoryRoot, 'test-fixtures/packed-package-consumer')
@@ -232,6 +233,13 @@ try {
   }
   if (files.some((path) => path.startsWith('src/'))) {
     throw new Error('Packed package must not expose source files')
+  }
+  if (
+    files.some((path) =>
+      /jpegxl-lab-codec|jpegxl-development-decisions|decision-replay\.patch/u.test(path),
+    )
+  ) {
+    throw new Error('Packed package must not include JPEG XL decision replay files')
   }
   for (const entry of [
     './hdr',
@@ -813,6 +821,7 @@ export const reconstructJpeg = (input: Uint8Array): Promise<Uint8Array> =>
     consumerDirectory,
     environment,
   )
+  await checkJpegXlPackageBoundary(join(consumerDirectory, 'node_modules/purejsimage/dist/codecs'))
   run(
     process.execPath,
     [resolve(repositoryRoot, 'node_modules/typescript/bin/tsc'), '--project', 'tsconfig.json'],
