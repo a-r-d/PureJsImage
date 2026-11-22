@@ -1,0 +1,41 @@
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_190798be039e74 109-111,129
+tests/jpegxl-rgb-projection.test.ts
+  s_fb44c3e6b9dfb0::t_c783c383aff695 8
+README.md
+  s_fb44c3e6b9dfb0::t_190798be039e74 463,482
+tests/jpegxl-encoder-memory.test.ts
+  s_fb44c3e6b9dfb0::t_c783c383aff695 381
+src/codecs/jpegxl-modular-encode.ts
+  s_fb44c3e6b9dfb0::t_c783c383aff695 1473-1474,1478,1482,1484,1523-1553,3384,3389-3394,3396-3436
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_c783c383aff695 7-20
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_190798be039e74 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+tests/jpegxl-m7-api.test.ts
+  s_fb44c3e6b9dfb0::t_c783c383aff695 128-203
+tests/jpegxl-document-patches.test.ts
+  s_fb44c3e6b9dfb0::t_c783c383aff695 118,121,379
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_190798be039e74 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+tests/helpers/jpegxl-rgb-projection.ts
+  s_fb44c3e6b9dfb0::t_c783c383aff695 6-7,10
+tests/jpegxl-opaque-color-tools.test.ts
+  s_fb44c3e6b9dfb0::t_c783c383aff695 147,151-152,156-185,336
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "17b6a506b9862dcfc4bfb316d39e45ddce6fc2bc",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
