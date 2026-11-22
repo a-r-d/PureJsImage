@@ -56,11 +56,11 @@ when accelerators arrive.
 
 ### 2. Build broad codec coverage
 
-Current practical implementations cover PNG, JPEG, GIF, WebP, BMP, TIFF,
-JPEG 2000, AVIF, and HEIF/HEIC, with capability depth documented separately
-for each codec. CUR and JPEG XL have tracked implementation plans. JPEG 2000's
-first decode subset is available; bounded reduced-resolution and region decode
-remain roadmap work.
+Current practical implementations cover PNG, JPEG, GIF, WebP, BMP, ICO, TIFF,
+JPEG XL, JPEG 2000, AVIF, QOI, Netpbm and PFM, TGA, Radiance HDR and
+HEIF/HEIC, with capability depth documented separately for each codec. CUR has
+a tracked implementation plan. JPEG 2000's first decode subset is available;
+bounded reduced-resolution and region decode remain roadmap work.
 
 HEIF/HEIC must remain experimental and explicitly imported from
 `purejsimage/codecs/experimental/heic`. It is intentionally excluded from the

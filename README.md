@@ -255,13 +255,12 @@ opaque sRGB SDR base and one-channel gain map. See the [gain-map HDR guide](docs
 
 ## JPEG XL
 
-> The six new tool pages below are included in this repository’s docs build. Their public URLs
-> will become available when that build is deployed.
-
 Try the [JPEG XL encoder and decoder hub](https://purejsimage.com/jpeg-xl/),
 [converter](https://purejsimage.com/jpeg-xl/convert/) or
 [exact JPEG round-trip tool](https://purejsimage.com/jpeg-xl/jpeg-recompression/).
 Static lossy encoding is Stable for the documented integer subset; lossless remains the default.
+At effort 7 and 9, opaque 8-bit sRGB photos use transform, quantization and loop-filter decisions
+ported from libjxl, and `distance` follows libjxl's scale.
 [Lossy animation](https://purejsimage.com/jpeg-xl/animation/) remains Experimental.
 
 Pixel-lossless encoding preserves supported sample values. Exact JPEG recompression preserves the
