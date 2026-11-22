@@ -1,0 +1,27 @@
+browser-tests/jpegxl-pipeline-harness.ts
+  s_fb44c3e6b9dfb0::t_583f3db79e7275 12
+tests/helpers/jpegxl-flat-palette.ts
+  s_fb44c3e6b9dfb0::t_495abe5d135e4e 1,29-32,36
+benchmark/jpegxl/LOSSY_LIBJXL_REOPENING.md
+  s_fb44c3e6b9dfb0::t_5b024071095e72 190-197,199-200
+browser-tests/jpegxl-pipeline.pw.ts
+  s_fb44c3e6b9dfb0::t_3eef8187ac4608 5,297
+  s_fb44c3e6b9dfb0::t_495abe5d135e4e 96-98,112-113,123-124,139-140,176-177,221,292-296,298,306-316
+  s_fb44c3e6b9dfb0::t_205e415d7a32dd 200-201
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "055dc2c6864ca7e0fd3f8e449f196d277ea090c3",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
