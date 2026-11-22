@@ -219,4 +219,10 @@ Status on 2026-11-21:
   The exact-palette check now skips learned searches that cannot reach its
   budget (LL-1414): output is unchanged, the slowest low-color crop falls from
   25.7 to 3.4 s, and the crop p90 falls from 10.5 to 1.9 s.
-- Peak rounding at effort 9 follows the merge.
+- Peak rounding at effort 9 is dropped (LL-1415). Its cheap half, libjxl's
+  quadrant dead zones and chroma predicted from reconstructed luma, changes the
+  calibrated encoder by -0.158/-0.303/-0.235% on the 64 development photos,
+  with medians slightly worse. A perfect peak guard would reach only
+  +0.013/-0.121/-0.841%, while the lab guard is about 3,000 lines and about 4x
+  the effort-7 crop time. Aaron chose on 2026-11-22 to keep the effort-7
+  decisions at effort 9.
