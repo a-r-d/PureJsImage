@@ -143,7 +143,7 @@ describe('JPEG XL opaque palette compression', () => {
     expect(checksum).toBe(997369701)
     // The qualified complete grid now preserves every source sample exactly.
     expect(maximumError).toBe(0)
-  })
+  }, 20_000)
 
   it('recovers the original primary stream when optional palette storage cannot fit', async () => {
     // This photo-like stripe pattern takes the libjxl policy in the public encoder. The

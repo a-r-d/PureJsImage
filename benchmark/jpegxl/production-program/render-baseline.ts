@@ -49,9 +49,22 @@ const programState = await parseJson(join(directory, 'program-state.json'))
 
 const baselineMainRevision = string(source.baselineMainRevision, 'baselineMainRevision')
 const packageVersion = string(source.packageVersion, 'packageVersion')
-if (packageJson.version !== packageVersion) {
+// The baseline records the version at baselineMainRevision; releases after it move package.json forward.
+const versionParts = (value: unknown, label: string): readonly number[] => {
+  const parts = string(value, label).split('.').map(Number)
+  if (parts.length !== 3 || parts.some((part) => !Number.isSafeInteger(part) || part < 0))
+    throw new Error(`${label} must be a major.minor.patch version`)
+  return parts
+}
+const currentVersion = versionParts(packageJson.version, 'package.json version')
+const baselineVersion = versionParts(packageVersion, 'packageVersion')
+const versionOrder =
+  currentVersion
+    .map((part, index) => part - (baselineVersion[index] ?? 0))
+    .find((delta) => delta !== 0) ?? 0
+if (versionOrder < 0) {
   throw new Error(
-    `package.json version ${String(packageJson.version)} differs from ${packageVersion}`,
+    `package.json version ${String(packageJson.version)} is older than baseline ${packageVersion}`,
   )
 }
 

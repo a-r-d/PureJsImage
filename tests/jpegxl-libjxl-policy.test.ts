@@ -64,7 +64,8 @@ it('maps requested distances to rising internal distances and fades Gaborish in'
 it('keeps exact palette output for flat artwork', async () => {
   const result = await encodePolicyImage(createPolicyArtwork(), 1)
   expect(result).toMatchObject({ bytes: 152, maxColorError: 0, alphaError: 0, managedLiveBytes: 0 })
-})
+  // About 1.3 s alone; the full parallel suite can push it past the default 5 s.
+}, 20_000)
 
 it('falls back to the established encoder when the policy cannot fit its working storage', async () => {
   const photo = createPolicyPhoto()
