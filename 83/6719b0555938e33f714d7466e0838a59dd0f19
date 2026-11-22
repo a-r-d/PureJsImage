@@ -1,0 +1,34 @@
+benchmark/jpegxl/LOSSY_LIBJXL_REOPENING.md
+  s_fb44c3e6b9dfb0::t_69149333cb109e 219-221
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_1a8d5c40a8b119 20-24
+src/codecs/jpegxl-modular-encode.ts
+  s_fb44c3e6b9dfb0::t_b1722a70a18e2c 6021-6023,6041,6065-6069
+  s_fb44c3e6b9dfb0::t_5fb448e55adaba 3122,3126-3133,3268,3296-3297,3419-3439,3465,4636,4683,6233,6275
+benchmark/jpegxl/lossy-lab-log.md
+  s_fb44c3e6b9dfb0::t_69149333cb109e 3566
+README.md
+  s_fb44c3e6b9dfb0::t_045a6c41c91225 463,482
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_939eef7d2e3d74 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_8040dee24e7f08 109-111,129
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_fc767a5d779a7f 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "836719b0555938e33f714d7466e0838a59dd0f19",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
