@@ -924,11 +924,9 @@ const server = createServer(async (request, response) => {
       const gate = requestUrl.searchParams.get('rangeGate')
       if (gate !== null && rangeGateId.test(gate)) await rangeGate(gate)
       const requestedRangeDelay = requestUrl.searchParams.get('rangeDelay')
-      // Only the fixed delays used by the cancellation fixtures are available.
+      // Only the fixed delay used by the cancellation fixtures is available.
       if (requestedRangeDelay === '200') {
         await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 200))
-      } else if (requestedRangeDelay === '400') {
-        await new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 400))
       }
       const start = Number(range[1])
       const requestedEnd = Number(range[2])

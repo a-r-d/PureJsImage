@@ -208,7 +208,10 @@ test('reports URL and cancellation states without a proxy fallback', async ({ pa
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'error')
   await expect(page.locator('#cog-status')).toContainText('valid HTTP or HTTPS')
 
-  await page.locator('#cog-url').fill('/fixtures/geo/overview-cog.tif?rangeDelay=400')
+  // Hold every range response until Cancel is clicked. WebKit can wait out the overlay's entrance
+  // animation for longer than a fixed delay, and the load must still be running when it clicks.
+  const gate = `geo-cancel-${test.info().repeatEachIndex}-${test.info().retry}-${Date.now()}`
+  await page.locator('#cog-url').fill(`/fixtures/geo/overview-cog.tif?rangeGate=${gate}`)
   await page.locator('#cog-open').click()
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'loading')
   await expect(page.locator('#cog-loading')).toBeVisible()
@@ -219,6 +222,7 @@ test('reports URL and cancellation states without a proxy fallback', async ({ pa
   await expect(page.locator('#cog-status')).toHaveAttribute('data-state', 'idle')
   await expect(page.locator('#cog-loading')).toBeHidden()
   await expect(page.locator('#cog-canvas-wrap')).toHaveAttribute('aria-busy', 'false')
+  expect((await page.request.get(`/__release-range-gate?gate=${gate}`)).status()).toBe(204)
 })
 
 test('reports a worker startup failure instead of loading forever', async ({ page }) => {

@@ -438,7 +438,8 @@ All notable changes to PureJsImage are documented in this file.
   `npm run browser:test` runs the heavy JPEG XL parity files in Chromium only;
   `npm run browser:test:full` and CI run them in every browser.
 - Hold the whole-slide viewer browser test's range reads until it has checked the opening state,
-  so the check no longer races the network in WebKit.
+  so the check no longer races the network in WebKit. The geo COG cancellation test holds its
+  range reads the same way until it clicks Cancel, instead of relying on a 400 ms delay.
 - Keep the OME-Zarr page within a 390 px phone screen when the browser falls back to a wider font,
   as the CI runners do. Firefox and WebKit CI failed on this page since 3 November.
 - Give every docs site page Open Graph and Twitter share tags. Pages without
