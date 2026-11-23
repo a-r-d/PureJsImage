@@ -1,0 +1,25 @@
+CHANGELOG.md
+  s_394b4847628aeb::t_ed945ff01fa39c 44-48
+tests/benchmark-harness.test.ts
+  s_394b4847628aeb::t_1d3e99c49d91ba 19
+  s_394b4847628aeb::t_b26a5411242804 1
+  s_394b4847628aeb::t_ba1fc473cd3e1a 193-215
+benchmark/workflows.ts
+  s_394b4847628aeb::t_1a1498f14878b1 347-349,351-352
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "91945841e7c2658a656ae74353b0b0714a9e471b",
+  "prompts": {},
+  "sessions": {
+    "s_394b4847628aeb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fc8ea64-f738-4fbc-96d6-2b4997f0cea7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
