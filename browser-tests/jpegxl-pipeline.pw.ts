@@ -261,28 +261,27 @@ for (const asynchronous of [false, true]) {
 }
 
 for (const asynchronous of [false, true]) {
-  test(
-    'JPEG XL optional DC allocation recovery agrees across runtimes, async=' + asynchronous,
-    async ({ page }) => {
-      const expected = await verifyJpegXlDcAllocationRecovery(asynchronous)
-      // Match the qualified Node recovery pixel digest; ordinary AC reuse saves 168 bytes in either mode.
-      expect(expected.bytes).toBe(3008)
-      expect(expected.encodedChecksum).toBe(3595891780)
-      expect(expected.inputChecksum).toBe(3720133924)
-      expect(expected.decodedChecksum).toBe(4003423285)
-      expect(expected.alphaError).toBe(0)
-      expect(expected.rejectedAllocations).toBeGreaterThan(0)
-      expect(expected.ownedPeak).toBeLessThanOrEqual(16_777_216)
-      expect(expected.ownedLive).toBe(0)
-      expect(expected.ownedAllocations).toBe(0)
-      await page.goto('/codec-validation.html')
-      const result: unknown = await page.evaluate(async (asynchronous) => {
-        const path = '/jpegxl-pipeline.js'
-        return (await import(path)).verifyJpegXlDcAllocationRecovery(asynchronous)
-      }, asynchronous)
-      expect(object(result)).toEqual(expected)
-    },
-  )
+  test(`JPEG XL optional DC allocation recovery agrees across runtimes, async=${asynchronous}`, async ({
+    page,
+  }) => {
+    const expected = await verifyJpegXlDcAllocationRecovery(asynchronous)
+    // Match the qualified Node recovery pixel digest; ordinary AC reuse saves 168 bytes in either mode.
+    expect(expected.bytes).toBe(3008)
+    expect(expected.encodedChecksum).toBe(3595891780)
+    expect(expected.inputChecksum).toBe(3720133924)
+    expect(expected.decodedChecksum).toBe(4003423285)
+    expect(expected.alphaError).toBe(0)
+    expect(expected.rejectedAllocations).toBeGreaterThan(0)
+    expect(expected.ownedPeak).toBeLessThanOrEqual(16_777_216)
+    expect(expected.ownedLive).toBe(0)
+    expect(expected.ownedAllocations).toBe(0)
+    await page.goto('/codec-validation.html')
+    const result: unknown = await page.evaluate(async (asynchronous) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyJpegXlDcAllocationRecovery(asynchronous)
+    }, asynchronous)
+    expect(object(result)).toEqual(expected)
+  })
 }
 
 for (const maxWorkingBytes of [268435456, 1500000] as const)

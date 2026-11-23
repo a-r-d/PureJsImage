@@ -218,7 +218,7 @@ class RestrictedHevcPictureDecoder {
       readHevcSliceData(nal.data, nal.type, { pps: [pps], sps: [sps] }),
     )
     const first = slices[0]
-    if (!first || !first.firstInPicture || first.address !== 0 || first.dependent) {
+    if (!first?.firstInPicture || first.address !== 0 || first.dependent) {
       throw unsupportedOperation(
         'HEVC picture decode currently requires one independent leading slice',
       )

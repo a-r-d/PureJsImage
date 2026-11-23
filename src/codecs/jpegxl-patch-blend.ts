@@ -39,7 +39,7 @@ export const applyJpegXlPatch = (
       if (!background || (!foreground && mode !== 0))
         throw invalidJpegXlInput('patch channel is missing')
       for (let x = 0; x < patch.width; x++) {
-        const back = background[destination + x]!,
+        const back = background[destination + x] ?? 0,
           front = foreground?.[source + x] ?? 0
         let value = back
         if (mode === 1) value = front

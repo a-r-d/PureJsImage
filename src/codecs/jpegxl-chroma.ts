@@ -37,7 +37,7 @@ export const reconstructJpegXlChroma = (
         const center = x >>> 1,
           neighbor = Math.max(0, Math.min(width - 1, center + (x & 1 ? 1 : -1)))
         expanded[y * outputWidth + x] =
-          0.75 * input[y * width + center]! + 0.25 * input[y * width + neighbor]!
+          0.75 * (input[y * width + center] ?? 0) + 0.25 * (input[y * width + neighbor] ?? 0)
       }
     }
     input = expanded
@@ -54,7 +54,7 @@ export const reconstructJpegXlChroma = (
       neighbor = Math.max(0, Math.min(height - 1, center + (y & 1 ? 1 : -1)))
     for (let x = 0; x < outputWidth; x++)
       output[y * outputWidth + x] =
-        0.75 * input[center * width + x]! + 0.25 * input[neighbor * width + x]!
+        0.75 * (input[center * width + x] ?? 0) + 0.25 * (input[neighbor * width + x] ?? 0)
   }
   return output
 }
@@ -68,10 +68,10 @@ export const jpegXlYcbcrToRgb = (planes: readonly Float64Array[]): readonly Floa
     green = new Float64Array(y.length),
     blue = new Float64Array(y.length)
   for (let i = 0; i < y.length; i++) {
-    const luma = y[i]! + 128 / 255
-    red[i] = luma + 1.402 * cr[i]!
-    green[i] = luma - (0.114 * 1.772 * cb[i]! + 0.299 * 1.402 * cr[i]!) / 0.587
-    blue[i] = luma + 1.772 * cb[i]!
+    const luma = (y[i] ?? 0) + 128 / 255
+    red[i] = luma + 1.402 * (cr[i] ?? 0)
+    green[i] = luma - (0.114 * 1.772 * (cb[i] ?? 0) + 0.299 * 1.402 * (cr[i] ?? 0)) / 0.587
+    blue[i] = luma + 1.772 * (cb[i] ?? 0)
   }
   return [red, green, blue, ...planes.slice(3)]
 }

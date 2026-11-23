@@ -44,7 +44,7 @@ export const verifyOpaqueJpegXlGradient = async (progressive: boolean, partialAl
   let encodedChecksum = 2166136261
   for (const value of encoded) encodedChecksum = Math.imul(encodedChecksum ^ value, 16777619) >>> 0
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
-  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('Missing RGBA JPEG XL decoder')
+  if (decoder?.pixelFormat !== 'rgba8') throw new Error('Missing RGBA JPEG XL decoder')
   let colorError = 0,
     alphaError = 0,
     decodedChecksum = 2166136261,

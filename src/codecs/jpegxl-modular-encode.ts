@@ -5361,7 +5361,7 @@ const findDocumentPatches = (
         maxY = y,
         darkPixels = 0
       while (stackSize > 0) {
-        const position = stack[--stackSize]!
+        const position = stack[--stackSize] ?? 0
         const atX = position % width,
           atY = (position / width) | 0
         darkPixels++
@@ -5439,7 +5439,10 @@ const findDocumentPatches = (
       if (bucket.length < 2) continue
       const distinct: DocumentPatch[][] = []
       for (const patch of bucket) {
-        let group = distinct.find((candidate) => same(candidate[0]!, patch))
+        let group = distinct.find((candidate) => {
+          const first = candidate[0]
+          return first !== undefined && same(first, patch)
+        })
         if (!group) {
           group = []
           distinct.push(group)
@@ -5447,9 +5450,10 @@ const findDocumentPatches = (
         group.push(patch)
       }
       for (const placements of distinct) {
-        if (placements.length < 2) continue
+        const source = placements[0]
+        if (placements.length < 2 || !source) continue
         groups.push({
-          source: placements[0]!,
+          source,
           placements,
           atlasX: 0,
           atlasY: 0,
@@ -5486,7 +5490,8 @@ export const writeDocumentPatchFeatures = (
       let previousX = 0,
         previousY = 0
       for (let index = 0; index < group.placements.length; index++) {
-        const patch = group.placements[index]!
+        const patch = group.placements[index]
+        if (!patch) throw invalidJpegXlInput('patch placement is missing')
         values[count++] = index === 0 ? patch.x : signed(patch.x - previousX)
         values[count++] = index === 0 ? patch.y : signed(patch.y - previousY)
         values[count++] = 1 // Replace all three color channels from the reference.

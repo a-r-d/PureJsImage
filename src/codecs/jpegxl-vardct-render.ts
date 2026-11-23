@@ -694,13 +694,16 @@ const smoothDcAt = (
   sideWeight: number,
   cornerWeight: number,
 ): number =>
-  plane[index]! * centerWeight +
-  (plane[index - 1]! + plane[index + 1]! + plane[index - width]! + plane[index + width]!) *
+  (plane[index] ?? 0) * centerWeight +
+  ((plane[index - 1] ?? 0) +
+    (plane[index + 1] ?? 0) +
+    (plane[index - width] ?? 0) +
+    (plane[index + width] ?? 0)) *
     sideWeight +
-  (plane[index - width - 1]! +
-    plane[index - width + 1]! +
-    plane[index + width - 1]! +
-    plane[index + width + 1]!) *
+  ((plane[index - width - 1] ?? 0) +
+    (plane[index - width + 1] ?? 0) +
+    (plane[index + width - 1] ?? 0) +
+    (plane[index + width + 1] ?? 0)) *
     cornerWeight
 
 const applyAdaptiveDcSmoothing = (
@@ -726,9 +729,9 @@ const applyAdaptiveDcSmoothing = (
   for (let y = 1; y < height - 1; y += 1) {
     for (let x = 1; x < width - 1; x += 1) {
       const index = y * width + x
-      const center0 = plane0[index]!
-      const center1 = plane1[index]!
-      const center2 = plane2[index]!
+      const center0 = plane0[index] ?? 0
+      const center1 = plane1[index] ?? 0
+      const center2 = plane2[index] ?? 0
       const smooth0 = smoothDcAt(plane0, index, width, centerWeight, sideWeight, cornerWeight)
       const smooth1 = smoothDcAt(plane1, index, width, centerWeight, sideWeight, cornerWeight)
       const smooth2 = smoothDcAt(plane2, index, width, centerWeight, sideWeight, cornerWeight)
@@ -1269,7 +1272,8 @@ const applyDefaultGaborish = (
   scratch = new Float32Array(stride * height),
 ): void => {
   for (let channel = 0; channel < planes.length; channel++) {
-    const plane = planes[channel]!
+    const plane = planes[channel]
+    if (!plane) throw invalidJpegXlInput('gaborish plane is missing')
     const adjacent = frame.gaborishWeights?.[channel * 2] ?? 1.1 * 0.104699568
     const diagonal = frame.gaborishWeights?.[channel * 2 + 1] ?? 1.1 * 0.055680538
     const normalization = 1 / (1 + 4 * (adjacent + diagonal))
@@ -1283,13 +1287,16 @@ const applyDefaultGaborish = (
       for (let x = 1; x < width - 1; x += 1) {
         const index = row + x
         scratch[index] =
-          plane[index]! * centerWeight +
-          (plane[index - 1]! + plane[index + 1]! + plane[top + x]! + plane[bottom + x]!) *
+          (plane[index] ?? 0) * centerWeight +
+          ((plane[index - 1] ?? 0) +
+            (plane[index + 1] ?? 0) +
+            (plane[top + x] ?? 0) +
+            (plane[bottom + x] ?? 0)) *
             adjacentWeight +
-          (plane[top + x - 1]! +
-            plane[top + x + 1]! +
-            plane[bottom + x - 1]! +
-            plane[bottom + x + 1]!) *
+          ((plane[top + x - 1] ?? 0) +
+            (plane[top + x + 1] ?? 0) +
+            (plane[bottom + x - 1] ?? 0) +
+            (plane[bottom + x + 1] ?? 0)) *
             diagonalWeight
       }
     }
@@ -1299,21 +1306,26 @@ const applyDefaultGaborish = (
         const top = row - stride
         const bottom = row + stride
         scratch[row] =
-          plane[row]! * centerWeight +
-          (plane[row]! + plane[row + 1]! + plane[top]! + plane[bottom]!) * adjacentWeight +
-          (plane[top]! + plane[top + 1]! + plane[bottom]! + plane[bottom + 1]!) * diagonalWeight
+          (plane[row] ?? 0) * centerWeight +
+          ((plane[row] ?? 0) + (plane[row + 1] ?? 0) + (plane[top] ?? 0) + (plane[bottom] ?? 0)) *
+            adjacentWeight +
+          ((plane[top] ?? 0) +
+            (plane[top + 1] ?? 0) +
+            (plane[bottom] ?? 0) +
+            (plane[bottom + 1] ?? 0)) *
+            diagonalWeight
         const right = row + width - 1
         scratch[right] =
-          plane[right]! * centerWeight +
-          (plane[right - 1]! +
-            plane[right]! +
-            plane[top + width - 1]! +
-            plane[bottom + width - 1]!) *
+          (plane[right] ?? 0) * centerWeight +
+          ((plane[right - 1] ?? 0) +
+            (plane[right] ?? 0) +
+            (plane[top + width - 1] ?? 0) +
+            (plane[bottom + width - 1] ?? 0)) *
             adjacentWeight +
-          (plane[top + width - 2]! +
-            plane[top + width - 1]! +
-            plane[bottom + width - 2]! +
-            plane[bottom + width - 1]!) *
+          ((plane[top + width - 2] ?? 0) +
+            (plane[top + width - 1] ?? 0) +
+            (plane[bottom + width - 2] ?? 0) +
+            (plane[bottom + width - 1] ?? 0)) *
             diagonalWeight
         continue
       }
@@ -1324,16 +1336,16 @@ const applyDefaultGaborish = (
         const rightX = x === width - 1 ? width - 1 : x + 1
         const index = y * stride + x
         scratch[index] =
-          plane[index]! * centerWeight +
-          (plane[y * stride + leftX]! +
-            plane[y * stride + rightX]! +
-            plane[topY * stride + x]! +
-            plane[bottomY * stride + x]!) *
+          (plane[index] ?? 0) * centerWeight +
+          ((plane[y * stride + leftX] ?? 0) +
+            (plane[y * stride + rightX] ?? 0) +
+            (plane[topY * stride + x] ?? 0) +
+            (plane[bottomY * stride + x] ?? 0)) *
             adjacentWeight +
-          (plane[topY * stride + leftX]! +
-            plane[topY * stride + rightX]! +
-            plane[bottomY * stride + leftX]! +
-            plane[bottomY * stride + rightX]!) *
+          ((plane[topY * stride + leftX] ?? 0) +
+            (plane[topY * stride + rightX] ?? 0) +
+            (plane[bottomY * stride + leftX] ?? 0) +
+            (plane[bottomY * stride + rightX] ?? 0)) *
             diagonalWeight
       }
     }
@@ -1411,7 +1423,7 @@ const applyDefaultEpfStage1EdgePixel = (
     const offsetX = coordinates[coordinate + 1] ?? 0
     let sad = 0
     for (let channel = 0; channel < 3; channel += 1) {
-      const plane = planes[channel]!
+      const plane = channel === 0 ? planes[0] : channel === 1 ? planes[1] : planes[2]
       let channelSad = 0
       for (const patchOffset of epfPatchOffsets) {
         const patchY = patchOffset[0] ?? 0
@@ -1421,7 +1433,7 @@ const applyDefaultEpfStage1EdgePixel = (
             epfSample(plane, stride, width, height, x + offsetX + patchX, y + offsetY + patchY),
         )
       }
-      sad += channelSad * scales[channel]!
+      sad += channelSad * (scales[channel] ?? 0)
     }
     const weight = Math.max(0, 1 + sad * scaledInverseSigma)
     if (weight === 0) continue
@@ -1463,9 +1475,9 @@ const applyDefaultEpfStage1InteriorRow = (
       const end = Math.min(width - 2, x + 8 - (x & 7))
       for (let copyX = x; copyX < end; copyX += 1) {
         const index = row + copyX
-        output0[index] = plane0[index]!
-        output1[index] = plane1[index]!
-        output2[index] = plane2[index]!
+        output0[index] = plane0[index] ?? 0
+        output1[index] = plane1[index] ?? 0
+        output2[index] = plane2[index] ?? 0
       }
       x = end - 1
       continue
@@ -1477,54 +1489,54 @@ const applyDefaultEpfStage1InteriorRow = (
     const top = centerIndex - stride
     const bottom = centerIndex + stride
     const sadLeft =
-      horizontalDifferences[left]! +
-      horizontalDifferences[left - 1]! +
-      horizontalDifferences[top - 1]! +
-      horizontalDifferences[centerIndex]! +
-      horizontalDifferences[bottom - 1]!
+      (horizontalDifferences[left] ?? 0) +
+      (horizontalDifferences[left - 1] ?? 0) +
+      (horizontalDifferences[top - 1] ?? 0) +
+      (horizontalDifferences[centerIndex] ?? 0) +
+      (horizontalDifferences[bottom - 1] ?? 0)
     const sadTop =
-      verticalDifferences[top]! +
-      verticalDifferences[top - 1]! +
-      verticalDifferences[top - stride]! +
-      verticalDifferences[top + 1]! +
-      verticalDifferences[centerIndex]!
+      (verticalDifferences[top] ?? 0) +
+      (verticalDifferences[top - 1] ?? 0) +
+      (verticalDifferences[top - stride] ?? 0) +
+      (verticalDifferences[top + 1] ?? 0) +
+      (verticalDifferences[centerIndex] ?? 0)
     const sadRight =
-      horizontalDifferences[centerIndex]! +
-      horizontalDifferences[left]! +
-      horizontalDifferences[top]! +
-      horizontalDifferences[right]! +
-      horizontalDifferences[bottom]!
+      (horizontalDifferences[centerIndex] ?? 0) +
+      (horizontalDifferences[left] ?? 0) +
+      (horizontalDifferences[top] ?? 0) +
+      (horizontalDifferences[right] ?? 0) +
+      (horizontalDifferences[bottom] ?? 0)
     const sadBottom =
-      verticalDifferences[centerIndex]! +
-      verticalDifferences[left]! +
-      verticalDifferences[top]! +
-      verticalDifferences[right]! +
-      verticalDifferences[bottom]!
+      (verticalDifferences[centerIndex] ?? 0) +
+      (verticalDifferences[left] ?? 0) +
+      (verticalDifferences[top] ?? 0) +
+      (verticalDifferences[right] ?? 0) +
+      (verticalDifferences[bottom] ?? 0)
     const weightLeft = Math.max(0, 1 + sadLeft * scaledInverseSigma)
     const weightTop = Math.max(0, 1 + sadTop * scaledInverseSigma)
     const weightRight = Math.max(0, 1 + sadRight * scaledInverseSigma)
     const weightBottom = Math.max(0, 1 + sadBottom * scaledInverseSigma)
     const totalWeight = 1 + weightLeft + weightTop + weightRight + weightBottom
     output0[centerIndex] =
-      (plane0[centerIndex]! +
-        weightLeft * plane0[centerIndex - 1]! +
-        weightTop * plane0[centerIndex - stride]! +
-        weightRight * plane0[centerIndex + 1]! +
-        weightBottom * plane0[centerIndex + stride]!) /
+      ((plane0[centerIndex] ?? 0) +
+        weightLeft * (plane0[centerIndex - 1] ?? 0) +
+        weightTop * (plane0[centerIndex - stride] ?? 0) +
+        weightRight * (plane0[centerIndex + 1] ?? 0) +
+        weightBottom * (plane0[centerIndex + stride] ?? 0)) /
       totalWeight
     output1[centerIndex] =
-      (plane1[centerIndex]! +
-        weightLeft * plane1[centerIndex - 1]! +
-        weightTop * plane1[centerIndex - stride]! +
-        weightRight * plane1[centerIndex + 1]! +
-        weightBottom * plane1[centerIndex + stride]!) /
+      ((plane1[centerIndex] ?? 0) +
+        weightLeft * (plane1[centerIndex - 1] ?? 0) +
+        weightTop * (plane1[centerIndex - stride] ?? 0) +
+        weightRight * (plane1[centerIndex + 1] ?? 0) +
+        weightBottom * (plane1[centerIndex + stride] ?? 0)) /
       totalWeight
     output2[centerIndex] =
-      (plane2[centerIndex]! +
-        weightLeft * plane2[centerIndex - 1]! +
-        weightTop * plane2[centerIndex - stride]! +
-        weightRight * plane2[centerIndex + 1]! +
-        weightBottom * plane2[centerIndex + stride]!) /
+      ((plane2[centerIndex] ?? 0) +
+        weightLeft * (plane2[centerIndex - 1] ?? 0) +
+        weightTop * (plane2[centerIndex - stride] ?? 0) +
+        weightRight * (plane2[centerIndex + 1] ?? 0) +
+        weightBottom * (plane2[centerIndex + stride] ?? 0)) /
       totalWeight
   }
 }
@@ -1560,27 +1572,27 @@ const applyDefaultEpfStage1 = (
       const right = index + 1
       const bottom = index + stride
       horizontalDifferences[index] =
-        Math.abs(plane0[index]! - plane0[right]!) * 40 +
-        Math.abs(plane1[index]! - plane1[right]!) * 5 +
-        Math.abs(plane2[index]! - plane2[right]!) * 3.5
+        Math.abs((plane0[index] ?? 0) - (plane0[right] ?? 0)) * 40 +
+        Math.abs((plane1[index] ?? 0) - (plane1[right] ?? 0)) * 5 +
+        Math.abs((plane2[index] ?? 0) - (plane2[right] ?? 0)) * 3.5
       verticalDifferences[index] =
-        Math.abs(plane0[index]! - plane0[bottom]!) * 40 +
-        Math.abs(plane1[index]! - plane1[bottom]!) * 5 +
-        Math.abs(plane2[index]! - plane2[bottom]!) * 3.5
+        Math.abs((plane0[index] ?? 0) - (plane0[bottom] ?? 0)) * 40 +
+        Math.abs((plane1[index] ?? 0) - (plane1[bottom] ?? 0)) * 5 +
+        Math.abs((plane2[index] ?? 0) - (plane2[bottom] ?? 0)) * 3.5
     }
     const last = row + width - 1
     verticalDifferences[last] =
-      Math.abs(plane0[last]! - plane0[last + stride]!) * 40 +
-      Math.abs(plane1[last]! - plane1[last + stride]!) * 5 +
-      Math.abs(plane2[last]! - plane2[last + stride]!) * 3.5
+      Math.abs((plane0[last] ?? 0) - (plane0[last + stride] ?? 0)) * 40 +
+      Math.abs((plane1[last] ?? 0) - (plane1[last + stride] ?? 0)) * 5 +
+      Math.abs((plane2[last] ?? 0) - (plane2[last + stride] ?? 0)) * 3.5
   }
   const lastRow = (height - 1) * stride
   for (let x = 0; x < width - 1; x += 1) {
     const index = lastRow + x
     horizontalDifferences[index] =
-      Math.abs(plane0[index]! - plane0[index + 1]!) * 40 +
-      Math.abs(plane1[index]! - plane1[index + 1]!) * 5 +
-      Math.abs(plane2[index]! - plane2[index + 1]!) * 3.5
+      Math.abs((plane0[index] ?? 0) - (plane0[index + 1] ?? 0)) * 40 +
+      Math.abs((plane1[index] ?? 0) - (plane1[index + 1] ?? 0)) * 5 +
+      Math.abs((plane2[index] ?? 0) - (plane2[index + 1] ?? 0)) * 3.5
   }
   for (let y = 0; y < height; y += 1) {
     if (y < 2 || y >= height - 2) {
@@ -1735,56 +1747,56 @@ const applyDefaultEpfStage2 = (
         const weightTop = Math.max(
           0,
           1 +
-            (Math.abs(plane0[top]! - center0) * 40 +
-              Math.abs(plane1[top]! - center1) * 5 +
-              Math.abs(plane2[top]! - center2) * 3.5) *
+            (Math.abs((plane0[top] ?? 0) - center0) * 40 +
+              Math.abs((plane1[top] ?? 0) - center1) * 5 +
+              Math.abs((plane2[top] ?? 0) - center2) * 3.5) *
               scaledInverseSigma,
         )
         const weightLeft = Math.max(
           0,
           1 +
-            (Math.abs(plane0[left]! - center0) * 40 +
-              Math.abs(plane1[left]! - center1) * 5 +
-              Math.abs(plane2[left]! - center2) * 3.5) *
+            (Math.abs((plane0[left] ?? 0) - center0) * 40 +
+              Math.abs((plane1[left] ?? 0) - center1) * 5 +
+              Math.abs((plane2[left] ?? 0) - center2) * 3.5) *
               scaledInverseSigma,
         )
         const weightRight = Math.max(
           0,
           1 +
-            (Math.abs(plane0[right]! - center0) * 40 +
-              Math.abs(plane1[right]! - center1) * 5 +
-              Math.abs(plane2[right]! - center2) * 3.5) *
+            (Math.abs((plane0[right] ?? 0) - center0) * 40 +
+              Math.abs((plane1[right] ?? 0) - center1) * 5 +
+              Math.abs((plane2[right] ?? 0) - center2) * 3.5) *
               scaledInverseSigma,
         )
         const weightBottom = Math.max(
           0,
           1 +
-            (Math.abs(plane0[bottom]! - center0) * 40 +
-              Math.abs(plane1[bottom]! - center1) * 5 +
-              Math.abs(plane2[bottom]! - center2) * 3.5) *
+            (Math.abs((plane0[bottom] ?? 0) - center0) * 40 +
+              Math.abs((plane1[bottom] ?? 0) - center1) * 5 +
+              Math.abs((plane2[bottom] ?? 0) - center2) * 3.5) *
               scaledInverseSigma,
         )
         const totalWeight = 1 + weightTop + weightLeft + weightRight + weightBottom
         output0[outputIndex] =
           (center0 +
-            weightTop * plane0[top]! +
-            weightLeft * plane0[left]! +
-            weightRight * plane0[right]! +
-            weightBottom * plane0[bottom]!) /
+            weightTop * (plane0[top] ?? 0) +
+            weightLeft * (plane0[left] ?? 0) +
+            weightRight * (plane0[right] ?? 0) +
+            weightBottom * (plane0[bottom] ?? 0)) /
           totalWeight
         output1[outputIndex] =
           (center1 +
-            weightTop * plane1[top]! +
-            weightLeft * plane1[left]! +
-            weightRight * plane1[right]! +
-            weightBottom * plane1[bottom]!) /
+            weightTop * (plane1[top] ?? 0) +
+            weightLeft * (plane1[left] ?? 0) +
+            weightRight * (plane1[right] ?? 0) +
+            weightBottom * (plane1[bottom] ?? 0)) /
           totalWeight
         output2[outputIndex] =
           (center2 +
-            weightTop * plane2[top]! +
-            weightLeft * plane2[left]! +
-            weightRight * plane2[right]! +
-            weightBottom * plane2[bottom]!) /
+            weightTop * (plane2[top] ?? 0) +
+            weightLeft * (plane2[left] ?? 0) +
+            weightRight * (plane2[right] ?? 0) +
+            weightBottom * (plane2[bottom] ?? 0)) /
           totalWeight
         continue
       }
@@ -1865,7 +1877,7 @@ const applyCustomEpfStage = (
         const offsetX = coordinates[coordinate + 1] ?? 0
         let sad = 0
         for (let channel = 0; channel < 3; channel += 1) {
-          const plane = planes[channel]!
+          const plane = channel === 0 ? planes[0] : channel === 1 ? planes[1] : planes[2]
           const scale = channel === 0 ? scale0 : channel === 1 ? scale1 : scale2
           let channelSad = 0
           for (const patchOffset of patch) {
@@ -1924,7 +1936,7 @@ const applyDefaultEpfStage0EdgePixel = (
     const offsetX = coordinates[coordinate + 1] ?? 0
     let sad = 0
     for (let channel = 0; channel < 3; channel += 1) {
-      const plane = planes[channel]!
+      const plane = channel === 0 ? planes[0] : channel === 1 ? planes[1] : planes[2]
       const scale = channel === 0 ? 40 : channel === 1 ? 5 : 3.5
       let channelSad = 0
       for (const patchOffset of epfPatchOffsets) {
@@ -1990,9 +2002,9 @@ const applyDefaultEpfStage0 = (
       let candidateIndex = (y + offsetY) * stride + startX + offsetX
       for (let x = startX; x < endX; x += 1) {
         differences[index] =
-          Math.abs(plane0[index]! - plane0[candidateIndex]!) * 40 +
-          Math.abs(plane1[index]! - plane1[candidateIndex]!) * 5 +
-          Math.abs(plane2[index]! - plane2[candidateIndex]!) * 3.5
+          Math.abs((plane0[index] ?? 0) - (plane0[candidateIndex] ?? 0)) * 40 +
+          Math.abs((plane1[index] ?? 0) - (plane1[candidateIndex] ?? 0)) * 5 +
+          Math.abs((plane2[index] ?? 0) - (plane2[candidateIndex] ?? 0)) * 3.5
         index += 1
         candidateIndex += 1
       }
@@ -2006,20 +2018,20 @@ const applyDefaultEpfStage0 = (
         if (inverseSigma < -3.9052429175127) continue
         const centerIndex = row + x
         const sad =
-          differences[centerIndex]! +
-          differences[centerIndex - 1]! +
-          differences[centerIndex + 1]! +
-          differences[centerIndex - stride]! +
-          differences[centerIndex + stride]!
+          (differences[centerIndex] ?? 0) +
+          (differences[centerIndex - 1] ?? 0) +
+          (differences[centerIndex + 1] ?? 0) +
+          (differences[centerIndex - stride] ?? 0) +
+          (differences[centerIndex + stride] ?? 0)
         const xBorder = (x & 7) === 0 || (x & 7) === 7
         const scaledInverseSigma = inverseSigma * 0.9 * 1.65 * (yBorder || xBorder ? 2 / 3 : 1)
         const weight = Math.max(0, 1 + sad * scaledInverseSigma)
         if (weight === 0) continue
         const candidateIndex = centerIndex + offsetY * stride + offsetX
-        totalWeights[centerIndex] = totalWeights[centerIndex]! + weight
-        output0[centerIndex] = output0[centerIndex]! + weight * plane0[candidateIndex]!
-        output1[centerIndex] = output1[centerIndex]! + weight * plane1[candidateIndex]!
-        output2[centerIndex] = output2[centerIndex]! + weight * plane2[candidateIndex]!
+        totalWeights[centerIndex] = (totalWeights[centerIndex] ?? 0) + weight
+        output0[centerIndex] = (output0[centerIndex] ?? 0) + weight * (plane0[candidateIndex] ?? 0)
+        output1[centerIndex] = (output1[centerIndex] ?? 0) + weight * (plane1[candidateIndex] ?? 0)
+        output2[centerIndex] = (output2[centerIndex] ?? 0) + weight * (plane2[candidateIndex] ?? 0)
       }
     }
   }
@@ -2027,10 +2039,10 @@ const applyDefaultEpfStage0 = (
     const row = y * stride
     for (let x = 3; x < width - 3; x += 1) {
       const index = row + x
-      const weight = totalWeights[index]!
-      output0[index] = output0[index]! / weight
-      output1[index] = output1[index]! / weight
-      output2[index] = output2[index]! / weight
+      const weight = totalWeights[index] ?? 0
+      output0[index] = (output0[index] ?? 0) / weight
+      output1[index] = (output1[index] ?? 0) / weight
+      output2[index] = (output2[index] ?? 0) / weight
     }
   }
   for (let y = 0; y < height; y += 1) {
@@ -2119,7 +2131,9 @@ const applyDefaultEpfStage = (
       stage,
       blockRowOffset,
     )
-    for (let c = 0; c < 3; c++) planes[c]!.set(output[c]!.subarray(0, requiredOutputLength))
+    planes[0].set(output[0].subarray(0, requiredOutputLength))
+    planes[1].set(output[1].subarray(0, requiredOutputLength))
+    planes[2].set(output[2].subarray(0, requiredOutputLength))
     return
   }
   if (stage === 0) {
@@ -4539,7 +4553,7 @@ const decodeJpegXlDct8Steps = function* (
       const scaledAlpha = new Float64Array(referenceAlpha.length)
       for (let y = 0; y < codedHeight; y++)
         for (let x = 0; x < codedWidth; x++) {
-          const value = alpha[y * paddedWidth + x]!
+          const value = alpha[y * paddedWidth + x] ?? 0
           referenceAlpha[y * codedWidth + x] = value
           scaledAlpha[y * codedWidth + x] = value / alphaScale
         }
@@ -4569,11 +4583,14 @@ const decodeJpegXlDct8Steps = function* (
       new Float32Array(frame.width * frame.height),
     ] as const
     for (let c = 0; c < 3; c++) {
+      const target = expanded[c],
+        source = planes[c]
+      if (!target || !source) throw invalidJpegXlInput('upsampled XYB plane is missing')
       for (let y = 0; y < frame.height; y++) {
         if ((y & 63) === 0) yield
         for (let x = 0; x < frame.width; x++)
-          expanded[c]![y * frame.width + x] = upsampleSample(
-            planes[c]!,
+          target[y * frame.width + x] = upsampleSample(
+            source,
             paddedWidth,
             codedWidth,
             codedHeight,
@@ -5114,11 +5131,12 @@ export const convertJpegXlNativeXybPlanesToLinear = (
     const rMix = rGamma ** 3 + (opsin.biases[0] ?? 0),
       gMix = gGamma ** 3 + (opsin.biases[1] ?? 0),
       bMix = bGamma ** 3 + (opsin.biases[2] ?? 0)
-    for (let c = 0; c < 3; c++)
-      output[c]![i] =
-        (opsin.matrix[c * 3] ?? 0) * rMix +
-        (opsin.matrix[c * 3 + 1] ?? 0) * gMix +
-        (opsin.matrix[c * 3 + 2] ?? 0) * bMix
+    output[0][i] =
+      (opsin.matrix[0] ?? 0) * rMix + (opsin.matrix[1] ?? 0) * gMix + (opsin.matrix[2] ?? 0) * bMix
+    output[1][i] =
+      (opsin.matrix[3] ?? 0) * rMix + (opsin.matrix[4] ?? 0) * gMix + (opsin.matrix[5] ?? 0) * bMix
+    output[2][i] =
+      (opsin.matrix[6] ?? 0) * rMix + (opsin.matrix[7] ?? 0) * gMix + (opsin.matrix[8] ?? 0) * bMix
   }
   return output
 }
@@ -5145,12 +5163,15 @@ export const convertJpegXlNativeXybPlanes = (
     const rMix = rGamma ** 3 + (opsin.biases[0] ?? 0),
       gMix = gGamma ** 3 + (opsin.biases[1] ?? 0),
       bMix = bGamma ** 3 + (opsin.biases[2] ?? 0)
-    for (let c = 0; c < 3; c++)
-      output[c]![i] = jpegXlLinearToSrgb(
-        (opsin.matrix[c * 3] ?? 0) * rMix +
-          (opsin.matrix[c * 3 + 1] ?? 0) * gMix +
-          (opsin.matrix[c * 3 + 2] ?? 0) * bMix,
-      )
+    output[0][i] = jpegXlLinearToSrgb(
+      (opsin.matrix[0] ?? 0) * rMix + (opsin.matrix[1] ?? 0) * gMix + (opsin.matrix[2] ?? 0) * bMix,
+    )
+    output[1][i] = jpegXlLinearToSrgb(
+      (opsin.matrix[3] ?? 0) * rMix + (opsin.matrix[4] ?? 0) * gMix + (opsin.matrix[5] ?? 0) * bMix,
+    )
+    output[2][i] = jpegXlLinearToSrgb(
+      (opsin.matrix[6] ?? 0) * rMix + (opsin.matrix[7] ?? 0) * gMix + (opsin.matrix[8] ?? 0) * bMix,
+    )
   }
   return output
 }
@@ -5335,6 +5356,8 @@ export const applyJpegXlModularFeatures = (
       features.noiseLut,
       correlation,
     )
-  for (let c = 0; c < 3; c++) planes[c]!.set(color[c]!)
+  first.set(color[0])
+  second.set(color[1])
+  third.set(color[2])
   throwIfAborted(signal)
 }

@@ -20,9 +20,11 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-23: raised by 2,000 bytes so lossless keepIcc() output writes the profile in the
   // Modular image header instead of the native writer's unpredicted samples, and for Lab gray
   // ICC curves and the real-primaries check on structured ICC color.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 645_000 },
+  // 2026-11-23: raised by 2,000 bytes again for the lint cleanup that replaced non-null
+  // assertions with `?? 0` sample reads and checked plane reads.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 647_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 718_000 },
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 720_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

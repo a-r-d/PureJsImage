@@ -33,7 +33,7 @@ const decode = async (
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(input), defaultImageLimits, {
     hdrOutput: 'linear-float',
   })
-  if (!decoder || decoder.pixelFormat !== 'rgbf32') throw new Error('HDR float decoder unavailable')
+  if (decoder?.pixelFormat !== 'rgbf32') throw new Error('HDR float decoder unavailable')
   const digest = createHash('sha256')
   let outputBytes = 0
   const peak = { ...snapshot() }

@@ -2,7 +2,6 @@ import { writeFile } from 'node:fs/promises'
 import {
   iterateJpegXlFrameStructures,
   type JpegXlFrameStructure,
-  readJpegXlSourceFrameStructure,
 } from '../../src/codecs/jpegxl-decode.ts'
 import {
   JpegXlBitWriter,
@@ -10,7 +9,6 @@ import {
   writeHybridUint,
   writeModularHeader,
   writeModularTree,
-  writePositiveF16,
   writePrefixCode,
   writeU32,
 } from '../../src/codecs/jpegxl-modular-encode.ts'
@@ -30,11 +28,6 @@ const geometry = [
   { bits: 14, offset: 2304 },
   { bits: 30, offset: 18688 },
 ] as const
-const positive = (value: number, name: string, allowZero = false): void => {
-  if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))
-    throw invalidInput(`JPEG XL ${name} is invalid`)
-}
-
 const frameHeader = (
   frame: Readonly<JpegXlFrameStructure>,
   input: Readonly<JpegXlAnimationInputFrame>,

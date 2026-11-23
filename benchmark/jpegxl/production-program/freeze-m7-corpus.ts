@@ -102,7 +102,7 @@ for (const split of ['development', 'holdout']) {
 }
 await writeFile(
   'benchmark/jpegxl/production-program/m7-corpus-selection.json',
-  JSON.stringify(
+  `${JSON.stringify(
     {
       schemaVersion: 1,
       frozenAt: new Date().toISOString(),
@@ -115,5 +115,5 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )

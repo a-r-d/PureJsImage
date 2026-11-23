@@ -436,7 +436,7 @@ const report = Object.freeze({
     dataset: 'COCO 2017 validation images',
     photographs: photos.length,
     files: photos.length * 3,
-    dimensions: `${photos.length} COCO photographs; three generated variants per source. Original source dimensions retained in photos; test dimensions are explicitly resized or upscaled (${targetMegapixels > 0 ? targetMegapixels + ' MP' : 'approximately 1, 12 and 24 MP'}).`,
+    dimensions: `${photos.length} COCO photographs; three generated variants per source. Original source dimensions retained in photos; test dimensions are explicitly resized or upscaled (${targetMegapixels > 0 ? `${targetMegapixels} MP` : 'approximately 1, 12 and 24 MP'}).`,
     encoders: Object.freeze(['libjxl a7a9c787341cf703dede03c2009fa460cae5e5df', 'Imazen d63e9d1']),
     libjxlDistances: Object.freeze(distances),
     libjxlEfforts: Object.freeze(efforts),

@@ -96,7 +96,7 @@ for (const [width = 0, height = 0] of [
 }
 await writeFile(
   `${output}/report.json`,
-  JSON.stringify(
+  `${JSON.stringify(
     {
       policy:
         'Generated boundary and narrow-image conformance, separate from real-image compression qualification.',
@@ -113,6 +113,6 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )
 console.log(JSON.stringify({ cases: results.length, independentlyExact: true }))

@@ -6,7 +6,7 @@ import { encodeJpegXlLocalContrast } from '../../tests/helpers/jpegxl-local-cont
 import { verifyM7QualityPixels } from './m7-quality-decoding.ts'
 
 const root = process.argv[2]
-if (!root || !root.startsWith('.tmp/jpegxl-m7/') || root.includes('..'))
+if (!root?.startsWith('.tmp/jpegxl-m7/') || root.includes('..'))
   throw new Error('Supply a new output directory under .tmp/jpegxl-m7/')
 const native = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl'
 const rust = '.tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli'

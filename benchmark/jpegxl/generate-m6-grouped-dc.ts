@@ -47,8 +47,7 @@ const bytes = new Uint8Array(await readFile(`${directory}/progressive.jxl`))
 const frames = await readJpegXlSourceFrameStructures(new MemorySource(bytes), defaultImageLimits)
 const dc = frames[0]
 if (
-  !dc ||
-  dc.frameType !== 'dc' ||
+  dc?.frameType !== 'dc' ||
   dc.passCount < 2 ||
   dc.sections.slice(1).every((section) => section.length === 0)
 )
@@ -96,7 +95,7 @@ for (let stage = 0; stage < 4; stage++) {
 }
 await writeFile(
   `${directory}/manifest.json`,
-  JSON.stringify(
+  `${JSON.stringify(
     {
       encoderHash,
       flags,
@@ -110,5 +109,5 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )

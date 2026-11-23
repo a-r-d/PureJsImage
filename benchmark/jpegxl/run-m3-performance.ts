@@ -116,8 +116,9 @@ for (const selected of cases) {
     }),
   )
 }
-const twelve = measurements[0]!
-const twentyFour = measurements[1]!
+const twelve = measurements[0]
+const twentyFour = measurements[1]
+if (!twelve || !twentyFour) throw new Error('The 12 MP or 24 MP measurement is missing')
 const normalized = measurements.map(({ millisecondsPerMegapixel }) => millisecondsPerMegapixel)
 const groupScalingRatio = Math.max(...normalized) / Math.min(...normalized)
 const report = Object.freeze({

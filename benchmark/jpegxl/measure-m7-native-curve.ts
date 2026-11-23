@@ -52,7 +52,7 @@ for (const distance of [0.25, 0.5, 1, 2, 3, 5]) {
   }
   await writeFile(
     `${directory}/report.json`,
-    JSON.stringify(
+    `${JSON.stringify(
       {
         schemaVersion: 1,
         inputSha256,
@@ -62,12 +62,12 @@ for (const distance of [0.25, 0.5, 1, 2, 3, 5]) {
       },
       null,
       2,
-    ) + '\n',
+    )}\n`,
   )
 }
 await writeFile(
   `${directory}/tools.json`,
-  JSON.stringify(
+  `${JSON.stringify(
     {
       cjxl: await hash(`${tools}/cjxl`),
       djxl: await hash(`${tools}/djxl`),
@@ -76,6 +76,6 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )
 if (failures) process.exitCode = 1

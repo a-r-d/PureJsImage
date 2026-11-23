@@ -1425,8 +1425,7 @@ export function* learnJpegXlForwardCoefficientOrders(
       const blockY = Math.floor(group / geometry.groupsAcross) * 32
       for (let pass = 0; pass < (geometry.progressive ? 2 : 1); pass++) {
         const components = geometry.loadAc?.(group, pass)
-        if (!components || components.length !== 3)
-          throw invalidJpegXlInput('forward order group is missing')
+        if (components?.length !== 3) throw invalidJpegXlInput('forward order group is missing')
         for (let channel = 0; channel < 3; channel++) {
           const component = components[channel]
           const shift = geometry.shifts[channel]
@@ -1653,7 +1652,7 @@ const compactAcHistograms = (
     let symbolCount = 0
     for (let histogram = 0; histogram < frequencies.length; histogram += 1) {
       const values = frequencies[histogram]
-      if (!values || !values.some((frequency) => frequency !== 0)) continue
+      if (!values?.some((frequency) => frequency !== 0)) continue
       // Derive the occupied extent from all original input histograms.
       for (let symbol = values.length - 1; symbol >= symbolCount; symbol--) {
         if ((values[symbol] ?? 0) !== 0) {
@@ -1771,7 +1770,7 @@ const compactAcHistograms = (
     const populated: Uint32Array[] = []
     for (let cluster = 0; cluster < compact.length; cluster += 1) {
       const values = compact[cluster]
-      if (!values || !values.some((frequency) => frequency !== 0)) continue
+      if (!values?.some((frequency) => frequency !== 0)) continue
       remap[cluster] = populated.length
       populated.push(values)
     }

@@ -90,7 +90,7 @@ for (const entry of downloads.cases) {
         protocolSha256,
         mappingSha256,
       }
-      await writeFile(`${output}/input.json`, JSON.stringify(result, null, 2) + '\n')
+      await writeFile(`${output}/input.json`, `${JSON.stringify(result, null, 2)}\n`)
       results.push(result)
     } else {
       const decoder = await hdrCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
@@ -157,7 +157,7 @@ for (const entry of downloads.cases) {
         protocolSha256,
         mappingSha256,
       }
-      await writeFile(`${output}/input.json`, JSON.stringify(result, null, 2) + '\n')
+      await writeFile(`${output}/input.json`, `${JSON.stringify(result, null, 2)}\n`)
       results.push(result)
     }
   } catch (error) {
@@ -167,7 +167,7 @@ for (const entry of downloads.cases) {
 }
 await writeFile(
   `${directory}/report.json`,
-  JSON.stringify({ protocolSha256, mappingSha256, failures, results }, null, 2) + '\n',
+  `${JSON.stringify({ protocolSha256, mappingSha256, failures, results }, null, 2)}\n`,
 )
 console.log(JSON.stringify({ prepared: results.length - failures, failures, directory }))
 if (failures) process.exitCode = 1

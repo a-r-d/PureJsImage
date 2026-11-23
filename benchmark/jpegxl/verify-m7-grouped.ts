@@ -183,4 +183,4 @@ for (const depth of [8, 10, 12, 16])
       })
       console.log(width, depth, effort, 'native exact')
     }
-await writeFile(`${directory}/report.json`, JSON.stringify({ results }, null, 2) + '\n')
+await writeFile(`${directory}/report.json`, `${JSON.stringify({ results }, null, 2)}\n`)

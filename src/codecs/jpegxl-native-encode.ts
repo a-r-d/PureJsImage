@@ -344,8 +344,7 @@ export const encodeJpegXlNative = async (
       throw invalidJpegXlInput('channel name is invalid')
     if (
       channel.type === 2 &&
-      (!channel.spotColor ||
-        channel.spotColor.length !== 4 ||
+      (channel.spotColor?.length !== 4 ||
         channel.spotColor.some((value) => !Number.isFinite(value) || value < 0 || value > 1))
     )
       throw invalidJpegXlInput('spot color requires four finite unit-range components')

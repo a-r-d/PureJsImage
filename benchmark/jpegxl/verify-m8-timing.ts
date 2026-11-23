@@ -92,7 +92,7 @@ const report = {
 }
 await writeFile(
   'benchmark/jpegxl/production-program/m8-timing-native.json',
-  JSON.stringify(report, null, 2) + '\n',
+  `${JSON.stringify(report, null, 2)}\n`,
 )
 console.log(
   JSON.stringify({

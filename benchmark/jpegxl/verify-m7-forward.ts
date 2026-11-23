@@ -137,7 +137,7 @@ for (const [width, height] of [
 }
 await writeFile(
   `${directory}/report.json`,
-  JSON.stringify(
+  `${JSON.stringify(
     {
       schemaVersion: 1,
       scope: 'Procedural forward-path conformance only; excluded from real-image quality gates.',
@@ -146,6 +146,6 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )
 if (failures) process.exitCode = 1

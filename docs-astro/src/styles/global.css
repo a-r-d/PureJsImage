@@ -983,11 +983,6 @@ h1 {
   border-radius: 0 0 var(--radius) var(--radius);
 }
 
-.code-window .table-scroll-cue {
-  padding: 8px 14px 0;
-  color: #c5c7a2;
-}
-
 .code-window code {
   font-family: inherit;
 }
@@ -1471,6 +1466,11 @@ h1 {
   color: var(--text-faint);
   font-size: 12px;
   font-weight: 650;
+}
+
+.code-window .table-scroll-cue {
+  padding: 8px 14px 0;
+  color: #c5c7a2;
 }
 
 .table-wrap-scroller,
@@ -6111,6 +6111,7 @@ tr:last-child td {
 }
 
 .scientific-panel [hidden] {
+  /* biome-ignore lint/complexity/noImportantStyles: hidden controls must stay hidden even when a panel rule sets display. */
   display: none !important;
 }
 

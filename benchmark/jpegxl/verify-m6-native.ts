@@ -139,7 +139,7 @@ for (const entry of sources.entries) {
     console.log(entry.id, mode, record.status, record.maximum, record.rmse)
     await writeFile(
       output,
-      JSON.stringify(
+      `${JSON.stringify(
         {
           schemaVersion: 1,
           revision,
@@ -149,7 +149,7 @@ for (const entry of sources.entries) {
         },
         null,
         2,
-      ) + '\n',
+      )}\n`,
     )
   }
 }

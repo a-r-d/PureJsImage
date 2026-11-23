@@ -94,7 +94,7 @@ if (
 const middleReduction = ((1 - middleProduction.ratioToPrior) * 100).toFixed(2)
 const middleGap = (comparator: string): string => {
   const row = middleProduction.comparisons.find((row) => row.comparator === comparator)
-  if (!row || row.status !== 'adequate bracket') throw new Error('Missing middle-photo peer')
+  if (row?.status !== 'adequate bracket') throw new Error('Missing middle-photo peer')
   return ((row.ratio - 1) * 100).toFixed(2)
 }
 

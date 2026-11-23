@@ -12,6 +12,8 @@ All notable changes to PureJsImage are documented in this file.
   the HTTP response.
 - The JPEG XL transform-gap fixture script passes its build paths to the shell through quoted
   environment variables, so a checkout path with spaces or shell characters still works.
+- `npm run lint` reports no warnings. JPEG XL code replaces non-null assertions with `?? 0` sample
+  reads and checked plane reads. JPEG XL encoder and decoder output is unchanged.
 
 ## [0.18.0] - 2026-11-22
 

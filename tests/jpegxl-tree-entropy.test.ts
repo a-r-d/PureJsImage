@@ -62,7 +62,7 @@ describe('JPEG XL learned-tree entropy', () => {
         writer = new JpegXlBitWriter(memory),
         nodes = [...tree(9)],
         first = nodes[0]
-      if (!first || first.kind !== 'branch') throw new Error('Missing regression branch')
+      if (first?.kind !== 'branch') throw new Error('Missing regression branch')
       nodes[0] = { ...first, split }
       writer.writeBits(93, 7)
       try {

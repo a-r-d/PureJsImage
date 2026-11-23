@@ -126,7 +126,7 @@ export class JpegXlSession {
     options: Readonly<OpenJpegXlSessionOptions>,
   ) {
     const frame = frames.at(-1)
-    if (!frame || frame.frameType !== 'regular')
+    if (frame?.frameType !== 'regular')
       throw unsupportedOperation('JPEG XL session requires a static display frame')
     this.width = frame.width
     this.height = frame.height

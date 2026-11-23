@@ -44,6 +44,6 @@ for (const entry of selection.cases) {
 }
 await writeFile(
   '.tmp/jpegxl-m7/source-inventory.json',
-  JSON.stringify({ schemaVersion: 1, failures, results }, null, 2) + '\n',
+  `${JSON.stringify({ schemaVersion: 1, failures, results }, null, 2)}\n`,
 )
 if (failures > 0) process.exitCode = 1

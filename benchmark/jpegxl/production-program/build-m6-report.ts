@@ -53,5 +53,5 @@ const report = {
   measurements: await read('m6-native-measurements.json'),
 }
 const gates = validateM6Report(report)
-await writeFile(output, JSON.stringify({ ...report, gates }, null, 2) + '\n')
+await writeFile(output, `${JSON.stringify({ ...report, gates }, null, 2)}\n`)
 console.log(JSON.stringify(gates, null, 2))

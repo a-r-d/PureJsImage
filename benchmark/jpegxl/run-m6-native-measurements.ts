@@ -20,7 +20,7 @@ for (const entry of sources.entries)
       results.push(record)
       await writeFile(
         output,
-        JSON.stringify(
+        `${JSON.stringify(
           {
             schemaVersion: 1,
             selectionFrozenAt: sources.frozenAt,
@@ -30,7 +30,7 @@ for (const entry of sources.entries)
           },
           null,
           2,
-        ) + '\n',
+        )}\n`,
       )
       console.log(entry.id, mode, temperature, result.status)
       if (result.stderr) console.error(result.stderr)

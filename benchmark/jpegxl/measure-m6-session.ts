@@ -6,7 +6,7 @@ import { performance } from 'node:perf_hooks'
 import { openJpegXlSession } from '../../src/jpegxl.ts'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { resolveLimits } from '../../src/limits.ts'
-import { type ImageSource } from '../../src/source.ts'
+import type { ImageSource } from '../../src/source.ts'
 
 const path = process.argv[2],
   mode = process.argv[3],

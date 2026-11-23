@@ -15,7 +15,7 @@ const jobs = cases.flatMap((entry) =>
 const script = new URL('./evaluate-m7-hdr-development.ts', import.meta.url)
 await writeFile(
   `.tmp/jpegxl-m7/hdr-${split}-${runId}-dispatch.json`,
-  JSON.stringify(
+  `${JSON.stringify(
     {
       jobs,
       split,
@@ -27,7 +27,7 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
   { flag: 'wx' },
 )
 let next = 0,

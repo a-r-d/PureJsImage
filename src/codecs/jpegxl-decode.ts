@@ -1023,7 +1023,10 @@ const readHeader = (
       if (gaborish && reader.readBits(1) !== 0) {
         gaborishWeights = readWeights(6)
         for (let c = 0; c < 3; c++) {
-          if (Math.abs(1 + 4 * (gaborishWeights[c * 2]! + gaborishWeights[c * 2 + 1]!)) < 1e-8)
+          if (
+            Math.abs(1 + 4 * ((gaborishWeights[c * 2] ?? 0) + (gaborishWeights[c * 2 + 1] ?? 0))) <
+            1e-8
+          )
             throw invalidJpegXlInput('Gaborish weights have zero normalization')
         }
       }

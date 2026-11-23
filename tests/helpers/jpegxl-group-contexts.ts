@@ -137,7 +137,7 @@ export const verifyJpegXlGroupContexts = async (asynchronous: boolean) => {
       const logical = new JpegXlCodestreamSource(physical, structure)
       const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits),
         frame = frames.at(-1)
-      if (!frame || frame.dcGroupCount !== 1 || frame.encoding !== 'vardct')
+      if (frame?.dcGroupCount !== 1 || frame.encoding !== 'vardct')
         throw new Error('Spatial context frame differs')
       const sections = await Promise.all(
         frame.sections.map((section) => readExactly(logical, section.offset, section.length)),

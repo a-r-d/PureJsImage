@@ -2,7 +2,6 @@ import { writeFile } from 'node:fs/promises'
 import {
   iterateJpegXlFrameStructures,
   type JpegXlFrameStructure,
-  readJpegXlSourceFrameStructure,
 } from '../../src/codecs/jpegxl-decode.ts'
 import {
   JpegXlBitWriter,
@@ -10,7 +9,6 @@ import {
   writeHybridUint,
   writeModularHeader,
   writeModularTree,
-  writePositiveF16,
   writePrefixCode,
   writeU32,
 } from '../../src/codecs/jpegxl-modular-encode.ts'
@@ -30,11 +28,6 @@ const geometry = [
   { bits: 14, offset: 2304 },
   { bits: 30, offset: 18688 },
 ] as const
-const positive = (value: number, name: string, allowZero = false): void => {
-  if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))
-    throw invalidInput(`JPEG XL ${name} is invalid`)
-}
-
 const frameHeader = (
   frame: Readonly<JpegXlFrameStructure>,
   input: Readonly<JpegXlAnimationInputFrame>,
@@ -205,7 +198,7 @@ for (const mode of ['lossless', 'lossy'] as const) {
     writeModularTree(section, 0)
     const samples = []
     for (let c = 0; c < 4; c++)
-      for (let i = c; i < front.length; i += 4) samples.push(packSigned(front[i]!))
+      for (let i = c; i < front.length; i += 4) samples.push(packSigned(front[i] ?? 0))
     const counts = new Uint32Array(280)
     for (const sample of samples) {
       const token = sample < 256 ? sample : 248 + Math.floor(Math.log2(sample))
@@ -224,12 +217,14 @@ for (const mode of ['lossless', 'lossy'] as const) {
       section.writeBits(byte, 8)
   }
   const payload = section.finish()
-  const second = headers[1]!
+  const second = headers[1],
+    secondInput = inputs[1]
+  if (!second || !secondInput) throw new Error('The second weighted-patch frame is missing')
   const encoded = Buffer.concat([
     original.subarray(0, second.frameHeaderOffset),
     frameHeader(
       { ...second, frameFlags: 2, sections: [{ offset: 0, length: payload.length }] },
-      inputs[1]!,
+      secondInput,
       options,
       true,
     ),

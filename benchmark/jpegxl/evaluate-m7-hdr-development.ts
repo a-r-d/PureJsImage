@@ -33,7 +33,7 @@ if (
     'Usage: evaluate-m7-hdr-development.ts source-id distance unique-run-id [--native-control|--own-control]',
   )
 const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)
-if (!entry || entry.status !== 'verified')
+if (entry?.status !== 'verified')
   throw new Error('Source is outside the selected frozen HDR cohort')
 const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`
 await mkdir(root, { recursive: true })
@@ -157,7 +157,7 @@ const protocol = {
   ),
   timing: 'Serial quality evaluation, not isolated performance evidence',
 }
-await writeFile(`${root}/protocol.json`, JSON.stringify(protocol, null, 2) + '\n', { flag: 'wx' })
+await writeFile(`${root}/protocol.json`, `${JSON.stringify(protocol, null, 2)}\n`, { flag: 'wx' })
 const results: object[] = []
 let failures = 0
 for (const engine of nativeControl
@@ -252,8 +252,7 @@ for (const engine of nativeControl
         new MemorySource(await readFile(output)),
         defaultImageLimits,
       )
-      if (!decoder || decoder.pixelFormat !== 'rgbf32')
-        throw new Error('Missing native-light decoder')
+      if (decoder?.pixelFormat !== 'rgbf32') throw new Error('Missing native-light decoder')
       maximumOwnDifference = 0
       for await (const block of decoder.decode()) {
         try {

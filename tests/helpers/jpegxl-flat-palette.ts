@@ -78,12 +78,7 @@ export const verifyFlatPaletteGraphic = async (
     throw new Error('Managed working limit exceeded')
   const encoded = sink.toUint8Array(),
     decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
-  if (
-    !decoder ||
-    decoder.pixelFormat !== 'rgba8' ||
-    decoder.width !== 128 ||
-    decoder.height !== 128
-  )
+  if (decoder?.pixelFormat !== 'rgba8' || decoder.width !== 128 || decoder.height !== 128)
     throw new Error('Missing complete RGBA decoder')
   const decoded = new Uint8Array(pixels.length),
     visited = new Uint8Array(128 * 128)

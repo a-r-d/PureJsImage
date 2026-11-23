@@ -32,11 +32,11 @@ for (const id of ['patches', 'progressive', 'noise-upsampling', 'weighted-patche
     ?.split(',')
     .map((value) => Number(value.trim()))
     .filter((value) => value > 0)
-  if (!shape || shape.length !== 4) throw new Error('Native array dimensions differ')
-  const channels = shape[3]!,
-    width = shape[2]!,
-    height = shape[1]!,
-    frames = shape[0]!
+  if (shape?.length !== 4) throw new Error('Native array dimensions differ')
+  const channels = shape[3] ?? 0,
+    width = shape[2] ?? 0,
+    height = shape[1] ?? 0,
+    frames = shape[0] ?? 0
   if (reference.length !== offset + frames * width * height * channels * 4)
     throw new Error('Native array extent differs')
   const sequence = await openJpegXlSequence(input)
@@ -54,8 +54,7 @@ for (const id of ['patches', 'progressive', 'noise-upsampling', 'weighted-patche
     y = last?.planes[1],
     b = last?.planes[2]
   if (
-    !last ||
-    last.domain !== 'xyb' ||
+    last?.domain !== 'xyb' ||
     !(x instanceof Float64Array) ||
     !(y instanceof Float64Array) ||
     !(b instanceof Float64Array) ||
@@ -72,7 +71,9 @@ for (const id of ['patches', 'progressive', 'noise-upsampling', 'weighted-patche
       const expected = reference.readFloatLE(
         offset + ((frames - 1) * width * height * channels + i * channels + c) * 4,
       )
-      const difference = Math.abs(rgb[c]![i]! - expected)
+      const actual = rgb[c]?.[i]
+      if (actual === undefined) throw new Error('Converted RGB sample is missing')
+      const difference = Math.abs(actual - expected)
       maximumError = Math.max(maximumError, difference)
       sum += difference * difference
     }

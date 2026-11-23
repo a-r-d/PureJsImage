@@ -459,14 +459,15 @@ export const openJpegXlSequence = async (
             outputY = new Float64Array(y.length),
             outputB = new Float64Array(b.length)
           for (let i = 0; i < y.length; i++) {
-            outputX[i] = x[i]! * native.dcQuantization[0]
-            outputY[i] = y[i]! * native.dcQuantization[1]
-            outputB[i] = (b[i]! + y[i]!) * native.dcQuantization[2]
+            outputX[i] = (x[i] ?? 0) * native.dcQuantization[0]
+            outputY[i] = (y[i] ?? 0) * native.dcQuantization[1]
+            outputB[i] = ((b[i] ?? 0) + (y[i] ?? 0)) * native.dcQuantization[2]
           }
           working.push(outputX, outputY, outputB)
         }
         for (let channel = xyb ? 3 : 0; channel < native.planes.length; channel++) {
-          const plane = native.planes[channel]!
+          const plane = native.planes[channel]
+          if (!plane) throw invalidJpegXlInput('native plane is missing')
           const depth =
             channel < colorCount
               ? header.bitDepth
@@ -482,13 +483,13 @@ export const openJpegXlSequence = async (
           for (let i = 0; i < plane.length; i++) {
             const value = floating
               ? floatSample(
-                  plane[i]!,
+                  plane[i] ?? 0,
                   depth,
                   channel < colorCount
                     ? header.exponentBits
                     : (header.extraChannels[channel - colorCount]?.bitDepth.exponentBits ?? 8),
                 )
-              : plane[i]! * scale
+              : (plane[i] ?? 0) * scale
             if (!Number.isFinite(value))
               throw invalidJpegXlInput('composed planes reject NaN and infinity')
             output[i] = value
@@ -520,7 +521,7 @@ export const openJpegXlSequence = async (
           header.upsampling !== 1 && extraFactors.every((factor) => factor === header.upsampling)
         if (!lateExtras)
           for (let i = 0; i < extraFactors.length; i++) {
-            const factor = extraFactors[i]!,
+            const factor = extraFactors[i] ?? 0,
               plane = working[colorCount + i]
             if (!plane) throw invalidJpegXlInput('native extra plane is missing')
             working[colorCount + i] = upsampleJpegXlNativePlane(
@@ -846,9 +847,9 @@ export const openJpegXlSequence = async (
           outputY = new Float64Array(y.length),
           outputB = new Float64Array(b.length)
         for (let i = 0; i < y.length; i++) {
-          outputX[i] = x[i]! * decoded.dcQuantization[0]
-          outputY[i] = y[i]! * decoded.dcQuantization[1]
-          outputB[i] = (b[i]! + y[i]!) * decoded.dcQuantization[2]
+          outputX[i] = (x[i] ?? 0) * decoded.dcQuantization[0]
+          outputY[i] = (y[i] ?? 0) * decoded.dcQuantization[1]
+          outputB[i] = ((b[i] ?? 0) + (y[i] ?? 0)) * decoded.dcQuantization[2]
         }
         const planes: [Float64Array, Float64Array, Float64Array] = [outputX, outputY, outputB]
         if (header.gaborish || header.epfIterations > 0)
@@ -892,9 +893,11 @@ export const openJpegXlSequence = async (
         }
         applyJpegXlModularFeatures(planes, header, decoded.frameFeatures, 'splines', active)
         if (header.upsampling !== 1) {
-          for (let c = 0; c < 3; c++)
+          for (let c = 0; c < 3; c++) {
+            const plane = planes[c]
+            if (!plane) throw invalidJpegXlInput('native color plane is missing')
             planes[c] = upsampleJpegXlNativePlane(
-              planes[c]!,
+              plane,
               header.codedWidth,
               header.codedHeight,
               header.upsampling,
@@ -903,6 +906,7 @@ export const openJpegXlSequence = async (
               header,
               active,
             )
+          }
           if (alpha && alphaFactor === header.upsampling)
             alpha = upsampleJpegXlNativePlane(
               alpha,

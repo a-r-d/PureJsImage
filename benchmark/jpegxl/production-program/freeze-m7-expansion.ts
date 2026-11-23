@@ -116,7 +116,7 @@ const artwork = [
 })
 await writeFile(
   'benchmark/jpegxl/production-program/m7-corpus-expansion.json',
-  JSON.stringify(
+  `${JSON.stringify(
     {
       schemaVersion: 1,
       frozenAt: new Date().toISOString(),
@@ -130,5 +130,5 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )

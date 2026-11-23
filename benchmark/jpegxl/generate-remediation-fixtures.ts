@@ -229,7 +229,7 @@ try {
 }
 await writeFile(
   `${directory}/manifest.json`,
-  JSON.stringify(
+  `${JSON.stringify(
     {
       schemaVersion: 1,
       libjxlRevision: revision,
@@ -243,6 +243,6 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )
 console.log(`Generated and independently verified ${results.length} fixtures`)

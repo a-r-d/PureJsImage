@@ -172,7 +172,7 @@ it('drops every owned cache when caching is disabled and supports a fresh reques
     async read(offset, length, options) {
       reads++
       if (suspend)
-        await new Promise<void>((resolve, reject) => {
+        await new Promise<void>((_resolve, reject) => {
           if (options?.signal?.aborted) reject(new DOMException('Cancelled', 'AbortError'))
           else
             options?.signal?.addEventListener(

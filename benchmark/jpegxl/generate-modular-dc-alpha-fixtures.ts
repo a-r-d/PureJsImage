@@ -77,8 +77,7 @@ for (const fixture of [
   )
   const dc = frames.find((frame) => frame.frameType === 'dc')
   if (
-    !dc ||
-    dc.encoding !== 'modular' ||
+    dc?.encoding !== 'modular' ||
     dc.extraChannels.length !== 1 ||
     dc.extraChannels[0]?.type !== 0 ||
     dc.sections.slice(1).some((section) => section.length > 0) !== fixture.grouped

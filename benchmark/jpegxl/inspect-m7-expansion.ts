@@ -91,7 +91,7 @@ for (const entry of downloads.cases) {
 }
 await writeFile(
   '.tmp/jpegxl-m7/expansion-inventory.json',
-  JSON.stringify(
+  `${JSON.stringify(
     {
       schemaVersion: 1,
       failures,
@@ -100,6 +100,6 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )
 if (failures) process.exitCode = 1

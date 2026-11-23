@@ -56,7 +56,7 @@ for (const [index, report] of reports.entries()) {
         const logical = new JpegXlCodestreamSource(new MemorySource(bytes), inspection)
         const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)
         const frame = frames.at(-1)
-        if (!frame || frame.encoding !== 'vardct' || frame.frameType !== 'regular')
+        if (frame?.encoding !== 'vardct' || frame.frameType !== 'regular')
           throw new Error('Expected a final VarDCT display frame')
         // These pinned 1024x768 inputs use one DC group and separated sections.
         if (frame.codedWidth !== 1024 || frame.codedHeight !== 768 || frame.sections.length < 4)

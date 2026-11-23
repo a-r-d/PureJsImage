@@ -63,7 +63,7 @@ const encode = async (
 
 const decode = async (encoded: Uint8Array, width: number, height: number) => {
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
-  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('Missing RGBA decoder')
+  if (decoder?.pixelFormat !== 'rgba8') throw new Error('Missing RGBA decoder')
   expect(decoder.width).toBe(width)
   expect(decoder.height).toBe(height)
   const pixels = new Uint8Array(width * height * 4),

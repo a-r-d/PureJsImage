@@ -124,8 +124,7 @@ for (const color of colors)
           new MemorySource(bytes),
           defaultImageLimits,
         )
-        if (!decoder || decoder.pixelFormat !== 'rgbf32')
-          throw new Error('Missing linear float output')
+        if (decoder?.pixelFormat !== 'rgbf32') throw new Error('Missing linear float output')
         const scale = color.id === 'pq' ? metadata.toneMapping.intensityTarget / 203 : 1
         for await (const block of decoder.decode()) {
           const blockView = new DataView(

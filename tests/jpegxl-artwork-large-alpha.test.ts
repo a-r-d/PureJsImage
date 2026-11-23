@@ -55,12 +55,7 @@ it('preserves periodic four-color artwork and true alpha above one megapixel', a
       new MemorySource(sink.toUint8Array()),
       defaultImageLimits,
     )
-    if (
-      !decoder ||
-      decoder.pixelFormat !== 'rgba8' ||
-      decoder.width !== width ||
-      decoder.height !== height
-    )
+    if (decoder?.pixelFormat !== 'rgba8' || decoder.width !== width || decoder.height !== height)
       throw new Error('True-alpha artwork layout changed')
     const visited = new Uint8Array(width * height)
     let samples = 0,

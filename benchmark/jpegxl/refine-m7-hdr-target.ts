@@ -61,10 +61,10 @@ const load = async (
   fingerprints.set(id, fingerprint)
   if (!Array.isArray(report.results)) throw new Error('Missing HDR points')
   const point = report.results.map(record).find((p) => p.engine === engine)
-  if (!point || point.status !== 'measured' || !Array.isArray(point.displays))
+  if (point?.status !== 'measured' || !Array.isArray(point.displays))
     throw new Error('HDR point failed')
   const display = point.displays.map(record)[0]
-  if (!display || display.headroom !== 1) throw new Error('Missing headroom-1 display')
+  if (display?.headroom !== 1) throw new Error('Missing headroom-1 display')
   return {
     setting,
     bytes: finite(point.bytes),

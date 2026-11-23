@@ -144,7 +144,7 @@ output.set(
 await writeFile(`${directory}/embedded-preview.jxl`, output)
 await writeFile(
   `${directory}/provenance.json`,
-  JSON.stringify(
+  `${JSON.stringify(
     {
       encoderHash,
       orientationBitOffset: extraOffset + 1,
@@ -157,7 +157,7 @@ await writeFile(
     },
     null,
     2,
-  ) + '\n',
+  )}\n`,
 )
 console.log(
   await readJpegXlSourceFrameStructures(

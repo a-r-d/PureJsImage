@@ -1040,7 +1040,7 @@ export async function verifyM7EffortSevenAlpha() {
     await sink.write(part)
   const bytes = sink.toUint8Array()
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
-  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('Missing RGBA8 decoder')
+  if (decoder?.pixelFormat !== 'rgba8') throw new Error('Missing RGBA8 decoder')
   const decoded = new Uint8Array(pixels.length)
   for await (const block of decoder.decode()) {
     for (let y = 0; y < block.height; y++)
@@ -1186,7 +1186,7 @@ export async function verifyM7EffortSevenPq() {
   await encoder.finish()
   const bytes = sink.toUint8Array()
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
-  if (!decoder || decoder.pixelFormat !== 'rgbf32') throw new Error('Missing JPEG XL PQ decoder')
+  if (decoder?.pixelFormat !== 'rgbf32') throw new Error('Missing JPEG XL PQ decoder')
   const decoded: number[] = []
   for await (const block of decoder.decode()) {
     const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
@@ -1304,8 +1304,7 @@ export async function verifyM7ScalarPalettes(width: number, height: number) {
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits, {
     colorOutput: 'preserve',
   })
-  if (!decoder || decoder.pixelFormat !== 'rgb16')
-    throw new Error('Missing native scalar palette decoder')
+  if (decoder?.pixelFormat !== 'rgb16') throw new Error('Missing native scalar palette decoder')
   let rows = 0
   for await (const block of decoder.decode()) {
     for (let y = 0; y < block.height; y++) {
@@ -1491,12 +1490,7 @@ export const verifyJpegXlGroupedTransforms = async (
   const { MemorySource } = await import('../src/source.ts')
   const { defaultImageLimits } = await import('../src/limits.ts')
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
-  if (
-    !decoder ||
-    decoder.width !== 513 ||
-    decoder.height !== 259 ||
-    decoder.pixelFormat !== `rgb${depth}`
-  )
+  if (decoder?.width !== 513 || decoder.height !== 259 || decoder.pixelFormat !== `rgb${depth}`)
     throw new Error('Unexpected grouped Modular output')
   for (const region of [
     { x: 0, y: 0, width: 513, height: 259 },
@@ -1639,7 +1633,7 @@ export const verifyJpegXlGrayscaleExact = async (source: Uint8Array): Promise<bo
     new MemorySource(encoded.data),
     defaultImageLimits,
   )
-  if (!decoder || decoder.colorSemantics?.family !== 'gray') return false
+  if (decoder?.colorSemantics?.family !== 'gray') return false
   let decoded = 0
   for await (const block of decoder.decode()) {
     if (block.format !== 'gray8') return false
@@ -1694,7 +1688,7 @@ export const verifyLosslessPaletteRgba = async () => {
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits, {
     colorOutput: 'preserve',
   })
-  if (!decoder || decoder.pixelFormat !== 'rgba8') throw new Error('RGBA decode unavailable')
+  if (decoder?.pixelFormat !== 'rgba8') throw new Error('RGBA decode unavailable')
   let rows = 0
   for await (const block of decoder.decode()) {
     try {

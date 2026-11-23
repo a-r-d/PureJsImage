@@ -13,7 +13,7 @@ import {
   encodeJpegXlAnimation,
   type JpegXlAnimationInputFrame,
 } from '../../src/codecs/jpegxl-sequence-encode.ts'
-import { invalidInput, unsupportedOperation } from '../../src/errors.ts'
+import { unsupportedOperation } from '../../src/errors.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { MemorySource } from '../../src/source.ts'
 
@@ -24,11 +24,6 @@ const geometry = [
   { bits: 14, offset: 2304 },
   { bits: 30, offset: 18688 },
 ] as const
-const positive = (value: number, name: string, allowZero = false): void => {
-  if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))
-    throw invalidInput(`JPEG XL ${name} is invalid`)
-}
-
 const frameHeader = (
   frame: Readonly<JpegXlFrameStructure>,
   input: Readonly<JpegXlAnimationInputFrame>,

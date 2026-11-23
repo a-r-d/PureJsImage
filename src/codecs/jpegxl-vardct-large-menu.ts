@@ -125,6 +125,12 @@ const table = (strategy: number): readonly Float64Array[] =>
 const requireValue = (condition: boolean, message: string): void => {
   if (!condition) throw invalidJpegXlInput(message)
 }
+// Plane tuples have three channels (or two halves); a missing entry is an internal error.
+const channelPlane = <T>(planes: readonly T[], index: number): T => {
+  const plane = planes[index]
+  if (plane === undefined) throw invalidJpegXlInput('large-menu plane is missing')
+  return plane
+}
 
 function inverseSquare(
   coefficients: Float64Array,
@@ -467,19 +473,25 @@ export function* prepareJpegXlLargeMenus(
         for (let dy = 0; dy < 2; dy++)
           for (let dx = 0; dx < 2; dx++) {
             const planes = input.fill8(true, x + dx, y + dy)
-            for (let c = 0; c < 3; c++)
+            for (let c = 0; c < 3; c++) {
+              const raw = channelPlane(originalRaw, c)
               for (let py = 0; py < 8; py++)
                 for (let px = 0; px < 8; px++)
-                  originalRaw[c]![(dy * 8 + py) * 16 + dx * 8 + px] = planes[c]?.[py * 8 + px] ?? 0
+                  raw[(dy * 8 + py) * 16 + dx * 8 + px] = planes[c]?.[py * 8 + px] ?? 0
+            }
           }
         for (let c = 0; c < 3; c++)
-          forwardJpegXlDct16(originalRaw[c]!, originalScratch, originalTransformed[c]!)
+          forwardJpegXlDct16(
+            channelPlane(originalRaw, c),
+            originalScratch,
+            channelPlane(originalTransformed, c),
+          )
         return originalTransformed
       }
       const planes = input.fill8(true, x, y)
       for (let c = 0; c < 3; c++) {
-        const plane = planes[c]!,
-          output = smallTransformed[c]!
+        const plane = channelPlane(planes, c),
+          output = channelPlane(smallTransformed, c)
         if (strategy === 1) forwardJpegXlHornuss(plane, output)
         else if (strategy === 12 || strategy === 13)
           forwardJpegXlDctHalves(plane, smallIntermediate, output, strategy === 13)
@@ -514,7 +526,7 @@ export function* prepareJpegXlLargeMenus(
             y = Math.max(0, Math.min(high - 1, by + hy - 1)),
             inside = hx >= 1 && hx <= 4 && hy >= 1 && hy <= 4
           for (let c = 0; c < 3; c++)
-            halo[c]![hy * 6 + hx] =
+            channelPlane(halo, c)[hy * 6 + hx] =
               (replacement && inside
                 ? (replacement[c * 16 + (hy - 1) * 4 + hx - 1] ?? 0)
                 : (rawDc[c]?.[y * wide + x] ?? 0)) * (factors[c] ?? 0)
@@ -524,13 +536,13 @@ export function* prepareJpegXlLargeMenus(
         const side = 0.20345139757231578,
           corner = 0.0334829185968739,
           center = 1 - 4 * (side + corner)
-        for (let c = 0; c < 3; c++) smooth[c]!.set(halo[c]!)
+        for (let c = 0; c < 3; c++) channelPlane(smooth, c).set(channelPlane(halo, c))
         for (let y = 1; y < 5; y++)
           for (let x = 1; x < 5; x++) {
             const at = y * 6 + x
             let gap = 0.5
             for (let c = 0; c < 3; c++) {
-              const plane = halo[c]!,
+              const plane = channelPlane(halo, c),
                 value =
                   (plane[at] ?? 0) * center +
                   ((plane[at - 1] ?? 0) +
@@ -543,22 +555,22 @@ export function* prepareJpegXlLargeMenus(
                     (plane[at + 5] ?? 0) +
                     (plane[at + 7] ?? 0)) *
                     corner
-              smooth[c]![at] = value
+              channelPlane(smooth, c)[at] = value
               gap = Math.max(gap, Math.abs(((plane[at] ?? 0) - value) / (factors[c] ?? 1)))
             }
             const mix = Math.max(0, 3 - 4 * gap)
             for (let c = 0; c < 3; c++)
-              smooth[c]![at] =
+              channelPlane(smooth, c)[at] =
                 (halo[c]?.[at] ?? 0) + ((smooth[c]?.[at] ?? 0) - (halo[c]?.[at] ?? 0)) * mix
           }
-        for (let c = 0; c < 3; c++) halo[c]!.set(smooth[c]!)
+        for (let c = 0; c < 3; c++) channelPlane(halo, c).set(channelPlane(smooth, c))
       }
       for (let dy = 0; dy < 4; dy++)
         for (let dx = 0; dx < 4; dx++)
           if (bx + dx === 0 || by + dy === 0 || bx + dx === wide - 1 || by + dy === high - 1) {
             const at = (dy + 1) * 6 + dx + 1
             for (let c = 0; c < 3; c++)
-              halo[c]![at] =
+              channelPlane(halo, c)[at] =
                 (replacement
                   ? (replacement[c * 16 + dy * 4 + dx] ?? 0)
                   : (rawDc[c]?.[(by + dy) * wide + bx + dx] ?? 0)) * (factors[c] ?? 0)
@@ -592,7 +604,7 @@ export function* prepareJpegXlLargeMenus(
         for (let row = 0; row < rows; row++)
           for (let column = 0; column < 4; column++) {
             const p = row * 32 + column
-            coefficients[c]![p] = doubleScratch[c * 128 + p] ?? 0
+            channelPlane(coefficients, c)[p] = doubleScratch[c * 128 + p] ?? 0
           }
     }
     const physicalError = (
@@ -668,8 +680,8 @@ export function* prepareJpegXlLargeMenus(
               q = quantizationMap[index] ?? 0
             requireValue(q > 0, 'Invalid original large-menu quantizer')
             for (let c = 0; c < 3; c++) {
-              const coeff = coefficients[c]!,
-                matrix = table(strategy)[c]!
+              const coeff = channelPlane(coefficients, c),
+                matrix = channelPlane(table(strategy), c)
               coeff.fill(0)
               integers?.fill(0)
               let nonzero = 0
@@ -702,8 +714,9 @@ export function* prepareJpegXlLargeMenus(
                 coefficients[2][p] = (coefficients[2][p] ?? 0) + (1 + rb) * sy
               }
             for (let c = 0; c < 3; c++) {
-              const coeff = coefficients[c]!,
-                output = spatial[c]!
+              const coeff = channelPlane(coefficients, c),
+                output = channelPlane(spatial, c),
+                baselinePlane = channelPlane(baseline, c)
               if (strategy === 4) {
                 for (let iy = 0; iy < 2; iy++)
                   for (let ix = 0; ix < 2; ix++)
@@ -716,7 +729,7 @@ export function* prepareJpegXlLargeMenus(
               }
               for (let iy = 0; iy < n; iy++)
                 for (let ix = 0; ix < n; ix++)
-                  baseline[c]![(dy * 8 + iy) * 32 + dx * 8 + ix] = output[iy * n + ix] ?? 0
+                  baselinePlane[(dy * 8 + iy) * 32 + dx * 8 + ix] = output[iy * n + ix] ?? 0
             }
           }
         let weight = 0
@@ -741,18 +754,20 @@ export function* prepareJpegXlLargeMenus(
           for (let half = 0; half < 2; half++) {
             const ox = horizontal ? 0 : half * 2,
               oy = horizontal ? half * 2 : 0,
-              rawHalf = rawPair[half]!,
-              transformed = transformedPair[half]!
-            for (let c = 0; c < 3; c++)
+              rawHalf = channelPlane(rawPair, half),
+              transformed = channelPlane(transformedPair, half)
+            for (let c = 0; c < 3; c++) {
+              const raw = channelPlane(rawHalf, c)
               for (let y = 0; y < bh * 8; y++)
                 for (let x = 0; x < pixelWidth; x++) {
                   const at = (oy * 8 + y) * 32 + ox * 8 + x
-                  rawHalf[c]![y * pixelWidth + x] =
+                  raw[y * pixelWidth + x] =
                     (source[c]?.[at] ?? 0) - (c === 2 ? (source[1][at] ?? 0) : 0)
                 }
+            }
             for (let c = 0; c < 3; c++) {
-              const raw = rawHalf[c]!,
-                output = transformed[c]!
+              const raw = channelPlane(rawHalf, c),
+                output = channelPlane(transformed, c)
               forwardJpegXlRectangle32(raw, rectangleScratch, output, horizontal, c !== 1)
               quantizeJpegXlRectangle32Dc(output, factors[c] ?? 0, compactWords, 0, horizontal)
               for (let y = 0; y < bh; y++)
@@ -771,17 +786,17 @@ export function* prepareJpegXlLargeMenus(
           for (let half = 0; half < 2; half++) {
             const ox = horizontal ? 0 : half * 2,
               oy = horizontal ? half * 2 : 0,
-              transformed = transformedPair[half]!
+              transformed = channelPlane(transformedPair, half)
             for (let c = 0; c < 3; c++) {
+              const physical = channelPlane(physicalHalf, c)
               for (let y = 0; y < bh * 8; y++)
                 for (let x = 0; x < pixelWidth; x++)
-                  physicalHalf[c]![y * pixelWidth + x] =
-                    source[c]?.[(oy * 8 + y) * 32 + ox * 8 + x] ?? 0
+                  physical[y * pixelWidth + x] = source[c]?.[(oy * 8 + y) * 32 + ox * 8 + x] ?? 0
               forwardPhysical(
-                physicalHalf[c]!,
+                physical,
                 horizontal,
                 false,
-                sourceCoefficients[c]!,
+                channelPlane(sourceCoefficients, c),
                 doubleScratch,
                 smallBlock,
               )
@@ -790,16 +805,16 @@ export function* prepareJpegXlLargeMenus(
             resetActive(512)
             for (let position = 0; position < jpegXlLargeQuantizers.length; position++) {
               const qi = activePlanes ? jpegXlLargeQuantizers.length - 1 - position : position
-              const q = jpegXlLargeQuantizers[qi]!,
+              const q = jpegXlLargeQuantizers[qi] ?? 0,
                 at = orientation * 18 + half * 9 + qi
               let rate = 0
               for (let c = 0; c < 3; c++) {
-                const coeff = coefficients[c]!,
-                  matrix = defaultJpegXlRectangle32Dequantization[c]!,
+                const coeff = channelPlane(coefficients, c),
+                  matrix = channelPlane(defaultJpegXlRectangle32Dequantization, c),
                   scale = 65536 / globalScale / q
                 if (largeValues && input.quantizeAndReconstructLargeAc) {
                   const result = input.quantizeAndReconstructLargeAc(
-                    transformed[c]!,
+                    channelPlane(transformed, c),
                     matrix,
                     scale,
                     c,
@@ -815,7 +830,7 @@ export function* prepareJpegXlLargeMenus(
                 }
                 if (largeValues)
                   input.quantizeLargeAc?.(
-                    transformed[c]!,
+                    channelPlane(transformed, c),
                     matrix,
                     scale,
                     c,
@@ -855,12 +870,14 @@ export function* prepareJpegXlLargeMenus(
             }
           }
         }
-        for (let c = 0; c < 3; c++)
-          for (let p = 0; p < 1024; p++)
-            squareRaw[c]![p] = (source[c]?.[p] ?? 0) - (c === 2 ? (source[1][p] ?? 0) : 0)
         for (let c = 0; c < 3; c++) {
-          const raw = squareRaw[c]!,
-            output = squareTransformed[c]!
+          const raw = channelPlane(squareRaw, c)
+          for (let p = 0; p < 1024; p++)
+            raw[p] = (source[c]?.[p] ?? 0) - (c === 2 ? (source[1][p] ?? 0) : 0)
+        }
+        for (let c = 0; c < 3; c++) {
+          const raw = channelPlane(squareRaw, c),
+            output = channelPlane(squareTransformed, c)
           forwardJpegXlDct32(raw, forwardScratch, output, c !== 1)
           quantizeJpegXlDct32Dc(output, factors[c] ?? 0, compactWords, 0)
           dcWords.set(compactWords, c * 16)
@@ -870,10 +887,10 @@ export function* prepareJpegXlLargeMenus(
             forwardJpegXlDct32(raw, forwardScratch, output)
           }
           forwardPhysical(
-            source[c]!,
+            channelPlane(source, c),
             false,
             true,
-            sourceCoefficients[c]!,
+            channelPlane(sourceCoefficients, c),
             doubleScratch,
             smallBlock,
           )
@@ -885,16 +902,16 @@ export function* prepareJpegXlLargeMenus(
         resetActive(1024)
         for (let position = 0; position < jpegXlLargeQuantizers.length; position++) {
           const qi = activePlanes ? jpegXlLargeQuantizers.length - 1 - position : position
-          const q = jpegXlLargeQuantizers[qi]!,
+          const q = jpegXlLargeQuantizers[qi] ?? 0,
             at = 36 + qi
           let rate = 0
           for (let c = 0; c < 3; c++) {
-            const coeff = coefficients[c]!,
-              matrix = defaultJpegXlDct32Dequantization[c]!,
+            const coeff = channelPlane(coefficients, c),
+              matrix = channelPlane(defaultJpegXlDct32Dequantization, c),
               scale = 65536 / globalScale / q
             if (largeValues && input.quantizeAndReconstructLargeAc) {
               const result = input.quantizeAndReconstructLargeAc(
-                squareTransformed[c]!,
+                channelPlane(squareTransformed, c),
                 matrix,
                 scale,
                 c,
@@ -910,7 +927,7 @@ export function* prepareJpegXlLargeMenus(
             }
             if (largeValues)
               input.quantizeLargeAc?.(
-                squareTransformed[c]!,
+                channelPlane(squareTransformed, c),
                 matrix,
                 scale,
                 c,
@@ -977,7 +994,7 @@ export function* prepareJpegXlLargeMenus(
         const scale = 65536 / globalScale / q
         for (let c = 0; c < 3; c++) {
           let nonzero = 0
-          const matrix = table(strategy)[c]!
+          const matrix = channelPlane(table(strategy), c)
           for (let p = 0; p < count; p++)
             if (!isLf(p, strategy)) {
               const value = input.quantizeAc(
