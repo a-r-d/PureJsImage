@@ -671,8 +671,10 @@ const parsePng = async (
     colorTransform = cicpColorTransform(signaledCicp, rawColorType)
   } else if (iccProfile) {
     if (rawColorType === 0 && !hasAlpha) grayTransform = parseGrayIccTransform(iccProfile)
-    // Gray with alpha or tRNS decodes to RGBA with equal color samples.
-    else if (rawColorType === 0 || rawColorType === 4)
+    // Gray with alpha or tRNS decodes to RGBA with equal color samples. A GRAY profile applies its
+    // curve to them. An RGB profile, which libpng warns about and browsers accept, converts them
+    // as RGB.
+    else if ((rawColorType === 0 || rawColorType === 4) && isGrayProfile(iccProfile))
       colorTransform = parseGrayIccAsRgbTransform(iccProfile)
     else colorTransform = parseRgbIccTransform(iccProfile)
   } else if (!foundSrgb && gamma !== undefined) {
@@ -1895,6 +1897,9 @@ const createPngEncoder = async (
  * 16-bit ICC profiles and cHRM plus gAMA convert to sRGB like 8-bit samples. 16-bit gAMA-only,
  * sRGB and cICP samples keep their native values and color signal.
  */
+const isGrayProfile = (profile: Uint8Array): boolean =>
+  String.fromCharCode(...profile.subarray(16, 20)) === 'GRAY'
+
 const deepPngColorTransform = (description: PngDescription): DeepColorTransform | undefined => {
   const gray = description.colorType === 0 && !description.hasAlpha
   const signal = description.colorSignal.kind
@@ -1904,7 +1909,8 @@ const deepPngColorTransform = (description: PngDescription): DeepColorTransform 
       : {
           kind: 'rgb',
           transform:
-            description.colorType === 0 || description.colorType === 4
+            (description.colorType === 0 || description.colorType === 4) &&
+            isGrayProfile(description.iccProfile)
               ? parseGrayIccAsRgbTransform(description.iccProfile, 65_536)
               : parseRgbIccTransform16(description.iccProfile),
         }

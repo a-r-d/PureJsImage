@@ -86,6 +86,35 @@ export const adobeRgbProfile = (): Uint8Array =>
     563 / 256,
   )
 
+/** ProPhoto (ROMM) RGB: a 1.8 gamma and a green primary outside the spectral locus. */
+export const proPhotoRgbProfile = (): Uint8Array =>
+  matrixRgbProfile(
+    [0.7976685, 0.2880402, 0],
+    [0.1351929, 0.7118835, 0.0000305],
+    [0.0313416, 0.0000916, 0.8249054],
+    1.8,
+  )
+
+/** A GRAY profile with one gamma kTRC curve and the given connection space. */
+export const grayGammaProfile = (pcs: 'XYZ ' | 'Lab ', gamma: number): Uint8Array => {
+  const curveOffset = 128 + 4 + 12
+  const profile = new Uint8Array(curveOffset + 14)
+  const view = new DataView(profile.buffer)
+  writeUint32(view, 0, profile.byteLength)
+  writeSignature(profile, 12, 'mntr')
+  writeSignature(profile, 16, 'GRAY')
+  writeSignature(profile, 20, pcs)
+  writeSignature(profile, 36, 'acsp')
+  writeUint32(view, 128, 1)
+  writeSignature(profile, 132, 'kTRC')
+  writeUint32(view, 136, curveOffset)
+  writeUint32(view, 140, 14)
+  writeSignature(profile, curveOffset, 'curv')
+  writeUint32(view, curveOffset + 8, 1)
+  writeUint16(view, curveOffset + 12, Math.round(gamma * 256))
+  return profile
+}
+
 export const displayP3RgbProfile = (): Uint8Array =>
   matrixRgbProfile(
     [0.515075, 0.24117, -0.001049],

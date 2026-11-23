@@ -389,10 +389,15 @@ All notable changes to PureJsImage are documented in this file.
   custom primaries such as Adobe RGB, with an sRGB, BT.709, linear or gamma curve. Lossless output
   also writes that description when a gray profile sits on gray samples decoded as RGB, or when
   float or gray-with-alpha samples exceed the native writer's working budget. Other profiles,
-  such as LUT profiles, still need lossless output. The PNG decoder now reports
+  such as LUT profiles and ProPhoto RGB, whose green primary lies outside the spectral locus,
+  still need lossless output. The PNG decoder now reports
   `icc.relevance: 'emitted-pixels'` for samples it leaves in the embedded profile.
 - Decode grayscale JPEGs and gray-with-alpha PNGs that carry a GRAY ICC profile. They failed to
   open before unless `keepIcc()` kept the profile.
+- Read the curve of a GRAY ICC profile with a Lab connection space as L*, as the ICC
+  specification defines. Gray PNG and JPEG XL decoding treated it as linear Y, so such images
+  came out too light: sample 128 under a gamma 1.0 curve became 188 instead of the 119
+  that LittleCMS gives.
 - Move a kept Exif orientation into the JPEG XL header and record 1 in the Exif box, as libjxl
   does. `keepExif().jpegxl()` on a photo with an Exif orientation failed before.
 - Convert 16-bit PNGs with an iCCP profile, or with cHRM and gAMA, to 16-bit sRGB like 8-bit

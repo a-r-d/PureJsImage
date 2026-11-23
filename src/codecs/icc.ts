@@ -704,6 +704,10 @@ export const structuredIccColor = (
     const standard = standardPrimaries.find(([, expected]) =>
       expected.every((value, index) => Math.abs(value - (coordinates[index] ?? 0)) <= 0.002),
     )
+    // Structured color matrices need real primaries. ProPhoto RGB's green, for example, lies
+    // outside the spectral locus, so only an exact copy of the profile describes it.
+    if (!standard && points.some((point) => point.x < 0 || point.y <= 0 || point.x + point.y > 1))
+      return undefined
     return standard
       ? { family: 'rgb', primaries: standard[0], transfer }
       : {
@@ -1327,14 +1331,28 @@ export const parseRgbIccTransform16 = (profile: Uint8Array): RgbIccTransform => 
   return rgbTransform(profile, allTags, pcs, 65_536)
 }
 
+/**
+ * A GRAY profile's curve gives linear Y with an XYZ connection space, and L* scaled to 0 to 1
+ * with a Lab connection space.
+ */
+const grayCurveLinear = (value: number, lab: boolean): number => {
+  if (!lab) return value
+  const lightness = Math.max(0, Math.min(1, value)) * 100
+  return lightness > 8 ? ((lightness + 16) / 116) ** 3 : (lightness * 27) / 24_389
+}
+
 export const parseGrayIccTransform16 = (profile: Uint8Array): Uint16Array => {
   const { allTags } = validatedProfile(profile)
   if (signature(profile, 16) !== 'GRAY')
     throw invalidInput('Embedded ICC profile must use grayscale input')
   const curve = requiredTag(allTags, 'kTRC')
+  const lab = signature(profile, 20) === 'Lab '
   return Uint16Array.from({ length: 65_536 }, (_, value) =>
     Math.round(
-      Math.max(0, Math.min(1, linearToSrgb(curveValue(profile, curve, value / 65_535)))) * 65_535,
+      Math.max(
+        0,
+        Math.min(1, linearToSrgb(grayCurveLinear(curveValue(profile, curve, value / 65_535), lab))),
+      ) * 65_535,
     ),
   )
 }
@@ -1369,7 +1387,10 @@ export const parseGrayIccAsRgbTransform = (profile: Uint8Array, entries = 256): 
     throw invalidInput('Embedded ICC profile must use grayscale input')
   const pcs = signature(profile, 20)
   if (pcs !== 'Lab ' && pcs !== 'XYZ ') throw invalidInput(`ICC PCS ${pcs} is unsupported`)
-  const curve = curveLut(profile, requiredTag(allTags, 'kTRC'), entries)
+  const tag = requiredTag(allTags, 'kTRC')
+  const curve = Float32Array.from({ length: entries }, (_, value) =>
+    grayCurveLinear(curveValue(profile, tag, value / (entries - 1)), pcs === 'Lab '),
+  )
   return transformFromMatrixAndCurves(
     Float64Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1),
     curve,
@@ -1384,9 +1405,10 @@ export const parseGrayIccTransform = (profile: Uint8Array): Uint8Array => {
     throw invalidInput('Embedded ICC profile must use the grayscale input color space')
   }
   const curve = requiredTag(allTags, 'kTRC')
+  const lab = signature(profile, 20) === 'Lab '
   const encode = srgbEncodeLut()
   return Uint8Array.from({ length: 256 }, (_, value) =>
-    encodeLinear(curveValue(profile, curve, value / 255), encode),
+    encodeLinear(grayCurveLinear(curveValue(profile, curve, value / 255), lab), encode),
   )
 }
 

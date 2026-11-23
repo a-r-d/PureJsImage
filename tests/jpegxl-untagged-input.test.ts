@@ -24,7 +24,12 @@ import {
   untaggedPng,
   verifyJpegXlInputColor,
 } from './helpers/jpegxl-untagged-input.ts'
-import { adobeRgbProfile, displayP3RgbProfile, rgbLegacyLutProfile } from './icc-fixtures.ts'
+import {
+  adobeRgbProfile,
+  displayP3RgbProfile,
+  proPhotoRgbProfile,
+  rgbLegacyLutProfile,
+} from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const concat = (parts: readonly Uint8Array[]): Uint8Array => {
@@ -213,6 +218,39 @@ it('writes the equal structured color for lossy keepIcc() output', async () => {
     code: 'UNSUPPORTED_OPERATION',
     message: expect.stringContaining('lossless'),
   })
+})
+
+it('keeps a ProPhoto RGB profile only in lossless keepIcc() output', async () => {
+  // ProPhoto's green primary lies outside the spectral locus, so no structured color equals it.
+  const profile = proPhotoRgbProfile()
+  expect(structuredIccColor(profile)).toBeUndefined()
+  const jpeg = await (await Image.open(smoothPng(32, 24))).jpeg({ quality: 95 }).toUint8Array()
+  const input = jpegWithIcc(jpeg, profile)
+  await expect(
+    (await Image.open(input))
+      .keepIcc()
+      .jpegxl({ mode: 'lossy', effort: 7, distance: 1 })
+      .toUint8Array(),
+  ).rejects.toMatchObject({
+    code: 'UNSUPPORTED_OPERATION',
+    message: expect.stringContaining('lossless'),
+  })
+  // Without keepIcc() the decoder converts to sRGB, and lossy output works.
+  await expect(
+    (await Image.open(input)).jpegxl({ mode: 'lossy', effort: 7, distance: 1 }).toUint8Array(),
+  ).resolves.toBeInstanceOf(Uint8Array)
+  const encoded = Uint8Array.from(
+    await (await Image.open(input)).keepIcc().jpegxl({ effort: 3 }).toUint8Array(),
+  )
+  const kept = await jpegxlCodec.preservedMetadata?.(
+    new MemorySource(encoded),
+    defaultImageLimits,
+    {
+      exif: false,
+      icc: true,
+    },
+  )
+  expect(kept?.icc).toEqual(profile)
 })
 
 it('keeps the exact profile in lossless keepIcc() output under a small working limit', async () => {

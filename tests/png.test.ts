@@ -6,7 +6,7 @@ import { PNG } from 'pngjs'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { crc32 } from '../src/codecs/crc32.ts'
-import { displayP3RgbProfile } from './icc-fixtures.ts'
+import { adobeRgbProfile, displayP3RgbProfile, grayGammaProfile } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
 const temporaryDirectories: string[] = []
@@ -150,6 +150,129 @@ describe('PNG pixel pipeline', () => {
           Math.abs((rgba[pixel * 4 + channel] ?? 0) - (reference[pixel * 4] ?? 0)),
         ).toBeLessThanOrEqual(1)
       expect(rgba[pixel * 4 + 3]).toBe([255, 200, 100, 10][pixel])
+    }
+  })
+
+  it('converts gray-with-alpha and gray-tRNS samples as RGB under an RGB iCCP profile', async () => {
+    // libpng warns about an RGB profile on gray samples, but browsers and 0.17.0 accept it when
+    // the samples decode to RGBA. Each must match the same samples stored as RGBA.
+    const iccp = pngChunk(
+      'iCCP',
+      Buffer.concat([
+        Buffer.from('Adobe\0', 'latin1'),
+        Buffer.from([0]),
+        deflateSync(adobeRgbProfile()),
+      ]),
+    )
+    const gray = [0, 64, 128, 255]
+    const alpha = [255, 200, 100, 0]
+    const pam = async (png: Uint8Array): Promise<Buffer> =>
+      Buffer.from(await (await Image.open(png)).pam().toUint8Array())
+    const rgba8 = specializedPng(
+      4,
+      1,
+      8,
+      6,
+      Uint8Array.of(0, ...gray.flatMap((value, index) => [value, value, value, alpha[index] ?? 0])),
+      undefined,
+      [iccp],
+    )
+    const grayAlpha8 = specializedPng(
+      4,
+      1,
+      8,
+      4,
+      Uint8Array.of(0, ...gray.flatMap((value, index) => [value, alpha[index] ?? 0])),
+      undefined,
+      [iccp],
+    )
+    expect(await pam(grayAlpha8)).toEqual(await pam(rgba8))
+
+    const keyed = [255, 0, 255, 255]
+    const rgbaKeyed = specializedPng(
+      4,
+      1,
+      8,
+      6,
+      Uint8Array.of(0, ...gray.flatMap((value, index) => [value, value, value, keyed[index] ?? 0])),
+      undefined,
+      [iccp],
+    )
+    const grayTrns = specializedPng(4, 1, 8, 0, Uint8Array.of(0, ...gray), undefined, [
+      iccp,
+      pngChunk('tRNS', Uint8Array.of(0, 64)),
+    ])
+    expect(await pam(grayTrns)).toEqual(await pam(rgbaKeyed))
+
+    const wide = gray.map((value) => value * 257 + 3)
+    const rgba16 = specializedPng(
+      4,
+      1,
+      16,
+      6,
+      Uint8Array.of(
+        0,
+        ...wide.flatMap((value, index) => [
+          value >> 8,
+          value & 255,
+          value >> 8,
+          value & 255,
+          value >> 8,
+          value & 255,
+          alpha[index] ?? 0,
+          0,
+        ]),
+      ),
+      undefined,
+      [iccp],
+    )
+    const grayAlpha16 = specializedPng(
+      4,
+      1,
+      16,
+      4,
+      Uint8Array.of(
+        0,
+        ...wide.flatMap((value, index) => [value >> 8, value & 255, alpha[index] ?? 0, 0]),
+      ),
+      undefined,
+      [iccp],
+    )
+    expect(await pam(grayAlpha16)).toEqual(await pam(rgba16))
+  })
+
+  it('reads a Lab connection-space GRAY curve as L* rather than linear Y', async () => {
+    const iccp = (profile: Uint8Array): Buffer =>
+      pngChunk(
+        'iCCP',
+        Buffer.concat([Buffer.from('Gray\0', 'latin1'), Buffer.from([0]), deflateSync(profile)]),
+      )
+    // LittleCMS 2.17 maps sample 128 through a gamma 1.0 kTRC to sRGB 119 with a Lab PCS
+    // (L* 50.2 is Y 0.186) and to 188 with an XYZ PCS (Y 0.502).
+    for (const [pcs, expected] of [
+      ['Lab ', 119],
+      ['XYZ ', 188],
+    ] as const) {
+      const profile = grayGammaProfile(pcs, 1)
+      const opaque = specializedPng(1, 1, 8, 0, Uint8Array.of(0, 128), undefined, [iccp(profile)])
+      expect(
+        Array.from(unfilteredSinglePngRow(await (await Image.open(opaque)).png().toBuffer(), 1)),
+      ).toEqual([expected])
+      const withAlpha = specializedPng(1, 1, 8, 4, Uint8Array.of(0, 128, 255), undefined, [
+        iccp(profile),
+      ])
+      expect(
+        Array.from(unfilteredSinglePngRow(await (await Image.open(withAlpha)).png().toBuffer(), 4)),
+      ).toEqual([expected, expected, expected, 255])
+      const deep = specializedPng(1, 1, 16, 0, Uint8Array.of(0, 128, 128), undefined, [
+        iccp(profile),
+      ])
+      const deepPam = await (await Image.open(deep)).pam().toUint8Array()
+      const sample = new DataView(deepPam.buffer, deepPam.byteOffset).getUint16(
+        deepPam.byteLength - 2,
+        false,
+      )
+      expect(Math.abs(sample / 257 - expected)).toBeLessThan(0.6)
     }
   })
 
