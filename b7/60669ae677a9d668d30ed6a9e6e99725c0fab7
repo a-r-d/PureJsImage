@@ -1,0 +1,157 @@
+src/codecs/jpegxl-decode.ts
+  s_fb44c3e6b9dfb0::t_df017949a71747 1026-1029
+src/codecs/jpegxl-sequence.ts
+  s_fb44c3e6b9dfb0::t_7f810869d81d76 462-464,850-852
+  s_fb44c3e6b9dfb0::t_df017949a71747 486,524
+  s_fb44c3e6b9dfb0::t_eba244c790d317 469,896-898,900,909
+  s_fb44c3e6b9dfb0::t_b9675813b13371 492
+  s_fb44c3e6b9dfb0::t_c63aa6616abb53 470
+benchmark/jpegxl/verify-m7-local-contrast.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 9
+tests/helpers/jpegxl-group-contexts.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 140
+benchmark/jpegxl/evaluate-m7-hdr-development.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 160
+  s_fb44c3e6b9dfb0::t_551b2d4352205d 255
+  s_fb44c3e6b9dfb0::t_3901665973e34b 36
+benchmark/jpegxl/measure-m7-native-curve.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 55,65,70,79
+benchmark/jpegxl/run-m7-hdr-development.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 18,30
+benchmark/jpegxl/generate-remediation-fixtures.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 232,246
+benchmark/jpegxl/generate-m8-weighted-patches.ts
+  s_fb44c3e6b9dfb0::t_eba244c790d317 220-222,227
+  s_fb44c3e6b9dfb0::t_df017949a71747 201
+tests/jpegxl-tree-entropy.test.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 65
+benchmark/jpegxl/verify-m8-raw.ts
+  s_fb44c3e6b9dfb0::t_df017949a71747 36-39
+  s_fb44c3e6b9dfb0::t_3901665973e34b 35,57
+  s_fb44c3e6b9dfb0::t_eba244c790d317 74-76
+benchmark/jpegxl/run-m6-native-measurements.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 23,33
+benchmark/jpegxl/production-program/build-m6-report.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 56
+src/codecs/jpegxl-vardct-render.ts
+  s_fb44c3e6b9dfb0::t_b9675813b13371 1290,1296-1299,1309,1319-1323,1325-1328,1339-1343,1345-1348
+  s_fb44c3e6b9dfb0::t_7f810869d81d76 697,703-706,1436,1492-1496,1498-1502,1504-1508,1510-1514,1521-1525,1528-1532,1535-1539,1575-1577,1579-1581,1585-1587,1593-1595,1750-1752,1758-1760,1766-1768,1774-1776,1782-1785,1789-1792,1796-1799,2005-2007,2021-2025,2031-2034,2043-2045
+  s_fb44c3e6b9dfb0::t_dbbaa9391ddb01 1275-1276,1426,1880,1939,2134-2136,4586-4588,4592-4593,5134-5139,5166-5174,5359-5361
+  s_fb44c3e6b9dfb0::t_df017949a71747 698-701,732-734,1291-1294,1310-1316,1478-1480,2042,4556
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_3b80b0fea2fb8e 15-16
+benchmark/jpegxl/run-m3-performance.ts
+  s_fb44c3e6b9dfb0::t_eba244c790d317 119-121
+tests/jpegxl-session.test.ts
+  s_fb44c3e6b9dfb0::t_5b29da9187c8c9 175
+src/codecs/jpegxl-jpeg-encode.ts
+  s_fb44c3e6b9dfb0::t_551b2d4352205d 1428
+  s_fb44c3e6b9dfb0::t_3901665973e34b 1655,1773
+benchmark/jpegxl/verify-m7-forward-alpha.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 111,120
+benchmark/jpegxl/verify-m7-scalar-boundaries.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 99,116
+benchmark/jpegxl/inspect-m7-expansion.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 94,103
+benchmark/jpegxl/generate-m6-grouped-dc.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 98,112
+  s_fb44c3e6b9dfb0::t_3901665973e34b 50
+docs-astro/src/pages/jpeg-xl/comparison.astro
+  s_fb44c3e6b9dfb0::t_3901665973e34b 97
+benchmark/jpegxl/run-m3-common-static-corpus.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 439
+benchmark/jpegxl/production-program/freeze-m7-expansion.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 119,133
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_28d0a9f04201ec 109-111,129
+benchmark/jpegxl/comparison/profile-lossy-sections.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 59
+src/codecs/jpegxl-errors.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 2
+benchmark/jpegxl/generate-modular-dc-alpha-fixtures.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 80
+src/codecs/jpegxl-chroma.ts
+  s_fb44c3e6b9dfb0::t_7f810869d81d76 40,57,71-74
+benchmark/jpegxl/prepare-m7-expansion.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 93,160,170
+benchmark/jpegxl/verify-m7-grouped.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 186
+benchmark/jpegxl/inspect-m7-corpus.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 47
+browser-tests/jpegxl-pipeline.pw.ts
+  s_fb44c3e6b9dfb0::t_28984d17e9605c 264-284
+benchmark/jpegxl/production-program/verify-m4-memory.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 36
+README.md
+  s_fb44c3e6b9dfb0::t_8afe94b3cae286 497
+  s_fb44c3e6b9dfb0::t_28d0a9f04201ec 478
+benchmark/jpegxl/generate-m6-preview.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 147,160
+tests/jpegxl-artwork-large-alpha.test.ts
+  s_fb44c3e6b9dfb0::t_28984d17e9605c 58
+src/codecs/hevc-picture.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 221
+tests/jpegxl-flat-palette.test.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 66
+benchmark/jpegxl/production-program/freeze-m7-corpus.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 105,118
+src/codecs/jpegxl-native-encode.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 347
+benchmark/jpegxl/generate-m8-custom-filters.ts
+  s_fb44c3e6b9dfb0::t_5b29da9187c8c9 16
+benchmark/jpegxl/verify-m8-timing.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 95
+tests/helpers/jpegxl-opaque-gradients.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 47
+docs-astro/src/styles/global.css
+  s_fb44c3e6b9dfb0::t_40a7f7cd1e9571 1471-1475,6114
+src/codecs/jpegxl-modular-encode.ts
+  s_fb44c3e6b9dfb0::t_eba244c790d317 5442-5445,5453-5454,5456,5493-5494
+  s_fb44c3e6b9dfb0::t_df017949a71747 5364
+benchmark/jpegxl/verify-m7-forward.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 140,149
+src/codecs/jpegxl-vardct-large-menu.ts
+  s_fb44c3e6b9dfb0::t_312563f26b8e79 128-133,476-477,480-481,484-488,493-494,529,539,545,558,563,566,573,607,683-684,717-719,732,757-760,764,767,769-770,789,791,794,796,799,812-813,817,833,873-874,876-877,879-880,890,893,909-910,914,930,997
+  s_fb44c3e6b9dfb0::t_df017949a71747 808,905
+scripts/bundle-size-budgets.ts
+  s_fb44c3e6b9dfb0::t_22aa5135a1abf9 23-25,27
+biome.json
+  s_fb44c3e6b9dfb0::t_9ff7cf6638e6a9 14-28
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_8afe94b3cae286 179,566,571,574,577,1384,1387,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/verify-m7-forward-color.ts
+  s_fb44c3e6b9dfb0::t_551b2d4352205d 127
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_8afe94b3cae286 179,566,571,574,577,1384,1387,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/refine-m7-hdr-target.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 64,67
+benchmark/jpegxl/measure-m6-session.ts
+  s_fb44c3e6b9dfb0::t_6b9238d44ea14a 9
+src/codecs/jpegxl-patch-blend.ts
+  s_fb44c3e6b9dfb0::t_df017949a71747 42
+src/codecs/jpegxl-session.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 129
+tests/helpers/jpegxl-flat-palette.ts
+  s_fb44c3e6b9dfb0::t_28984d17e9605c 81
+benchmark/jpegxl/verify-m6-native.ts
+  s_fb44c3e6b9dfb0::t_21e4bbe8728466 142,152
+browser-tests/jpegxl-pipeline-harness.ts
+  s_fb44c3e6b9dfb0::t_3901665973e34b 1043,1189,1636,1691
+  s_fb44c3e6b9dfb0::t_28984d17e9605c 1307,1493
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b760669ae677a9d668d30ed6a9e6e99725c0fab7",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
