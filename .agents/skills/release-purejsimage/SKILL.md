@@ -42,10 +42,14 @@ Run every mandatory gate from a clean install:
 
 ```sh
 npm ci
-npm run check
+npm run check:full
 npm run fuzz:release
 npm pack --dry-run --json
 ```
+
+`npm run check:full` runs `npm run check` and the slow test tier. Also run
+`npm run browser:test:full` when the release changes browser-reachable code; CI runs it on the
+release commit in any case.
 
 Also:
 
@@ -55,7 +59,7 @@ Also:
    codec. Record its seed and case count.
 2. If the campaign writes a raw-exception reproducer under `artifacts/fuzz-crashes`, stop the
    release. Minimize and deduplicate the input, add its exact bytes to `tests/fuzz-regressions`, fix
-   the error normalization, and rerun both `npm run check` and `npm run fuzz:release`.
+   the error normalization, and rerun both `npm run check:full` and `npm run fuzz:release`.
 3. Run the narrowest relevant fixture verifiers and benchmarks for codec, fixture, or performance
    changes. Validate output correctness before accepting timing results.
 4. Confirm `package.json` has no `dependencies`, `optionalDependencies`, or bundled runtime

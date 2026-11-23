@@ -113,17 +113,22 @@ describe('JPEG XL bounded scalar palettes', () => {
   it.each([
     [1025, 17],
     [1, 1031],
-  ])('decodes historical and current grouped fixture %ix%i', async (width, height) => {
-    const fixture = new Uint8Array(
-      await readFile(
-        new URL(`./fixtures/jpegxl/m7-scalar-palettes/${width}x${height}.jxl`, import.meta.url),
-      ),
-    )
-    const run = await prepare(width, height)
-    await run.encoder.finish()
-    await exact(run.sink.toUint8Array(), run.pixels, width, height)
-    await exact(fixture, run.pixels, width, height)
-  })
+  ])(
+    'decodes historical and current grouped fixture %ix%i',
+    async (width, height) => {
+      const fixture = new Uint8Array(
+        await readFile(
+          new URL(`./fixtures/jpegxl/m7-scalar-palettes/${width}x${height}.jxl`, import.meta.url),
+        ),
+      )
+      const run = await prepare(width, height)
+      await run.encoder.finish()
+      await exact(run.sink.toUint8Array(), run.pixels, width, height)
+      await exact(fixture, run.pixels, width, height)
+      // About 4.7 s under parallel load, close to the 5 s default.
+    },
+    30_000,
+  )
 
   it.each([1023, 1024, 1025, 2051])(
     'preserves sparse RGB16 values and partial groups at width %i',

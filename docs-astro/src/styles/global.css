@@ -8090,10 +8090,14 @@ tr:last-child td {
 }
 
 @media (max-width: 820px) {
-  .wsi-hero-grid,
   .wsi-flow,
   .wsi-tradeoff {
     grid-template-columns: 1fr;
+  }
+
+  /* A plain 1fr track grows to the no-wrap claim text, which overflows phones with wider fonts. */
+  .wsi-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .wsi-flow > i {
@@ -8128,7 +8132,7 @@ tr:last-child td {
   }
 
   :is(.ome-zarr-page, .svs-wsi-page) .wsi-hero-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
 
@@ -8255,6 +8259,7 @@ tr:last-child td {
   }
 
   .ome-zarr-page .wsi-hero .eyebrow {
+    max-width: 100%;
     overflow: hidden;
     font-size: 0.61rem;
     letter-spacing: 0.055em;
@@ -8282,7 +8287,7 @@ tr:last-child td {
 
   .ome-zarr-page .wsi-claim-card {
     height: 52px;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, auto);
     grid-template-rows: minmax(0, 1fr);
     gap: 10px;
     align-items: center;
@@ -8305,6 +8310,7 @@ tr:last-child td {
     padding: 0;
     border: 0;
     text-align: right;
+    text-overflow: ellipsis;
   }
 
   .ome-zarr-page .wsi-claim-card .wsi-metadata-summary {

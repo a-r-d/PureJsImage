@@ -1,10 +1,21 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const port = Number(process.env.PUREJSIMAGE_BROWSER_PORT ?? '4173')
+// Heavy JPEG XL parity files repeat long encoder searches in every browser. Local runs keep them
+// in Chromium; CI and `npm run browser:test:full` run them in Firefox and WebKit too.
+const fullBrowserRun = Boolean(process.env.CI) || process.env.PUREJSIMAGE_BROWSER_FULL === '1'
 const nonChromiumTestIgnore = [
   '**/benchmark.pw.ts',
   '**/scientific-competitors.pw.ts',
   '**/viewer-benchmarks.pw.ts',
+  ...(fullBrowserRun
+    ? []
+    : [
+        '**/jpegxl-pipeline.pw.ts',
+        '**/jpegxl-luma-contexts.pw.ts',
+        '**/jpegxl-cone-selection.pw.ts',
+        '**/jpegxl-fine-selection.pw.ts',
+      ]),
 ]
 
 export default defineConfig({

@@ -2,7 +2,10 @@
 
 ## Before handing off changes
 
-- Run `npm run check`.
+- Run `npm run check`. It runs the fast test tier.
+- When changing JPEG XL encoder, ICC, or color code, also run `npm run test:slow`, or run
+  `npm run check:full` for both. The slow tier holds the exhaustive JPEG XL encoder searches listed
+  in `vitest.config.ts`. CI runs both tiers on every push.
 - Run the narrowest relevant benchmark or fixture verification when changing benchmark code.
 - Keep every implementation and test dependency in `devDependencies`. The published package must have
   no runtime dependency tree.
@@ -108,8 +111,9 @@
   portability work must not replace a bounded Node path with a generic full-frame implementation.
 - For changes to public APIs, codecs, transforms, compression, sources, sinks, packaging, or runtime
   adapters, run `npm run browser:check` and add focused browser coverage. Changes to browser runtime
-  behavior must also be exercised in a real modern browser, while `npm run check` remains the full
-  handoff gate.
+  behavior must also be exercised in a real modern browser, while `npm run check` remains the
+  handoff gate. `npm run browser:test` runs the heavy JPEG XL parity files in Chromium only; run
+  `npm run browser:test:full` to cover them in Firefox and WebKit as CI does.
 
 ## Lambda memory northstar
 

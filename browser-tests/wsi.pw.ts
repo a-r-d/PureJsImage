@@ -6,7 +6,11 @@ test('streams, draws, measures, caches, cancels, and resets native SVS tiles', a
     const url = new URL(request.url())
     if (url.hostname !== '127.0.0.1') externalRequests.push(request.url())
   })
-  await page.goto('/wsi/?url=/fixtures/aperio-cmu-1-small-region.svs%3FrangeDelay%3D200')
+  // The test server holds this slide's range reads until the opening state has been checked.
+  const gate = `wsi-open-${test.info().repeatEachIndex}-${test.info().retry}-${Date.now()}`
+  await page.goto(
+    `/wsi/?url=/fixtures/aperio-cmu-1-small-region.svs%3FrangeDelay%3D200%26rangeGate%3D${gate}`,
+  )
   await page.waitForFunction(() => window.pureJsImageWsiReady === true)
 
   const implementationCode = page.locator('#wsi-implementation-code')
@@ -21,6 +25,7 @@ test('streams, draws, measures, caches, cancels, and resets native SVS tiles', a
   await expect(page.locator('#wsi-loading-title')).toContainText('Opening whole-slide image')
   await expect(page.locator('#wsi-canvas-wrap')).toHaveAttribute('aria-busy', 'true')
   await expect(page.locator('#wsi-open')).toBeDisabled()
+  expect((await page.request.get(`/__release-range-gate?gate=${gate}`)).status()).toBe(204)
 
   await expect(async () => {
     const status = await page.locator('#wsi-status').textContent()

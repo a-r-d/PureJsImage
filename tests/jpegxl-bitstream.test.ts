@@ -73,7 +73,8 @@ describe('JPEG XL entropy decoding', () => {
           expect(reader.readBits(1)).toBe(((bytes[bit >>> 3] ?? 0) >>> (bit & 7)) & 1)
         expect(reader.readBits(8)).toBe(173)
       }
-  })
+    // About 4.6 s of per-bit assertions under parallel load, close to the 5 s default.
+  }, 30_000)
 
   it('rejects invalid or oversized entropy extents before mutating the section', () => {
     const writer = new JpegXlBitWriter(undefined, 2)

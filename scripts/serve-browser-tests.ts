@@ -877,10 +877,40 @@ const contentTypes: Readonly<Record<string, string>> = {
   '.webp': 'image/webp',
 }
 
+// Test-only gates hold tagged range responses until a test releases them, so a test can check
+// a loading state without racing the network. A gate nobody releases opens after 30 seconds.
+const rangeGateId = /^[a-z0-9-]{1,64}$/u
+const rangeGates = new Map<string, Promise<void>>()
+const rangeGateReleases = new Map<string, () => void>()
+const rangeGate = (id: string): Promise<void> => {
+  const existing = rangeGates.get(id)
+  if (existing) return existing
+  const gate = new Promise<void>((resolveGate) => {
+    const timer = setTimeout(resolveGate, 30_000)
+    rangeGateReleases.set(id, () => {
+      clearTimeout(timer)
+      resolveGate()
+    })
+  })
+  rangeGates.set(id, gate)
+  return gate
+}
+
 const server = createServer(async (request, response) => {
   try {
     const requestUrl = new URL(request.url ?? '/', `http://127.0.0.1:${port}`)
     const pathname = requestUrl.pathname
+    if (pathname === '/__release-range-gate') {
+      const id = requestUrl.searchParams.get('gate') ?? ''
+      if (!rangeGateId.test(id)) {
+        response.writeHead(400).end('Invalid range gate')
+        return
+      }
+      void rangeGate(id)
+      rangeGateReleases.get(id)?.()
+      response.writeHead(204).end()
+      return
+    }
     const requested = pathname.endsWith('/') ? `${pathname}index.html` : pathname
     const path = resolve(outputDirectory, `.${decodeURIComponent(requested)}`)
     const escaped = relative(outputDirectory, path)
@@ -891,6 +921,8 @@ const server = createServer(async (request, response) => {
     const data = await readFile(path)
     const range = request.headers.range?.match(/^bytes=(\d+)-(\d+)$/)
     if (range) {
+      const gate = requestUrl.searchParams.get('rangeGate')
+      if (gate !== null && rangeGateId.test(gate)) await rangeGate(gate)
       const requestedRangeDelay = requestUrl.searchParams.get('rangeDelay')
       // Only the fixed delays used by the cancellation fixtures are available.
       if (requestedRangeDelay === '200') {

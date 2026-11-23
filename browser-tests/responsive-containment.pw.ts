@@ -128,6 +128,18 @@ for (const width of overflowViewports) {
   }
 }
 
+// CI runners fall back to wider fonts than most desktops; DejaVu Sans reproduced a 413px OME-Zarr
+// page at 390px. Machines without the font fall back to the default and still check containment.
+for (const route of ['/wsi/', '/ome-zarr/'] as const) {
+  test(`contains ${route} at 390px with a wide fallback font`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 1100 })
+    await page.goto(route)
+    await page.addStyleTag({ content: "* { font-family: 'DejaVu Sans', sans-serif !important; }" })
+    await waitForContainment(page)
+    await noHorizontalOverflow(page)
+  })
+}
+
 test('presents a compact homepage comparison summary and keeps the full matrix in HTML', async ({
   page,
 }) => {

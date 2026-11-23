@@ -41,6 +41,12 @@ npm ci
 npm run check
 ```
 
+`npm run check` runs the fast test tier. The slow tier holds the exhaustive JPEG XL encoder searches
+listed in `vitest.config.ts`. Run it with `npm run test:slow`, or run `npm run check:full` for both,
+when you change JPEG XL encoder, ICC, or color code. `npm run browser:test` runs the heavy JPEG XL
+browser parity files in Chromium only, and `npm run browser:test:full` runs them in every browser.
+CI runs both tiers and every browser.
+
 Add or update a focused test for every behavior change. Run the narrowest relevant fixture verifier
 or benchmark in addition to the full check. Keep benchmark inputs pinned and comparisons equivalent
 across engines.
@@ -105,7 +111,8 @@ Open pull requests directly against the `main` branch. Before requesting review:
 
 1. Update your branch from the latest `main`.
 2. Resolve every merge conflict locally.
-3. Run `npm run check` and the relevant fixtures or benchmarks.
+3. Run `npm run check`, or `npm run check:full` for JPEG XL encoder, ICC, or color changes, and the
+   relevant fixtures or benchmarks.
 4. Confirm the documentation and `[Unreleased]` changelog entry are included.
 5. Describe the problem, the chosen approach, the validation performed, and any compatibility,
    bundle-size, or memory tradeoffs.

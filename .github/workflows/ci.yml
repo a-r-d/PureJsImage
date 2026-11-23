@@ -18,7 +18,7 @@ jobs:
   check:
     name: Clean checkout Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
-    # Compression-first effort-7 searches extend the full correctness suite.
+    # `npm run check` runs the fast test tier; the slow-tests job below runs the rest.
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -44,6 +44,30 @@ jobs:
 
       - name: Run clean-checkout validation
         run: npm run check
+
+  slow-tests:
+    name: Slow tests Node 22
+    runs-on: ubuntu-latest
+    # Exhaustive JPEG XL encoder searches that `npm run check` leaves out; see vitest.config.ts.
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run slow test tier
+        run: npm run test:slow
 
   browser:
     name: Browser ${{ matrix.browser }}
