@@ -1,0 +1,37 @@
+src/codecs/jpegxl-float-encode.ts
+  s_fb44c3e6b9dfb0::t_c241c35c4c15a0 10,15,152-154
+docs-astro/public/capabilities.json
+  s_fb44c3e6b9dfb0::t_b84620effaa2a5 6077-6082,6086
+jpegxl-codec-support.md
+  s_fb44c3e6b9dfb0::t_b84620effaa2a5 196-198
+tests/jpegxl-untagged-input.test.ts
+  s_fb44c3e6b9dfb0::t_c241c35c4c15a0 30,33,188-254,351-424
+  s_fb44c3e6b9dfb0::t_ee0336ea4565cc 425
+tests/icc-fixtures.ts
+  s_fb44c3e6b9dfb0::t_c241c35c4c15a0 118-143
+capabilities/manifest.json
+  s_fb44c3e6b9dfb0::t_b84620effaa2a5 4013-4015
+src/codecs/jpegxl.ts
+  s_fb44c3e6b9dfb0::t_c241c35c4c15a0 10,633-645,649-695
+  s_fb44c3e6b9dfb0::t_41cadd6e55986d 696
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_e6c557d88ce24b 7-18
+docs/jpeg-xl.md
+  s_fb44c3e6b9dfb0::t_b84620effaa2a5 56-57,59-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f440ee2fb840cb1c93bdccc284104c605cde8f4d",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
