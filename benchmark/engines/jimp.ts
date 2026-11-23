@@ -206,17 +206,17 @@ const executeBatch = async (
 
 export const engine: Engine = {
   id: 'jimp',
-  version: '1.6.0',
+  version: '1.7.0',
   kind: 'pure-javascript',
   packageName: 'jimp',
   unsupportedReason: (workflow): string | undefined => {
     const input = workflow.batch ? workflow.inputs.join(',') : workflow.input
-    if (input.includes('avif')) return 'Jimp 1.6.0 has no AVIF decoder'
-    if (input.includes('webp')) return 'Jimp 1.6.0 has no WebP decoder'
+    if (input.includes('avif')) return 'Jimp 1.7.0 has no AVIF decoder'
+    if (input.includes('webp')) return 'Jimp 1.7.0 has no WebP decoder'
     if (input.includes('iphone12-') || input.includes('heic')) {
-      return 'Jimp 1.6.0 has no HEIC decoder'
+      return 'Jimp 1.7.0 has no HEIC decoder'
     }
-    if (input.includes('ico')) return 'Jimp 1.6.0 has no ICO decoder'
+    if (input.includes('ico')) return 'Jimp 1.7.0 has no ICO decoder'
     if (workflow.operations?.some((operation) => operation.type === 'raw')) {
       return 'Jimp has no streaming raw-decode benchmark path'
     }
@@ -225,14 +225,14 @@ export const engine: Engine = {
         (operation) => operation.type === 'encode' && operation.format === 'webp',
       )
     ) {
-      return 'Jimp 1.6.0 has no WebP encoder'
+      return 'Jimp 1.7.0 has no WebP encoder'
     }
     if (
       workflow.operations?.some(
         (operation) => operation.type === 'encode' && operation.format === 'avif',
       )
     ) {
-      return 'Jimp 1.6.0 has no AVIF encoder'
+      return 'Jimp 1.7.0 has no AVIF encoder'
     }
     return undefined
   },

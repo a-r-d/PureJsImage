@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
@@ -14,6 +15,7 @@ import { summarizeSamples } from '../benchmark/lib/results.ts'
 import { validateExecution } from '../benchmark/lib/validate-output.ts'
 import type { PipelineWorkflow } from '../benchmark/types.ts'
 import { workflowsForProfile } from '../benchmark/workflows.ts'
+import packageJson from '../package.json' with { type: 'json' }
 
 const competitorWorkflow = (id: string): PipelineWorkflow => {
   const workflow = workflowsForProfile('competitors').find((candidate) => candidate.id === id)
@@ -28,6 +30,22 @@ const webCodecWorkflow = (id: string): PipelineWorkflow => {
 }
 
 describe('competitor benchmark classification', () => {
+  it('marks Sharp HEIC unsupported exactly when the installed build cannot decode the pixels', async () => {
+    const heic = competitorWorkflow('heif-iphone-resize-jpeg')
+    const input = readFileSync('benchmark/corpus/files/iphone12-greyhounds-4032x3024.heic')
+    const decodes = await sharp(input)
+      .raw()
+      .toBuffer()
+      .then(
+        () => true,
+        () => false,
+      )
+
+    const reason = await sharpEngine.unsupportedReason(heic, [input])
+
+    expect(reason === undefined).toBe(decodes)
+  })
+
   it('classifies unsupported operations before execution', async () => {
     const autoOrient = competitorWorkflow('auto-orient-6')
     const webp = competitorWorkflow('webp-large-resize-jpeg')
@@ -221,6 +239,12 @@ describe('competitor benchmark classification', () => {
       },
     ])
     expect(summary.qualityPsnrDb).toBe(measured)
+  })
+
+  it('reports the installed comparator versions pinned in package.json', () => {
+    expect(jimpEngine.version).toBe(packageJson.devDependencies.jimp)
+    expect(imageJsEngine.version).toBe(packageJson.devDependencies['image-js'])
+    expect(sharpEngine.version).toBe(packageJson.devDependencies.sharp)
   })
 
   it('keeps Sharp default and single-thread configurations identifiable', () => {

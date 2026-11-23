@@ -194,14 +194,14 @@ export const comparisonEvidence: readonly ComparisonEvidence[] = Object.freeze([
   {
     id: 'jimp-source',
     kind: 'source',
-    label: 'Jimp 1.6.0 TIFF adapter backed by utif2',
-    url: 'https://github.com/jimp-dev/jimp/tree/v1.6.0/plugins/js-tiff',
+    label: 'Jimp 1.7.0 TIFF adapter backed by utif2',
+    url: 'https://github.com/jimp-dev/jimp/tree/v1.7.0/plugins/js-tiff',
   },
   {
     id: 'sharp-docs',
     kind: 'documentation',
-    label: 'Sharp 0.35.3 input, raw pixel, multi-page, and libvips documentation',
-    url: 'https://github.com/lovell/sharp/blob/v0.35.3/docs/src/content/docs/api-input.md',
+    label: 'Sharp 0.35.5 input, raw pixel, multi-page, and libvips documentation',
+    url: 'https://github.com/lovell/sharp/blob/v0.35.5/docs/src/content/docs/api-input.md',
   },
   {
     id: 'codec-corpus',
@@ -603,7 +603,7 @@ export const libraryComparisons: readonly LibraryComparison[] = Object.freeze([
   {
     id: 'jimp',
     name: 'Jimp',
-    version: '1.6.0',
+    version: '1.7.0',
     packageName: 'jimp',
     url: 'https://github.com/jimp-dev/jimp',
     implementation: 'pure-javascript',
@@ -670,7 +670,7 @@ export const libraryComparisons: readonly LibraryComparison[] = Object.freeze([
   {
     id: 'sharp',
     name: 'Sharp / libvips',
-    version: '0.35.3',
+    version: '0.35.5',
     packageName: 'sharp',
     url: 'https://github.com/lovell/sharp',
     implementation: 'native-wrapper',

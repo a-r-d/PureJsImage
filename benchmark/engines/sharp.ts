@@ -141,7 +141,9 @@ export const createSharpEngine = ({
         const firstInput = inputs[0]
         if (!firstInput) return 'The HEIC workflow has no input image'
         try {
-          await sharp(firstInput).metadata()
+          // libheif 1.23.5 (Sharp 0.35.5) reads HEIC metadata without an HEVC decoder, so
+          // only a pixel decode shows whether this build can run the workflow.
+          await sharp(firstInput).raw().toBuffer()
         } catch {
           return 'The installed Sharp/libvips build cannot decode the pinned iPhone HEIC fixture'
         }

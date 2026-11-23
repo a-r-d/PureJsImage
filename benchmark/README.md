@@ -1,9 +1,14 @@
 # PureJsImage benchmark suite
 
 This suite is the performance and workflow-success contract for PureJsImage.
-Jimp 1.6.0 remains the original Lambda baseline. The broader competitor profile
-also pins Sharp 0.35.3, image-js 1.7.0, and jSquash's JPEG 1.6.0, PNG 3.1.1,
-WebP 1.5.0, and resize 2.1.1 packages.
+Jimp remains the original Lambda baseline and is pinned at 1.7.0. The broader competitor
+profile also pins Sharp 0.35.5, image-js 1.7.0, and jSquash's JPEG 1.6.0, PNG 3.1.1,
+WebP 1.5.0, and resize 2.1.1 packages. Results recorded before November 23, 2026 used
+Jimp 1.6.0 and Sharp 0.35.3. Each result file records the engine versions it ran with.
+Jimp 1.7.0 needs zod 4. If another root development dependency pulls zod 3 to the root, npm
+nests a zod 4 copy under each of 16 `@jimp/*` packages, and Jimp's measured import time, memory,
+and package size grow several times. `tests/project-contract.test.ts` fails when anything is
+nested under Jimp's packages, so Jimp stays installed the way a fresh `npm install jimp` installs it.
 The profile treats the default pure-JavaScript implementation and the explicitly registered
 first-party JPEG, PNG, and WebP WASM accelerators as separate PureJsImage engines. HEIF/HEIC measurements use
 another explicit `purejsimage-experimental-heic` engine; the default engine never registers it.
@@ -552,7 +557,7 @@ The profile includes reproducible 4000x3000 lossy VP8 and lossless VP8L resize-t
 pressure fixtures. Both run in isolated processes, require oracle-derived pixel samples to pass,
 and report absolute peak RSS so source-height-scaled decode buffers cannot regress unnoticed.
 
-Jimp 1.6.0 does not provide a WebP codec, so this profile is intentionally
+Jimp 1.7.0 does not provide a WebP codec, so this profile is intentionally
 PureJsImage-only. Decode results still require independently generated pixel
 samples to pass. The profile records absolute time, output size, and memory
 without inventing an invalid direct Jimp comparison. Lossy WebP encoder output
@@ -600,7 +605,7 @@ npm run fixtures:ico
 npm run bench:ico
 ```
 
-Jimp 1.6.0 does not decode ICO, so this is a correctness-gated PureJsImage-only
+Jimp 1.7.0 does not decode ICO, so this is a correctness-gated PureJsImage-only
 profile rather than an invalid head-to-head timing.
 
 First-party BMP compatibility and performance profile:
@@ -703,7 +708,7 @@ are correctness-gated experimental baselines rather than a synthetic head-to-hea
 
 The planar PackBits alpha fixture is validated against its source alpha plane,
 and the trailing-data Deflate fixture is validated against independent TIFF
-decoders. Jimp 1.6.0 decodes both incorrectly, so its baseline reports those
+decoders. Jimp 1.6.0 and 1.7.0 decode both incorrectly, so the baseline reports those
 cases as correctness failures while continuing to measure the other workflows.
 
 All Jimp-comparable workflows, including batch and 100-megapixel stress cases:

@@ -16,8 +16,7 @@ All notable changes to PureJsImage are documented in this file.
   reads and checked plane reads. JPEG XL encoder and decoder output is unchanged.
 - Development dependencies are updated to clear most `npm audit` advisories: Astro 7.4.13 for the
   website, Vitest 4.1.12, and aws-cdk-lib 2.278.0 with CDK CLI 2.1149.0 for the Lambda benchmark.
-  An override gives archiver readdir-glob 4.0.0. The benchmark comparators Jimp 1.6.0 and sharp
-  0.35.3 stay pinned so results stay comparable. image-js 1.7.0 now resolves colord 2.14.0, so
+  An override gives archiver readdir-glob 4.0.0. image-js 1.7.0 now resolves colord 2.14.0, so
   its recorded bundle grows by 1.5 KB minified.
 - The root install no longer includes the packages used only by the viewer and scientific
   competitor benchmark lanes (Cornerstone3D, Viv, deck.gl, NiiVue, ITK-Wasm image-io,
@@ -25,6 +24,19 @@ All notable changes to PureJsImage are documented in this file.
   those harnesses against the pinned installs in `benchmark/viewers` and
   `benchmark/competitors-js`, and a new CI job runs it. The root `npm audit` drops from 54 to 31
   advisories. The ones left come from the pinned Jimp and sharp comparators.
+- The benchmark comparators move from Jimp 1.6.0 to 1.7.0 and from sharp 0.35.3 to 0.35.5, so the
+  root `npm audit` drops from 31 advisories to none. Sharp oracle output in the JPEG, WebP, AVIF,
+  and JPEG XL tests is byte-identical. Jimp 1.7.0 moves to zod 4 and file-type 21. Its minified
+  bundle grows from 577 KiB to 937 KiB (zod is 376 KiB of it), gzip from 175 KiB to 264 KiB, and
+  its installed size from 29.3 MiB to 31.2 MiB. Sharp's wrapper grows by 446 bytes and its
+  installed size by 0.5 MiB. Interleaved same-machine reruns of the Jimp smoke, transform, and
+  competitor workflows show Jimp importing in 140 to 170 ms instead of about 80 ms, with 4 to 11
+  MiB more peak RSS on most workflows and up to 32 MiB more on three. Wall time did not change
+  beyond run-to-run noise. Published speed and memory results still use Jimp 1.6.0 and sharp
+  0.35.3.
+- The sharp benchmark engine now decodes the iPhone HEIC fixture to decide whether it can run the
+  HEIC workflow. libheif 1.23.5 reads the file's metadata without an HEVC decoder, so the old
+  metadata check reported a failed run instead of an unsupported one.
 
 ## [0.18.0] - 2026-11-22
 

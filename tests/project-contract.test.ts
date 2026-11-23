@@ -303,7 +303,8 @@ describe('package contract', () => {
   })
 
   it('pins benchmark competitors without adding a Canvas library', () => {
-    expect(packageJson.devDependencies.sharp).toBe('0.35.3')
+    expect(packageJson.devDependencies.jimp).toBe('1.7.0')
+    expect(packageJson.devDependencies.sharp).toBe('0.35.5')
     expect(packageJson.devDependencies['image-js']).toBe('1.7.0')
     expect(packageJson.devDependencies['@jsquash/resize']).toBe('2.1.1')
     expect('skia-canvas' in packageJson.devDependencies).toBe(false)
@@ -320,6 +321,23 @@ describe('package contract', () => {
       if (sharedWithRoot.has(name)) continue
       expect(Object.hasOwn(packageJson.devDependencies, name), name).toBe(false)
     }
+  })
+
+  it('installs Jimp without nested dependency copies, as a fresh npm install does', () => {
+    // If another root package pulls zod 3 to the root, npm nests a zod 4 copy under each of
+    // 16 @jimp packages, which inflates Jimp's measured import time, RSS, and package size.
+    const lock: unknown = JSON.parse(readFileSync('package-lock.json', 'utf8'))
+    if (typeof lock !== 'object' || lock === null || !('packages' in lock)) {
+      throw new Error('package-lock.json has no packages map')
+    }
+    const { packages } = lock
+    if (typeof packages !== 'object' || packages === null) {
+      throw new Error('package-lock.json packages is not an object')
+    }
+    const nestedUnderJimp = Object.keys(packages).filter((path) =>
+      /^node_modules\/(?:jimp|@jimp\/[^/]+)\/node_modules\//u.test(path),
+    )
+    expect(nestedUnderJimp).toEqual([])
   })
 
   it('keeps bundle comparisons codec-scoped and identifies native payloads', () => {
