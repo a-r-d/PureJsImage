@@ -553,7 +553,7 @@
         },
         {
           "status": "supported",
-          "text": "Parse opaque GRAY profiles separately from RGB; convert checked 8-bit gray samples and preserve compatible 16-bit gray profile samples into PNG"
+          "text": "Parse opaque GRAY profiles separately from RGB; convert checked 8-bit and 16-bit gray samples, and preserve compatible 16-bit gray profile samples into PNG with `keepIcc()`"
         },
         {
           "status": "supported",
@@ -562,6 +562,14 @@
         {
           "status": "supported",
           "text": "Common full-range RGB `cICP` signaling for sRGB and Display P3"
+        },
+        {
+          "status": "supported",
+          "text": "Convert 16-bit `iCCP` and `cHRM` plus `gAMA` samples to 16-bit sRGB like 8-bit samples; `keepIcc()` keeps the unconverted profile samples"
+        },
+        {
+          "status": "supported",
+          "text": "Treat a full-range `cICP` chunk with unspecified (2) primaries and transfer as absent, so the other color chunks apply"
         },
         {
           "status": "supported",
@@ -6060,6 +6068,10 @@
         {
           "status": "supported",
           "text": "Add bounded 32x32 and both 16x32/32x16 forward DCT choices to regular effort-7 opaque standard-sRGB RGBA8 photos above 4,194,304 and through 16,777,216 pixels at distances 2 through 4; preserve source compact DC, learn large-family coefficient orders, and verify pinned native/Rust pixels and Chromium source-menu behavior"
+        },
+        {
+          "status": "planned",
+          "text": "Compress lossy float32 output. Explicit lossy grayf32/rgbf32/rgbaf32 encoding only rounds Modular color mantissas, so Radiance HDR and PFM input, whose samples carry at most 8 significant mantissa bits, gives the same file as lossless. Add a perceptual path for linear float input, such as XYB VarDCT, and record size, quality and memory evidence before claiming it."
         },
         {
           "status": "supported",

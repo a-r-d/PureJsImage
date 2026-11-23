@@ -4,6 +4,7 @@ import type {
   EncodeRequest,
   ImageCodec,
   ImageDecoder,
+  ImageEncoder,
   MetadataPreservationOptions,
 } from '../codec.ts'
 import { ImageError, limitExceeded, unsupportedOperation } from '../errors.ts'
@@ -47,7 +48,12 @@ import {
 } from './jpegxl-float-encode.ts'
 import type { JpegXlLimitOptions, JpegXlLimits } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
-import { createJpegXlModularEncoder } from './jpegxl-modular-encode.ts'
+import {
+  createJpegXlModularEncoder,
+  withCodestreamOrientation,
+  withStructuredIccColor,
+  withUntaggedJpegXlColorSemantics,
+} from './jpegxl-modular-encode.ts'
 import { createJpegXlNativePixelDecoder } from './jpegxl-native-pixel.ts'
 import { createJpegXlSequenceFrameDecoder } from './jpegxl-sequence.ts'
 import { createJpegXlVarDctDecoder } from './jpegxl-vardct.ts'
@@ -607,14 +613,49 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       decoded.fullFrameFallback,
     )
   },
-  async createEncoder(sink: ImageSink, request: EncodeRequest) {
-    return request.pixelFormat === 'grayf32' ||
-      request.pixelFormat === 'rgbf32' ||
-      request.pixelFormat === 'rgbaf32' ||
-      request.pixelFormat === 'gray32' ||
-      request.pixelFormat === 'rgb32' ||
-      (request.metadata?.icc !== undefined && request.colorSemantics?.icc !== undefined)
-      ? createJpegXlFloatEncoder(sink, request)
-      : createJpegXlModularEncoder(sink, request)
+  async createEncoder(sink: ImageSink, input: EncodeRequest) {
+    const request = withCodestreamOrientation(withUntaggedJpegXlColorSemantics(input))
+    const structured = withStructuredIccColor(request)
+    const options = request.options
+    const lossy =
+      typeof options === 'object' &&
+      options !== null &&
+      'mode' in options &&
+      options.mode === 'lossy'
+    const profile = request.metadata?.icc
+    const grayProfileOnRgb =
+      profile !== undefined &&
+      String.fromCharCode(...profile.subarray(16, 20)) === 'GRAY' &&
+      (request.pixelFormat === 'rgb8' || request.pixelFormat === 'rgb16')
+    // Lossy output cannot embed a profile, and the native writer keeps a gray profile only on gray
+    // or gray-alpha samples, so both write the equal structured color instead.
+    return structured && (lossy || grayProfileOnRgb)
+      ? createJpegXlEncoder(sink, structured)
+      : createJpegXlEncoder(sink, request, structured)
   },
 })
+
+const createJpegXlEncoder = async (
+  sink: ImageSink,
+  request: EncodeRequest,
+  structured?: EncodeRequest,
+): Promise<ImageEncoder> => {
+  if (
+    request.pixelFormat !== 'grayf32' &&
+    request.pixelFormat !== 'rgbf32' &&
+    request.pixelFormat !== 'rgbaf32' &&
+    request.pixelFormat !== 'gray32' &&
+    request.pixelFormat !== 'rgb32' &&
+    (request.metadata?.icc === undefined || request.colorSemantics?.icc === undefined)
+  )
+    return createJpegXlModularEncoder(sink, request)
+  try {
+    return createJpegXlFloatEncoder(sink, request)
+  } catch (error) {
+    // Exact profile embedding stages complete native planes. A frame beyond that working budget
+    // writes the equal structured color through the bounded encoder instead.
+    if (structured && error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')
+      return createJpegXlEncoder(sink, structured)
+    throw error
+  }
+}

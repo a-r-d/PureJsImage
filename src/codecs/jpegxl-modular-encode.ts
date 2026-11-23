@@ -6,6 +6,7 @@ import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '.
 import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
+import { structuredIccColor } from './icc.ts'
 import {
   defaultJpegXlWeightedPredictor,
   type JpegXlAnimationHeader,
@@ -6686,6 +6687,125 @@ export const acceptsJpegXlColorSemantics = (semantics: PixelColorSemantics): boo
   (semantics.icc === undefined ||
     (semantics.provenance === 'decoder-converted' && semantics.icc.relevance === 'source'))
 
+/**
+ * Full-range samples whose source signaled no primaries or ICC profile. A transfer curve, such as
+ * a PNG gAMA value, may still be signaled.
+ */
+export const isUntaggedJpegXlColorSemantics = (semantics: PixelColorSemantics): boolean =>
+  semantics.primaries === 'unspecified' &&
+  !semantics.chromaticities &&
+  !semantics.icc &&
+  semantics.provenance !== 'icc' &&
+  semantics.transfer.kind !== 'source-profile' &&
+  semantics.matrix === 'identity' &&
+  semantics.range === 'full'
+
+/**
+ * Give samples the color semantics JPEG XL can write. Samples without signaled primaries use sRGB
+ * primaries, as browsers and cjxl assume, with the signaled transfer or else the sRGB curve for
+ * integers and linear light for float32. A kept ICC profile describes unconverted samples. Signaled
+ * color and 32-bit integer samples keep their own validation, and the encoders still check
+ * family, alpha and the profile color space against the pixels.
+ */
+export const withUntaggedJpegXlColorSemantics = (request: EncodeRequest): EncodeRequest => {
+  const semantics = request.colorSemantics
+  const format = request.pixelFormat
+  const floating = format === 'grayf32' || format === 'rgbf32' || format === 'rgbaf32'
+  if (
+    !(floating || supportedFormat(format)) ||
+    (semantics !== undefined && !isUntaggedJpegXlColorSemantics(semantics))
+  )
+    return request
+  return {
+    ...request,
+    colorSemantics: {
+      ...(semantics ?? {
+        family: format.startsWith('gray') ? 'gray' : 'rgb',
+        matrix: 'identity',
+        range: 'full',
+        alpha: format.startsWith('rgba') ? 'straight' : 'none',
+      }),
+      ...(request.metadata?.icc
+        ? {
+            primaries: 'source-profile',
+            transfer: { kind: 'source-profile' },
+            provenance: 'icc',
+            icc: { relevance: 'emitted-pixels' },
+          }
+        : {
+            primaries: 'srgb',
+            transfer:
+              semantics && semantics.transfer.kind !== 'unspecified'
+                ? semantics.transfer
+                : { kind: floating ? 'linear' : 'srgb' },
+            provenance:
+              semantics && semantics.provenance !== 'unspecified'
+                ? semantics.provenance
+                : 'assumed-default',
+          }),
+    },
+  }
+}
+
+/**
+ * The request with its kept ICC profile replaced by the equal structured JPEG XL color, when the
+ * profile is a matrix and curve profile over unconverted samples. A gray profile on gray samples
+ * that the decoder expanded to RGB keeps its curve with neutral sRGB primaries.
+ */
+export const withStructuredIccColor = (request: EncodeRequest): EncodeRequest | undefined => {
+  const { icc, ...metadata } = request.metadata ?? {}
+  const semantics = request.colorSemantics
+  const format = request.pixelFormat
+  const family = format.startsWith('gray') ? 'gray' : 'rgb'
+  const structured =
+    icc &&
+    (supportedFormat(format) ||
+      format === 'grayf32' ||
+      format === 'rgbf32' ||
+      format === 'rgbaf32') &&
+    (semantics === undefined || semantics.provenance === 'icc')
+      ? structuredIccColor(icc)
+      : undefined
+  if (!structured || (structured.family !== family && structured.family !== 'gray'))
+    return undefined
+  return {
+    ...request,
+    metadata,
+    colorSemantics: {
+      ...structured,
+      family,
+      matrix: 'identity',
+      range: 'full',
+      alpha: semantics?.alpha ?? (format.startsWith('rgba') ? 'straight' : 'none'),
+      provenance: 'container-signaled',
+    },
+  }
+}
+
+/**
+ * Move a kept Exif orientation into the codestream, as libjxl does, and record 1 in Exif. An
+ * explicit orientation option is left to the existing check.
+ */
+export const withCodestreamOrientation = (request: EncodeRequest): EncodeRequest => {
+  const exif = request.metadata?.exif
+  const orientation = exif ? exifOrientation(exif) : undefined
+  const options = request.options ?? {}
+  if (
+    !exif ||
+    orientation === undefined ||
+    orientation === 1 ||
+    typeof options !== 'object' ||
+    options === null ||
+    'orientation' in options
+  )
+    return request
+  return {
+    ...request,
+    options: { ...options, orientation },
+    metadata: { ...request.metadata, exif: normalizeExifOrientation(exif) },
+  }
+}
+
 const validateColorSemantics = (request: EncodeRequest): void => {
   const semantics = request.colorSemantics
   if (!semantics) {
@@ -6693,6 +6813,10 @@ const validateColorSemantics = (request: EncodeRequest): void => {
       'JPEG XL encoding requires explicit structured pixel color semantics',
     )
   }
+  if (semantics.transfer.kind === 'source-profile' && !request.metadata?.icc)
+    throw unsupportedOperation(
+      'JPEG XL source-profile pixels require an explicitly preserved ICC profile; use keepIcc()',
+    )
   const grayscale = request.pixelFormat.startsWith('gray')
   const alpha = request.pixelFormat.startsWith('rgba')
   if (

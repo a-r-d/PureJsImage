@@ -4,9 +4,11 @@ import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 import { encodeBrotli } from '../src/codecs/brotli.ts'
 import { inspectJpegXlStructure, jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { pngCodec } from '../src/codecs/png.ts'
 import type { PixelColorSemantics } from '../src/color.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { exifOrientation } from '../src/metadata.ts'
 import type { JpegXlEncodeOptions } from '../src/pipeline.ts'
 import type { PixelFormat } from '../src/pixel.ts'
 import type { ImageSink } from '../src/sink.ts'
@@ -14,8 +16,6 @@ import { Uint8ArraySink } from '../src/sink.ts'
 import type { ImageSource, ImageSourceReadOptions } from '../src/source.ts'
 import { MemorySource } from '../src/source.ts'
 import { Image } from './image-library.ts'
-import { pngCodec } from '../src/codecs/png.ts'
-import { exifOrientation } from '../src/metadata.ts'
 
 const ascii = (value: string): Uint8Array =>
   Uint8Array.from(value, (character) => character.charCodeAt(0))
@@ -515,8 +515,9 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
     ).toBe(false)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, alpha: 'premultiplied' })).toBe(true)
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, family: 'unspecified' })).toBe(false)
+    // Missing primaries are encoded as sRGB primaries with the signaled transfer, as for PNG gAMA.
     expect(jpegxlCodec.acceptsColorSemantics?.({ ...straight, primaries: 'unspecified' })).toBe(
-      false,
+      true,
     )
     expect(
       jpegxlCodec.acceptsColorSemantics?.({ ...straight, transfer: { kind: 'unspecified' } }),
@@ -548,11 +549,22 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       }),
     ).resolves.toBeDefined()
 
+    // Untagged 8-bit and float32 samples are encoded as sRGB and linear sRGB; 32-bit integers are not.
+    for (const pixelFormat of ['rgb8', 'rgbf32'] as const)
+      await expect(
+        jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
+          width: 1,
+          height: 1,
+          pixelFormat,
+          options: { mode: 'lossless' },
+          limits: defaultImageLimits,
+        }),
+      ).resolves.toBeDefined()
     await expect(
       jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
         width: 1,
         height: 1,
-        pixelFormat: 'rgb8',
+        pixelFormat: 'rgb32',
         options: { mode: 'lossless' },
         limits: defaultImageLimits,
       }),

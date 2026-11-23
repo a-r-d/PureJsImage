@@ -4909,7 +4909,11 @@ export const decodeJpegXlFrameSource = async (
   }
   const globalSection = header.sections[0]
   if (!globalSection) throw invalidJpegXlInput('global section is missing')
-  const globalData = await readExactly(source, globalSection.offset, globalSection.length, options)
+  // ImageSource buffers may be recycled by the next read. The full-frame
+  // fallback keeps the global section while it reads every other section.
+  const globalData = new Uint8Array(
+    await readExactly(source, globalSection.offset, globalSection.length, options),
+  )
   const foundation = readMultiGroupFoundation(globalData, header, limits)
   if (foundation.kind === 'full-frame') {
     const compressedBytes = header.sections.reduce(
@@ -4932,11 +4936,13 @@ export const decodeJpegXlFrameSource = async (
             sections.push(
               index === 0
                 ? globalData
-                : await readExactly(
-                    source,
-                    section.offset,
-                    section.length,
-                    signal ? { signal } : {},
+                : new Uint8Array(
+                    await readExactly(
+                      source,
+                      section.offset,
+                      section.length,
+                      signal ? { signal } : {},
+                    ),
                   ),
             )
           }
@@ -4958,11 +4964,15 @@ export const decodeJpegXlFrameSource = async (
     const section = header.sections[foundation.firstGroupSection + groupId]
     if (!section) throw invalidInput(`JPEG XL Modular group ${groupId} section is missing`)
     const signal = combineAbortSignals(options.signal, readOptions.signal)
-    const data = await readExactly(
-      source,
-      section.offset,
-      section.length,
-      signal === undefined ? {} : { signal },
+    // The group program decodes from these bytes later, after the decoder has
+    // read the other groups in its band, so it must own a copy.
+    const data = new Uint8Array(
+      await readExactly(
+        source,
+        section.offset,
+        section.length,
+        signal === undefined ? {} : { signal },
+      ),
     )
     return readModularGroup(data, header, foundation, groupId)
   }

@@ -1,5 +1,10 @@
 import type { DecodeRequest, DecoderCapabilities, ImageDecoder } from '../codec.ts'
-import type { PixelChromaticities, PixelColorSemantics } from '../color.ts'
+import type {
+  PixelChromaticities,
+  PixelColorPrimaries,
+  PixelColorSemantics,
+  PixelTransferFunction,
+} from '../color.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 
@@ -547,6 +552,19 @@ const rgbLegacyLutTransform = (
   }
 }
 
+/** Bradford adaptation from the D50 profile connection space to D65. */
+const d50ToD65 = Float64Array.of(
+  0.9555766,
+  -0.0230393,
+  0.0631636,
+  -0.0282895,
+  1.0099416,
+  0.0210077,
+  0.0122982,
+  -0.020483,
+  1.3299098,
+)
+
 const rgbTransform = (
   profile: Uint8Array,
   allTags: ReadonlyMap<string, IccTag>,
@@ -577,22 +595,126 @@ const rgbTransform = (
     green[2],
     blue[2],
   )
-  const d50ToD65 = Float64Array.of(
-    0.9555766,
-    -0.0230393,
-    0.0631636,
-    -0.0282895,
-    1.0099416,
-    0.0210077,
-    0.0122982,
-    -0.020483,
-    1.3299098,
-  )
   const matrix = multiply3x3(xyzToSrgb, multiply3x3(d50ToD65, colorants))
   const redCurve = curveLut(profile, requiredTag(allTags, 'rTRC'), inputEntries)
   const greenCurve = curveLut(profile, requiredTag(allTags, 'gTRC'), inputEntries)
   const blueCurve = curveLut(profile, requiredTag(allTags, 'bTRC'), inputEntries)
   return transformFromMatrixAndCurves(matrix, redCurve, greenCurve, blueCurve)
+}
+
+/**
+ * Half an 8-bit step, compared after sRGB encoding so near-black differences count as displayed:
+ * a structured description within this error renders the same.
+ */
+const STRUCTURED_TOLERANCE = 0.5 / 255
+
+const standardPrimaries: readonly (readonly [PixelColorPrimaries, readonly number[]])[] = [
+  ['srgb', [0.64, 0.33, 0.3, 0.6, 0.15, 0.06]],
+  ['display-p3', [0.68, 0.32, 0.265, 0.69, 0.15, 0.06]],
+  ['rec2020', [0.708, 0.292, 0.17, 0.797, 0.131, 0.046]],
+]
+
+const structuredTransfer = (
+  profile: Uint8Array,
+  curves: readonly IccTag[],
+): PixelTransferFunction | undefined => {
+  const [first] = curves
+  if (!first) return undefined
+  const values: number[] = []
+  for (let index = 0; index <= 64; index += 1) {
+    const value = curveValue(profile, first, index / 64)
+    for (const curve of curves)
+      if (
+        Math.abs(linearToSrgb(curveValue(profile, curve, index / 64)) - linearToSrgb(value)) >
+        STRUCTURED_TOLERANCE
+      )
+        return undefined
+    values.push(value)
+  }
+  const gamma = Math.log(values[32] ?? 0) / Math.log(0.5)
+  const candidates: readonly (readonly [PixelTransferFunction, (input: number) => number])[] = [
+    [
+      { kind: 'srgb' },
+      (input) => (input <= 0.04045 ? input / 12.92 : ((input + 0.055) / 1.055) ** 2.4),
+    ],
+    [
+      { kind: 'bt709' },
+      (input) => (input < 0.081 ? input / 4.5 : ((input + 0.099) / 1.099) ** (1 / 0.45)),
+    ],
+    [{ kind: 'linear' }, (input) => input],
+    [{ kind: 'gamma', exponent: gamma }, (input) => input ** gamma],
+  ]
+  return candidates.find(
+    ([transfer, decode]) =>
+      (transfer.kind !== 'gamma' || (gamma >= 1 && gamma <= 8_192)) &&
+      values.every(
+        (value, index) =>
+          Math.abs(linearToSrgb(value) - linearToSrgb(decode(index / 64))) <= STRUCTURED_TOLERANCE,
+      ),
+  )?.[0]
+}
+
+/**
+ * The structured color equal to a matrix/TRC RGB or GRAY profile, when one exists. Profiles with
+ * LUT tags, unequal channel curves or curves other than sRGB, BT.709, linear or a pure gamma
+ * return undefined. Colorants are adapted to D65 as the profile transforms above do.
+ */
+export const structuredIccColor = (
+  profile: Uint8Array,
+):
+  | Pick<PixelColorSemantics, 'family' | 'primaries' | 'transfer' | 'chromaticities'>
+  | undefined => {
+  try {
+    const { allTags } = validatedProfile(profile)
+    const space = signature(profile, 16)
+    const names = space === 'GRAY' ? ['kTRC'] : space === 'RGB ' ? ['rTRC', 'gTRC', 'bTRC'] : []
+    const curves = names.flatMap((name) => allTags.get(name) ?? [])
+    if (
+      curves.length === 0 ||
+      curves.length !== names.length ||
+      signature(profile, 20) !== 'XYZ ' ||
+      ['A2B0', 'A2B1', 'A2B2'].some((name) => allTags.has(name))
+    )
+      return undefined
+    const transfer = structuredTransfer(profile, curves)
+    if (!transfer) return undefined
+    if (space === 'GRAY') return { family: 'gray', primaries: 'srgb', transfer }
+    let whiteX = 0
+    let whiteY = 0
+    let whiteZ = 0
+    const points = ['rXYZ', 'gXYZ', 'bXYZ'].map((name) => {
+      const [x, y, z] = multiplyMatrixVector(d50ToD65, xyzTag(profile, requiredTag(allTags, name)))
+      whiteX += x
+      whiteY += y
+      whiteZ += z
+      return { x: x / (x + y + z), y: y / (x + y + z) }
+    })
+    const [red, green, blue] = points
+    const whiteSum = whiteX + whiteY + whiteZ
+    // Colorants must add up to the D50 connection-space white, which adapts to D65.
+    if (
+      !red ||
+      !green ||
+      !blue ||
+      Math.abs(whiteX / whiteSum - 0.3127) > 0.002 ||
+      Math.abs(whiteY / whiteSum - 0.329) > 0.002
+    )
+      return undefined
+    const coordinates = [red.x, red.y, green.x, green.y, blue.x, blue.y]
+    const standard = standardPrimaries.find(([, expected]) =>
+      expected.every((value, index) => Math.abs(value - (coordinates[index] ?? 0)) <= 0.002),
+    )
+    return standard
+      ? { family: 'rgb', primaries: standard[0], transfer }
+      : {
+          family: 'rgb',
+          primaries: 'unspecified',
+          transfer,
+          chromaticities: { whitePoint: { x: 0.3127, y: 0.329 }, primaries: [red, green, blue] },
+        }
+  } catch {
+    return undefined
+  }
 }
 
 export interface RgbChromaticities {
@@ -694,13 +816,25 @@ const chromaticityMatrix = (chromaticities: RgbChromaticities): Float64Array => 
 export const createPngColorTransform = (
   gamma: number,
   chromaticities?: RgbChromaticities,
+  entries = 256,
 ): RgbIccTransform => {
   if (!Number.isFinite(gamma) || gamma <= 0) throw invalidInput('PNG gAMA value must be positive')
-  const curve = Float32Array.from({ length: 256 }, (_, value) => (value / 255) ** (1 / gamma))
+  const curve = Float32Array.from(
+    { length: entries },
+    (_, value) => (value / (entries - 1)) ** (1 / gamma),
+  )
   const matrix = chromaticities
     ? chromaticityMatrix(chromaticities)
     : Float64Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1)
   return transformFromMatrixAndCurves(matrix, curve, curve, curve)
+}
+
+/** 16-bit gray gamma samples to 16-bit sRGB samples. */
+export const createPngGrayTransform16 = (gamma: number): Uint16Array => {
+  if (!Number.isFinite(gamma) || gamma <= 0) throw invalidInput('PNG gAMA value must be positive')
+  return Uint16Array.from({ length: 65_536 }, (_, value) =>
+    Math.round(linearToSrgb((value / 65_535) ** (1 / gamma)) * 65_535),
+  )
 }
 
 export const createPngGrayTransform = (gamma: number): Uint8Array => {
@@ -1225,6 +1359,25 @@ export const parseCmykIccTransform16 = (profile: Uint8Array): CmykIccTransform =
   return cmykTransform(profile, allTags, pcs, 65_536)
 }
 
+/**
+ * A GRAY profile's curve applied equally to the R, G and B samples of gray pixels a decoder
+ * expanded to RGB or RGBA, converting them to sRGB.
+ */
+export const parseGrayIccAsRgbTransform = (profile: Uint8Array, entries = 256): RgbIccTransform => {
+  const { allTags } = validatedProfile(profile)
+  if (signature(profile, 16) !== 'GRAY')
+    throw invalidInput('Embedded ICC profile must use grayscale input')
+  const pcs = signature(profile, 20)
+  if (pcs !== 'Lab ' && pcs !== 'XYZ ') throw invalidInput(`ICC PCS ${pcs} is unsupported`)
+  const curve = curveLut(profile, requiredTag(allTags, 'kTRC'), entries)
+  return transformFromMatrixAndCurves(
+    Float64Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1),
+    curve,
+    curve,
+    curve,
+  )
+}
+
 export const parseGrayIccTransform = (profile: Uint8Array): Uint8Array => {
   const { allTags } = validatedProfile(profile)
   if (signature(profile, 16) !== 'GRAY') {
@@ -1510,6 +1663,81 @@ export class ColorManagedDecoder implements ImageDecoder {
   async *decode(request?: DecodeRequest): AsyncGenerator<PixelBlock> {
     for await (const block of this.#decoder.decode(request)) {
       applyRgbIccBlock(block, this.#transform)
+      yield Object.freeze({ ...block, colorSemantics: this.colorSemantics })
+    }
+  }
+}
+
+export type DeepColorTransform =
+  | { readonly kind: 'rgb'; readonly transform: RgbIccTransform }
+  | { readonly kind: 'gray'; readonly table: Uint16Array }
+
+/** Converts big-endian 16-bit gray, RGB or straight-alpha RGBA rows to 16-bit sRGB in place. */
+export class ColorManagedDecoder16 implements ImageDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly capabilities: DecoderCapabilities
+  readonly colorSemantics: PixelColorSemantics
+  readonly #decoder: ImageDecoder
+  readonly #color: DeepColorTransform
+
+  constructor(decoder: ImageDecoder, color: DeepColorTransform) {
+    this.#decoder = decoder
+    this.#color = color
+    this.width = decoder.width
+    this.height = decoder.height
+    this.pixelFormat = decoder.pixelFormat
+    this.capabilities = decoder.capabilities
+    this.colorSemantics = Object.freeze({
+      family: color.kind,
+      primaries: 'srgb',
+      transfer: Object.freeze({ kind: 'srgb' }),
+      matrix: 'identity',
+      range: 'full',
+      alpha: decoder.pixelFormat === 'rgba16' ? 'straight' : 'none',
+      provenance: 'decoder-converted',
+    })
+  }
+
+  async *decode(request?: DecodeRequest): AsyncGenerator<PixelBlock> {
+    const scratch = new Uint16Array(3)
+    const color = this.#color
+    for await (const block of this.#decoder.decode(request)) {
+      const pixelBytes =
+        color.kind === 'gray'
+          ? block.format === 'gray16'
+            ? 2
+            : 0
+          : block.format === 'rgb16'
+            ? 6
+            : block.format === 'rgba16'
+              ? 8
+              : 0
+      if (pixelBytes === 0)
+        throw unsupportedOperation(`16-bit color conversion does not support ${block.format}`)
+      const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      for (let row = 0; row < block.height; row += 1) {
+        const end = row * block.stride + block.width * pixelBytes
+        if (color.kind === 'gray') {
+          for (let offset = row * block.stride; offset < end; offset += 2)
+            view.setUint16(offset, color.table[view.getUint16(offset, false)] ?? 0, false)
+          continue
+        }
+        for (let offset = row * block.stride; offset < end; offset += pixelBytes) {
+          writeRgbIcc16(
+            color.transform,
+            view.getUint16(offset, false),
+            view.getUint16(offset + 2, false),
+            view.getUint16(offset + 4, false),
+            scratch,
+            0,
+          )
+          view.setUint16(offset, scratch[0] ?? 0, false)
+          view.setUint16(offset + 2, scratch[1] ?? 0, false)
+          view.setUint16(offset + 4, scratch[2] ?? 0, false)
+        }
+      }
       yield Object.freeze({ ...block, colorSemantics: this.colorSemantics })
     }
   }

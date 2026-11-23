@@ -260,8 +260,24 @@ Try the [JPEG XL encoder and decoder hub](https://purejsimage.com/jpeg-xl/),
 [exact JPEG round-trip tool](https://purejsimage.com/jpeg-xl/jpeg-recompression/).
 Static lossy encoding is Stable for the documented integer subset; lossless remains the default.
 At effort 7 and 9, opaque 8-bit sRGB photos use transform, quantization and loop-filter decisions
-ported from libjxl, and `distance` follows libjxl's scale.
+ported from libjxl, and `distance` follows libjxl's scale. Input without a color tag, such as most
+JPEG photos, is encoded as sRGB. With `keepIcc()`, lossless output keeps the source ICC profile
+and lossy output writes its equal JPEG XL color description.
 [Lossy animation](https://purejsimage.com/jpeg-xl/animation/) remains Experimental.
+
+For a JPEG photo, pick the call by what you need. Sizes are for a 4.6 MB, 12-megapixel JPEG on
+Node.js 22:
+
+| Goal | Call | Output | Time |
+| --- | --- | ---: | ---: |
+| Exact copy of the JPEG that can be restored byte for byte | `transcodeJpegToJpegXl(bytes)` from `purejsimage/jpegxl` | 4.0 MB | 2 s |
+| Smallest lossy file | `.jpegxl({ mode: 'lossy', effort: 7, distance: 1 })` | 2.8 MB | 25 s |
+| Faster lossy file | `.jpegxl({ mode: 'lossy', distance: 1 })` (effort 3) | 3.5 MB | 6 s |
+| Exact pixels, such as artwork or screenshots | `.jpegxl()` (lossless default) | 14 MB | 29 s |
+
+Exact transcode needs, among other checks, Exif orientation 1 and either no ICC profile or the
+checked sRGB profile. JPEGs that fail a check get `UNSUPPORTED_OPERATION`; encode those with
+`.jpegxl()` instead.
 
 Pixel-lossless encoding preserves supported sample values. Exact JPEG recompression preserves the
 eligible original JPEG bytes, including reconstruction data. Native sample preservation is

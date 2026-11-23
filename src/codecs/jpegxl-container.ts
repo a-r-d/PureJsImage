@@ -336,13 +336,14 @@ const decodedMetadataBoxes = async (
     if (!requested(type)) continue
     if (decoded.has(type)) throw invalidInput(`JPEG XL repeats the ${type} metadata payload`)
     const payload = await readExactly(source, boxContentStart(box), box.payloadBytes, options)
-    let contents = payload
-    if (box.type === 'brob') {
-      contents = decodeBrotli(payload.subarray(4), {
-        maxOutputBytes: limits.maxMetadataBytes - decodedBytes,
-        maxMetadataBytes: limits.maxMetadataBytes,
-      })
-    }
+    // Later box reads may recycle this buffer; Brotli output is already a new array.
+    const contents =
+      box.type === 'brob'
+        ? decodeBrotli(payload.subarray(4), {
+            maxOutputBytes: limits.maxMetadataBytes - decodedBytes,
+            maxMetadataBytes: limits.maxMetadataBytes,
+          })
+        : new Uint8Array(payload)
     decodedBytes += contents.byteLength
     if (decodedBytes > limits.maxMetadataBytes) {
       throw limitExceeded(`JPEG XL ${type} metadata exceeds maxMetadataBytes`)

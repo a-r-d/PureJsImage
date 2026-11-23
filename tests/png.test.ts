@@ -127,6 +127,30 @@ describe('PNG pixel pipeline', () => {
     const output = await (await Image.open(input)).png().toBuffer()
     const gray = unfilteredSinglePngRow(output, 1)
     expect(Array.from(gray)).toEqual([reference[0], reference[4], reference[8], reference[12]])
+
+    // Gray with alpha decodes to RGBA and converts each equal color sample by the same curve.
+    const withAlpha = specializedPng(
+      4,
+      1,
+      8,
+      4,
+      Uint8Array.of(0, 0, 255, 64, 200, 128, 100, 255, 10),
+      undefined,
+      [
+        pngChunk(
+          'iCCP',
+          Buffer.concat([Buffer.from('Gray\0', 'latin1'), Buffer.from([0]), deflateSync(profile)]),
+        ),
+      ],
+    )
+    const rgba = unfilteredSinglePngRow(await (await Image.open(withAlpha)).png().toBuffer(), 4)
+    for (let pixel = 0; pixel < 4; pixel += 1) {
+      for (let channel = 0; channel < 3; channel += 1)
+        expect(
+          Math.abs((rgba[pixel * 4 + channel] ?? 0) - (reference[pixel * 4] ?? 0)),
+        ).toBeLessThanOrEqual(1)
+      expect(rgba[pixel * 4 + 3]).toBe([255, 200, 100, 10][pixel])
+    }
   })
 
   it('rejects an RGB ICC profile on opaque grayscale samples', async () => {
@@ -158,7 +182,7 @@ describe('PNG pixel pipeline', () => {
     expect(Array.from(decoded.data)).toEqual([193, 95, 14, 77, 85, 111, 132, 201])
   })
 
-  it('does not silently drop color signaling from native 16-bit pixels', async () => {
+  it('converts 16-bit profile pixels to sRGB unless keepIcc() keeps the profile', async () => {
     const profileData = Buffer.concat([
       Buffer.from('Display P3\0', 'latin1'),
       Buffer.from([0]),
@@ -173,12 +197,26 @@ describe('PNG pixel pipeline', () => {
       undefined,
       [pngChunk('iCCP', profileData)],
     )
-    await expect((await Image.open(profiled)).png().toBuffer()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-      message: 'PNG source-profile pixels require an explicitly preserved ICC profile',
-    })
+    const converted = Buffer.from(await (await Image.open(profiled)).png().toBuffer())
+    expect(converted[24]).toBe(16)
+    expect(converted.includes(Buffer.from('iCCP'))).toBe(false)
+    expect(converted.includes(Buffer.from('sRGB'))).toBe(true)
+    // The established 8-bit conversion of the same high bytes agrees within one step.
+    const eightBit = specializedPng(1, 1, 8, 2, Uint8Array.of(0, 0x12, 0x56, 0x9a), undefined, [
+      pngChunk('iCCP', profileData),
+    ])
+    const reference = unfilteredSinglePngRow(
+      Buffer.from(await (await Image.open(eightBit)).png().toBuffer()),
+      3,
+    )
+    const deep = unfilteredSinglePngRow(converted, 6)
+    for (let channel = 0; channel < 3; channel += 1)
+      expect(Math.abs((deep[channel * 2] ?? 0) - (reference[channel] ?? 0))).toBeLessThanOrEqual(1)
     const preserved = await (await Image.open(profiled)).keepIcc().png().toBuffer()
     expect(Buffer.from(preserved).includes(Buffer.from('iCCP'))).toBe(true)
+    expect(unfilteredSinglePngRow(Buffer.from(preserved), 6)).toEqual(
+      Uint8Array.of(0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc),
+    )
 
     const gamma = Buffer.alloc(4)
     gamma.writeUInt32BE(100_000)
@@ -300,19 +338,79 @@ describe('PNG pixel pipeline', () => {
     expect(cicpWithIccOutput.includes(Buffer.from('iCCP'))).toBe(false)
     expect(unfilteredSinglePngRow(cicpWithIccOutput, 6)).toEqual(samples.subarray(1))
 
+    // cHRM with gAMA converts 16-bit samples to sRGB, matching the 8-bit conversion.
+    const chromaticInput = specializedPng(1, 1, 16, 2, samples, undefined, fallbackChunks)
+    const chromaticOutput = Buffer.from(await (await Image.open(chromaticInput)).png().toBuffer())
+    expect(chromaticOutput.includes(Buffer.from('sRGB'))).toBe(true)
+    expect(chromaticOutput.includes(Buffer.from('cHRM'))).toBe(false)
+    const chromaticReference = unfilteredSinglePngRow(
+      Buffer.from(
+        await (
+          await Image.open(
+            specializedPng(
+              1,
+              1,
+              8,
+              2,
+              Uint8Array.of(0, 0x12, 0x56, 0x9a),
+              undefined,
+              fallbackChunks,
+            ),
+          )
+        )
+          .png()
+          .toBuffer(),
+      ),
+      3,
+    )
+    const chromaticRow = unfilteredSinglePngRow(chromaticOutput, 6)
+    for (let channel = 0; channel < 3; channel += 1)
+      expect(
+        Math.abs((chromaticRow[channel * 2] ?? 0) - (chromaticReference[channel] ?? 0)),
+      ).toBeLessThanOrEqual(1)
+
     const iccInput = specializedPng(1, 1, 16, 2, samples, undefined, [
       ...fallbackChunks,
       pngChunk('iCCP', displayP3IccChunk()),
     ])
-    await expect((await Image.open(iccInput)).png().toBuffer()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-      message: 'PNG source-profile pixels require an explicitly preserved ICC profile',
-    })
+    // The profile takes precedence over cHRM and gAMA and converts to sRGB.
+    const convertedIcc = Buffer.from(await (await Image.open(iccInput)).png().toBuffer())
+    expect(convertedIcc.includes(Buffer.from('sRGB'))).toBe(true)
+    expect(convertedIcc.includes(Buffer.from('iCCP'))).toBe(false)
     const iccOutput = Buffer.from(await (await Image.open(iccInput)).keepIcc().png().toBuffer())
     expect(iccOutput.includes(Buffer.from('iCCP'))).toBe(true)
     expect(iccOutput.includes(Buffer.from('gAMA'))).toBe(false)
     expect(iccOutput.includes(Buffer.from('cHRM'))).toBe(false)
     expect(unfilteredSinglePngRow(iccOutput, 6)).toEqual(samples.subarray(1))
+  })
+
+  it('treats a full-range cICP chunk with unspecified primaries and transfer as absent', async () => {
+    const samples = Uint8Array.of(0, 10, 120, 240)
+    const untagged = specializedPng(1, 1, 8, 2, samples, undefined, [
+      pngChunk('cICP', Uint8Array.of(2, 2, 0, 1)),
+    ])
+    const output = Buffer.from(await (await Image.open(untagged)).png().toBuffer())
+    expect(output.includes(Buffer.from('cICP'))).toBe(false)
+    expect(unfilteredSinglePngRow(output, 3)).toEqual(samples.subarray(1))
+    // The remaining chunks then apply.
+    const fallback = specializedPng(1, 1, 8, 2, samples, undefined, [
+      pngChunk('sRGB', Uint8Array.of(1)),
+      pngChunk('cICP', Uint8Array.of(2, 2, 0, 1)),
+    ])
+    const fallbackOutput = Buffer.from(await (await Image.open(fallback)).png().toBuffer())
+    expect(fallbackOutput.includes(Buffer.from('sRGB'))).toBe(true)
+    expect(unfilteredSinglePngRow(fallbackOutput, 3)).toEqual(samples.subarray(1))
+    // Partly specified values, such as PQ with unspecified primaries, and narrow range stay errors.
+    for (const cicp of [
+      Uint8Array.of(2, 16, 0, 1),
+      Uint8Array.of(9, 2, 0, 1),
+      Uint8Array.of(2, 2, 0, 0),
+    ]) {
+      const signaled = specializedPng(1, 1, 8, 2, samples, undefined, [pngChunk('cICP', cicp)])
+      await expect((await Image.open(signaled)).png().toBuffer()).rejects.toMatchObject({
+        code: 'UNSUPPORTED_OPERATION',
+      })
+    }
   })
 
   it('preserves native gAMA when 16-bit color-key transparency expands to RGBA', async () => {

@@ -28,13 +28,19 @@ import { crc32, updateCrc32 } from './crc32.ts'
 import { ascii, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
+  ColorManagedDecoder16,
   createDisplayP3Transform,
   createPngColorTransform,
   createPngGrayTransform,
+  createPngGrayTransform16,
+  type DeepColorTransform,
   GrayColorManagedDecoder,
   MAX_ICC_PROFILE_BYTES,
+  parseGrayIccAsRgbTransform,
   parseGrayIccTransform,
+  parseGrayIccTransform16,
   parseRgbIccTransform,
+  parseRgbIccTransform16,
   type RgbChromaticities,
   type RgbIccTransform,
 } from './icc.ts'
@@ -67,6 +73,8 @@ interface PngDescription {
   readonly grayTransform: Uint8Array | undefined
   readonly colorSignal: PngEffectiveColorSignal
   readonly iccProfile: Uint8Array | undefined
+  readonly gamma: number | undefined
+  readonly chromaticities: RgbChromaticities | undefined
   readonly exif: Uint8Array | undefined
 }
 
@@ -209,7 +217,8 @@ const pngColorSemantics = (description: PngDescription): PixelColorSemantics => 
       primaries: 'source-profile',
       transfer: Object.freeze({ kind: 'source-profile' as const }),
       provenance: 'icc',
-      icc: Object.freeze({ relevance: 'source' as const }),
+      // This decoder emits unconverted samples; ColorManagedDecoder reports converted ones.
+      icc: Object.freeze({ relevance: 'emitted-pixels' as const }),
     })
   }
   if (signal.kind === 'srgb') {
@@ -648,17 +657,23 @@ const parsePng = async (
   let grayTransform: Uint8Array | undefined
   let iccProfile: Uint8Array | undefined
   if (compressedIcc) iccProfile = await inflateIccProfile(compressedIcc)
+  // H.273 value 2 means unspecified. A full-range cICP with unspecified primaries and transfer
+  // signals nothing, so the other chunks apply; partly specified values keep their explicit checks.
+  const signaledCicp = cicp && !(cicp[0] === 2 && cicp[1] === 2 && cicp[3] === 1) ? cicp : undefined
   const colorSignal = effectivePngColorSignal(
-    cicp,
+    signaledCicp,
     iccProfile,
     srgbIntent,
     chromaticities,
     encodedGamma,
   )
-  if (cicp) {
-    colorTransform = cicpColorTransform(cicp, rawColorType)
+  if (signaledCicp) {
+    colorTransform = cicpColorTransform(signaledCicp, rawColorType)
   } else if (iccProfile) {
     if (rawColorType === 0 && !hasAlpha) grayTransform = parseGrayIccTransform(iccProfile)
+    // Gray with alpha or tRNS decodes to RGBA with equal color samples.
+    else if (rawColorType === 0 || rawColorType === 4)
+      colorTransform = parseGrayIccAsRgbTransform(iccProfile)
     else colorTransform = parseRgbIccTransform(iccProfile)
   } else if (!foundSrgb && gamma !== undefined) {
     if (rawColorType === 0 && !hasAlpha) {
@@ -683,6 +698,8 @@ const parsePng = async (
     grayTransform,
     colorSignal,
     iccProfile,
+    gamma,
+    chromaticities,
     exif,
   }
 }
@@ -1874,6 +1891,32 @@ const createPngEncoder = async (
   }
 }
 
+/**
+ * 16-bit ICC profiles and cHRM plus gAMA convert to sRGB like 8-bit samples. 16-bit gAMA-only,
+ * sRGB and cICP samples keep their native values and color signal.
+ */
+const deepPngColorTransform = (description: PngDescription): DeepColorTransform | undefined => {
+  const gray = description.colorType === 0 && !description.hasAlpha
+  const signal = description.colorSignal.kind
+  if (signal === 'icc' && description.iccProfile)
+    return gray
+      ? { kind: 'gray', table: parseGrayIccTransform16(description.iccProfile) }
+      : {
+          kind: 'rgb',
+          transform:
+            description.colorType === 0 || description.colorType === 4
+              ? parseGrayIccAsRgbTransform(description.iccProfile, 65_536)
+              : parseRgbIccTransform16(description.iccProfile),
+        }
+  if (signal !== 'chromaticities' || description.gamma === undefined) return undefined
+  return gray
+    ? { kind: 'gray', table: createPngGrayTransform16(description.gamma) }
+    : {
+        kind: 'rgb',
+        transform: createPngColorTransform(description.gamma, description.chromaticities, 65_536),
+      }
+}
+
 const decodePng = async (
   source: ImageSource,
   limits: ImageLimits,
@@ -1883,7 +1926,10 @@ const decodePng = async (
   const description = await parsePng(source, limits, true)
   const decoder = new PngDecoder(source, description, limits, accelerations)
   if (options.preserveIcc === true && description.iccProfile) return decoder
-  if (description.bitDepth === 16) return decoder
+  if (description.bitDepth === 16) {
+    const deep = deepPngColorTransform(description)
+    return deep ? new ColorManagedDecoder16(decoder, deep) : decoder
+  }
   if (description.colorTransform)
     return new ColorManagedDecoder(decoder, description.colorTransform)
   return description.grayTransform

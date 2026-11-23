@@ -18,13 +18,14 @@ const writeFixed = (view: DataView, offset: number, value: number): void => {
 
 type Xyz = readonly [x: number, y: number, z: number]
 
-const matrixRgbProfile = (red: Xyz, green: Xyz, blue: Xyz): Uint8Array => {
+/** A matrix/TRC RGB profile with a sampled sRGB curve, or a single-value gamma curve. */
+const matrixRgbProfile = (red: Xyz, green: Xyz, blue: Xyz, gamma?: number): Uint8Array => {
   const tagTableBytes = 4 + 6 * 12
   const redOffset = 128 + tagTableBytes
   const greenOffset = redOffset + 20
   const blueOffset = greenOffset + 20
   const curveOffset = blueOffset + 20
-  const curveBytes = 12 + 256 * 2
+  const curveBytes = gamma === undefined ? 12 + 256 * 2 : 14
   const profile = new Uint8Array(curveOffset + curveBytes)
   const view = new DataView(profile.buffer)
   writeUint32(view, 0, profile.byteLength)
@@ -55,6 +56,11 @@ const matrixRgbProfile = (red: Xyz, green: Xyz, blue: Xyz): Uint8Array => {
   xyz(greenOffset, ...green)
   xyz(blueOffset, ...blue)
   writeSignature(profile, curveOffset, 'curv')
+  if (gamma !== undefined) {
+    writeUint32(view, curveOffset + 8, 1)
+    writeUint16(view, curveOffset + 12, Math.round(gamma * 256))
+    return profile
+  }
   writeUint32(view, curveOffset + 8, 256)
   for (let value = 0; value < 256; value += 1) {
     const encoded = value / 255
@@ -69,6 +75,15 @@ export const channelSwappingRgbProfile = (): Uint8Array =>
     [0.1430804, 0.0606169, 0.7141733],
     [0.3850649, 0.7168786, 0.0971045],
     [0.4360747, 0.2225045, 0.0139322],
+  )
+
+/** Adobe RGB (1998): its own primaries and a 563/256 gamma curve. */
+export const adobeRgbProfile = (): Uint8Array =>
+  matrixRgbProfile(
+    [0.6097412, 0.3111267, 0.0194702],
+    [0.2052765, 0.6256561, 0.0608826],
+    [0.1491852, 0.0632172, 0.7445679],
+    563 / 256,
   )
 
 export const displayP3RgbProfile = (): Uint8Array =>

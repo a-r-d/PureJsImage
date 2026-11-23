@@ -41,6 +41,25 @@ inherits native color and alpha depths, structured color, rendering intent and
 luminance metadata. All eight orientations are supported. Use `autoOrient()`
 when the output pixels should have display orientation applied.
 
+The encoder writes input without a color tag as sRGB, as browsers and cjxl do.
+This covers JPEG, WebP, BMP, TIFF and QOI input, and PNG files without gAMA,
+cHRM, sRGB, cICP or iCCP chunks. JPEG and PNG decoding converts an embedded ICC
+profile to sRGB first.
+
+| Input | JPEG XL color |
+| --- | --- |
+| No color tag, 8- or 16-bit | sRGB |
+| 16-bit PNG with only a gAMA value | sRGB primaries with that gamma |
+| float32 with no color, such as Radiance HDR or PFM | Linear sRGB |
+| `keepIcc()`, lossless | The original samples and the exact ICC profile |
+| `keepIcc()`, lossless, frame above about 6.9 megapixels of RGB at the default limit, or a gray profile on RGB samples | The original samples with the equal color description |
+| `keepIcc()`, lossy, matrix and curve profile | The equal color description, such as Display P3 or Adobe RGB primaries with a gamma curve |
+| `keepIcc()`, other profiles, lossy or above that budget | `UNSUPPORTED_OPERATION` or `LIMIT_EXCEEDED`; drop `keepIcc()` to convert to sRGB |
+
+Untagged 32-bit integer samples still fail with `UNSUPPORTED_OPERATION`. With
+`keepExif()`, an Exif orientation moves into the JPEG XL header and the kept
+Exif records orientation 1, as libjxl does.
+
 Use the ordinary pixel API in Node.js or browsers:
 
 ```ts
@@ -327,7 +346,7 @@ established VarDCT encoder.
 
 | Input at lossy effort 7 or 9 | Encoder |
 | --- | --- |
-| `rgb8`, or `rgba8` whose alpha is all 255, with 8-bit sRGB color | libjxl-derived decisions |
+| `rgb8`, or `rgba8` whose alpha is all 255, with 8-bit sRGB or untagged color | libjxl-derived decisions |
 | Images where at least a quarter of the 8x8 blocks are one flat color, such as artwork, screenshots and documents | Established encoder |
 | Progressive output, visible alpha, more than 8 bits, or non-sRGB color | Established encoder |
 | The libjxl-derived path needs more than `maxWorkingBytes` | Established encoder |

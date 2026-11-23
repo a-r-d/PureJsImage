@@ -8,10 +8,12 @@ import {
 import type { PixelBlock } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
 import { SourceReader } from '../source.ts'
+import { ascii } from './helpers.ts'
 import {
   applyRgbIcc,
   type CmykIccTransform,
   type JpegIccTransform,
+  parseGrayIccAsRgbTransform,
   parseJpegIccTransform,
   writeCmykIcc,
 } from './icc.ts'
@@ -491,6 +493,9 @@ const createIccTransform = (
 ): JpegIccTransform | undefined => {
   const profile = assembleJpegIccProfile(chunks)
   if (!profile) return undefined
+  // One-component JPEGs decode to equal R, G and B samples, which a GRAY profile's curve converts.
+  if (jpegColorTransform === 'gray' && ascii(profile, 16, 4) === 'GRAY')
+    return parseGrayIccAsRgbTransform(profile)
   const transform = parseJpegIccTransform(profile)
   const fourComponent = jpegColorTransform === 'cmyk' || jpegColorTransform === 'ycck'
   if (
@@ -2109,6 +2114,7 @@ const renderRows = (
     )
   } else if (jpeg.colorTransform === 'gray') {
     renderGrayRows(jpeg, planes, region, rowStart, first, height, data, plan)
+    if (jpeg.iccTransform?.kind === 'rgb') applyRgbIcc(data, jpeg.iccTransform)
   } else if (jpeg.colorTransform === 'rgb') {
     renderRgbRows(jpeg, planes, region, rowStart, first, height, data, plan)
     if (jpeg.iccTransform?.kind === 'rgb') applyRgbIcc(data, jpeg.iccTransform)

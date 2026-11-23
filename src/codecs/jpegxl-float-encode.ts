@@ -10,12 +10,15 @@ import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import {
   acceptsJpegXlColorSemantics,
   encodedJpegXlMetadataBoxes,
+  isUntaggedJpegXlColorSemantics,
   resolveJpegXlEncodeOptions,
 } from './jpegxl-modular-encode.ts'
 import { encodeJpegXlNative } from './jpegxl-native-encode.ts'
 
+/** The JPEG XL codec's pipeline check. Untagged integer samples are encoded as sRGB, or in a kept ICC profile. */
 export const acceptsJpegXlFloatColorSemantics = (semantics: PixelColorSemantics): boolean =>
   acceptsJpegXlColorSemantics(semantics) ||
+  isUntaggedJpegXlColorSemantics(semantics) ||
   ((semantics.family === 'gray' || semantics.family === 'rgb') &&
     semantics.transfer.kind === 'source-profile' &&
     semantics.icc !== undefined &&
