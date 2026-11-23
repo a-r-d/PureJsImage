@@ -1,0 +1,23 @@
+scripts/serve-browser-tests.ts
+  s_fb44c3e6b9dfb0::t_bdced200993493 927
+browser-tests/geo-showcase.pw.ts
+  s_fb44c3e6b9dfb0::t_78cd8f9c3c9eba 211-214,225
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_32f5b54d25c382 441-442
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "994e6816b474a7b788d3021041b52bd778e8b69b",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
