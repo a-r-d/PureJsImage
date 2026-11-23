@@ -14,6 +14,11 @@ All notable changes to PureJsImage are documented in this file.
   environment variables, so a checkout path with spaces or shell characters still works.
 - `npm run lint` reports no warnings. JPEG XL code replaces non-null assertions with `?? 0` sample
   reads and checked plane reads. JPEG XL encoder and decoder output is unchanged.
+- Development dependencies are updated to clear most `npm audit` advisories: Astro 7.4.13 for the
+  website, Vitest 4.1.12, and aws-cdk-lib 2.278.0 with CDK CLI 2.1149.0 for the Lambda benchmark.
+  Overrides give archiver readdir-glob 4.0.0 and give vtk.js and loaders.gl fflate 0.7.5. The
+  benchmark comparators Jimp 1.6.0 and sharp 0.35.3 stay pinned so results stay comparable.
+  image-js 1.7.0 now resolves colord 2.14.0, so its recorded bundle grows by 1.5 KB minified.
 
 ## [0.18.0] - 2026-11-22
 

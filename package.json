@@ -760,6 +760,15 @@
     "bench:lambda:destroy": "cdk destroy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --force && node benchmark/aws-lambda/stage-assets.ts --cleanup"
   },
   "overrides": {
+    "@kitware/vtk.js": {
+      "fflate": "0.7.5"
+    },
+    "@loaders.gl/compression": {
+      "fflate": "0.7.5"
+    },
+    "archiver": {
+      "readdir-glob": "4.0.0"
+    },
     "image-js": {
       "skia-canvas": "0.0.0"
     }
@@ -793,9 +802,9 @@
     "@types/react-dom": "^19.2.4",
     "@vivjs/loaders": "^0.22.1",
     "archiver": "8.0.0",
-    "astro": "^7.2.0",
-    "aws-cdk": "2.1135.1",
-    "aws-cdk-lib": "2.263.0",
+    "astro": "^7.4.13",
+    "aws-cdk": "2.1149.0",
+    "aws-cdk-lib": "2.278.0",
     "bmp-ts": "^1.0.9",
     "constructs": "10.8.1",
     "esbuild": "0.28.1",
@@ -819,7 +828,7 @@
     "tiff": "7.1.3",
     "typescript": "7.0.2",
     "utif2": "4.1.0",
-    "vitest": "4.1.10",
+    "vitest": "4.1.12",
     "wasm-vips": "0.0.19"
   }
 }

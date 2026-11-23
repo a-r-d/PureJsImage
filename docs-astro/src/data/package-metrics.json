@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.18.0",
-    "unpackedPackageBytes": 8984457,
+    "unpackedPackageBytes": 8984633,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -1859,11 +1859,11 @@
       "entry": {
         "packageExports": ["image-js"]
       },
-      "gzipBytes": 113863,
+      "gzipBytes": 114327,
       "id": "image-js",
       "implementation": "pure-javascript",
-      "unpackedPackageBytes": 17779845,
-      "minifiedJsBytes": 370128,
+      "unpackedPackageBytes": 17834659,
+      "minifiedJsBytes": 371698,
       "name": "image-js",
       "packageVersions": [
         {
@@ -1880,7 +1880,7 @@
         },
         {
           "name": "colord",
-          "version": "2.9.3"
+          "version": "2.14.0"
         },
         {
           "name": "fast-bmp",
@@ -2053,7 +2053,7 @@
       ],
       "productionPackageCount": 46,
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 96572
+      "brotliBytes": 96999
     },
     {
       "category": "competitor",
