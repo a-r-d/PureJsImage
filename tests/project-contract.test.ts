@@ -2,10 +2,14 @@ import { existsSync, globSync, readFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { avifCorpusRevision, avifFixtures } from '../benchmark/avif/corpus.ts'
+import competitorLanePackageJson from '../benchmark/competitors-js/package.json' with {
+  type: 'json',
+}
 import corpusManifest from '../benchmark/corpus/manifest.json' with { type: 'json' }
 import { readCompatibilityManifest } from '../benchmark/heif/compatibility/corpus.ts'
 import { heifBenchmarkFixtures } from '../benchmark/heif/corpus.ts'
 import { jpegCompatibilityFixtureIds } from '../benchmark/jpeg/corpus.ts'
+import viewerLanePackageJson from '../benchmark/viewers/package.json' with { type: 'json' }
 import { workflows, workflowsForProfile } from '../benchmark/workflows.ts'
 import capabilityManifestJson from '../capabilities/manifest.json' with { type: 'json' }
 import documentationData from '../docs-astro/src/data/documentation-data.json' with { type: 'json' }
@@ -303,6 +307,19 @@ describe('package contract', () => {
     expect(packageJson.devDependencies['image-js']).toBe('1.7.0')
     expect(packageJson.devDependencies['@jsquash/resize']).toBe('2.1.1')
     expect('skia-canvas' in packageJson.devDependencies).toBe(false)
+  })
+
+  it('installs viewer and scientific competitor packages only in their benchmark lanes', () => {
+    // The root uses these for its own TIFF oracle tests and the Astro website.
+    const sharedWithRoot = new Set(['geotiff', 'react', 'react-dom'])
+    const lanePackages = [
+      ...Object.keys(viewerLanePackageJson.devDependencies),
+      ...Object.keys(competitorLanePackageJson.dependencies),
+    ]
+    for (const name of lanePackages) {
+      if (sharedWithRoot.has(name)) continue
+      expect(Object.hasOwn(packageJson.devDependencies, name), name).toBe(false)
+    }
   })
 
   it('keeps bundle comparisons codec-scoped and identifies native payloads', () => {

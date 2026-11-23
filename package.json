@@ -555,6 +555,7 @@
     "wasm:build:png": "node scripts/build-wasm-png.ts",
     "wasm:build:webp": "node scripts/build-wasm-webp.ts",
     "typecheck": "tsc --noEmit",
+    "typecheck:lanes": "tsc -p benchmark/competitors-js && tsc -p benchmark/viewers",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "format:check": "biome format .",
@@ -760,12 +761,6 @@
     "bench:lambda:destroy": "cdk destroy --app \"node benchmark/aws-lambda/stack.ts\" PureJsImageLambdaBenchmark --force && node benchmark/aws-lambda/stage-assets.ts --cleanup"
   },
   "overrides": {
-    "@kitware/vtk.js": {
-      "fflate": "0.7.5"
-    },
-    "@loaders.gl/compression": {
-      "fflate": "0.7.5"
-    },
     "archiver": {
       "readdir-glob": "4.0.0"
     },
@@ -779,19 +774,12 @@
     "@aws-sdk/client-lambda": "3.1106.0",
     "@aws-sdk/client-s3": "3.1106.0",
     "@biomejs/biome": "2.5.7",
-    "@cogeotiff/core": "^9.5.0",
-    "@cornerstonejs/core": "^5.8.1",
-    "@cornerstonejs/nifti-volume-loader": "^5.8.1",
-    "@deck.gl/core": "^9.3.10",
-    "@hms-dbmi/viv": "^0.22.1",
-    "@itk-wasm/image-io": "^1.6.1",
     "@jsquash/avif": "^2.1.1",
     "@jsquash/jpeg": "1.6.0",
     "@jsquash/jxl": "1.3.0",
     "@jsquash/png": "3.1.1",
     "@jsquash/resize": "2.1.1",
     "@jsquash/webp": "1.5.0",
-    "@niivue/niivue": "^0.69.0",
     "@playwright/test": "1.64.1",
     "@stacksjs/ts-avif": "0.1.3",
     "@types/archiver": "8.0.0",
@@ -800,7 +788,6 @@
     "@types/pngjs": "6.0.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "@vivjs/loaders": "^0.22.1",
     "archiver": "8.0.0",
     "astro": "^7.4.13",
     "aws-cdk": "2.1149.0",
@@ -810,17 +797,13 @@
     "esbuild": "0.28.1",
     "exif-parser": "0.1.12",
     "geotiff": "^3.0.5",
-    "h5wasm": "^0.10.3",
     "image-dimensions": "2.5.1",
     "image-js": "1.7.0",
     "jimp": "1.6.0",
     "jpeg-js": "0.4.4",
     "jxl-oxide-wasm": "0.12.6",
     "lerc": "^4.2.0",
-    "nifti-reader-js": "^0.8.0",
-    "npyjs": "^1.2.0",
     "omggif": "1.0.10",
-    "openseadragon": "^6.1.0",
     "pngjs": "7.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

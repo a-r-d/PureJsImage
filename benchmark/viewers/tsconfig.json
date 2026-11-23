@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "typeRoots": ["../../node_modules/@types"]
+  },
+  "include": [
+    "*.ts",
+    "browser-shims/*.ts",
+    "../../browser-tests/types.ts",
+    "../../types/**/*.d.ts"
+  ],
+  "exclude": []
+}

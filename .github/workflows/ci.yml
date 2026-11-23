@@ -69,6 +69,40 @@ jobs:
       - name: Run slow test tier
         run: npm run test:slow
 
+  benchmark-lane-types:
+    name: Benchmark lane types
+    runs-on: ubuntu-latest
+    # The viewer and scientific competitor harnesses import packages that only their pinned lane
+    # installs provide, so the root `npm run typecheck` skips those files.
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            benchmark/competitors-js/package-lock.json
+            benchmark/viewers/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install pinned benchmark lanes
+        run: |
+          npm ci --prefix benchmark/competitors-js --ignore-scripts --no-fund --no-audit
+          npm ci --prefix benchmark/viewers --ignore-scripts --no-fund --no-audit
+
+      - name: Type-check benchmark lanes
+        run: npm run typecheck:lanes
+
   browser:
     name: Browser ${{ matrix.browser }}
     runs-on: ubuntu-latest

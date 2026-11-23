@@ -7,6 +7,10 @@
   `npm run check:full` for both. The slow tier holds the exhaustive JPEG XL encoder searches listed
   in `vitest.config.ts`. CI runs both tiers on every push.
 - Run the narrowest relevant benchmark or fixture verification when changing benchmark code.
+- The root typecheck skips the viewer and scientific competitor harness files that import
+  lane-only packages. When changing those harnesses or the `src` modules they import, install
+  both lanes and run `npm run typecheck:lanes` (see `benchmark/README.md`). CI runs it on every
+  push.
 - Keep every implementation and test dependency in `devDependencies`. The published package must have
   no runtime dependency tree.
 - Production codecs and processing code must be implemented in this repository. Do not bundle,

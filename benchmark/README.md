@@ -305,6 +305,18 @@ NiiVue, Cornerstone3D/NIfTI, GeoTIFF, cogeotiff, ITK-Wasm image-io, and
 OpenSeadragon. These are benchmark-only dependencies; the published
 PureJsImage package keeps its zero-runtime-dependency boundary.
 
+The root install does not include the viewer or scientific competitor
+packages, so the root `npm run typecheck` skips the harness files that import
+them. Check those files against the two pinned lane installs with:
+
+```sh
+npm ci --prefix benchmark/competitors-js --ignore-scripts
+npm ci --prefix benchmark/viewers --ignore-scripts
+npm run typecheck:lanes
+```
+
+CI runs this check in the "Benchmark lane types" job.
+
 The lane has three explicit paths:
 
 * loader-only: metadata, first native tile, selected Z/C/T plane, and

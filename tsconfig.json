@@ -91,5 +91,15 @@
     "tests/**/*.ts",
     "types/**/*.d.ts"
   ],
-  "exclude": ["benchmark/scripts/verify-tiff-encode.ts"]
+  "exclude": [
+    "benchmark/scripts/verify-tiff-encode.ts",
+    "benchmark/competitors-js/browser-harness.ts",
+    "benchmark/competitors-js/node-h5wasm.ts",
+    "benchmark/competitors-js/node-itk.ts",
+    "benchmark/competitors-js/node-jsfive.ts",
+    "benchmark/competitors-js/node-nifti.ts",
+    "benchmark/competitors-js/node-npy.ts",
+    "benchmark/competitors-js/worker.ts",
+    "benchmark/viewers/browser-harness.ts"
+  ]
 }

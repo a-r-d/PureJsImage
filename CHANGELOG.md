@@ -16,9 +16,15 @@ All notable changes to PureJsImage are documented in this file.
   reads and checked plane reads. JPEG XL encoder and decoder output is unchanged.
 - Development dependencies are updated to clear most `npm audit` advisories: Astro 7.4.13 for the
   website, Vitest 4.1.12, and aws-cdk-lib 2.278.0 with CDK CLI 2.1149.0 for the Lambda benchmark.
-  Overrides give archiver readdir-glob 4.0.0 and give vtk.js and loaders.gl fflate 0.7.5. The
-  benchmark comparators Jimp 1.6.0 and sharp 0.35.3 stay pinned so results stay comparable.
-  image-js 1.7.0 now resolves colord 2.14.0, so its recorded bundle grows by 1.5 KB minified.
+  An override gives archiver readdir-glob 4.0.0. The benchmark comparators Jimp 1.6.0 and sharp
+  0.35.3 stay pinned so results stay comparable. image-js 1.7.0 now resolves colord 2.14.0, so
+  its recorded bundle grows by 1.5 KB minified.
+- The root install no longer includes the packages used only by the viewer and scientific
+  competitor benchmark lanes (Cornerstone3D, Viv, deck.gl, NiiVue, ITK-Wasm image-io,
+  OpenSeadragon, cogeotiff, h5wasm, nifti-reader-js, and npyjs). `npm run typecheck:lanes` checks
+  those harnesses against the pinned installs in `benchmark/viewers` and
+  `benchmark/competitors-js`, and a new CI job runs it. The root `npm audit` drops from 54 to 31
+  advisories. The ones left come from the pinned Jimp and sharp comparators.
 
 ## [0.18.0] - 2026-11-22
 
