@@ -4,324 +4,28 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
-- Encode opaque 8-bit sRGB photos at JPEG XL lossy effort 7 and 9 with
-  transform, quantization and loop-filter decisions ported from libjxl v0.12.0
-  (BSD-3-Clause, see `THIRD_PARTY_NOTICES`). On this path `distance` follows
-  libjxl's scale. On 64 development photos a given distance gives a median
-  SSIMULACRA2 within 0.5 of wasm-vips, with files 4% to 11% smaller. Callers
-  who already use effort 7 or 9 get much smaller files at the same distance
-  (6,873 instead of 14,892 bytes on the test photo at distance 1), so lower the
-  distance to keep the earlier quality. Artwork with many flat blocks,
-  progressive output, visible alpha, other color and bit depths, efforts 1, 3
-  and 5, and encodes that exceed `maxWorkingBytes` keep the established
-  encoder. Effort 9 uses the effort-7 decisions. The JPEG XL bundle ceilings
-  rise to 640,000 and 713,000 minified bytes.
+## [0.18.0] - 2026-11-22
 
-- Speed up the exact-palette check that JPEG XL lossy effort 7 and 9 run on
-  images with at most 2,048 colors. The check now skips learned-tree searches
-  whose starting stream is more than four times the size the palette must beat.
-  On the development photos in that range the encoded files are unchanged and
-  the slowest encode falls from 25.7 to 3.4 seconds.
-- Search palette color orders for RGB8 JPEG XL lossless input at effort 7 and 9,
-  as RGBA8 input already did. A 513x257 image with 246 colors shrinks from 5,504
-  to 2,247 bytes, below the 2,262-byte RGBA8 file. On the 104 RGB8 images of the
-  synthetic lossless corpus, 30 files are 10.6% smaller and none grows. RGB8
-  palette images take a median 3.3 times as long at these efforts, and a
-  1024x768 palette image takes 27 seconds instead of 15. Orders that repeat the
-  first-seen order or an earlier order are skipped with no change in output, so
-  2- and 3-color RGBA8 icons encode about 40% faster. When `maxWorkingBytes`
-  is too small for the order search, the encoder now keeps its earlier candidate
-  for RGB8 and RGBA8 input instead of failing.
-- Lossy effort 7 and 9 judge exact palettes by this RGB stream, so more palette
-  images keep exact colors. A 128x128 gray ramp at distance 4 now encodes
-  exactly in 1,187 bytes instead of a 2,812-byte VarDCT file.
+### Upgrade notes
 
-- Give every docs site page Open Graph and Twitter share tags. Pages without
-  their own image use a new 1200 x 630 site card. Publish the JPEG XL
-  flat-palette evidence file that the comparison page links to, point the TIFF
-  corpus source link at `imazen/codec-corpus`, give the JPEG XL converter its
-  own title, and shorten seven page descriptions to 160 characters or less.
-  The docs build now fails when a page omits share tags, repeats a title, has a
-  description over 160 characters, or links to unpublished JPEG XL evidence.
+- JPEG XL lossy encoding at effort 7 and 9 now follows libjxl's distance scale for opaque 8-bit
+  sRGB photos. The same `distance` gives files about half the size of 0.17.0 (6,873 instead of
+  14,892 bytes on the test photo at distance 1). Lower `distance` to keep the earlier quality.
+- JPEG XL effort 9 is new and slow. It adds complete searches on top of effort 7.
+- Exact JPEG to JPEG XL transcode now rejects Exif orientation other than 1 and non-sRGB or
+  malformed ICC profiles before coefficient work.
+- Resize and pixel storage conversion now reject explicitly premultiplied RGBA input.
+- HDR gain-map rendering now rejects base and alternate primaries that differ, and reports the
+  emitted linear RGB space instead of the container YUV labels.
+- New subpath entries: `purejsimage/jpegxl` (native samples, sequences, sessions and transcode),
+  `purejsimage/hdr` (provisional), `purejsimage/evidence` and `purejsimage/analysis/4d-stem`.
+
+### Added
 
 - Add slow JPEG XL effort 9. It retains effort 7's tools and adds complete AC
   iteration, strategy, luma-context, cone-frame and advanced Modular DC searches.
   Effort 7 omits these alternatives. Effort 9 lossless encoding uses the effort-7
-  search policy. Compression and speed qualification remains on the candidate branch.
-
-- Add bounded DCT32 and both 16x32/32x16 choices for regular effort-7 opaque
-  sRGB RGBA8 photos with more than 2,048 visible colors, above 4,194,304 and
-  through 16,777,216 pixels, at distances 2 through 4. Learn their coefficient
-  orders, verify complete independent pixels
-  and browser behavior, and retain the preceding path if optional storage cannot
-  fit. Matched compression qualification remains in progress.
-- Fix learned JPEG XL coefficient-order signaling when a single group uses
-  prefix entropy. Preserve complete pixels for square and rectangular transforms.
-
-- Fix JPEG XL opaque RGBA8 files with internal Modular DC frames. Decode their
-  declared alpha dependency in single and grouped sections, and retain final
-  pixels through ordinary, session, sequence and native-layer APIs.
-- Preserve JPEG XL effort-7 opaque RGB DC precision on eligible RGBA8 photos
-  up to 16 megapixels. Meet or beat both pinned WASM encoders at matched
-  SSIMULACRA2 70, 80 and 90 on the original 12 MP photo. Verify complete
-  independent pixels, package exports and allocation recovery, and retain
-  Butteraugli tradeoffs and the broader unmeasured compression scope.
-- Verify all six selected JPEG XL transparency comparisons against current
-  public output, with exact alpha, complete independent pixels and both
-  black/white quality metrics. Record the smaller files and preserve missing
-  interpolation brackets and broader compression limits.
-- Correct the browser encoder-budget regression to distinguish optional search
-  fallback from required allocation limits. Verify exact fallback pixels and
-  give the expanded compression searches bounded additional CI execution time.
-
-- Close the remaining measured JPEG XL integer-lossless size gaps with optional
-  group layouts and bounded local color prediction. Meet or beat the pinned peers
-  in all 45 comparable corpus cells and four original-size controls. Preserve
-  exact samples, existing working limits and smaller complete files. Update the
-  comparison website and retain the open lossy, float, CMYK and animation scope.
-
-- Improve JPEG XL effort-7 lossless compression with optional denser prediction
-  training. Keep the previous complete group on ties or allocation-limit
-  failure, preserve exact samples and original working budgets, and record
-  remaining compression gaps and added search work.
-
-- Preserve the existing smaller JPEG XL Modular result when comparing lossy
-  palette candidates. Keep the original exact pixels on the family-context
-  regression graphic and verify its complete file fingerprint.
-
-- Reduce eligible JPEG XL effort-7 opaque RGBA8 artwork by quantizing edge
-  colors while preserving every occurrence of flat-region colors and exact
-  alpha. Keep the prior output when optional storage cannot fit. Verify the
-  original matrix, three browser engines and measured encoding costs, while
-  retaining unresolved quality comparisons.
-
-- Improve selected JPEG XL lossless screenshot training with exact per-channel
-  predictor and zero-sample shortcuts. Preserve unsampled residuals, original
-  memory limits and independently decoded samples, and record protected costs.
-- Reduce selected JPEG XL effort-7 screenshot files with smaller display groups
-  and bounded training and match caches. Keep cheap frames on their prior groups,
-  preserve exact RGB/RGBA samples and verify partial groups and DC boundaries.
-- Try bounded learned prediction for each existing JPEG XL effort-7 RGBA8
-  palette order. Choose only smaller complete files, preserve exact samples,
-  and keep the previous stream when optional scratch exceeds working storage.
-  Record the added encoding work and independent/browser checks.
-- Improve JPEG XL effort-7 palette prediction with bounded learned trees. Keep
-  the complete previous group search as a size floor, release losing candidates,
-  and preserve exact samples when optional training exceeds working storage.
-- Reduce JPEG XL reference-patch metadata with a bounded choice of three or four
-  prefix models. Include every model header in the size comparison, preserve
-  exact patch fields and pixel sections, and keep the prior stream when optional
-  scratch exceeds the working limit.
-- Extend the exact JPEG XL effort-7 artwork candidate to one megapixel. Keep
-  complete files only when they save at least five percent, preserve visible
-  colors and exact alpha, and release optional storage on loss, budget failure
-  or cancellation. Record the extra encoding cost and independent/browser
-  checks. Correct the stale forward-color support note.
-
-- Reduce JPEG XL effort-7 VarDCT strategy and quantizer metadata with optional
-  left prediction and separate row models. Compare complete metadata bits,
-  keep the best completed candidate when extra search exceeds storage limits,
-  and preserve independently decoded pixels and exact alpha. Verify native
-  depths, progressive output and Chromium behavior.
-
-- Improve eligible JPEG XL effort-7 VarDCT compression with separate AC models
-  for DCT8 and the other supported transform families. Compare complete files
-  at natural and learned coefficient orders, preserve decoded pixels and exact
-  alpha, and keep the best completed stream when optional search exceeds the
-  working budget. Record the extra encoding work and bounded scratch.
-
-- Improve eligible multi-group JPEG XL effort-7 VarDCT compression with learned
-  coefficient orders. Preserve decoded pixels, choose only smaller complete
-  files, and retain the prior stream when optional search exceeds working
-  storage. Verify native 8/16-bit alpha, progressive output and Chromium behavior.
-
-- Improve JPEG XL effort-7 VarDCT alpha compression with first-party repeat
-  coding, gradient or left prediction, and gradient contexts. Preserve exact
-  8/16-bit alpha and decoded colors, retain smaller existing streams, and fall back when optional scratch
-  exceeds the memory budget. Check regular and progressive output in Chromium
-  and record the matched-quality transparency results.
-
-- Improve JPEG XL effort-7 lossy compression on checked opaque RGBA8 photos
-  with finer color DC precision. Preserve exact alpha and existing AC/filter
-  choices. Bound the extra palette check, retain the prior policy for small
-  palettes and other image classes, and record matched-quality measurements.
-
-- Improve JPEG XL effort-7 lossless compression by choosing residual bit layouts
-  independently for each learned ANS histogram. Preserve exact samples, keep
-  smaller existing sections, and retain the prior stream when optional search
-  exceeds allocation limits. Record the measured graphics and screenshot gains.
-
-- Correct JPEG XL sampled lossless tree-cost estimates for large groups. Scale
-  branch and histogram costs consistently to improve compression within the
-  existing tree, histogram and storage bounds.
-
-- Improve single-group JPEG XL effort-7 lossless color compression with bounded
-  reversible-transform sampling and one additional encoded candidate. Preserve
-  exact 8/16-bit samples and alpha. Retain the previous stream when it is smaller
-  or the optional search exceeds the working-memory limit.
-
-- Reduce JPEG XL effort-7 lossless page sizes with exact RGB8/RGBA8 reference
-  patches on pale pages and colored flat backgrounds, and a larger bounded
-  palette-order search. Preserve alpha, invisible RGB and untouched samples.
-  Keep smaller complete files and account for the
-  extra display copy and reference atlas within the working-memory limit.
-
-- Improve JPEG XL effort-7 lossless compression with bounded learned prediction
-  trees and shared ANS histograms. Preserve exact 8/16-bit samples and hidden RGB,
-  keep smaller existing candidates, and verify Node/browser output and independent
-  libjxl/Rust decoding. Record remaining screenshot, graphics and lossy size gaps.
-
-- Improve multi-group JPEG XL effort-1 lossless compression with separate channel
-  models, constant-channel offsets, local color transforms and bounded repeat
-  coding. Preserve exact 8/16-bit samples and the smaller existing representation.
-  Record the added encoding cost and remaining higher-effort and lossy gaps.
-
-- Add a pinned JPEG XL compression investigation with exact lossless effort
-  controls, opaque-alpha and native prediction-model checks, and matched-quality
-  lossy filter measurements. Explain remaining encoder compression gaps.
-
-- Extend JPEG XL ordinary Modular input to mixed floating alpha, wide integer
-  samples and legal custom floating layouts. Preserve matching integer ICC
-  profiles, convert RGB LUT8/LUT16 XYZ profiles and relative custom HDR color,
-  accept floating CMYK black, decode VarDCT floating color and alpha, write Float32
-  animations and render selected HDR VarDCT frames. Retain luminance metadata on
-  Float32 re-encode. Add explicit Modular float mantissa rounding with exact alpha.
-  Support HLG/custom/associated-alpha forward writing and crop independent native
-  groups in bands. Verify pinned libjxl/LittleCMS output, browser behavior and
-  isolated memory use. Keep unsupported profile and progressive layouts explicit.
-
-- Complete ordinary JPEG XL float ICC/HDR conversion, float-preserving lossless
-  binary32 encoding and source-domain composed float/CMYK frames. Preserve
-  matching ICC, associated alpha, orientation, intrinsic size and luminance
-  metadata. Require explicit animated-frame selection. Validate against libjxl,
-  LittleCMS and exact-gamma FFmpeg/zimg references in Node and three browsers,
-  including budget, cancellation, sink failure and isolated resource checks.
-
-- Convert ordinary static Modular IEEE binary16/binary32 structured SDR input
-  to straight sRGB16 through `colorOutput: 'srgb'`. Support gray/RGB, integer
-  or IEEE alpha, linear, gamma, BT.709, sRGB, P3, Rec. 2020 and relative custom
-  chromaticities. Straighten before explicit SDR clipping and evaluate floats
-  without integer input rounding. Pin 17 libjxl/LittleCMS references and test
-  crop, resize, PNG and JPEG XL output in Node and three browsers.
-
-- Read static Modular JPEG XL IEEE binary16 and binary32 gray/RGB input through
-  the ordinary pipeline. Preserve finite signed samples and highlights in float32
-  rows, including mixed and associated alpha. Support crop, resize and explicit
-  range conversion for integer output. Render supported static CMYK ICC input
-  through 16 bits to straight sRGB rows, including integer or IEEE alpha.
-  Reserve native planes, normalized extras, output rows and profile tables.
-
-- Convert structured JPEG XL SDR color through 16-bit integer precision in the
-  ordinary pipeline, including linear, gamma, BT.709, P3, Rec. 2020 and relative
-  custom chromaticities. Support gray alpha, independent and associated alpha,
-  group-boundary crops and full-depth PNG/JPEG XL output with bounded color tables.
-
-- Render supported JPEG XL GRAY/RGB ICC integer input through 16 bits in the
-  ordinary pipeline. Support gray alpha and mixed or associated integer alpha
-  without an 8-bit intermediate. Preserve converted ranges through PNG output
-  and JPEG XL re-encoding, reserve profile-table memory before native decode,
-  and keep incompatible GRAY profile preservation an explicit error. Fix
-  opaque grayscale PNG reopening with a preserved GRAY profile.
-
-- Decode all 27 JPEG XL VarDCT transform types, including rectangular and
-  256x256 transforms, with scratch sized for the transforms present. Verify
-  grouped global Palette and Squeeze RGB8/RGB16 streams. Report the complete
-  native-plane fallback required by spatial Modular transforms.
-- Emit JPEG XL DC and progressive color stages with group-local integer alpha,
-  including global Squeeze and associated 2x shifted alpha. Plans include
-  required later-pass alpha sections and retained native alpha storage.
-  Verify independent samples, partial groups, cache reuse, cancellation and limits.
-
-- Decode grouped lossless JPEG XL streams with scalar palettes before reversible
-  color transforms. All 16 pinned comparison inputs now decode exactly, including
-  seven previously rejected files. Bound inverse-transform allocations before
-  decoding each group band.
-
-- Count retained alpha planes when enforcing JPEG XL session cache limits. Evicted
-  previews can be decoded again with the same pixels. Report full working planes
-  for selective SDR alpha passes across color groups.
-- Reset native sample controls when opening a new JPEG XL input, ignore errors
-  from replaced browser workers, and reject malformed preview messages.
-
-- Fetch the pinned tundra JPEG from its byte-identical Wikimedia copy after Flickr
-  began returning HTTP 403 to the browser CI jobs. Keep the existing checksum.
-
-- Update JPEG XL browser checks for the separate tool pages and committed fixtures.
-  Allow the existing two-encode quality regression test enough time on shared CI runners.
-
-- Clarify README API choices, browser examples and JPEG XL tool links. Keep the
-  whole-slide showcase near the opening and retain the benchmark results. Move format support near the top, with
-  concise format notes, optional WASM coverage and dated speed examples.
-
-- Improve JPEG XL effort-7 lossy grain, text edges and PQ texture with bounded
-  local quantizer refinement before transform selection. Small sRGB RGBA artwork can use a smaller Modular stream
-  that preserves visible RGB and every alpha sample. Lossy mode may normalize
-  RGB under zero alpha. Native HDR precision is preserved. Lossy encoding
-  is Stable for the documented static integer subset. Lossy animation remains
-  Experimental. Missing quality comparisons stay unscored.
-- Reduce JPEG XL effort-1 RGB8 encoding work with fixed AC quantization scales
-  and an aligned-block color path. Independently decoded output stays unchanged
-  on the 12 MP runtime case and the approved 2 MP quality matrix.
-- Record completed lossless compression qualification and preserve missing
-  lossy quality brackets as unresolved comparisons.
-
-- Add explicit JPEG XL binary16/binary32 gray and RGB display conversion with
-  mixed integer or IEEE alpha, straightening before range mapping. Preserve
-  native samples and source color meaning. Write shifted native planes across
-  multiple Modular groups, including shift-3 DC sections. Add explicit direct
-  16-bit ICC conversion for supported GRAY, RGB, and CMYK native layers with
-  gray-alpha expansion and straight RGBA16 output.
-- Pin libjxl float-plane and RGBA16 references for 17 mixed gray/RGB
-  color and alpha cases, including integer, IEEE, associated and shifted alpha.
-- Pin independently decoded native alpha, black, and binary16 depth grids for
-  odd JPEG XL multi-group shifted output.
-- Extend selective JPEG XL VarDCT DC and pass sessions to supported SDR alpha,
-  SDR16, linear16, and PQ16 cases, including associated shifted alpha. Add
-  exact one-component 8-bit Huffman JPEG transcode and reconstruction for
-  baseline and progressive scans.
-- Verify early linear 16-bit JPEG XL RGBA stages against a pinned partial
-  jxl-oxide pass image and final pixels against pinned libjxl color and alpha.
-- Pin partial jxl-oxide first-pass alpha references for SDR8 and PQ16 JPEG XL,
-  before the complete encoded payload is available.
-
-### 2026-09-19 UTC
-
-- Add bounded JPEG XL Level 10 native decode and lossless writing for unsigned
-  samples through 31 bits, IEEE binary16/binary32 bit patterns and CMYK black
-  channels. Level 10 output uses a container with `jxll=10`.
-- Add explicit binary32-to-RGBA16 and embedded-profile CMYK-to-RGBA8 conversion,
-  while keeping raw channels available. All 39 pinned official valid cases pass,
-  including exact CMYK and binary32 native output.
-- Add JPEG XL M9 production-hardening gates for twelve cross-feature workflows,
-  twelve mutation families, twelve resource and cancellation cases, packed Node
-  22/24 imports, three browsers and strict evidence admission.
-- Accept known structured color produced by decoder conversion when a source-only
-  ICC descriptor remains attached or the optional rendering intent is absent.
-  Emitted-pixel ICC profiles still require their existing preservation path.
-- Split M9 CI into integration/security, Node package, browser and scheduled fuzz
-  jobs, with failure artifacts and checksum-keyed caches for pinned oracle builds.
-
-### 2026-09-12 UTC
-
-- Add JPEG XL sequence iteration, exact rational timing, explicit frame selection,
-  reference composition and streamed lossless/Experimental lossy animation writing.
-- Add typed native channel extraction and bounded planar encoding, including
-  binary16 bit patterns, grouped shifted alpha/depth and original GRAY/RGB ICC
-  preservation. Extraction and display conversion have separate boundaries.
-- Expand JPEG XL reconstruction with previous-channel MA-tree properties, custom
-  inverse opsin and upsampling, Gaborish/EPF settings, all eight Modular/XYB patch
-  modes, YCbCr chroma, synthetic noise/splines and raw progressive dependencies.
-  All 39 official conformance cases remain individually reported; native extraction
-  remains distinct from display conversion.
-
-### 2026-09-11 UTC
-
-- Decode RGB8 JPEG XL global implicit delta palettes across groups with bounded
-  index bands and prediction rows. The official `delta_palette` fixture now
-  matches the independent reference exactly.
-
-### Added
-
+  search policy.
 - JPEG XL ordinary VarDCT opening and planning now defer pixel decoding until
   iteration. Internal-frame indexing seeks directly to each header and applies
   the header budget to parsed headers. Final decoding retains its existing
@@ -329,13 +33,11 @@ All notable changes to PureJsImage are documented in this file.
   complete DC and pass stages, native resolution boundaries, selective groups,
   source-bound caches, cancellation and a browser Range explorer. Unsupported
   selective dependencies use declared static fallbacks or strict rejection.
-
 - Added JPEG XL structured color, all eight orientations, independent straight and premultiplied
   alpha, compressed ICC, high-depth and float HDR output, and bounded metadata preservation.
   The lossless encoder preserves the supported color and alpha semantics, with explicit intrinsic
   size and tone-mapping options. Native and float output is checked against pinned libjxl; SDR
   tone mapping is explicit. Unsupported color conversions fail instead of relabeling pixels.
-
 - Expanded the first-party JPEG XL codec with checked static VarDCT and progressive decode,
   JPEG-derived pixel decode, a deterministic stable lossless Modular encoder for six native pixel
   formats, and explicit coefficient-domain JPEG transcode and reconstruction APIs. The Modular
@@ -350,7 +52,77 @@ All notable changes to PureJsImage are documented in this file.
   resampling, alpha, patch, spline, restoration, noise, and internal-frame boundary. Its 300-file
   real-photo gate has no incorrect output, and the ordinary large-photo path uses bounded
   restoration bands instead of source-sized float color planes.
-
+- Decode all 27 JPEG XL VarDCT transform types, including rectangular and
+  256x256 transforms, with scratch sized for the transforms present. Verify
+  grouped global Palette and Squeeze RGB8/RGB16 streams. Report the complete
+  native-plane fallback required by spatial Modular transforms.
+- Emit JPEG XL DC and progressive color stages with group-local integer alpha,
+  including global Squeeze and associated 2x shifted alpha. Plans include
+  required later-pass alpha sections and retained native alpha storage.
+  Verify independent samples, partial groups, cache reuse, cancellation and limits.
+- Extend selective JPEG XL VarDCT DC and pass sessions to supported SDR alpha,
+  SDR16, linear16, and PQ16 cases, including associated shifted alpha. Add
+  exact one-component 8-bit Huffman JPEG transcode and reconstruction for
+  baseline and progressive scans.
+- Add bounded JPEG XL Level 10 native decode and lossless writing for unsigned
+  samples through 31 bits, IEEE binary16/binary32 bit patterns and CMYK black
+  channels. Level 10 output uses a container with `jxll=10`.
+- Add explicit binary32-to-RGBA16 and embedded-profile CMYK-to-RGBA8 conversion,
+  while keeping raw channels available. All 39 pinned official valid cases pass,
+  including exact CMYK and binary32 native output.
+- Add JPEG XL sequence iteration, exact rational timing, explicit frame selection,
+  reference composition and streamed lossless/Experimental lossy animation writing.
+- Add typed native channel extraction and bounded planar encoding, including
+  binary16 bit patterns, grouped shifted alpha/depth and original GRAY/RGB ICC
+  preservation. Extraction and display conversion have separate boundaries.
+- Expand JPEG XL reconstruction with previous-channel MA-tree properties, custom
+  inverse opsin and upsampling, Gaborish/EPF settings, all eight Modular/XYB patch
+  modes, YCbCr chroma, synthetic noise/splines and raw progressive dependencies.
+  All 39 official conformance cases remain individually reported; native extraction
+  remains distinct from display conversion.
+- Extend JPEG XL ordinary Modular input to mixed floating alpha, wide integer
+  samples and legal custom floating layouts. Preserve matching integer ICC
+  profiles, convert RGB LUT8/LUT16 XYZ profiles and relative custom HDR color,
+  accept floating CMYK black, decode VarDCT floating color and alpha, write Float32
+  animations and render selected HDR VarDCT frames. Retain luminance metadata on
+  Float32 re-encode. Add explicit Modular float mantissa rounding with exact alpha.
+  Support HLG/custom/associated-alpha forward writing and crop independent native
+  groups in bands. Verify pinned libjxl/LittleCMS output, browser behavior and
+  isolated memory use. Keep unsupported profile and progressive layouts explicit.
+- Complete ordinary JPEG XL float ICC/HDR conversion, float-preserving lossless
+  binary32 encoding and source-domain composed float/CMYK frames. Preserve
+  matching ICC, associated alpha, orientation, intrinsic size and luminance
+  metadata. Require explicit animated-frame selection. Validate against libjxl,
+  LittleCMS and exact-gamma FFmpeg/zimg references in Node and three browsers,
+  including budget, cancellation, sink failure and isolated resource checks.
+- Convert ordinary static Modular IEEE binary16/binary32 structured SDR input
+  to straight sRGB16 through `colorOutput: 'srgb'`. Support gray/RGB, integer
+  or IEEE alpha, linear, gamma, BT.709, sRGB, P3, Rec. 2020 and relative custom
+  chromaticities. Straighten before explicit SDR clipping and evaluate floats
+  without integer input rounding. Pin 17 libjxl/LittleCMS references and test
+  crop, resize, PNG and JPEG XL output in Node and three browsers.
+- Read static Modular JPEG XL IEEE binary16 and binary32 gray/RGB input through
+  the ordinary pipeline. Preserve finite signed samples and highlights in float32
+  rows, including mixed and associated alpha. Support crop, resize and explicit
+  range conversion for integer output. Render supported static CMYK ICC input
+  through 16 bits to straight sRGB rows, including integer or IEEE alpha.
+  Reserve native planes, normalized extras, output rows and profile tables.
+- Convert structured JPEG XL SDR color through 16-bit integer precision in the
+  ordinary pipeline, including linear, gamma, BT.709, P3, Rec. 2020 and relative
+  custom chromaticities. Support gray alpha, independent and associated alpha,
+  group-boundary crops and full-depth PNG/JPEG XL output with bounded color tables.
+- Render supported JPEG XL GRAY/RGB ICC integer input through 16 bits in the
+  ordinary pipeline. Support gray alpha and mixed or associated integer alpha
+  without an 8-bit intermediate. Preserve converted ranges through PNG output
+  and JPEG XL re-encoding, reserve profile-table memory before native decode,
+  and keep incompatible GRAY profile preservation an explicit error. Fix
+  opaque grayscale PNG reopening with a preserved GRAY profile.
+- Add explicit JPEG XL binary16/binary32 gray and RGB display conversion with
+  mixed integer or IEEE alpha, straightening before range mapping. Preserve
+  native samples and source color meaning. Write shifted native planes across
+  multiple Modular groups, including shift-3 DC sections. Add explicit direct
+  16-bit ICC conversion for supported GRAY, RGB, and CMYK native layers with
+  gray-alpha expansion and straight RGBA16 output.
 - Added the provisional `purejsimage/hdr` entry for Ultra HDR XMP and ISO 21496-1 gain-map JPEG and
   AVIF workflows. It provides bounded JPEG relationship inspection, exact metadata normalization,
   encoded child extraction, caller-selected linear `rgbf32` or `rgbaf32` rendering, paired crop,
@@ -364,21 +136,6 @@ All notable changes to PureJsImage are documented in this file.
   JPEG input is limited to SDR primaries, transformed JPEG primaries carry a deterministic sRGB ICC
   profile, JPEG marker ordering preserves JFIF first, rounded map geometry is accepted within one map
   pixel, and AVIF gain-map coded images signal primaries and transfer characteristics 2.
-
-- Began the Phase 3 flagship at `/4d-stem/`. The client-side worker opens a deterministic processed
-  Merlin MIB acquisition, links scan and diffraction views, produces virtual detector maps and
-  scan-region reductions through the explicit `purejsimage/analysis/4d-stem` provider bundle, and
-  reports observed source reads, tile-cache activity, cancellation, decoded blocks, and managed
-  memory. The generated CC0 fixture has odd scan and detector dimensions and exact operation tests.
-
-- Added a generated browser reader catalog for all explicit scientific reader exports. The generic
-  explorer accepts a primary file and selected companions, loads likely reader chunks from safe
-  hints, keeps bounded byte probing authoritative, supports explicit reader and dataset selection,
-  and explains the separate directory-like OME-Zarr path. The linked 4D-STEM workspace now uses
-  conservative semantic axis-role recognition, exports display PNGs and evidence JSON, exposes
-  numeric annulus controls, reports unique source coverage and retained cache state, and closes its
-  worker-owned resources explicitly.
-
 - Added the explicit `purejsimage/evidence` entry with bounded summary and trace sessions, logical
   and physical source-byte accounting, redacted source identity, managed lease accounting, analysis
   provider and tile evidence, live event subscribers, and JSON-safe version 1 reports. The ordinary
@@ -393,7 +150,18 @@ All notable changes to PureJsImage are documented in this file.
   after adding opt-in pipeline, reader, dataset, plane, series, block, conversion, and dependency
   evidence. Their checked ceilings are 68 KiB and 192.4 KiB. Importing either entry still creates no
   evidence session or collector.
-
+- Began the Phase 3 flagship at `/4d-stem/`. The client-side worker opens a deterministic processed
+  Merlin MIB acquisition, links scan and diffraction views, produces virtual detector maps and
+  scan-region reductions through the explicit `purejsimage/analysis/4d-stem` provider bundle, and
+  reports observed source reads, tile-cache activity, cancellation, decoded blocks, and managed
+  memory. The generated CC0 fixture has odd scan and detector dimensions and exact operation tests.
+- Added a generated browser reader catalog for all explicit scientific reader exports. The generic
+  explorer accepts a primary file and selected companions, loads likely reader chunks from safe
+  hints, keeps bounded byte probing authoritative, supports explicit reader and dataset selection,
+  and explains the separate directory-like OME-Zarr path. The linked 4D-STEM workspace now uses
+  conservative semantic axis-role recognition, exports display PNGs and evidence JSON, exposes
+  numeric annulus controls, reports unique source coverage and retained cache state, and closes its
+  worker-owned resources explicitly.
 - Added native-precision ordinary pipelines. Fixed-width interleaved formats now keep exact sample
   bytes through crop, flip, EXIF orientation, and quarter turns. `gray16`, `rgb16`, `rgba16`,
   `grayf32`, and `rgbf32` resize directly with nearest, bilinear, and Lanczos 3 kernels.
@@ -406,7 +174,6 @@ All notable changes to PureJsImage are documented in this file.
 - The ordinary output path now loads its portable execution engine on first use. The measured
   initial core chunk is 24,421 minified bytes and the execution chunk is 58,715 bytes. Each has a
   separate 64 KiB ceiling, so the existing core size limit remains unchanged.
-
 - Experimental HEIF/HEIC reconstructs auxiliary alpha for a directly coded or
   grid primary, including monochrome HEVC alpha items and alpha planes that do
   not match the primary size. Limited-range alpha luma uses the same nclx/VUI
@@ -432,39 +199,169 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Encode opaque 8-bit sRGB photos at JPEG XL lossy effort 7 and 9 with
+  transform, quantization and loop-filter decisions ported from libjxl v0.12.0
+  (BSD-3-Clause, see `THIRD_PARTY_NOTICES`). On this path `distance` follows
+  libjxl's scale. On 64 development photos a given distance gives a median
+  SSIMULACRA2 within 0.5 of wasm-vips, with files 4% to 11% smaller. Callers
+  who already use effort 7 or 9 get much smaller files at the same distance
+  (6,873 instead of 14,892 bytes on the test photo at distance 1), so lower the
+  distance to keep the earlier quality. Artwork with many flat blocks,
+  progressive output, visible alpha, other color and bit depths, efforts 1, 3
+  and 5, and encodes that exceed `maxWorkingBytes` keep the established
+  encoder. Effort 9 uses the effort-7 decisions. The JPEG XL bundle ceilings
+  rise to 640,000 and 713,000 minified bytes.
+- Speed up the exact-palette check that JPEG XL lossy effort 7 and 9 run on
+  images with at most 2,048 colors. The check now skips learned-tree searches
+  whose starting stream is more than four times the size the palette must beat.
+  On the development photos in that range the encoded files are unchanged and
+  the slowest encode falls from 25.7 to 3.4 seconds.
+- Search palette color orders for RGB8 JPEG XL lossless input at effort 7 and 9,
+  as RGBA8 input already did. A 513x257 image with 246 colors shrinks from 5,504
+  to 2,247 bytes, below the 2,262-byte RGBA8 file. On the 104 RGB8 images of the
+  synthetic lossless corpus, 30 files are 10.6% smaller and none grows. RGB8
+  palette images take a median 3.3 times as long at these efforts, and a
+  1024x768 palette image takes 27 seconds instead of 15. Orders that repeat the
+  first-seen order or an earlier order are skipped with no change in output, so
+  2- and 3-color RGBA8 icons encode about 40% faster. When `maxWorkingBytes`
+  is too small for the order search, the encoder now keeps its earlier candidate
+  for RGB8 and RGBA8 input instead of failing.
+  Lossy effort 7 and 9 judge exact palettes by this RGB stream, so more palette
+  images keep exact colors. A 128x128 gray ramp at distance 4 now encodes
+  exactly in 1,187 bytes instead of a 2,812-byte VarDCT file.
+- The established JPEG XL lossy encoder still handles efforts 1, 3 and 5, progressive output,
+  visible alpha, other color and bit depths, artwork with many flat blocks, and encodes that
+  exceed `maxWorkingBytes`. It gains these changes:
+  - Add bounded DCT32 and both 16x32/32x16 choices for regular effort-7 opaque
+    sRGB RGBA8 photos with more than 2,048 visible colors, above 4,194,304 and
+    through 16,777,216 pixels, at distances 2 through 4. Learn their coefficient
+    orders, verify complete independent pixels
+    and browser behavior, and retain the preceding path if optional storage cannot
+    fit.
+  - Preserve JPEG XL effort-7 opaque RGB DC precision on eligible RGBA8 photos
+    up to 16 megapixels. Meet or beat both pinned WASM encoders at matched
+    SSIMULACRA2 70, 80 and 90 on the original 12 MP photo. Verify complete
+    independent pixels, package exports and allocation recovery, and retain
+    Butteraugli tradeoffs and the broader unmeasured compression scope.
+  - Reduce eligible JPEG XL effort-7 opaque RGBA8 artwork by quantizing edge
+    colors while preserving every occurrence of flat-region colors and exact
+    alpha. Keep the prior output when optional storage cannot fit. Verify the
+    original matrix, three browser engines and measured encoding costs, while
+    retaining unresolved quality comparisons.
+  - Reduce JPEG XL effort-7 VarDCT strategy and quantizer metadata with optional
+    left prediction and separate row models. Compare complete metadata bits,
+    keep the best completed candidate when extra search exceeds storage limits,
+    and preserve independently decoded pixels and exact alpha. Verify native
+    depths, progressive output and Chromium behavior.
+  - Improve eligible JPEG XL effort-7 VarDCT compression with separate AC models
+    for DCT8 and the other supported transform families. Compare complete files
+    at natural and learned coefficient orders, preserve decoded pixels and exact
+    alpha, and keep the best completed stream when optional search exceeds the
+    working budget. Record the extra encoding work and bounded scratch.
+  - Improve eligible multi-group JPEG XL effort-7 VarDCT compression with learned
+    coefficient orders. Preserve decoded pixels, choose only smaller complete
+    files, and retain the prior stream when optional search exceeds working
+    storage. Verify native 8/16-bit alpha, progressive output and Chromium behavior.
+  - Improve JPEG XL effort-7 VarDCT alpha compression with first-party repeat
+    coding, gradient or left prediction, and gradient contexts. Preserve exact
+    8/16-bit alpha and decoded colors, retain smaller existing streams, and fall back when optional scratch
+    exceeds the memory budget. Check regular and progressive output in Chromium
+    and record the matched-quality transparency results.
+  - Improve JPEG XL effort-7 lossy compression on checked opaque RGBA8 photos
+    with finer color DC precision. Preserve exact alpha and existing AC/filter
+    choices. Bound the extra palette check, retain the prior policy for small
+    palettes and other image classes, and record matched-quality measurements.
+  - Improve JPEG XL effort-7 lossy grain, text edges and PQ texture with bounded
+    local quantizer refinement before transform selection. Small sRGB RGBA artwork can use a smaller Modular stream
+    that preserves visible RGB and every alpha sample. Lossy mode may normalize
+    RGB under zero alpha. Native HDR precision is preserved. Lossy encoding
+    is Stable for the documented static integer subset. Lossy animation remains
+    Experimental. Missing quality comparisons stay unscored.
+  - Reduce JPEG XL effort-1 RGB8 encoding work with fixed AC quantization scales
+    and an aligned-block color path. Independently decoded output stays unchanged
+    on the 12 MP runtime case and the approved 2 MP quality matrix.
+- Close the remaining measured JPEG XL integer-lossless size gaps with optional
+  group layouts and bounded local color prediction. Meet or beat the pinned peers
+  in all 45 comparable corpus cells and four original-size controls. Preserve
+  exact samples, existing working limits and smaller complete files. Update the
+  comparison website and retain the open lossy, float, CMYK and animation scope.
+- Improve JPEG XL effort-7 lossless compression with optional denser prediction
+  training. Keep the previous complete group on ties or allocation-limit
+  failure, preserve exact samples and original working budgets, and record
+  remaining compression gaps and added search work.
+- Improve selected JPEG XL lossless screenshot training with exact per-channel
+  predictor and zero-sample shortcuts. Preserve unsampled residuals, original
+  memory limits and independently decoded samples, and record protected costs.
+- Reduce selected JPEG XL effort-7 screenshot files with smaller display groups
+  and bounded training and match caches. Keep cheap frames on their prior groups,
+  preserve exact RGB/RGBA samples and verify partial groups and DC boundaries.
+- Try bounded learned prediction for each existing JPEG XL effort-7 RGBA8
+  palette order. Choose only smaller complete files, preserve exact samples,
+  and keep the previous stream when optional scratch exceeds working storage.
+  Record the added encoding work and independent/browser checks.
+- Improve JPEG XL effort-7 palette prediction with bounded learned trees. Keep
+  the complete previous group search as a size floor, release losing candidates,
+  and preserve exact samples when optional training exceeds working storage.
+- Reduce JPEG XL reference-patch metadata with a bounded choice of three or four
+  prefix models. Include every model header in the size comparison, preserve
+  exact patch fields and pixel sections, and keep the prior stream when optional
+  scratch exceeds the working limit.
+- Extend the exact JPEG XL effort-7 artwork candidate to one megapixel. Keep
+  complete files only when they save at least five percent, preserve visible
+  colors and exact alpha, and release optional storage on loss, budget failure
+  or cancellation. Record the extra encoding cost and independent/browser
+  checks. Correct the stale forward-color support note.
+- Improve JPEG XL effort-7 lossless compression by choosing residual bit layouts
+  independently for each learned ANS histogram. Preserve exact samples, keep
+  smaller existing sections, and retain the prior stream when optional search
+  exceeds allocation limits. Record the measured graphics and screenshot gains.
+- Correct JPEG XL sampled lossless tree-cost estimates for large groups. Scale
+  branch and histogram costs consistently to improve compression within the
+  existing tree, histogram and storage bounds.
+- Improve single-group JPEG XL effort-7 lossless color compression with bounded
+  reversible-transform sampling and one additional encoded candidate. Preserve
+  exact 8/16-bit samples and alpha. Retain the previous stream when it is smaller
+  or the optional search exceeds the working-memory limit.
+- Reduce JPEG XL effort-7 lossless page sizes with exact RGB8/RGBA8 reference
+  patches on pale pages and colored flat backgrounds, and a larger bounded
+  palette-order search. Preserve alpha, invisible RGB and untouched samples.
+  Keep smaller complete files and account for the
+  extra display copy and reference atlas within the working-memory limit.
+- Improve JPEG XL effort-7 lossless compression with bounded learned prediction
+  trees and shared ANS histograms. Preserve exact 8/16-bit samples and hidden RGB,
+  keep smaller existing candidates, and verify Node/browser output and independent
+  libjxl/Rust decoding. Record remaining screenshot, graphics and lossy size gaps.
+- Improve multi-group JPEG XL effort-1 lossless compression with separate channel
+  models, constant-channel offsets, local color transforms and bounded repeat
+  coding. Preserve exact 8/16-bit samples and the smaller existing representation.
+  Record the added encoding cost and remaining higher-effort and lossy gaps.
 - JPEG XL exact JPEG transcode now uses deterministic clustered ANS contexts, spatial DC
   prediction, observed coefficient orders, move-to-front context maps, and bounded Brotli
   reconstruction payloads. All 250 files in the pinned real JPEG cohort reconstruct byte-for-byte
   through `djxl`. The size percentiles and 12 MP performance gates pass, so exact transcode is
-  stable for its documented three-component 8-bit Huffman subset. The pixel encoder remains
-  experimental.
-
+  stable for its documented three-component 8-bit Huffman subset.
 - JPEG XL exact transcode now rejects Exif orientation other than 1 and non-sRGB or malformed ICC
   before coefficient work, so byte-exact reconstruction cannot hide incorrect display semantics.
   Modular decode reports checked sRGB or linear-sRGB semantics consistently on metadata and decoder
-  output. Selected XYB and JPEG-derived output report decoder-converted sRGB. The experimental
+  output. Selected XYB and JPEG-derived output report decoder-converted sRGB. The
   encoder requires explicit supported sRGB semantics, and unmeasured encoder managed memory is
   reported as unavailable instead of zero. Raw VarDCT strategy 1 Hornuss is no longer claimed. The
   local workbench preflights native browser memory and reports signed size changes, exact
   verification, and the optional smaller-output policy.
-
 - HDR gain-map rendering now reports the emitted linear RGB space instead of retaining container
   YUV matrix and range labels. It rejects base and alternate primary mismatches until a float gamut
   conversion is available, validates exact ISO rationals against normalized values, keeps pending
   EXIF orientation composable through paired transforms, rejects transformed output until pending
   orientation is applied, propagates AVIF open cancellation, and closes or aborts AVIF output sinks.
-
 - The PR #32 hardening pass now rejects explicitly premultiplied RGBA input before resize or pixel
   storage conversion, counts aborted shared-range consumers without mislabeling the surviving
   physical transfer, keeps managed-allocation overflow categories separate from caller labels,
   preserves safe 4D-STEM navigation indices above the uint32 range, and validates complete worker
   messages before updating the linked explorer.
-
 - Experimental HEIF/HEIC displayed 8-bit 4:2:0 conversion now uses nearest
   chroma samples, matching the Main 10/PQ path. Against ImageMagick/libheif, the
   libheif example still is 0.034652 normalized sRGB RMSE after the existing
   1024px comparison resize.
-
 - Streaming resize now skips the Lanczos resample stage when the exact-integer box shrink already
   lands on the requested geometry, uses a specialized unrolled integer kernel for the common rgb8
   factor-4 shrink, and consumes decoder blocks directly instead of an async per-row iterator.
@@ -476,6 +373,114 @@ All notable changes to PureJsImage are documented in this file.
   segments, and uncompressed segments reuse the cache-owned buffer directly unless fill-order
   reversal or a predictor mutates rows in place. Imazen TIFF corpus outcomes are unchanged
   (148 pass / 2 unsupported / 4 rejected-safely, zero failures).
+
+### Fixed
+
+- Encode input without a color tag to JPEG XL as sRGB, as browsers and cjxl do. JPEG, WebP,
+  BMP, TIFF, QOI and untagged PNG input to `.jpegxl()` failed with `UNSUPPORTED_OPERATION`
+  before. A 16-bit PNG with only a gAMA value keeps that gamma with sRGB primaries. Untagged
+  float32 input, such as Radiance HDR and PFM, is written as linear sRGB, as cjxl reads PFM.
+- Keep a JPEG, PNG or other source ICC profile in JPEG XL with `keepIcc()`. Lossless output keeps
+  the unconverted samples and copies the profile exactly. Lossy output cannot embed a profile, so
+  it writes the equal JPEG XL color description for matrix and curve profiles: sRGB, Display P3,
+  Rec. 2020 or custom primaries such as Adobe RGB, with an sRGB, BT.709, linear or gamma curve.
+  Lossless output also writes that description when the frame exceeds the exact-profile writer's
+  working budget (about 6.9 megapixels of RGB under the default 1 GiB limit) or when a gray
+  profile sits on gray samples decoded as RGB. Other profiles, such as LUT profiles, still need
+  lossless output that fits the budget. The PNG decoder now reports
+  `icc.relevance: 'emitted-pixels'` for samples it leaves in the embedded profile.
+- Decode grayscale JPEGs and gray-with-alpha PNGs that carry a GRAY ICC profile. They failed to
+  open before unless `keepIcc()` kept the profile.
+- Move a kept Exif orientation into the JPEG XL header and record 1 in the Exif box, as libjxl
+  does. `keepExif().jpegxl()` on a photo with an Exif orientation failed before.
+- Convert 16-bit PNGs with an iCCP profile, or with cHRM and gAMA, to 16-bit sRGB like 8-bit
+  PNGs. They failed for PNG and JPEG XL output before unless `keepIcc()` was used, and cHRM files
+  failed either way. `keepIcc()` still keeps the unconverted samples and the profile. 16-bit PNGs
+  with only gAMA, sRGB or cICP keep their native samples and signal, as before.
+- Treat a full-range PNG cICP chunk with unspecified (2) primaries and transfer as absent, so the
+  other color chunks apply. Such files failed to open before. Partly unspecified or narrow-range
+  cICP values still fail with `UNSUPPORTED_OPERATION`.
+- Fix JPEG XL decoding of multi-group Modular files and of Exif, XMP and JUMBF boxes from an
+  `ImageSource` that reuses its read buffers. The decoder kept group sections and metadata
+  payloads after later reads, so large lossless files could fail as truncated.
+- Fix learned JPEG XL coefficient-order signaling when a single group uses
+  prefix entropy. Preserve complete pixels for square and rectangular transforms.
+- Fix JPEG XL opaque RGBA8 files with internal Modular DC frames. Decode their
+  declared alpha dependency in single and grouped sections, and retain final
+  pixels through ordinary, session, sequence and native-layer APIs.
+- Correct the browser encoder-budget regression to distinguish optional search
+  fallback from required allocation limits. Verify exact fallback pixels and
+  give the expanded compression searches bounded additional CI execution time.
+- Preserve the existing smaller JPEG XL Modular result when comparing lossy
+  palette candidates. Keep the original exact pixels on the family-context
+  regression graphic and verify its complete file fingerprint.
+- Decode grouped lossless JPEG XL streams with scalar palettes before reversible
+  color transforms. All 16 pinned comparison inputs now decode exactly, including
+  seven previously rejected files. Bound inverse-transform allocations before
+  decoding each group band.
+- Count retained alpha planes when enforcing JPEG XL session cache limits. Evicted
+  previews can be decoded again with the same pixels. Report full working planes
+  for selective SDR alpha passes across color groups.
+- Reset native sample controls when opening a new JPEG XL input, ignore errors
+  from replaced browser workers, and reject malformed preview messages.
+- Accept known structured color produced by decoder conversion when a source-only
+  ICC descriptor remains attached or the optional rendering intent is absent.
+  Emitted-pixel ICC profiles still require their existing preservation path.
+- Decode RGB8 JPEG XL global implicit delta palettes across groups with bounded
+  index bands and prediction rows. The official `delta_palette` fixture now
+  matches the independent reference exactly.
+
+### Testing, CI and docs
+
+- Split the tests into a fast tier for `npm run check` and a slow tier of exhaustive JPEG XL
+  encoder searches for `npm run test:slow` and `npm run check:full`. The fast tier ran in 98
+  seconds instead of about 12 minutes. CI runs the slow tier in its own job. Local
+  `npm run browser:test` runs the heavy JPEG XL parity files in Chromium only;
+  `npm run browser:test:full` and CI run them in every browser.
+- Hold the whole-slide viewer browser test's range reads until it has checked the opening state,
+  so the check no longer races the network in WebKit.
+- Keep the OME-Zarr page within a 390 px phone screen when the browser falls back to a wider font,
+  as the CI runners do. Firefox and WebKit CI failed on this page since 3 November.
+- Give every docs site page Open Graph and Twitter share tags. Pages without
+  their own image use a new 1200 x 630 site card. Publish the JPEG XL
+  flat-palette evidence file that the comparison page links to, point the TIFF
+  corpus source link at `imazen/codec-corpus`, give the JPEG XL converter its
+  own title, and shorten seven page descriptions to 160 characters or less.
+  The docs build now fails when a page omits share tags, repeats a title, has a
+  description over 160 characters, or links to unpublished JPEG XL evidence.
+- Verify all six selected JPEG XL transparency comparisons against current
+  public output, with exact alpha, complete independent pixels and both
+  black/white quality metrics. Record the smaller files and preserve missing
+  interpolation brackets and broader compression limits.
+- Add a pinned JPEG XL compression investigation with exact lossless effort
+  controls, opaque-alpha and native prediction-model checks, and matched-quality
+  lossy filter measurements. Explain remaining encoder compression gaps.
+- Fetch the pinned tundra JPEG from its byte-identical Wikimedia copy after Flickr
+  began returning HTTP 403 to the browser CI jobs. Keep the existing checksum.
+- Update JPEG XL browser checks for the separate tool pages and committed fixtures.
+  Allow the existing two-encode quality regression test enough time on shared CI runners.
+- Clarify README API choices, browser examples and JPEG XL tool links. Keep the
+  whole-slide showcase near the opening and retain the benchmark results. Move format support near the top, with
+  concise format notes, optional WASM coverage and dated speed examples.
+- Record completed lossless compression qualification and preserve missing
+  lossy quality brackets as unresolved comparisons.
+- Pin libjxl float-plane and RGBA16 references for 17 mixed gray/RGB
+  color and alpha cases, including integer, IEEE, associated and shifted alpha.
+- Pin independently decoded native alpha, black, and binary16 depth grids for
+  odd JPEG XL multi-group shifted output.
+- Verify early linear 16-bit JPEG XL RGBA stages against a pinned partial
+  jxl-oxide pass image and final pixels against pinned libjxl color and alpha.
+- Pin partial jxl-oxide first-pass alpha references for SDR8 and PQ16 JPEG XL,
+  before the complete encoded payload is available.
+- Add JPEG XL M9 production-hardening gates for twelve cross-feature workflows,
+  twelve mutation families, twelve resource and cancellation cases, packed Node
+  22/24 imports, three browsers and strict evidence admission.
+- Split M9 CI into integration/security, Node package, browser and scheduled fuzz
+  jobs, with failure artifacts and checksum-keyed caches for pinned oracle builds.
+- Cache the pinned tundra photo in the browser CI jobs and retry pinned downloads that answer
+  HTTP 429 or 503, after Wikimedia began rate limiting the shared runners.
+- Describe the shipped JPEG XL encoder in the README and list every implemented codec in
+  `ROADMAP.md`.
 
 ## [0.17.0] - 2026-08-24
 
@@ -1677,4 +1682,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.15.0]: https://github.com/a-r-d/PureJsImage/compare/v0.14.0...v0.15.0
 [0.16.0]: https://github.com/a-r-d/PureJsImage/compare/v0.15.0...v0.16.0
 [0.17.0]: https://github.com/a-r-d/PureJsImage/compare/v0.16.0...v0.17.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.17.0...HEAD
+[0.18.0]: https://github.com/a-r-d/PureJsImage/compare/v0.17.0...v0.18.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.18.0...HEAD
