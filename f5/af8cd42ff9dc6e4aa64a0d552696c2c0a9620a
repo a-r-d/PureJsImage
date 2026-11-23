@@ -1,0 +1,44 @@
+scripts/bundle-size-budgets.ts
+  s_fb44c3e6b9dfb0::t_a1d25d68c8fcbc 20-22,24
+README.md
+  s_fb44c3e6b9dfb0::t_a1d25d68c8fcbc 478,497
+src/codecs/jpegxl-native-encode.ts
+  s_fb44c3e6b9dfb0::t_008305f10d230c 19,29,31,234
+tests/jpegxl-untagged-input.test.ts
+  s_fb44c3e6b9dfb0::t_8a39269a1785d0 255-256
+  s_fb44c3e6b9dfb0::t_3ff937dbf576ab 218-219,221-223,230-238,244-254,257-262
+  s_fb44c3e6b9dfb0::t_8df3d7f23c87d8 263-264
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_a1d25d68c8fcbc 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_a1d25d68c8fcbc 109-111,129
+src/codecs/jpegxl.ts
+  s_fb44c3e6b9dfb0::t_008305f10d230c 56,650-652
+src/codecs/jpegxl-modular-encode.ts
+  s_fb44c3e6b9dfb0::t_2ff9093461bcad 7095
+  s_fb44c3e6b9dfb0::t_34f9329ef40b98 7113
+  s_fb44c3e6b9dfb0::t_4cf15d7e5c1fd5 7158
+  s_fb44c3e6b9dfb0::t_008305f10d230c 9,30-31,249-269,316-317,4874-4893,4970-4975,4987,7087-7094,7096-7112,7114-7125,7128,7130-7131,7133-7138,7156,7163-7170
+docs/jpeg-xl.md
+  s_fb44c3e6b9dfb0::t_e694381b27f4a3 54-56
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_a1d25d68c8fcbc 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_e694381b27f4a3 384-392
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f5af8cd42ff9dc6e4aa64a0d552696c2c0a9620a",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
