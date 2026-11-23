@@ -26,7 +26,14 @@ const slowTests = [
 export default defineConfig({
   test: {
     projects: [
-      { test: { name: 'fast', exclude: [...exclude, ...slowTests] } },
+      {
+        test: {
+          name: 'fast',
+          exclude: [...exclude, ...slowTests],
+          // A full parallel run makes some 1.6 s tests take over 5 s, Vitest's default limit.
+          testTimeout: 20_000,
+        },
+      },
       { test: { name: 'slow', include: slowTests, exclude } },
     ],
   },
