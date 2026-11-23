@@ -1,5 +1,6 @@
 docs-astro/src/data/package-metrics.json
   s_fb44c3e6b9dfb0::t_2348c2bd1b3f6f 566,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+  s_fb44c3e6b9dfb0::t_4bab425fb348ba 179
 docs/jpeg-xl.md
   s_fb44c3e6b9dfb0::t_fe24c19d196213 343-377
   s_fb44c3e6b9dfb0::t_a6da0e4b948899 400-403
@@ -34,6 +35,7 @@ CHANGELOG.md
   s_fb44c3e6b9dfb0::t_b1d5b1852391df 19-21
 benchmark/generated/package-metrics.json
   s_fb44c3e6b9dfb0::t_2348c2bd1b3f6f 566,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+  s_fb44c3e6b9dfb0::t_4bab425fb348ba 179
 README.md
   s_fb44c3e6b9dfb0::t_2348c2bd1b3f6f 497
   s_fb44c3e6b9dfb0::t_f9cf40278d67b7 478
@@ -42,6 +44,7 @@ benchmark/optimization-log.md
   s_fb44c3e6b9dfb0::t_1d1fe6c672af85 5809-5865
 docs-astro/src/data/documentation-data.json
   s_fb44c3e6b9dfb0::t_9ccf14c05f1b1d 109-111
+  s_fb44c3e6b9dfb0::t_4bab425fb348ba 129
 ---
 {
   "schema_version": "authorship/3.0.0",
