@@ -1,6 +1,6 @@
 # TIFF competitor conformance
 
-Generated: 2026-08-13T23:43:28.045Z
+Generated: 2026-11-23T21:44:17.983Z
 
 Corpus: codec-corpus TIFF conformance; https://github.com/imazen/codec-corpus/tree/main/tiff-conformance
 
@@ -8,16 +8,16 @@ Oracle: sharp with ImageMagick fallback raw RGBA8. Exact means every independent
 
 Signed, floating-point, wider-than-16-bit, and arbitrary-channel rasters are classified as native scientific data and are not forced through RGBA.
 
-PureJsImage: package metadata 0.18.0; main snapshot 3be45301e877c8811c42102f1403bf211d8253cf; working tree clean.
+PureJsImage: package metadata 0.18.0; main snapshot c341a4c68dba1e8d44b21de1ac7de3493e7d223a; working tree clean.
 
 | Engine | Version | Files attempted | RGBA-compared | Decoded | Exact | Pixel mismatch | Unsupported | Error | Oracle failure | Timeout | Crash | Native raster, not compared | Malformed rejected | Malformed accepted | Malformed timeout | Malformed crash |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| purejsimage | main snapshot (unreleased · 3be4530) | 154 | 106 | 104 | 57 | 47 | 0 | 0 | 2 | 0 | 0 | 44 | 4 | 0 | 0 | 0 |
+| purejsimage | main snapshot (unreleased · c341a4c) | 154 | 106 | 104 | 57 | 47 | 0 | 0 | 2 | 0 | 0 | 44 | 4 | 0 | 0 | 0 |
 | geotiff | 3.0.5 | 154 | 106 | 84 | 32 | 52 | 11 | 7 | 2 | 0 | 2 | 44 | 1 | 3 | 0 | 0 |
 | utif2 | 4.1.0 | 154 | 106 | 74 | 49 | 25 | 0 | 28 | 2 | 2 | 3 | 44 | 0 | 1 | 0 | 3 |
 | tiff | 7.1.3 | 154 | 106 | 41 | 27 | 14 | 51 | 12 | 2 | 0 | 0 | 44 | 1 | 3 | 0 | 0 |
 | image-js | 1.7.0 | 154 | 106 | 39 | 33 | 6 | 51 | 14 | 2 | 0 | 0 | 44 | 1 | 3 | 0 | 0 |
-| jimp | 1.6.0 | 154 | 106 | 74 | 49 | 25 | 0 | 28 | 2 | 2 | 3 | 44 | 0 | 1 | 0 | 3 |
+| jimp | 1.7.0 | 154 | 106 | 73 | 48 | 25 | 0 | 29 | 2 | 2 | 3 | 44 | 0 | 1 | 0 | 3 |
 
 ## Non-exact, failed, and malformed-accepted cases
 
@@ -28,24 +28,24 @@ PureJsImage: package metadata 0.18.0; main snapshot 3be45301e877c8811c42102f1403
 | utif2 | edge-cases/usda_naip_256_webp_z3.tif | converted-rgba | error | - | - | - | UTIF.js found no image directory |
 | tiff | edge-cases/usda_naip_256_webp_z3.tif | converted-rgba | error | - | - | - | not a TIFF file |
 | image-js | edge-cases/usda_naip_256_webp_z3.tif | converted-rgba | error | - | - | - | invalid data format: undefined |
-| jimp | edge-cases/usda_naip_256_webp_z3.tif | converted-rgba | error | - | - | - | Could not find MIME for Buffer |
+| jimp | edge-cases/usda_naip_256_webp_z3.tif | converted-rgba | error | - | - | - | No page found in TIFF |
 | utif2 | robustness/sample-get-lzw-stuck.tiff | robustness | malformed-accepted | - | - | - |  |
 | jimp | robustness/sample-get-lzw-stuck.tiff | robustness | malformed-accepted | - | - | - |  |
 | geotiff | robustness/test_ifd_loop_subifd.tif | robustness | malformed-accepted | - | - | - |  |
-| utif2 | robustness/test_ifd_loop_subifd.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [1074272:0x2a590000]     2167 ms: Scavenge (interleaved) 504.8 (512.9) -> 504.1 (513.9) MB, pooled: 0 MB, 5.13 / 0.00 ms  (average mu = 0.265, current mu = 0.178) allocation failure;  [1074272:0x2a590000]     2282 ms: Mark-Compact (reduce) 507.3 (515.7) -> 506.6 (512.4) MB, pooled: 0 MB, 92.76 / 0.00 ms  (+ 0.7 ms in 46 steps since start of marking, biggest step 0.6 ms, walltime since start of marking 99 ms) (average mu = 0.297, curren FATAL ERROR: Ineffective mark-compac |
+| utif2 | robustness/test_ifd_loop_subifd.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [2836131:0x15f9c000]     3166 ms: Mark-Compact (reduce) 509.2 (514.1) -> 508.8 (512.8) MB, pooled: 0 MB, 131.67 / 0.00 ms  (+ 0.5 ms in 20 steps since start of marking, biggest step 0.5 ms, walltime since start of marking 137 ms) (average mu = 0.237, curr[2836131:0x15f9c000]     3500 ms: Mark-Compact 510.0 (512.8) -> 509.7 (516.6) MB, pooled: 0 MB, 332.98 / 0.00 ms  (average mu = 0.109, current mu = 0.005) allocation failure; scavenge might not succeed FATAL ERROR: Ineff |
 | tiff | robustness/test_ifd_loop_subifd.tif | robustness | malformed-accepted | - | - | - |  |
 | image-js | robustness/test_ifd_loop_subifd.tif | robustness | malformed-accepted | - | - | - |  |
-| jimp | robustness/test_ifd_loop_subifd.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [1074319:0x195c3000]     2323 ms: Mark-Compact 508.7 (514.9) -> 508.2 (516.9) MB, pooled: 0 MB, 230.91 / 0.00 ms  (average mu = 0.133, current mu = 0.019) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/.nvm/versions/node/v24.16.0/bin/node]  2: 0xc1a4b0  [/home/ard/.nvm/versions/ |
+| jimp | robustness/test_ifd_loop_subifd.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [2836395:0x186f9000]     3284 ms: Scavenge (interleaved) 507.0 (511.6) -> 506.8 (516.6) MB, pooled: 0 MB, 4.02 / 0.00 ms  (average mu = 0.235, current mu = 0.111) allocation failure;  [2836395:0x186f9000]     3437 ms: Mark-Compact (reduce) 510.4 (517.1) -> 509.7 (513.6) MB, pooled: 0 MB, 126.99 / 0.00 ms  (+ 0.8 ms in 51 steps since start of marking, biggest step 0.7 ms, walltime since start of marking 136 ms) (average mu = 0.244, curr FATAL ERROR: Reached heap limit Allo |
 | geotiff | robustness/test_ifd_loop_to_first.tif | robustness | malformed-accepted | - | - | - |  |
-| utif2 | robustness/test_ifd_loop_to_first.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [1074408:0xb792000]     2750 ms: Mark-Compact 507.8 (514.2) -> 507.5 (516.2) MB, pooled: 0 MB, 264.86 / 0.00 ms  (average mu = 0.093, current mu = 0.014) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/.nvm/versions/node/v24.16.0/bin/node]  2: 0xc1a4b0  [/home/ard/.nvm/versions/n |
+| utif2 | robustness/test_ifd_loop_to_first.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [2836821:0x419bd000]     2039 ms: Scavenge 503.7 (515.8) -> 503.4 (526.3) MB, pooled: 0 MB, 4.67 / 0.00 ms  (average mu = 0.607, current mu = 0.469) allocation failure;  [2836821:0x419bd000]     2336 ms: Mark-Compact (reduce) 507.0 (526.8) -> 506.3 (514.8) MB, pooled: 0 MB, 286.64 / 0.00 ms  (+ 1.6 ms in 50 steps since start of marking, biggest step 1.3 ms, walltime since start of marking 296 ms) (average mu = 0.376, curr FATAL ERROR: Reached heap limit Allocation failed |
 | tiff | robustness/test_ifd_loop_to_first.tif | robustness | malformed-accepted | - | - | - |  |
 | image-js | robustness/test_ifd_loop_to_first.tif | robustness | malformed-accepted | - | - | - |  |
-| jimp | robustness/test_ifd_loop_to_first.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [1074471:0x26579000]     1788 ms: Mark-Compact (reduce) 507.4 (515.9) -> 506.8 (512.9) MB, pooled: 0 MB, 73.40 / 0.00 ms  (+ 0.3 ms in 47 steps since start of marking, biggest step 0.2 ms, walltime since start of marking 78 ms) (average mu = 0.296, curren[1074471:0x26579000]     1992 ms: Mark-Compact 507.9 (512.9) -> 507.6 (516.4) MB, pooled: 0 MB, 202.99 / 0.00 ms  (average mu = 0.141, current mu = 0.003) allocation failure; scavenge might not succeed FATAL ERROR: Reach |
+| jimp | robustness/test_ifd_loop_to_first.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [2837123:0x1f80d000]     2039 ms: Scavenge (interleaved) 501.8 (511.8) -> 501.6 (517.3) MB, pooled: 0 MB, 2.14 / 0.00 ms  (average mu = 0.590, current mu = 0.528) allocation failure;  [2837123:0x1f80d000]     2292 ms: Mark-Compact 505.2 (517.3) -> 504.3 (520.6) MB, pooled: 0 MB, 249.72 / 0.00 ms  (average mu = 0.377, current mu = 0.072) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- N |
 | geotiff | robustness/test_ifd_loop_to_self.tif | robustness | malformed-accepted | - | - | - |  |
-| utif2 | robustness/test_ifd_loop_to_self.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [1074544:0xdcc2000]     1688 ms: Scavenge (interleaved) 507.5 (513.2) -> 507.3 (518.2) MB, pooled: 0 MB, 2.21 / 0.00 ms  (average mu = 0.336, current mu = 0.254) allocation failure;  [1074544:0xdcc2000]     2073 ms: Mark-Compact (reduce) 509.7 (518.4) -> 509.2 (513.9) MB, pooled: 0 MB, 345.32 / 0.00 ms  (+ 0.9 ms in 33 steps since start of marking, biggest step 0.8 ms, walltime since start of marking 352 ms) (average mu = 0.185, curre FATAL ERROR: Reached heap limit Alloc |
+| utif2 | robustness/test_ifd_loop_to_self.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [2837497:0x24e9d000]     2422 ms: Scavenge (interleaved) 503.5 (511.8) -> 503.3 (516.8) MB, pooled: 0 MB, 3.50 / 0.00 ms  (average mu = 0.371, current mu = 0.142) allocation failure;  [2837497:0x24e9d000]     2835 ms: Mark-Compact (reduce) 507.0 (517.3) -> 506.1 (514.1) MB, pooled: 0 MB, 388.41 / 0.00 ms  (+ 0.6 ms in 52 steps since start of marking, biggest step 0.4 ms, walltime since start of marking 397 ms) (average mu = 0.210, curr FATAL ERROR: Reached heap limit Allo |
 | tiff | robustness/test_ifd_loop_to_self.tif | robustness | malformed-accepted | - | - | - |  |
 | image-js | robustness/test_ifd_loop_to_self.tif | robustness | malformed-accepted | - | - | - |  |
-| jimp | robustness/test_ifd_loop_to_self.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [1074584:0x1ad46000]     1945 ms: Mark-Compact (reduce) 507.6 (515.9) -> 507.1 (512.7) MB, pooled: 0 MB, 80.19 / 0.00 ms  (+ 0.4 ms in 52 steps since start of marking, biggest step 0.2 ms, walltime since start of marking 85 ms) (average mu = 0.339, curren[1074584:0x1ad46000]     2069 ms: Mark-Compact 508.2 (512.7) -> 507.9 (516.4) MB, pooled: 0 MB, 123.73 / 0.00 ms  (average mu = 0.187, current mu = 0.007) allocation failure; scavenge might not succeed FATAL ERROR: Ineff |
+| jimp | robustness/test_ifd_loop_to_self.tif | robustness | process-crash | - | - | - | <--- Last few GCs ---> [2837736:0x14fea000]     2198 ms: Scavenge (interleaved) 508.1 (513.3) -> 507.9 (514.3) MB, pooled: 0 MB, 5.36 / 0.00 ms  (average mu = 0.471, current mu = 0.199) allocation failure;  [2837736:0x14fea000]     2362 ms: Mark-Compact (reduce) 509.1 (514.3) -> 508.6 (513.3) MB, pooled: 0 MB, 132.98 / 0.00 ms  (+ 1.8 ms in 16 steps since start of marking, biggest step 0.5 ms, walltime since start of marking 138 ms) (average mu = 0.375, curr FATAL ERROR: Reached heap limit Allo |
 | purejsimage | valid/12bit.cropped.rgb.tiff | exact-rgba | success | 368 | 1 | 0.2596 |  |
 | geotiff | valid/12bit.cropped.rgb.tiff | exact-rgba | success | 1901 | 26 | 3.4835 |  |
 | utif2 | valid/12bit.cropped.rgb.tiff | exact-rgba | error | - | - | - | 12 |
@@ -72,15 +72,15 @@ PureJsImage: package metadata 0.18.0; main snapshot 3be45301e877c8811c42102f1403
 | utif2 | valid/BigTIFF.tif | exact-rgba | error | - | - | - | UTIF.js found no image directory |
 | tiff | valid/BigTIFF.tif | exact-rgba | error | - | - | - | not a TIFF file |
 | image-js | valid/BigTIFF.tif | exact-rgba | error | - | - | - | invalid data format: undefined |
-| jimp | valid/BigTIFF.tif | exact-rgba | error | - | - | - | Could not find MIME for Buffer |
+| jimp | valid/BigTIFF.tif | exact-rgba | error | - | - | - | No page found in TIFF |
 | utif2 | valid/BigTIFFLong.tif | exact-rgba | error | - | - | - | UTIF.js found no image directory |
 | tiff | valid/BigTIFFLong.tif | exact-rgba | error | - | - | - | not a TIFF file |
 | image-js | valid/BigTIFFLong.tif | exact-rgba | error | - | - | - | invalid data format: undefined |
-| jimp | valid/BigTIFFLong.tif | exact-rgba | error | - | - | - | Could not find MIME for Buffer |
+| jimp | valid/BigTIFFLong.tif | exact-rgba | error | - | - | - | No page found in TIFF |
 | utif2 | valid/BigTIFFMotorola.tif | exact-rgba | error | - | - | - | UTIF.js omitted dimensions |
 | tiff | valid/BigTIFFMotorola.tif | exact-rgba | error | - | - | - | not a TIFF file |
 | image-js | valid/BigTIFFMotorola.tif | exact-rgba | error | - | - | - | invalid data format: undefined |
-| jimp | valid/BigTIFFMotorola.tif | exact-rgba | error | - | - | - | Could not find MIME for Buffer |
+| jimp | valid/BigTIFFMotorola.tif | exact-rgba | error | - | - | - | No image width found in TIFF |
 | purejsimage | valid/cmyk-3c-16b.tiff | converted-rgba | success | 23705 | 40 | 12.5002 |  |
 | geotiff | valid/cmyk-3c-16b.tiff | converted-rgba | success | 23707 | 255 | 81.4648 |  |
 | utif2 | valid/cmyk-3c-16b.tiff | converted-rgba | error | - | - | - | window is not defined |
@@ -333,6 +333,7 @@ PureJsImage: package metadata 0.18.0; main snapshot 3be45301e877c8811c42102f1403
 | purejsimage | valid/palette-1c-8b.tiff | exact-rgba | success | 18378 | 1 | 0.5574 |  |
 | geotiff | valid/palette-1c-8b.tiff | exact-rgba | success | 23707 | 239 | 86.8111 |  |
 | tiff | valid/palette-1c-8b.tiff | exact-rgba | success | 12619 | 1 | 0.4156 |  |
+| jimp | valid/pc260001.tif | exact-rgba | error | - | - | - | Mime type image/x-sony-arw does not support decoding |
 | utif2 | valid/planar-rgb-u8.tif | exact-rgba | success | 186551 | 255 | 78.6846 |  |
 | tiff | valid/planar-rgb-u8.tif | exact-rgba | error | - | - | - | Offset is outside the bounds of the DataView |
 | image-js | valid/planar-rgb-u8.tif | exact-rgba | error | - | - | - | Offset is outside the bounds of the DataView |
@@ -343,12 +344,12 @@ PureJsImage: package metadata 0.18.0; main snapshot 3be45301e877c8811c42102f1403
 | tiff | valid/quad-jpeg.tif | converted-rgba | unsupported | - | - | - | Unsupported image type: 6 |
 | image-js | valid/quad-jpeg.tif | converted-rgba | unsupported | - | - | - | Unsupported image type: 6 |
 | jimp | valid/quad-jpeg.tif | converted-rgba | success | 96292 | 85 | 3.1575 |  |
-| geotiff | valid/quad-lzw-compat.tiff | - | process-crash | - | - | - | <--- Last few GCs ---> [1084804:0x2e417000]     2296 ms: Mark-Compact 977.0 (1107.0) -> 594.0 (723.0) MB, pooled: 6 MB, 456.31 / 0.00 ms  (average mu = 0.377, current mu = 0.351) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/.nvm/versions/node/v24.16.0/bin/node]  2: 0xc1a4b0  [/home/ard/.nvm/versions |
+| geotiff | valid/quad-lzw-compat.tiff | - | process-crash | - | - | - | <--- Last few GCs ---> [2872426:0x40ca0000]     3128 ms: Mark-Compact 979.9 (1110.2) -> 597.1 (726.9) MB, pooled: 2 MB, 547.89 / 0.00 ms  (average mu = 0.384, current mu = 0.346) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/.nvm/versions/node/v24.16.0/bin/node]  2: 0xc1a4b0  [/home/ard/.nvm/versions |
 | utif2 | valid/quad-lzw-compat.tiff | - | timeout | - | - | - | worker timed out |
 | tiff | valid/quad-lzw-compat.tiff | exact-rgba | error | - | - | - | Offset is outside the bounds of the DataView |
 | image-js | valid/quad-lzw-compat.tiff | exact-rgba | error | - | - | - | Offset is outside the bounds of the DataView |
 | jimp | valid/quad-lzw-compat.tiff | - | timeout | - | - | - | worker timed out |
-| geotiff | valid/quad-lzw.tif | - | process-crash | - | - | - | <--- Last few GCs ---> [1085100:0x14c7e000]     1870 ms: Mark-Compact 658.3 (789.5) -> 402.8 (532.5) MB, pooled: 4 MB, 316.79 / 0.00 ms  (average mu = 0.393, current mu = 0.356) allocation failure; scavenge might not succeed [1085100:0x14c7e000]     2636 ms: Mark-Compact 976.6 (1106.3) -> 593.9 (723.0) MB, pooled: 4 MB, 500.18 / 0.00 ms  (average mu = 0.362, current mu = 0.347) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap ou |
+| geotiff | valid/quad-lzw.tif | - | process-crash | - | - | - | <--- Last few GCs ---> [2875204:0xd981000]     3781 ms: Mark-Compact 979.9 (1110.2) -> 597.1 (726.9) MB, pooled: 3 MB, 684.74 / 0.00 ms  (average mu = 0.379, current mu = 0.337) allocation failure; scavenge might not succeed FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory ----- Native stack trace -----  1: 0x744ae8 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/home/ard/.nvm/versions/node/v24.16.0/bin/node]  2: 0xc1a4b0  [/home/ard/.nvm/versions/ |
 | utif2 | valid/quad-lzw.tif | - | timeout | - | - | - | worker timed out |
 | tiff | valid/quad-lzw.tif | exact-rgba | error | - | - | - | Offset is outside the bounds of the DataView |
 | image-js | valid/quad-lzw.tif | exact-rgba | error | - | - | - | Offset is outside the bounds of the DataView |
@@ -387,12 +388,12 @@ PureJsImage: package metadata 0.18.0; main snapshot 3be45301e877c8811c42102f1403
 | tiff | valid/testfax3_bug54_1dnoEOL.tif | exact-rgba | unsupported | - | - | - | Unsupported Compression: 3 |
 | image-js | valid/testfax3_bug54_1dnoEOL.tif | exact-rgba | unsupported | - | - | - | Unsupported Compression: 3 |
 | jimp | valid/testfax3_bug54_1dnoEOL.tif | exact-rgba | success | 227223 | 255 | 52.5752 |  |
-| purejsimage | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/575. |
-| geotiff | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/575. |
-| utif2 | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/575. |
-| tiff | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/575. |
-| image-js | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/575. |
-| jimp | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/575. |
+| purejsimage | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/571. |
+| geotiff | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/571. |
+| utif2 | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/571. |
+| tiff | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/571. |
+| image-js | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/571. |
+| jimp | valid/text.tif | exact-rgba | oracle-failure | - | - | - | sharp: tiff2vips: Not enough data at scanline 320 (0 != 1512); ImageMagick: identify: Not enough data at scanline 320 (0 != 1512). `ThunderDecode' @ error/tiff.c/TIFFErrors/571. |
 | geotiff | valid/tiled-gray-i1.tif | exact-rgba | success | 934 | 127 | 77.3788 |  |
 | purejsimage | valid/tiled-jpeg-rgb-u8.tif | converted-rgba | success | 6849 | 1 | 0.0971 |  |
 | geotiff | valid/tiled-jpeg-rgb-u8.tif | converted-rgba | success | 28138 | 1 | 0.2025 |  |

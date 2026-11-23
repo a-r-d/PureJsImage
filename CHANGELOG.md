@@ -34,6 +34,10 @@ All notable changes to PureJsImage are documented in this file.
   MiB more peak RSS on most workflows and up to 32 MiB more on three. Wall time did not change
   beyond run-to-run noise. Published speed and memory results still use Jimp 1.6.0 and sharp
   0.35.3.
+- The TIFF competitor conformance run is redone with Jimp 1.7.0 and the sharp 0.35.5 oracle.
+  Every result matches the August run except one: Jimp 1.7.0's file-type 21 reads
+  `valid/pc260001.tif` as a Sony ARW raw file and refuses to decode it, so Jimp now decodes 73 of
+  the 106 comparable files instead of 74. The website TIFF comparison shows the new run.
 - The sharp benchmark engine now decodes the iPhone HEIC fixture to decide whether it can run the
   HEIC workflow. libheif 1.23.5 reads the file's metadata without an HEVC decoder, so the old
   metadata check reported a failed run instead of an unsupported one.

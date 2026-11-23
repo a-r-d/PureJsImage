@@ -497,7 +497,7 @@ describe('package contract', () => {
     expect(docsHome).toContain('Jimp uses utif2 for TIFF internally')
     expect(tiffGuide).toContain('Decoded / comparable')
     expect(comparison).toContain(
-      'benchmark snapshot at commit 3be45301e877c8811c42102f1403bf211d8253cf',
+      'benchmark snapshot at commit c341a4c68dba1e8d44b21de1ac7de3493e7d223a',
     )
     expect(comparison).toContain('Decode coverage, exact pixels, and reported outcomes')
     expect(comparison).toContain('Oracle unavailable')
