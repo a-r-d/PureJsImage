@@ -1,0 +1,45 @@
+docs-astro/src/scripts/xray-worker.ts
+  s_fb44c3e6b9dfb0::t_c29f12ed27a041 13,21
+benchmark/jpegxl/comparison/run.ts
+  s_fb44c3e6b9dfb0::t_4d2f02cae67c94 87-88,90
+benchmark/jpegxl/comparison/generate.ts
+  s_fb44c3e6b9dfb0::t_7ade7becf8466b 122-125
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_3b80b0fea2fb8e 7-15
+benchmark/jpegxl/comparison/browser-worker.ts
+  s_fb44c3e6b9dfb0::t_c29f12ed27a041 12-13
+benchmark/jpegxl/comparison/preview.ts
+  s_fb44c3e6b9dfb0::t_c016c4b425a689 41-42,44
+tests/dedicated-worker-message.test.ts
+  s_fb44c3e6b9dfb0::t_857451a2222ff6 1-18
+docs-astro/src/scripts/hdr-surgery-worker.ts
+  s_fb44c3e6b9dfb0::t_c29f12ed27a041 18,228
+docs-astro/src/scripts/four-d-stem-worker.ts
+  s_fb44c3e6b9dfb0::t_c29f12ed27a041 40,494
+docs-astro/src/scripts/worker-message.ts
+  s_fb44c3e6b9dfb0::t_27487b8d2193d7 1-5
+benchmark/jpegxl/comparison/preview-worker.ts
+  s_fb44c3e6b9dfb0::t_c29f12ed27a041 11-12
+docs-astro/src/scripts/jpegxl-workbench-worker.ts
+  s_fb44c3e6b9dfb0::t_c29f12ed27a041 35,194
+docs-astro/src/scripts/ome-zarr-worker.ts
+  s_fb44c3e6b9dfb0::t_c29f12ed27a041 43,1178
+benchmark/jpegxl/generate-transform-gap-fixtures.ts
+  s_fb44c3e6b9dfb0::t_ffad59ca1db00d 58-67,73-74,76,85-87,89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a1562cc85f850661bb797efd462188a8aae7e357",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
