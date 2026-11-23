@@ -4,6 +4,18 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Keep a sampled GRAY ICC profile, such as Photoshop's Dot Gain profiles, on a grayscale JPEG in
+  lossless `keepIcc().jpegxl()` output. The JPEG decoder emits equal RGB channels, which now fold
+  back to gray samples with the exact profile. These encodes failed with `INVALID_INPUT` before.
+  RGB samples with unequal channels still cannot carry a GRAY profile and fail with
+  `INVALID_INPUT`.
+- Check a kept ICC profile's compressed stream when the JPEG XL encoder is created. When the
+  stream is over 4 MiB, a matrix and curve profile now writes its equal structured color, and other
+  profiles fail with `LIMIT_EXCEEDED` before any rows. Both failed in `finish()` after every row
+  was written before.
+
 ### Testing, CI and docs
 
 - The website's X-Ray, HDR, OME-Zarr, and 4D-STEM workers now ignore messages that do not come

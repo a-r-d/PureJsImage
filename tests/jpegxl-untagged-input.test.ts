@@ -27,8 +27,10 @@ import {
 import {
   adobeRgbProfile,
   displayP3RgbProfile,
+  graySampledProfile,
   proPhotoRgbProfile,
   rgbLegacyLutProfile,
+  rgbLutOnlyProfile,
 } from './icc-fixtures.ts'
 import { Image } from './image-library.ts'
 
@@ -183,6 +185,73 @@ it('keeps a JPEG or PNG ICC profile in lossless JPEG XL with keepIcc()', async (
   }
 })
 
+it('keeps a sampled GRAY profile on a grayscale JPEG in lossless keepIcc() output', async () => {
+  const profile = graySampledProfile()
+  expect(structuredIccColor(profile)).toBeUndefined()
+  const gray = await (await Image.open(untaggedPng(0, 8, 32, 24)))
+    .jpeg({ quality: 90 })
+    .toUint8Array()
+  const input = jpegWithIcc(gray, profile)
+  const encoded = Uint8Array.from(
+    await (await Image.open(input)).keepIcc().jpegxl({ effort: 3 }).toUint8Array(),
+  )
+  // The JPEG decoder emits equal RGB channels; the JPEG XL file stores them once as gray.
+  const kept = await decode(jpegxlCodec, encoded, { colorOutput: 'preserve' })
+  const source = await decode(jpegCodec, input, { preserveIcc: true })
+  expect(kept.pixelFormat).toBe('gray8')
+  expect(kept.pixels).toEqual(source.pixels.filter((_, index) => index % 3 === 0))
+  const metadata = await jpegxlCodec.preservedMetadata?.(
+    new MemorySource(encoded),
+    defaultImageLimits,
+    { exif: false, icc: true },
+  )
+  expect(metadata?.icc).toEqual(profile)
+  // Lossy output cannot embed the profile, and it has no structured equal.
+  await expect(
+    (await Image.open(input)).keepIcc().jpegxl({ mode: 'lossy' }).toUint8Array(),
+  ).rejects.toMatchObject({
+    code: 'UNSUPPORTED_OPERATION',
+    message: expect.stringContaining('lossless'),
+  })
+})
+
+it('rejects a GRAY profile on RGB samples whose channels differ', async () => {
+  const profile = graySampledProfile()
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width: 2,
+    height: 1,
+    pixelFormat: 'rgb8',
+    limits: defaultImageLimits,
+    options: { effort: 3 },
+    metadata: { icc: profile },
+    colorSemantics: {
+      family: 'gray',
+      primaries: 'srgb',
+      transfer: { kind: 'source-profile' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'icc',
+      renderingIntent: 'relative',
+      icc: { relevance: 'emitted-pixels' },
+    },
+  })
+  if (!encoder) throw new Error('Missing JPEG XL encoder')
+  await expect(
+    encoder.write({
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 1,
+      stride: 6,
+      format: 'rgb8',
+      data: Uint8Array.of(10, 10, 10, 20, 21, 20),
+    }),
+  ).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  await encoder.abort?.(new Error('test cleanup'))
+})
+
 it('writes the equal structured color for lossy keepIcc() output', async () => {
   const jpeg = await (await Image.open(smoothPng(64, 48))).jpeg({ quality: 95 }).toUint8Array()
   for (const [profile, colorSpace] of [
@@ -277,6 +346,81 @@ it('keeps the exact profile in lossless keepIcc() output under a small working l
   expect((await decode(jpegxlCodec, encoded, { colorOutput: 'preserve' })).pixels).toEqual(
     (await decode(jpegCodec, input, { preserveIcc: true })).pixels,
   )
+})
+
+/** Appends an incompressible private tag so the profile's compressed stream passes 4 MiB. */
+const withLargePrivateTag = (profile: Uint8Array, size: number): Uint8Array => {
+  const view = new DataView(profile.buffer, profile.byteOffset, profile.byteLength)
+  const count = view.getUint32(128)
+  const tableEnd = 132 + count * 12
+  const tagOffset = profile.byteLength + 12
+  const output = new Uint8Array(tagOffset + size)
+  const out = new DataView(output.buffer)
+  output.set(profile.subarray(0, tableEnd))
+  output.set(profile.subarray(tableEnd), tableEnd + 12)
+  out.setUint32(0, output.byteLength)
+  out.setUint32(128, count + 1)
+  for (let tag = 0; tag < count; tag++)
+    out.setUint32(132 + tag * 12 + 4, view.getUint32(132 + tag * 12 + 4) + 12)
+  output.set(new TextEncoder().encode('zzzz'), tableEnd)
+  out.setUint32(tableEnd + 4, tagOffset)
+  out.setUint32(tableEnd + 8, size)
+  let state = 1
+  for (let index = tagOffset; index < output.length; index++) {
+    state = (Math.imul(state, 1103515245) + 12345) >>> 0
+    output[index] = state >>> 24
+  }
+  return output
+}
+
+const createKeptProfileEncoder = (profile: Uint8Array, sink: Uint8ArraySink) =>
+  jpegxlCodec.createEncoder?.(sink, {
+    width: 2,
+    height: 1,
+    pixelFormat: 'rgb8',
+    limits: defaultImageLimits,
+    options: { effort: 3 },
+    metadata: { icc: profile },
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'source-profile' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'icc',
+      renderingIntent: 'relative',
+      icc: { relevance: 'emitted-pixels' },
+    },
+  })
+
+it('writes the equal structured color when a kept profile stream passes the ICC limit', async () => {
+  const profile = withLargePrivateTag(displayP3RgbProfile(), 4_718_592)
+  const sink = new Uint8ArraySink()
+  const encoder = await createKeptProfileEncoder(profile, sink)
+  if (!encoder) throw new Error('Missing JPEG XL encoder')
+  const samples = Uint8Array.of(10, 120, 240, 200, 90, 30)
+  await encoder.write({ x: 0, y: 0, width: 2, height: 1, stride: 6, format: 'rgb8', data: samples })
+  await encoder.finish()
+  const encoded = sink.toUint8Array()
+  const kept = await jpegxlCodec.preservedMetadata?.(
+    new MemorySource(encoded),
+    defaultImageLimits,
+    { exif: false, icc: true },
+  )
+  expect(kept?.icc).toBeUndefined()
+  const decoded = await decode(jpegxlCodec, encoded, { colorOutput: 'preserve' })
+  expect(decoded.colorSemantics?.primaries).toBe('display-p3')
+  expect(decoded.pixels).toEqual(samples)
+})
+
+it('rejects an oversized profile stream without a structured equal before any rows', async () => {
+  const profile = withLargePrivateTag(rgbLutOnlyProfile(), 4_718_592)
+  expect(structuredIccColor(profile)).toBeUndefined()
+  await expect(createKeptProfileEncoder(profile, new Uint8ArraySink())).rejects.toMatchObject({
+    code: 'LIMIT_EXCEEDED',
+    message: expect.stringContaining('maxIccCompressedBytes'),
+  })
 })
 
 it('compresses lossless keepIcc() samples as well as the same untagged samples', async () => {

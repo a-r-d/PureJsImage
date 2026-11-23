@@ -7,10 +7,12 @@ import { type PixelBlock, pixelStorage } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import { jpegXlPartsByteLength } from './jpegxl-encoder-memory.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
+import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   acceptsJpegXlColorSemantics,
   encodedJpegXlMetadataBoxes,
   isUntaggedJpegXlColorSemantics,
+  jpegXlIccStreamCommands,
   resolveJpegXlEncodeOptions,
 } from './jpegxl-modular-encode.ts'
 import { encodeJpegXlNative } from './jpegxl-native-encode.ts'
@@ -147,6 +149,9 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
     inputBytes * 13n + BigInt(profile?.byteLength ?? 0) * 10n + metadataReserve + 65536n
   if (required > BigInt(workingLimit) || inputBytes > BigInt(limits.maxDecodedBytes))
     throw limitExceeded('JPEG XL float encoder working storage exceeds its configured limit')
+  // Check the profile's compressed stream before any rows arrive. The writer repeats this at
+  // finish(), where an oversized profile would otherwise fail after all rows were staged.
+  if (profile) jpegXlIccStreamCommands(profile, resolveJpegXlLimits())
   const boxes = encodedJpegXlMetadataBoxes({ ...request, metadata: otherMetadata }, true)
   const boxBytes = jpegXlPartsByteLength(boxes)
   if (boxBytes + 49 >= outputLimit)

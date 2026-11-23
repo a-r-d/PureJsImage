@@ -115,6 +115,32 @@ export const grayGammaProfile = (pcs: 'XYZ ' | 'Lab ', gamma: number): Uint8Arra
   return profile
 }
 
+/**
+ * A GRAY profile with a sampled 256-entry kTRC curve that is neither a gamma nor sRGB, like the
+ * dot-gain curves Photoshop embeds in grayscale files. It has no structured JPEG XL equal.
+ */
+export const graySampledProfile = (): Uint8Array => {
+  const curveOffset = 128 + 4 + 12
+  const profile = new Uint8Array(curveOffset + 12 + 256 * 2)
+  const view = new DataView(profile.buffer)
+  writeUint32(view, 0, profile.byteLength)
+  writeSignature(profile, 12, 'mntr')
+  writeSignature(profile, 16, 'GRAY')
+  writeSignature(profile, 20, 'XYZ ')
+  writeSignature(profile, 36, 'acsp')
+  writeUint32(view, 128, 1)
+  writeSignature(profile, 132, 'kTRC')
+  writeUint32(view, 136, curveOffset)
+  writeUint32(view, 140, 12 + 256 * 2)
+  writeSignature(profile, curveOffset, 'curv')
+  writeUint32(view, curveOffset + 8, 256)
+  for (let i = 0; i < 256; i++) {
+    const x = i / 255
+    writeUint16(view, curveOffset + 12 + i * 2, Math.round(65535 * (0.5 * x + 0.5 * x ** 1.8)))
+  }
+  return profile
+}
+
 export const displayP3RgbProfile = (): Uint8Array =>
   matrixRgbProfile(
     [0.515075, 0.24117, -0.001049],

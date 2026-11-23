@@ -6074,12 +6074,16 @@
           "text": "Compress lossy float32 output. Explicit lossy grayf32/rgbf32/rgbaf32 encoding only rounds Modular color mantissas, so Radiance HDR and PFM input, whose samples carry at most 8 significant mantissa bits, gives the same file as lossless. Add a perceptual path for linear float input, such as XYB VarDCT, and record size, quality and memory evidence before claiming it."
         },
         {
-          "status": "planned",
-          "text": "Keep a sampled GRAY ICC curve, such as Photoshop's Dot Gain profiles, on a grayscale JPEG in lossless `keepIcc()` output. The JPEG decoder emits RGB samples and only gamma gray curves have a structured equal, so these encodes fail with `INVALID_INPUT`."
+          "status": "supported",
+          "text": "Keep a sampled GRAY ICC curve, such as Photoshop's Dot Gain profiles, on a grayscale JPEG in lossless `keepIcc()` output. The JPEG decoder emits equal RGB channels, which fold back to gray; RGB samples with unequal channels fail with `INVALID_INPUT`."
+        },
+        {
+          "status": "supported",
+          "text": "Check a kept profile's compressed stream when the encoder is created. Above `maxIccCompressedBytes` (4 MiB), lossless `keepIcc()` output writes the equal structured color when one exists, and otherwise fails with `LIMIT_EXCEEDED` before any rows."
         },
         {
           "status": "planned",
-          "text": "Keep ICC profiles larger than about 4 MiB in lossless `keepIcc()` output. They need a Level 10 codestream and a raised `maxIccCompressedBytes`, and today the encode fails in `finish()` instead of at encoder creation."
+          "text": "Keep ICC profiles whose compressed stream is larger than 4 MiB in lossless `keepIcc()` output. They need a Level 10 codestream and a raised `maxIccCompressedBytes` on both the writer and the reader."
         },
         {
           "status": "supported",

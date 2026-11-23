@@ -53,9 +53,11 @@ profile to sRGB first.
 | float32 with no color, such as Radiance HDR or PFM | Linear sRGB |
 | `keepIcc()`, lossless, 8- or 16-bit RGB, RGBA or gray samples | The original samples and the exact ICC profile, compressed as well as untagged samples |
 | `keepIcc()`, lossless, float samples or a gray profile with alpha | The original samples and the exact ICC profile from the native writer, which compresses less |
-| `keepIcc()`, lossless, a gray profile on RGB samples, or a native-writer frame above its working budget | The original samples with the equal color description |
+| `keepIcc()`, lossless, a gray profile on equal RGB channels, such as a grayscale JPEG | Gray samples and the exact ICC profile, including sampled curves such as Dot Gain |
+| `keepIcc()`, lossless, a native-writer frame above its working budget, or a profile whose compressed stream is over 4 MiB | The original samples with the equal color description |
 | `keepIcc()`, lossy, matrix and curve profile with real primaries | The equal color description, such as Display P3 or Adobe RGB primaries with a gamma curve |
-| `keepIcc()`, other profiles, such as LUT or ProPhoto RGB profiles, lossy or above that budget | `UNSUPPORTED_OPERATION` or `LIMIT_EXCEEDED`; drop `keepIcc()` to convert to sRGB |
+| `keepIcc()`, other profiles, such as LUT or ProPhoto RGB profiles, lossy or above that budget or ICC limit | `UNSUPPORTED_OPERATION` or `LIMIT_EXCEEDED` before any rows; drop `keepIcc()` to convert to sRGB |
+| `keepIcc()`, a gray profile on RGB samples with unequal channels | `INVALID_INPUT` |
 
 Untagged 32-bit integer samples still fail with `UNSUPPORTED_OPERATION`. With
 `keepExif()`, an Exif orientation moves into the JPEG XL header and the kept
