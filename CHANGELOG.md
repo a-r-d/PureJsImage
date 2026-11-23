@@ -381,13 +381,15 @@ All notable changes to PureJsImage are documented in this file.
   before. A 16-bit PNG with only a gAMA value keeps that gamma with sRGB primaries. Untagged
   float32 input, such as Radiance HDR and PFM, is written as linear sRGB, as cjxl reads PFM.
 - Keep a JPEG, PNG or other source ICC profile in JPEG XL with `keepIcc()`. Lossless output keeps
-  the unconverted samples and copies the profile exactly. Lossy output cannot embed a profile, so
-  it writes the equal JPEG XL color description for matrix and curve profiles: sRGB, Display P3,
-  Rec. 2020 or custom primaries such as Adobe RGB, with an sRGB, BT.709, linear or gamma curve.
-  Lossless output also writes that description when the frame exceeds the exact-profile writer's
-  working budget (about 6.9 megapixels of RGB under the default 1 GiB limit) or when a gray
-  profile sits on gray samples decoded as RGB. Other profiles, such as LUT profiles, still need
-  lossless output that fits the budget. The PNG decoder now reports
+  the unconverted samples and copies the profile exactly. For 8- and 16-bit RGB, RGBA and gray
+  samples, the Modular encoder writes the profile in the image header and compresses the samples
+  as it does untagged ones, at any frame size: a 320x240 photo is 69.7 KB at effort 3 instead of
+  the 246.5 KB the native writer produced. Lossy output cannot embed a profile, so it writes the
+  equal JPEG XL color description for matrix and curve profiles: sRGB, Display P3, Rec. 2020 or
+  custom primaries such as Adobe RGB, with an sRGB, BT.709, linear or gamma curve. Lossless output
+  also writes that description when a gray profile sits on gray samples decoded as RGB, or when
+  float or gray-with-alpha samples exceed the native writer's working budget. Other profiles,
+  such as LUT profiles, still need lossless output. The PNG decoder now reports
   `icc.relevance: 'emitted-pixels'` for samples it leaves in the embedded profile.
 - Decode grayscale JPEGs and gray-with-alpha PNGs that carry a GRAY ICC profile. They failed to
   open before unless `keepIcc()` kept the profile.

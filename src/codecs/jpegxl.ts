@@ -53,6 +53,7 @@ import {
   withCodestreamOrientation,
   withStructuredIccColor,
   withUntaggedJpegXlColorSemantics,
+  writesJpegXlIccInModular,
 } from './jpegxl-modular-encode.ts'
 import { createJpegXlNativePixelDecoder } from './jpegxl-native-pixel.ts'
 import { createJpegXlSequenceFrameDecoder } from './jpegxl-sequence.ts'
@@ -646,7 +647,9 @@ const createJpegXlEncoder = async (
     request.pixelFormat !== 'rgbaf32' &&
     request.pixelFormat !== 'gray32' &&
     request.pixelFormat !== 'rgb32' &&
-    (request.metadata?.icc === undefined || request.colorSemantics?.icc === undefined)
+    (request.metadata?.icc === undefined ||
+      request.colorSemantics?.icc === undefined ||
+      writesJpegXlIccInModular(request))
   )
     return createJpegXlModularEncoder(sink, request)
   try {

@@ -7,7 +7,6 @@ import { jpegXlContainerSignature } from './jpegxl-container.ts'
 import type { JpegXlAnimationHeader, JpegXlFrameStructure } from './jpegxl-decode.ts'
 import { jpegXlPartsByteLength } from './jpegxl-encoder-memory.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
-import { encodeJpegXlIccCommands } from './jpegxl-icc.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   acceptsJpegXlColorSemantics,
@@ -17,6 +16,7 @@ import {
   jpegXlAnimationLoopsDistribution,
   jpegXlAnimationNumeratorDistribution,
   jpegXlExtraChannelCountDistribution,
+  jpegXlIccStreamCommands,
   jpegXlNameLengthDistribution,
   jpegXlSectionSizeDistribution,
   packSigned,
@@ -26,7 +26,9 @@ import {
   writeModularTree,
   writePositiveF16,
   writePrefixCode,
+  writeJpegXlIccStream,
   writeU32,
+  writeU64,
 } from './jpegxl-modular-encode.ts'
 
 export interface JpegXlNativePlaneInput {
@@ -127,26 +129,6 @@ const encodedSample = (plane: Readonly<JpegXlNativePlaneInput>, sample: number):
   sample >= 2 ** 31
     ? sample - 2 ** 32
     : sample
-const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
-  if (value === 0) writer.writeBits(0, 2)
-  else if (value <= 16) {
-    writer.writeBits(1, 2)
-    writer.writeBits(value - 1, 4)
-  } else if (value <= 272) {
-    writer.writeBits(2, 2)
-    writer.writeBits(value - 17, 8)
-  } else {
-    writer.writeBits(3, 2)
-    writer.writeBits(value % 4096, 12)
-    value = Math.floor(value / 4096)
-    while (value > 0) {
-      writer.writeBits(1, 1)
-      writer.writeBits(value % 256, 8)
-      value = Math.floor(value / 256)
-    }
-    writer.writeBits(0, 1)
-  }
-}
 export const writeJpegXlNativeImageHeader = (
   writer: JpegXlBitWriter,
   options: Readonly<
@@ -249,16 +231,7 @@ export const writeJpegXlNativeImageHeader = (
   }
   writeU64(writer, 0)
   writer.writeBits(1, 1)
-  if (profile) {
-    const commands = encodeJpegXlIccCommands(profile, jpegLimits.maxIccBytes)
-    if (commands.length > jpegLimits.maxIccCompressedBytes)
-      throw limitExceeded('JPEG XL literal ICC representation exceeds maxIccCompressedBytes')
-    writeU64(writer, commands.length)
-    const counts = new Uint32Array(256)
-    for (const byte of commands) counts[byte] = (counts[byte] ?? 0) + 1
-    const encoding = writePrefixCode(writer, 41, counts)
-    for (const byte of commands) writeHybridUint(writer, byte, encoding)
-  }
+  if (profile) writeJpegXlIccStream(writer, jpegXlIccStreamCommands(profile, jpegLimits))
   writer.alignToByte()
 }
 

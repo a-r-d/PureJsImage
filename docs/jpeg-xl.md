@@ -51,8 +51,9 @@ profile to sRGB first.
 | No color tag, 8- or 16-bit | sRGB |
 | 16-bit PNG with only a gAMA value | sRGB primaries with that gamma |
 | float32 with no color, such as Radiance HDR or PFM | Linear sRGB |
-| `keepIcc()`, lossless | The original samples and the exact ICC profile |
-| `keepIcc()`, lossless, frame above about 6.9 megapixels of RGB at the default limit, or a gray profile on RGB samples | The original samples with the equal color description |
+| `keepIcc()`, lossless, 8- or 16-bit RGB, RGBA or gray samples | The original samples and the exact ICC profile, compressed as well as untagged samples |
+| `keepIcc()`, lossless, float samples or a gray profile with alpha | The original samples and the exact ICC profile from the native writer, which compresses less |
+| `keepIcc()`, lossless, a gray profile on RGB samples, or a native-writer frame above its working budget | The original samples with the equal color description |
 | `keepIcc()`, lossy, matrix and curve profile | The equal color description, such as Display P3 or Adobe RGB primaries with a gamma curve |
 | `keepIcc()`, other profiles, lossy or above that budget | `UNSUPPORTED_OPERATION` or `LIMIT_EXCEEDED`; drop `keepIcc()` to convert to sRGB |
 

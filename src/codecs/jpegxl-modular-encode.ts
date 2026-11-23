@@ -6,7 +6,7 @@ import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '.
 import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
-import { structuredIccColor } from './icc.ts'
+import { inspectIccProfile, structuredIccColor } from './icc.ts'
 import {
   defaultJpegXlWeightedPredictor,
   type JpegXlAnimationHeader,
@@ -27,7 +27,8 @@ import {
   rethrowJpegXlNonLimitError,
 } from './jpegxl-errors.ts'
 import { findFlatScreenshotPatches, hasFlatScreenshotBackground } from './jpegxl-flat-patches.ts'
-import { resolveJpegXlLimits } from './jpegxl-limits.ts'
+import { encodeJpegXlIccCommands } from './jpegxl-icc.ts'
+import { type JpegXlLimits, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   applyJpegXlModularRct as applyModularRct,
   chooseJpegXlModularRct,
@@ -245,6 +246,27 @@ export const jpegXlAlphaDimensionShiftDistribution: Parameters<typeof writeU32>[
 
 const writeZeroU64 = (writer: JpegXlBitWriter): void => writer.writeBits(0, 2)
 
+export const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
+  if (value === 0) writer.writeBits(0, 2)
+  else if (value <= 16) {
+    writer.writeBits(1, 2)
+    writer.writeBits(value - 1, 4)
+  } else if (value <= 272) {
+    writer.writeBits(2, 2)
+    writer.writeBits(value - 17, 8)
+  } else {
+    writer.writeBits(3, 2)
+    writer.writeBits(value % 4096, 12)
+    value = Math.floor(value / 4096)
+    while (value > 0) {
+      writer.writeBits(1, 1)
+      writer.writeBits(value % 256, 8)
+      value = Math.floor(value / 256)
+    }
+    writer.writeBits(0, 1)
+  }
+}
+
 const writeDimension = (writer: JpegXlBitWriter, dimension: number): void =>
   writeU32(writer, dimension, jpegXlDimensionDistribution)
 
@@ -291,6 +313,8 @@ interface ResolvedJpegXlEncodeOptions {
   readonly alphaBitDepth?: JpegXlSampleBitDepth
   readonly orientation: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
   readonly colorSemantics: PixelColorSemantics
+  /** A kept ICC profile's stream commands, written in the image header instead of structured color. */
+  readonly iccCommands?: Uint8Array
   readonly toneMapping: Readonly<{
     intensityTarget: number
     minNits: number
@@ -4847,6 +4871,26 @@ export const encodedJpegXlMetadataBoxes = (
   })
 }
 
+/** Encodes an ICC profile as JPEG XL ICC stream commands within the codestream limits. */
+export const jpegXlIccStreamCommands = (
+  profile: Uint8Array,
+  limits: Readonly<JpegXlLimits>,
+): Uint8Array => {
+  const commands = encodeJpegXlIccCommands(profile, limits.maxIccBytes)
+  if (commands.length > limits.maxIccCompressedBytes)
+    throw limitExceeded('JPEG XL literal ICC representation exceeds maxIccCompressedBytes')
+  return commands
+}
+
+/** Writes ICC stream commands after the image metadata, with one prefix code for all 41 contexts. */
+export const writeJpegXlIccStream = (writer: JpegXlBitWriter, commands: Uint8Array): void => {
+  writeU64(writer, commands.length)
+  const counts = new Uint32Array(256)
+  for (const byte of commands) counts[byte] = (counts[byte] ?? 0) + 1
+  const encoding = writePrefixCode(writer, 41, counts)
+  for (const byte of commands) writeHybridUint(writer, byte, encoding)
+}
+
 const writeImageHeader = (
   writer: JpegXlBitWriter,
   width: number,
@@ -4923,7 +4967,12 @@ const writeImageHeader = (
     }
   }
   writer.writeBits(xybEncoded ? 1 : 0, 1)
-  writeColorEncoding(writer, options.colorSemantics)
+  if (options.iccCommands) {
+    // ColorEncoding with want_icc: only the gray or RGB color space precedes the ICC stream.
+    writer.writeBits(0, 1)
+    writer.writeBits(1, 1)
+    writeEnum(writer, format.startsWith('gray') ? 1 : 0)
+  } else writeColorEncoding(writer, options.colorSemantics)
   if (extraFields) {
     writer.writeBits(defaultTone ? 1 : 0, 1)
     if (!defaultTone) {
@@ -4935,6 +4984,7 @@ const writeImageHeader = (
   }
   writeZeroU64(writer)
   writer.writeBits(1, 1)
+  if (options.iccCommands) writeJpegXlIccStream(writer, options.iccCommands)
   writer.alignToByte()
 }
 
@@ -7034,14 +7084,58 @@ class JpegXlModularEncoder implements ImageEncoder {
   }
 }
 
+/**
+ * A kept RGB or GRAY ICC profile that matches the integer samples it describes. Lossless Modular
+ * output writes it in the image header, so the samples keep normal prediction and entropy coding.
+ */
+const keptModularIccProfile = (request: EncodeRequest): Uint8Array | undefined => {
+  const profile = request.metadata?.icc
+  const semantics = request.colorSemantics
+  const format = request.pixelFormat
+  // Larger profiles need a Level 10 codestream, which the native writer selects.
+  if (
+    !profile ||
+    !semantics?.icc ||
+    !supportedFormat(format) ||
+    profile.byteLength < 128 ||
+    profile.byteLength > 4_194_304
+  )
+    return undefined
+  const gray = format.startsWith('gray')
+  return semantics.transfer.kind === 'source-profile' &&
+    semantics.icc.relevance === 'emitted-pixels' &&
+    semantics.family === (gray ? 'gray' : 'rgb') &&
+    semantics.matrix === 'identity' &&
+    semantics.range === 'full' &&
+    (format.startsWith('rgba')
+      ? semantics.alpha === 'straight' || semantics.alpha === 'premultiplied'
+      : semantics.alpha === 'none') &&
+    String.fromCharCode(...profile.subarray(16, 20)) === (gray ? 'GRAY' : 'RGB ')
+    ? profile
+    : undefined
+}
+
+/** Whether lossless Modular output can keep this request's ICC profile in its image header. */
+export const writesJpegXlIccInModular = (request: EncodeRequest): boolean => {
+  const options = request.options
+  const lossy =
+    typeof options === 'object' && options !== null && 'mode' in options && options.mode === 'lossy'
+  return !lossy && keptModularIccProfile(request) !== undefined
+}
+
 export const createJpegXlModularEncoder = async (
   sink: ImageSink,
-  request: EncodeRequest,
+  input: EncodeRequest,
 ): Promise<ImageEncoder> => {
-  if (!supportedFormat(request.pixelFormat)) {
-    throw unsupportedOperation(`JPEG XL encoding does not support ${request.pixelFormat} pixels`)
+  if (!supportedFormat(input.pixelFormat)) {
+    throw unsupportedOperation(`JPEG XL encoding does not support ${input.pixelFormat} pixels`)
   }
-  validateColorSemantics(request)
+  const iccProfile = keptModularIccProfile(input)
+  if (!iccProfile) validateColorSemantics(input)
+  else inspectIccProfile(iccProfile)
+  // The profile moves into the codestream header; the container holds only the other metadata.
+  const { icc: _icc, ...otherMetadata } = input.metadata ?? {}
+  const request = iccProfile ? { ...input, metadata: otherMetadata } : input
   const limits = request.limits
   if (limits) validateImageDimensions(request.width, request.height, 1, limits)
   const channels = request.pixelFormat.startsWith('gray')
@@ -7059,13 +7153,21 @@ export const createJpegXlModularEncoder = async (
   }
   const semantics = request.colorSemantics
   if (!semantics) throw unsupportedOperation('JPEG XL encoding requires color semantics')
-  const options = resolveJpegXlEncodeOptions(
+  const resolved = resolveJpegXlEncodeOptions(
     request.options,
-    request.pixelFormat,
+    input.pixelFormat,
     semantics,
     request.width,
     request.height,
   )
+  if (iccProfile && resolved.mode !== 'lossless')
+    throw unsupportedOperation('JPEG XL Modular output keeps an ICC profile only in lossless mode')
+  const options = iccProfile
+    ? Object.freeze({
+        ...resolved,
+        iccCommands: jpegXlIccStreamCommands(iccProfile, resolveJpegXlLimits()),
+      })
+    : resolved
   if (limits && options.intrinsicSize)
     validateImageDimensions(options.intrinsicSize.width, options.intrinsicSize.height, 1, limits)
   return new JpegXlModularEncoder(sink, request, options)

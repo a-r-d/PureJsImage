@@ -215,24 +215,51 @@ it('writes the equal structured color for lossy keepIcc() output', async () => {
   })
 })
 
-it('writes the equal structured color when lossless keepIcc() output exceeds the native budget', async () => {
+it('keeps the exact profile in lossless keepIcc() output under a small working limit', async () => {
+  const profile = displayP3RgbProfile()
   const jpeg = await (await Image.open(smoothPng(96, 64))).jpeg({ quality: 95 }).toUint8Array()
-  const input = jpegWithIcc(jpeg, displayP3RgbProfile())
-  // The exact-profile writer stages complete native planes; this limit leaves room only for the
-  // bounded encoder, as a large camera photo does under the default limit.
+  const input = jpegWithIcc(jpeg, profile)
+  // The bounded Modular encoder writes the profile, so a tight limit, like a large camera photo
+  // under the default limit, still keeps the exact bytes.
   const encoded = Uint8Array.from(
     await (await Image.open(input, { limits: { maxDecodedBytes: 512 * 1024 } }))
       .keepIcc()
       .jpegxl({ effort: 3 })
       .toUint8Array(),
   )
-  expect(await (await Image.open(encoded)).metadata()).toMatchObject({
-    colorSpace: 'display-p3-srgb',
-    lossless: true,
-  })
+  const kept = await jpegxlCodec.preservedMetadata?.(
+    new MemorySource(encoded),
+    defaultImageLimits,
+    {
+      exif: false,
+      icc: true,
+    },
+  )
+  expect(kept?.icc).toEqual(profile)
   expect((await decode(jpegxlCodec, encoded, { colorOutput: 'preserve' })).pixels).toEqual(
     (await decode(jpegCodec, input, { preserveIcc: true })).pixels,
   )
+})
+
+it('compresses lossless keepIcc() samples as well as the same untagged samples', async () => {
+  const profile = displayP3RgbProfile()
+  const jpeg = await (await Image.open(smoothPng(96, 64))).jpeg({ quality: 95 }).toUint8Array()
+  const input = jpegWithIcc(jpeg, profile)
+  const samples = await decode(jpegCodec, input, { preserveIcc: true })
+  const differences: number[] = []
+  for (const effort of [3, 7] as const) {
+    const kept = Uint8Array.from(
+      await (await Image.open(input)).keepIcc().jpegxl({ effort }).toUint8Array(),
+    )
+    const untagged = await encodeExplicitSrgb(samples, { effort })
+    // Only the image header differs: the ICC stream replaces the sRGB color fields. The untagged
+    // header fits in its first 64 bytes, and every later byte matches.
+    differences.push(kept.byteLength - untagged.byteLength)
+    expect(kept.subarray(kept.byteLength - untagged.byteLength + 64)).toEqual(untagged.subarray(64))
+  }
+  expect(differences[0]).toBe(differences[1])
+  expect(differences[0]).toBeGreaterThan(0)
+  expect(differences[0]).toBeLessThan(profile.byteLength)
 })
 
 it('keeps a gray profile on a grayscale JPEG with keepIcc()', async () => {

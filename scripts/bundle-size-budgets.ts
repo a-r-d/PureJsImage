@@ -17,9 +17,11 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-20: raised to fit the libjxl-derived effort-7 encoder (about 25.5 KB), owner approved.
   // 2026-11-22: raised by 3,000 bytes for untagged, kept-ICC, float and oriented encoder input
   // and the ICC profile recognizer that lossy keepIcc() output uses.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 643_000 },
+  // 2026-11-23: raised by 1,000 bytes so lossless keepIcc() output writes the profile in the
+  // Modular image header instead of the native writer's unpredicted samples.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 644_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 717_000 },
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 718_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
