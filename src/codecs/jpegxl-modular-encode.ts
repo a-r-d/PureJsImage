@@ -3473,7 +3473,15 @@ const encodeSingleGroupSection = (
         candidates.push(candidate)
       }
     }
-    if ((prepared.transforms.palette?.colorCount ?? 0) > 256) {
+    // The 256-color search repeats the whole learned search. On the measured opaque images it
+    // never won and took up to half of the effort-7 time; with varying alpha it saved 63%.
+    // Effort 7 skips it for opaque samples.
+    if (
+      (prepared.transforms.palette?.colorCount ?? 0) > 256 &&
+      (effort !== 7 ||
+        format === 'rgba16' ||
+        (format === 'rgba8' && sourceChannels === undefined && !hasOpaque8BitAlpha(pixels)))
+    ) {
       await checkpoint?.()
       // Keep the former 256-color decision as a size floor for the expanded candidate.
       candidates.push(
@@ -4059,35 +4067,46 @@ const encodeGroupCandidate = (
       !transforms.scalarPalettes &&
       planes.values.some((plane) => plane.length > maxTrainingSamples)
     ) {
-      const baseline = await encodeGroupCandidate(
-        prepared,
-        effort,
-        limit,
-        memory,
-        checkpoint,
-        singleGroup,
-        learnedFloorBytes,
-        paletteSearch,
-        maxTrainingSamples,
-        false,
-        splitOverhead,
-      )
+      const train = (samples: number) =>
+        encodeGroupCandidate(
+          prepared,
+          effort,
+          limit,
+          memory,
+          checkpoint,
+          singleGroup,
+          learnedFloorBytes,
+          paletteSearch,
+          samples,
+          false,
+          splitOverhead,
+        )
+      // Effort 7 trains on four times the samples first. When that keeps a learned tree it
+      // was the smaller of effort 9's two passes on the measured images, so the default
+      // samples are tried only when it does not. A working-limit refusal releases its
+      // scratch and trains on the default samples.
+      if (effort === 7) {
+        let expanded: EncodedModularCandidate | undefined
+        try {
+          expanded = await withJpegXlMemoryAsync(memory, () => train(maxTrainingSamples * 4))
+          if (expanded.contextModel === 'learned') return expanded
+        } catch (error) {
+          rethrowJpegXlNonLimitError(error)
+        }
+        const baseline = await train(maxTrainingSamples)
+        if (!expanded || baseline.bytes.length <= expanded.bytes.length) {
+          if (expanded) memory?.release(expanded.bytes)
+          return baseline
+        }
+        memory?.release(baseline.bytes)
+        return expanded
+      }
+      // Effort 9 trains on the default samples, then retries on four times as many.
+      const baseline = await train(maxTrainingSamples)
       if (baseline.bytes.length * 256 < modularSampleCount(planes)) return baseline
       try {
         const expanded = await withJpegXlMemoryAsync(memory, async () => {
-          const candidate = await encodeGroupCandidate(
-            prepared,
-            effort,
-            limit,
-            memory,
-            checkpoint,
-            singleGroup,
-            learnedFloorBytes,
-            paletteSearch,
-            maxTrainingSamples * 4,
-            false,
-            splitOverhead,
-          )
+          const candidate = await train(maxTrainingSamples * 4)
           return candidate.bytes.length < baseline.bytes.length ? candidate : undefined
         })
         if (expanded) {
@@ -4100,48 +4119,28 @@ const encodeGroupCandidate = (
       return baseline
     }
     if (effort >= 7 && transforms.palette && paletteSearch === 'select') {
-      // Preserve the complete previous group policy while optional palette training runs.
-      const baseline = await encodeGroupCandidate(
-        prepared,
-        effort,
-        limit,
-        memory,
-        checkpoint,
-        singleGroup,
-        learnedFloorBytes,
-        'baseline',
-        maxTrainingSamples,
-        expandedTraining,
-        splitOverhead,
-      )
-      const samples = modularSampleCount(planes)
-      if (baseline.bytes.length * 256 < samples) return baseline
+      // The learned search tries the baseline contexts before it trains a tree, so it is
+      // never larger. A working-limit refusal releases its scratch and keeps the baseline.
+      const search = (mode: 'baseline' | 'learned') =>
+        encodeGroupCandidate(
+          prepared,
+          effort,
+          limit,
+          memory,
+          checkpoint,
+          singleGroup,
+          learnedFloorBytes,
+          mode,
+          maxTrainingSamples,
+          expandedTraining,
+          splitOverhead,
+        )
       try {
-        const learned = await withJpegXlMemoryAsync(memory, async () => {
-          const candidate = await encodeGroupCandidate(
-            prepared,
-            effort,
-            limit,
-            memory,
-            checkpoint,
-            singleGroup,
-            learnedFloorBytes,
-            'learned',
-            maxTrainingSamples,
-            expandedTraining,
-            splitOverhead,
-          )
-          // Losing output and scratch close here; only a smaller complete group escapes.
-          return candidate.bytes.length < baseline.bytes.length ? candidate : undefined
-        })
-        if (learned) {
-          memory?.release(baseline.bytes)
-          return learned
-        }
+        return await search('learned')
       } catch (error) {
         rethrowJpegXlNonLimitError(error)
       }
-      return baseline
+      return search('baseline')
     }
     const encode = (
       plan: Readonly<ModularResidualPlan>,
@@ -4248,7 +4247,14 @@ const encodeGroupCandidate = (
           memory?.release(previousPlan.leafToChannel)
         }
       }
-      for (let index = 1; index < modularHybridConfigurations.length; index++) {
+      // The other hybrid integer splits save a few bytes on small groups. On large groups each
+      // costs another full encode and saved at most 3 bytes on the measured images. Effort 9
+      // always tries them.
+      const hybridCount =
+        effort === 9 || selectedPlan.residuals.length <= 65_536
+          ? modularHybridConfigurations.length
+          : 1
+      for (let index = 1; index < hybridCount; index++) {
         const config = modularHybridConfigurations[index]
         if (!config) throw invalidJpegXlInput('Modular hybrid configuration is missing')
         await checkpoint?.()
@@ -6408,14 +6414,23 @@ const encodeCodestream = (
       }
     }
     let best = selected
-    for (const finder of ['document', 'flat'] as const) {
+    // When flat patches shrink the frame, document patches found no more on the measured text
+    // and screenshots. Effort 7 searches document patches only when flat patches did not;
+    // effort 9 always searches both.
+    for (const finder of options.effort === 9
+      ? (['document', 'flat'] as const)
+      : (['flat', 'document'] as const)) {
+      if (finder === 'document' && options.effort === 7 && best !== selected) continue
       if (
         finder === 'document'
           ? white * 2 < sampled
           : !hasFlatScreenshotBackground(pixels, width, height, channels)
       )
         continue
-      for (const localColorSamples of finder === 'flat' ? [0, 16384] : [0]) {
+      // Effort 9 also retries flat patches with local color.
+      for (const localColorSamples of finder === 'flat' && options.effort === 9
+        ? [0, 16384]
+        : [0]) {
         try {
           const patched = await memory.runAsync(() =>
             encodeJpegXlDocumentPatchCandidate(
@@ -6440,7 +6455,9 @@ const encodeCodestream = (
         }
       }
     }
-    if (width > 512 || height > 512) {
+    // Effort 9 also searches local color groups. On photos this takes a quarter to half of
+    // the effort-7 time for under 1% smaller files.
+    if (options.effort === 9 && (width > 512 || height > 512)) {
       try {
         const localEvidence: ModularGroupSearchEvidence[] | undefined = evidence ? [] : undefined
         const candidate = await search(localEvidence)

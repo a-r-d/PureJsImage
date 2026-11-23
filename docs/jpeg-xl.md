@@ -340,6 +340,41 @@ independent alpha precision can be declared in 16-bit storage. Missing or
 incompatible semantics still fail validation. Float rows require a deliberate
 representable integer output conversion before lossless JXL encoding.
 
+## Lossless effort 7 and 9
+
+Lossless effort 7 and 9 train predictor trees, compare reversible color
+transforms, try three palette orders and look for repeated patches on
+screenshots and white pages. Effort 9 also runs searches that take much longer
+for small gains.
+
+| Search | Effort 7 | Effort 9 |
+| --- | --- | --- |
+| Predictor tree samples | 4 times the default samples, then the default samples if that pass keeps no tree | Both, keeping the smaller group |
+| Palettes with 257 to 1,024 colors | Also tries 256 colors when alpha varies | Always also tries 256 colors |
+| Document patches | Only when flat screenshot patches do not shrink the image | Always |
+| Flat patches with local color | No | Yes |
+| Local color groups on images over 512 pixels | No | Yes |
+| Other hybrid integer splits | Groups with up to 65,536 residuals | All groups |
+
+Effort 7 on the eight 1-megapixel comparison images, one encode at a time in
+Node.js 24.16 on a shared 16-core machine:
+
+| Image | 0.18.0 | Now | Size change |
+| --- | --- | --- | --- |
+| Photo (im26-1030) | 47.5 s | 10.4 s | none |
+| Gradient photo (im26-1416) | 66.6 s | 19.7 s | +0.63% |
+| Monochrome photo (im26-2018) | 73.1 s | 20.8 s | none |
+| Texture (im26-2400) | 49.1 s | 11.4 s | +0.43% |
+| Map (im26-5032) | 135.0 s | 38.2 s | none |
+| Text (im26-5034) | 220.7 s | 27.4 s | +1.82% |
+| Text (im26-5052) | 85.8 s | 25.6 s | +0.08% |
+| Screenshot (im26-5334) | 140.9 s | 28.5 s | none |
+
+- All eight files decode exactly through pinned libjxl 0.12.0.
+- Together the files are 0.29% larger and take 182 s instead of 819 s.
+- Effort 9 wrote the same bytes as 0.18.0's effort 7 on the two images checked
+  (im26-1030 and im26-5052).
+
 ## Lossy photos at effort 7 and 9
 
 At lossy effort 7 and 9, opaque 8-bit sRGB photos use transform, quantization
@@ -362,7 +397,10 @@ established VarDCT encoder.
   path writes 6,873 bytes and the established encoder 14,892.
 - Effort 9 uses the same decisions as effort 7.
 - Images with at most 2,048 visible colors still compare an exact lossless
-  palette and keep it when it is no larger than the lossy stream.
+  palette and keep it when it is no larger than the lossy stream. This runs the
+  lossless effort-7 search, twice for RGBA input, so lossy effort 7 took 55 to
+  65 s on the 1-megapixel text and screenshot images above, against 2.7 s on the
+  photo.
 - A 21-megapixel photo peaks at 121.5 MB of managed encoder memory.
 
 ## Exact JPEG reconstruction

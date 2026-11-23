@@ -4,8 +4,21 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- JPEG XL lossless effort 7 is 3.4 to 8.1 times faster on the eight 1-megapixel comparison images:
+  182 s instead of 819 s in total, with files 0.29% larger in total. Effort 7 now trains predictor
+  trees once on four times the default samples, and also on the default samples only when that
+  pass keeps no tree. It skips the 256-color palette search for opaque images, document patches
+  when flat screenshot patches already shrink the image, flat patches with local color, local color
+  groups, and extra hybrid integer splits on groups over 65,536 residuals. Effort 9 keeps all of
+  these searches. See "Lossless effort 7 and 9" in `docs/jpeg-xl.md`.
+
 ### Fixed
 
+- JPEG XL lossy effort 7 on screenshots and text no longer takes several minutes per megapixel.
+  Its exact palette check runs the lossless effort-7 search, which took over 400 s on a
+  1-megapixel RGBA text image and now takes 65 s.
 - Keep a sampled GRAY ICC profile, such as Photoshop's Dot Gain profiles, on a grayscale JPEG in
   lossless `keepIcc().jpegxl()` output. The JPEG decoder emits equal RGB channels, which now fold
   back to gray samples with the exact profile. These encodes failed with `INVALID_INPUT` before.
@@ -24,6 +37,9 @@ All notable changes to PureJsImage are documented in this file.
   the HTTP response.
 - The JPEG XL transform-gap fixture script passes its build paths to the shell through quoted
   environment variables, so a checkout path with spaces or shell characters still works.
+- Two tiled JPEG XL patch tests now pin streams 2 and 3 bytes larger, from the effort-7 hybrid
+  split change. A new test checks that effort 7 still finds document patches on a white text
+  page. Pinned libjxl 0.12.0 decodes every sample of the new streams.
 - `npm run lint` reports no warnings. JPEG XL code replaces non-null assertions with `?? 0` sample
   reads and checked plane reads. JPEG XL encoder and decoder output is unchanged.
 - Development dependencies are updated to clear most `npm audit` advisories: Astro 7.4.13 for the

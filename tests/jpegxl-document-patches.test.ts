@@ -114,11 +114,13 @@ describe('JPEG XL document reference patches', () => {
       }
       const original = Uint8Array.from(pixels)
       const result = await encodeLosslessPatchFixture({ ...tile, width, height, pixels })
-      // The independently exact baseline has a 40-byte container prefix.
-      expect(result.encoded.length).toBe(format === 'rgb8' ? 5184 : 3980)
+      // Pinned libjxl 0.12.0 decodes every sample of these streams, which include a 40-byte
+      // container prefix. Effort 7 skips extra hybrid splits on large groups, so they are
+      // 2 and 3 bytes larger than the earlier 5,184 and 3,980.
+      expect(result.encoded.length).toBe(format === 'rgb8' ? 5186 : 3983)
       let checksum = 0x811c9dc5
       for (const byte of result.encoded) checksum = Math.imul(checksum ^ byte, 0x01000193) >>> 0
-      expect(checksum).toBe(format === 'rgb8' ? 1939134088 : 2157783432)
+      expect(checksum).toBe(format === 'rgb8' ? 3734666273 : 3162383219)
       expect(result.ownedLive).toBe(0)
       expect(pixels).toEqual(original)
       const frames = await readJpegXlSourceFrameStructures(
@@ -391,4 +393,81 @@ describe('JPEG XL lossy screenshot patches', () => {
     }
     expect(hasFlatScreenshotBackground(pixels, width, width)).toBe(false)
   })
+})
+
+// A white page of dark text glyphs, with a light right edge on each glyph and some blue words.
+const textPage = (width: number, height: number): Uint8Array => {
+  const pixels = new Uint8Array(width * height * 3).fill(255)
+  let state = 7
+  const next = () => {
+    state = (Math.imul(state, 1103515245) + 12345) >>> 0
+    return (state >>> 8) / 16777216
+  }
+  for (let line = 8; line + 12 < height; line += 16)
+    for (let x = 8; x + 6 < width - 8; ) {
+      const glyph = 3 + Math.floor(next() * 5)
+      const blue = next() < 0.1
+      for (let y = 0; y < 10; y++)
+        for (let dx = 0; dx < glyph; dx++) {
+          if ((dx * 7 + y * 3 + glyph) % 5 >= 2 && dx !== 0) continue
+          const at = ((line + y) * width + x + dx) * 3
+          const edge = dx === glyph - 1 ? 128 : 0
+          pixels[at] = (blue ? 40 : 20) + edge
+          pixels[at + 1] = (blue ? 90 : 20) + edge
+          pixels[at + 2] = (blue ? 200 : 20) + edge
+        }
+      x += glyph + 2 + (next() < 0.15 ? 6 : 0)
+    }
+  return pixels
+}
+
+describe('JPEG XL lossless effort 7 patches', () => {
+  it('searches document patches when flat screenshot patches do not apply', async () => {
+    const width = 512,
+      height = 512,
+      pixels = textPage(width, height)
+    expect(hasFlatScreenshotBackground(pixels, width, height)).toBe(false)
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width,
+      height,
+      pixelFormat: 'rgb8',
+      limits: defaultImageLimits,
+      colorSemantics,
+      options: { mode: 'lossless', effort: 7, container: false },
+    })
+    if (!encoder) throw new Error('Missing JPEG XL encoder')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      stride: width * 3,
+      format: 'rgb8',
+      data: pixels,
+    })
+    await encoder.finish()
+    const encoded = sink.toUint8Array()
+    // Without document patches this page takes more than twice as many bytes. Pinned libjxl
+    // 0.12.0 decodes every sample of this stream.
+    expect(encoded.length).toBe(3376)
+    const frames = await readJpegXlSourceFrameStructures(
+      new MemorySource(encoded),
+      defaultImageLimits,
+    )
+    expect(frames.map((frame) => frame.frameType)).toEqual(['reference', 'regular'])
+    const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
+    if (!decoder) throw new Error('Missing JPEG XL decoder')
+    let row = 0
+    for await (const block of decoder.decode()) {
+      for (let y = 0; y < block.height; y++) {
+        const actual = block.data.subarray(y * block.stride, y * block.stride + width * 3)
+        const at = (row + y) * width * 3
+        expect(actual).toEqual(pixels.subarray(at, at + width * 3))
+      }
+      row += block.height
+      block.release?.()
+    }
+    expect(row).toBe(height)
+  }, 60_000)
 })

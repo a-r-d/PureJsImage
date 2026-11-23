@@ -7,6 +7,12 @@ repeat a dead end without new evidence.
 
 ## Current state
 
+- JPEG XL lossless effort-7 speed, 2026-11-23, based on `b760669a`. Effort 7 skips five searches
+  that rarely changed the result and keeps them at effort 9. The eight 1-megapixel comparison
+  images take 182 s instead of 819 s, 3.4× to 8.1× faster each, with files 0.29% larger in total.
+  Every qualification fixture keeps its pinned bytes or decoded pixels except two tiled patch
+  streams, 2 and 3 bytes larger. See [JXLMOD-126 through JXLMOD-142](#jpeg-xl-effort-7-speed-campaign---2026-11-23).
+
 - JPEG XL standalone effort-7 shared encoder work, 2026-11-18, based on the LL-1262 working tree. Inverse-Gaborish halo spans keep the convolution order and backing buffers. The 15-pair photo confirmation gives 0.976× and 12/15 faster. The isolated 64-crop measurement is 4.037× jSquash, close to the preceding 4.027×. All 64 timed streams match. The five other exact trials remain archived. See [LL-1264 through LL-1274](jpegxl/lossy-lab-log.md) and the [writer scope report](jpegxl/lossy-lab/WRITER-SCOPE-REPORT.md).
 
 - JPEG XL standalone effort-7 candidate display, 2026-11-18, based on the LL-1252 working tree. The checked dither lookup and direct use of aligned Float32 reconstruction remove a 6 MiB copy per render. Three exact scorer experiments are archived after mixed or slower timings. The isolated 64-crop median moves from 2.054 s to 1.996 s in separate runs, or 4.027× jSquash with a 3× gate. All 64 timed files and 576 ladder files match. Fresh-process median peak RSS improves on all three paired crops. See [LL-1253 through LL-1262](jpegxl/lossy-lab-log.md) and the [writer scope report](jpegxl/lossy-lab/WRITER-SCOPE-REPORT.md).
@@ -5800,3 +5806,60 @@ JXLENC-2592 user-requested stopping point and cleanup admission, 2026-10-09: Sto
 JXLENC-2592 actual workspace cleanup, 2026-10-09: PASS immutable cleanup/protection manifests and all2785 current-root pin hashes before deletion. Remove only4039 unprotected generatedNPY/PFM/PPM files totaling160228773228B (149.2247GiB); all24815 protected files remain. Preserve all source/results/encoded artifacts/input images and frozen prototype/restart dependencies. Archive88151 metadata files at .tmp/jpegxl-stop-cleanup-2026-10-09/research-metadata.tar.gz,413587050B/SHAa1fb6e2b483505c41efc286ad60484cef4a7b0501732f4db0a84125c55013fa2; gzip integrity and exact archive-entry count pass. Cleanup strict TypeScript passes. Guarded service20.855s,CPU24.642s,cgroup305.4MiB0swap under3GiB while complete check runs separately under6GiB. Receipt .tmp/jpegxl-stop-cleanup-2026-10-09/cleanup-result.json and log /tmp/jpegxl-stop-cleanup-files-2592-r1.log retain exact inventory. Runtime and historical result metadata remain unchanged. User-requested research stop persists.
 
 JXLENC-2592 actual stopping-point handoff gate, 2026-10-09: Fresh complete npm run check PASS after cleanup,289 test files/3752 tests with existing1file/3test skips; guard terminal completed/code0/signalnull. Test duration888.14s,service936.659s,CPU3220.230s,cgroup3.7GiB0swap under6GiB. All maintained capability/catalog/comparison/package/documentation/type/browser/lint/format and test gates pass. Guard .tmp/jpegxl-m7/bounded-runs/jpegxl-stop-cleanup-check-2592-r1.json SHA94c0bc9e8fe79b716521d20cc417981663df0e8ddd76920fb9c41456cd080a81; log /tmp/jpegxl-stop-cleanup-check-2592-r1.log SHA824ab49259be060e6dbda3728634b944adb790dd79cca52acf009457cb5a613d. Post-deletion readback confirms all24815 protected files present and all4039 deletion candidates absent. Durable public report/generated website download both remain SHA17e83395f89978d7555a91001a12c23556c548b8c65eb5426a5278166c333145. Only research checkpoint and actual outcome log are to be committed; runtime/tests/dependencies/version and comparison claims remain the validated7230 state. Stop experiment work until the user asks to resume after feedback.
+
+## JPEG XL effort-7 speed campaign - 2026-11-23
+
+Lossless effort 7 took 41 to 221 s per 1-megapixel image in Node, and lossy effort 7 on an RGBA
+text image passed the comparison harness's 20-minute job limit. Base revision `b760669a` plus the
+uncommitted keepIcc fixes; candidate is the working tree. The web hill-climb runner has no JPEG XL
+encode workload, so each encode ran in its own Node 24.16 process, one at a time, on a shared
+16-core machine (load average 7 to 12). CPU time from `process.cpuUsage()` guided the ablations
+because other projects loaded the machine. Artifacts, scripts and the text-image CPU profile are in
+`.tmp/hillclimb/jpegxl-effort7-2026-11-23/`.
+
+Profile of im26-5034 lossless effort 7: 75% inclusive in per-group candidate search, 40% in tree
+learning, the rest in trial ANS encodes. A commit scan from `590bbf08` showed the time grew between
+2026-10-01 and 2026-10-11 as searches were added. Ablations switched each search off in a scratch
+copy of `src` on the eight im26 comparison images, then on the qualification fixtures that failed.
+
+| ID | Hypothesis / change | Evidence | Verdict | Disposition |
+| --- | --- | --- | --- | --- |
+| JXLMOD-126 | Effort 9 only for the second tree pass on 4 times the samples. | 40% to 55% of time on every image; 0% to 2% bytes, 6.2% on the map. | rejected | Superseded by 128. |
+| JXLMOD-127 | One pass on 4 times the samples at effort 7. | Map and photos keep exact 0.18.0 bytes; artwork fixture 13,807 to 43,274 bytes and learned fixture 430,875 to 503,347, because the 4-times pass keeps no learned tree there. | rejected | Superseded by 128. |
+| JXLMOD-128 | 4 times the samples first; default samples only when that pass keeps no learned tree. | All fixtures keep pinned bytes; map 125,561 bytes unchanged. | material | Retained. |
+| JXLMOD-129 | Learned palette search first, plain palette trees only on a working-limit refusal. | The learned search starts from the plain contexts; identical bytes on all eight images; 3% to 14% less time on palette images. | promising | Retained at effort 7 and 9. |
+| JXLMOD-130 | Effort 9 only for other hybrid integer splits. | 6% to 14% of time, 0 bytes on the im26 images; 16 by 16 alpha streams grew 2 bytes. | rejected | Superseded by 131. |
+| JXLMOD-131 | Hybrid splits at effort 7 only on groups with up to 65,536 residuals. | Small streams keep pinned bytes; two tiled patch streams grow 2 and 3 bytes and decode exactly in libjxl. | promising | Retained. |
+| JXLMOD-132 | Luma palette order only at effort 7. | Up to 0.5% on im26 text; family fixture 2,262 to 3,394 bytes and four-channel palette 9,530 to 11,074. | rejected | Reverted. |
+| JXLMOD-133 | Train a tree only for the order with the smallest untrained stream. | Fixtures recover; im26-5334 +7.6% because hue's untrained stream was 0.5% smaller but trained 5.5% larger. | rejected | Reverted. |
+| JXLMOD-134 | Train each order within 2% of the smallest untrained stream. | Tiled patch image: hue's untrained stream was 46% larger but trained smallest; 4,236 to 4,590 bytes. | rejected | Reverted; all three orders still train at effort 7. |
+| JXLMOD-135 | Skip the 256-color palette search at effort 7. | Up to 54% of time and 0 bytes on im26; alpha family fixture 14,721 to 39,667 bytes. | rejected | Superseded by 138. |
+| JXLMOD-136 | Run the 256-color search at effort 5 inside effort 7. | Recovers the fixture at a 10 MB limit; at 16 MiB it gives 20,759 instead of 14,721. | rejected | Reverted. |
+| JXLMOD-137 | Run the full 256-color search only when the effort-5 search wins. | Same 20,759 bytes at 16 MiB. | rejected | Reverted. |
+| JXLMOD-138 | Skip the 256-color search at effort 7 only for opaque samples. | Never won on the opaque im26 images; varying-alpha fixtures keep pinned bytes and pixels; full search added 39% to 88% on im26-5034 and 5334. | material | Retained. |
+| JXLMOD-139 | Effort 9 only for document patches. | 0% on three im26 text images, 1.9% on im26-5034; a 512 by 512 white text page grows from 3,416 to 7,426 bytes. | rejected | Superseded by 140. |
+| JXLMOD-140 | Document patches at effort 7 only when flat screenshot patches did not shrink the image. | Text page keeps 3,376 bare-codestream bytes; flat patches covered document patches on the im26 text. | promising | Retained; new slow-tier test. |
+| JXLMOD-141 | Effort 9 only for flat patches with 16,384 local color samples. | 0 bytes on every image, 24% to 34% of the reduced time on text. | promising | Retained. |
+| JXLMOD-142 | Effort 9 only for local color groups. | 26% to 59% of photo time for at most 1.0% bytes. | promising | Retained. |
+
+Cumulative result, one encode at a time against the base on the same machine:
+
+| Image | Base | Candidate | Speedup | Bytes |
+| --- | --- | --- | --- | --- |
+| im26-1030 photo | 47.5 s, 480,626 | 10.4 s, 480,626 | 4.6× | same |
+| im26-1416 gradient photo | 66.6 s, 641,956 | 19.7 s, 645,989 | 3.4× | +0.63% |
+| im26-2018 monochrome photo | 73.1 s, 609,276 | 20.8 s, 609,276 | 3.5× | same |
+| im26-2400 texture | 49.1 s, 582,333 | 11.4 s, 584,852 | 4.3× | +0.43% |
+| im26-5032 map | 135.0 s, 125,561 | 38.2 s, 125,561 | 3.5× | same |
+| im26-5034 text | 220.7 s, 37,051 | 27.4 s, 37,725 | 8.1× | +1.82% |
+| im26-5052 text | 85.8 s, 16,896 | 25.6 s, 16,910 | 3.4× | +0.08% |
+| im26-5334 screenshot | 140.9 s, 18,412 | 28.5 s, 18,412 | 4.9× | same |
+
+- All eight candidate files decode exactly through pinned libjxl 0.12.0.
+- Effort 9 reproduced the base's effort-7 bytes on im26-1030 (35.9 s) and im26-5052 (76.6 s).
+- Lossy effort 7 on RGBA im26-5034, 5052 and 5334 takes 65.3, 55.3 and 58.7 s; im26-5034 passed
+  1,200 s for four encodes before. The photo takes 2.7 s, unchanged.
+- The fast JPEG XL tier (112 files) and the full slow tier (12 files) pass.
+- Next hypotheses: the RGBA lossy palette check runs a lossless search for the RGB probe and
+  again for the RGBA output; a cheaper predictor of which palette order or training size wins
+  would remove most of the remaining text-image time.
