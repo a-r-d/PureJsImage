@@ -1,0 +1,24 @@
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_e69f1d73e6aeff 481-482
+benchmark/lib/pinned-download.ts
+  s_fb44c3e6b9dfb0::t_e202d8d83accd3 13-27,115
+tests/pinned-download.test.ts
+  s_fb44c3e6b9dfb0::t_e202d8d83accd3 31-32,34,57-60
+  s_fb44c3e6b9dfb0::t_a2881e12caba70 61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c08b0278f7b2d74636c470b2cc6ae52fe0cb3497",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
