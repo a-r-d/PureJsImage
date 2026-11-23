@@ -344,9 +344,12 @@ export const workflows: readonly Workflow[] = [
       format: 'jpeg',
       width: 1200,
       height: 1600,
+      // Values come from an unencoded sharp Lanczos 3 resize. The two inner points sit in flat
+      // areas, so Lanczos 3 and bilinear output after JPEG 80 stay within 3 of them, and each
+      // point is over 100 away from a counter-clockwise, transposed, or transversed result.
       pixelSamples: [
-        { x: 100, y: 200, red: 69, green: 94, blue: 54, tolerance: 12 },
-        { x: 600, y: 800, red: 155, green: 160, blue: 101, tolerance: 15 },
+        { x: 582, y: 542, red: 202, green: 215, blue: 211, tolerance: 12 },
+        { x: 540, y: 864, red: 172, green: 196, blue: 173, tolerance: 12 },
         { x: 1199, y: 1599, red: 95, green: 167, blue: 235, tolerance: 6 },
       ],
     },

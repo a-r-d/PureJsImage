@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
@@ -16,6 +16,7 @@ import { validateExecution } from '../benchmark/lib/validate-output.ts'
 import type { PipelineWorkflow } from '../benchmark/types.ts'
 import { workflowsForProfile } from '../benchmark/workflows.ts'
 import packageJson from '../package.json' with { type: 'json' }
+import { Image } from './image-library.ts'
 
 const competitorWorkflow = (id: string): PipelineWorkflow => {
   const workflow = workflowsForProfile('competitors').find((candidate) => candidate.id === id)
@@ -187,6 +188,29 @@ describe('competitor benchmark classification', () => {
     expect(validation.errors.join('; ')).toContain('pixel (1, 1) red')
     const summary = summarizeSamples([{ status: 'invalid-output', errors: validation.errors }])
     expect(summary.wallMilliseconds).toBeUndefined()
+  })
+
+  it('accepts the default Lanczos3 quarter turn and rejects a counter-clockwise turn', async () => {
+    const fixture = 'benchmark/corpus/files/tundra-4000x3000.jpg'
+    if (!existsSync(fixture)) return
+    const workflow = workflowsForProfile('transforms-comparable').find(
+      (candidate) => candidate.id === 'transform-quarter-turn-jpeg',
+    )
+    if (!workflow || workflow.batch) throw new Error('Missing quarter-turn workflow')
+    const input = readFileSync(fixture)
+    const turn = async (degrees: number): Promise<{ output: Uint8Array }> => ({
+      output: await (await Image.open(input))
+        .rotate(degrees)
+        .resize({ width: 1200 })
+        .jpeg({ quality: 80 })
+        .toBuffer(),
+    })
+
+    const clockwise = await validateExecution({ workflow, execution: await turn(90) })
+    const counterClockwise = await validateExecution({ workflow, execution: await turn(-90) })
+
+    expect(clockwise.errors).toEqual([])
+    expect(counterClockwise.valid).toBe(false)
   })
 
   it('records exact-area PSNR without treating transparent RGB as visible error', () => {

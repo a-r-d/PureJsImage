@@ -74,6 +74,11 @@ All notable changes to PureJsImage are documented in this file.
 - The sharp benchmark engine now decodes the iPhone HEIC fixture to decide whether it can run the
   HEIC workflow. libheif 1.23.5 reads the file's metadata without an HEVC decoder, so the old
   metadata check reported a failed run instead of an unsupported one.
+- The `transform-quarter-turn-jpeg` benchmark passes again for PureJsImage. Its pixel samples were
+  set from bilinear output one day before the default resize kernel moved to Lanczos 3, and one
+  sample sat in fine texture where the two kernels differ. The two inner samples now sit in flat
+  areas, use values from an independent sharp Lanczos 3 resize, and still reject a
+  counter-clockwise turn. PureJsImage output is unchanged.
 
 ## [0.18.0] - 2026-11-22
 
