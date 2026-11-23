@@ -3,6 +3,7 @@ docs-astro/public/capabilities.json
 tests/project-contract.test.ts
   s_394b4847628aeb::t_cff27f9f06007d 306-307
   s_394b4847628aeb::t_ac06665736160a 326,329-342
+  s_394b4847628aeb::t_1810886aa5ac47 327-328
 package.json
   s_394b4847628aeb::t_0f5dafeb497329 802,810
 capabilities/manifest.json
