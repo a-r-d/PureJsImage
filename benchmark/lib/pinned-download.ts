@@ -10,7 +10,21 @@ const maximumRedirects = 5
 const maximumAttempts = 5
 const maximumRetryDelayMilliseconds = 60_000
 
-export type DownloadFetch = (url: URL, init: { readonly redirect: 'manual' }) => Promise<Response>
+// Wikimedia and other public hosts rate-limit generic clients, and Wikimedia's User-Agent policy
+// asks automated downloads to name themselves and give a contact URL.
+const downloadUserAgent = 'PureJsImage-pinned-download/1.0 (+https://github.com/a-r-d/PureJsImage)'
+
+export interface DownloadRequestInit {
+  readonly headers: { readonly 'user-agent': string }
+  readonly redirect: 'manual'
+}
+
+const requestInit: DownloadRequestInit = {
+  headers: { 'user-agent': downloadUserAgent },
+  redirect: 'manual',
+}
+
+export type DownloadFetch = (url: URL, init: DownloadRequestInit) => Promise<Response>
 
 export interface PinnedDownloadOptions {
   readonly allowedDirectory: string
@@ -98,7 +112,7 @@ const fetchWithValidatedRedirects = async (
   let url = validatedUrl(initialUrl, allowedHosts)
 
   for (let redirects = 0; redirects <= maximumRedirects; redirects += 1) {
-    const response = await fetch(url, { redirect: 'manual' })
+    const response = await fetch(url, requestInit)
     if (!redirectStatuses.has(response.status)) return response
     if (response.body !== null) await response.body.cancel()
     if (redirects === maximumRedirects) throw new Error('Download exceeded 5 redirects')

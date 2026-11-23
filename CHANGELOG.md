@@ -478,7 +478,8 @@ All notable changes to PureJsImage are documented in this file.
 - Split M9 CI into integration/security, Node package, browser and scheduled fuzz
   jobs, with failure artifacts and checksum-keyed caches for pinned oracle builds.
 - Cache the pinned tundra photo in the browser CI jobs and retry pinned downloads that answer
-  HTTP 429 or 503, after Wikimedia began rate limiting the shared runners.
+  HTTP 429 or 503, after Wikimedia began rate limiting the shared runners. Pinned downloads send a
+  User-Agent that names the project and its repository, as Wikimedia's policy asks.
 - Describe the shipped JPEG XL encoder in the README and list every implemented codec in
   `ROADMAP.md`.
 

@@ -28,8 +28,10 @@ describe('pinned benchmark downloads', () => {
     const data = Uint8Array.of(1, 2, 3, 4)
     await writeFile(destination, Uint8Array.of(9))
     const requestedUrls: string[] = []
-    const fetch: DownloadFetch = async (url) => {
+    const userAgents: string[] = []
+    const fetch: DownloadFetch = async (url, init) => {
       requestedUrls.push(url.href)
+      userAgents.push(init.headers['user-agent'])
       if (requestedUrls.length === 1) {
         return new Response(null, {
           status: 302,
@@ -51,6 +53,11 @@ describe('pinned benchmark downloads', () => {
     expect(requestedUrls).toEqual([
       'https://fixtures.example/start.bin',
       'https://fixtures.example/final.bin',
+    ])
+    // Every request, including the redirected one, names the project as Wikimedia's policy asks.
+    expect(userAgents).toEqual([
+      'PureJsImage-pinned-download/1.0 (+https://github.com/a-r-d/PureJsImage)',
+      'PureJsImage-pinned-download/1.0 (+https://github.com/a-r-d/PureJsImage)',
     ])
     expect(new Uint8Array(await readFile(destination))).toEqual(data)
     await expect(readFile(`${destination}.download`)).rejects.toMatchObject({ code: 'ENOENT' })
