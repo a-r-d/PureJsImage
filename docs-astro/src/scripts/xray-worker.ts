@@ -10,6 +10,7 @@ import { HttpRangeSource } from '../../../src/sources/http-range.ts'
 import { createOmeZarrHttpContext } from '../../../src/scientific/ome-zarr-http.ts'
 import { omeZarrReader } from '../../../src/scientific/readers/ome-zarr.ts'
 import { ScientificReaderRegistry } from '../../../src/scientific/reader.ts'
+import { isDedicatedWorkerMessage } from './worker-message.ts'
 import { isXrayRequest, type XrayResponse } from './xray-types.ts'
 
 const images = createImageLibrary(allCodecs)
@@ -17,6 +18,7 @@ const post = (message: XrayResponse): void => self.postMessage(message)
 let activeAbort: AbortController | undefined
 
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
+  if (!isDedicatedWorkerMessage(event)) return
   if (!isXrayRequest(event.data)) return
   const request = event.data
   if (request.type === 'cancel') {

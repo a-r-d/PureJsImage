@@ -9,6 +9,8 @@ declare const self: {
   postMessage(value: unknown): void
 }
 self.onmessage = async (event: MessageEvent<{ job: Job; input: Uint8Array; pixels: Pixels }>) => {
+  // Dedicated-worker messages use an empty origin and a null source; ignore anything else.
+  if (!event.isTrusted || event.origin !== '' || event.source !== null) return
   const { job, input, pixels } = event.data
   const result = await execute(
     job,

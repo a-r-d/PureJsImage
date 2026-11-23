@@ -55,15 +55,25 @@ const link = commands.find((command) => command.includes(' -o tools/cjxl '))
 if (!compile || !link) throw new Error('Oracle build commands are missing')
 const object = 'lib/CMakeFiles/jxl_enc-obj.dir/jxl/enc_ac_strategy.cc.o'
 // Compile and relink separate artifacts. The pinned tools and libraries are unchanged.
+// The shell reads the work paths from quoted environment variables, so a checkout path with
+// spaces or shell characters stays one argument.
+const shellEnvironment = {
+  ...process.env,
+  JXL_FIXTURE_CJXL: `${work}/cjxl`,
+  JXL_FIXTURE_LIBRARY: `${work}/libjxl.a`,
+  JXL_FIXTURE_LINK_DEPENDENCIES: `${work}/link.d`,
+  JXL_FIXTURE_OBJECT: `${work}/enc_ac_strategy.cc.o`,
+  JXL_FIXTURE_SOURCE: patchedPath,
+}
 execFileSync(
   '/bin/sh',
   [
     '-c',
     compile
-      .replaceAll(object, `${work}/enc_ac_strategy.cc.o`)
-      .replace(`${source}/lib/jxl/enc_ac_strategy.cc`, patchedPath),
+      .replaceAll(object, '"$JXL_FIXTURE_OBJECT"')
+      .replace(`${source}/lib/jxl/enc_ac_strategy.cc`, '"$JXL_FIXTURE_SOURCE"'),
   ],
-  { cwd: build, stdio: 'inherit' },
+  { cwd: build, env: shellEnvironment, stdio: 'inherit' },
 )
 await writeFile(`${work}/libjxl.a`, await readFile(`${build}/lib/libjxl.a`))
 execFileSync('ar', ['r', `${work}/libjxl.a`, `${work}/enc_ac_strategy.cc.o`], { stdio: 'inherit' })
@@ -72,11 +82,11 @@ execFileSync(
   [
     '-c',
     link
-      .replaceAll('lib/libjxl.a', `${work}/libjxl.a`)
-      .replace(' -o tools/cjxl ', ` -o ${work}/cjxl `)
-      .replace('tools/CMakeFiles/cjxl.dir/link.d', `${work}/link.d`),
+      .replaceAll('lib/libjxl.a', '"$JXL_FIXTURE_LIBRARY"')
+      .replace(' -o tools/cjxl ', ' -o "$JXL_FIXTURE_CJXL" ')
+      .replace('tools/CMakeFiles/cjxl.dir/link.d', '"$JXL_FIXTURE_LINK_DEPENDENCIES"'),
   ],
-  { cwd: build, stdio: 'inherit' },
+  { cwd: build, env: shellEnvironment, stdio: 'inherit' },
 )
 const sha256 = (bytes: Uint8Array | string): string =>
   createHash('sha256').update(bytes).digest('hex')

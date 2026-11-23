@@ -119,7 +119,10 @@ for (const runtime of ['chromium', 'node'])
 const manifest = object(JSON.parse(await readFile(`${root}/subjects.json`, 'utf8'))),
   assets = manifest.files
 for (const report of rawReports)
-  if (/\/(main|repair|compat|cold|specialized|preview)-|\/quality\.json$/.test(report.path))
+  if (
+    /\/(main|repair|compat|cold|specialized|preview)-/.test(report.path) ||
+    report.path.endsWith('/quality.json')
+  )
     validateImplementationIdentity(report.data, manifest)
 if (!Array.isArray(assets)) throw new Error('Missing asset inventory')
 const assetRows = assets.map(object),

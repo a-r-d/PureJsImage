@@ -4,6 +4,15 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Testing, CI and docs
+
+- The website's X-Ray, HDR, OME-Zarr, and 4D-STEM workers now ignore messages that do not come
+  from the page that created them. They share one check with the JPEG XL workbench worker.
+- Local benchmark servers log request errors instead of sending error text and stack traces in
+  the HTTP response.
+- The JPEG XL transform-gap fixture script passes its build paths to the shell through quoted
+  environment variables, so a checkout path with spaces or shell characters still works.
+
 ## [0.18.0] - 2026-11-22
 
 ### Upgrade notes

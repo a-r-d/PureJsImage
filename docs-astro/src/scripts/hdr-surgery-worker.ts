@@ -15,6 +15,7 @@ import {
   type HdrSurgeryDimensions,
   type HdrSurgeryResponse,
 } from './hdr-surgery-types.ts'
+import { isDedicatedWorkerMessage } from './worker-message.ts'
 
 interface StoredImage {
   readonly name: string
@@ -224,6 +225,7 @@ const avifStored = async (
 }
 
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
+  if (!isDedicatedWorkerMessage(event)) return
   if (!isHdrSurgeryRequest(event.data)) return
   const request = event.data
   if (

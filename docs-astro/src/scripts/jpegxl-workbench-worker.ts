@@ -25,7 +25,6 @@ import {
 } from './jpegxl-workbench-preview.ts'
 import {
   isJpegXlWorkbenchRequest,
-  isJpegXlWorkbenchWorkerEvent,
   type JpegXlWorkbenchPreview,
   type JpegXlWorkbenchResponse,
   jpegXlWorkbenchMaximumOutputBytes,
@@ -33,6 +32,7 @@ import {
   planJpegXlWorkbenchNativeMemory,
   planJpegXlWorkbenchPreview,
 } from './jpegxl-workbench-types.ts'
+import { isDedicatedWorkerMessage } from './worker-message.ts'
 
 interface StoredInput {
   readonly generation: number
@@ -191,7 +191,7 @@ const isCurrent = (generation: number, requestId: number, abort: AbortController
   !abort.signal.aborted
 
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
-  if (!isJpegXlWorkbenchWorkerEvent(event)) return
+  if (!isDedicatedWorkerMessage(event)) return
   if (!isJpegXlWorkbenchRequest(event.data) && !isJxlToolRequest(event.data)) return
   const request = event.data
   if (

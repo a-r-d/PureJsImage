@@ -40,6 +40,7 @@ import {
   type OmeZarrStats,
   type OmeZarrWorkerResponse,
 } from './ome-zarr-types.ts'
+import { isDedicatedWorkerMessage } from './worker-message.ts'
 
 interface WorkerScope {
   onmessage: ((event: MessageEvent<unknown>) => void) | null
@@ -1174,6 +1175,7 @@ const resetMeasurement = async (epoch: number): Promise<void> => {
 }
 
 scope.onmessage = (event): void => {
+  if (!isDedicatedWorkerMessage(event)) return
   if (!isOmeZarrWorkerRequest(event.data)) return
   const message = event.data
   if (message.type === 'open') {

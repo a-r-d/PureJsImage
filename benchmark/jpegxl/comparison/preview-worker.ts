@@ -8,6 +8,8 @@ declare const self: {
   postMessage(value: unknown): void
 }
 self.onmessage = async (event) => {
+  // Dedicated-worker messages use an empty origin and a null source; ignore anything else.
+  if (!event.isTrusted || event.origin !== '' || event.source !== null) return
   const start = performance.now(),
     reads: { offset: number; requested: number; transferred: number }[] = []
   try {

@@ -37,6 +37,7 @@ import type {
   FourDStemWorkerResponse,
 } from './four-d-stem-types.ts'
 import { isFourDStemWorkerRequest } from './four-d-stem-types.ts'
+import { isDedicatedWorkerMessage } from './worker-message.ts'
 
 interface WorkerScope {
   addEventListener(type: 'message', listener: (event: MessageEvent<unknown>) => void): void
@@ -490,6 +491,7 @@ const reducedDiffraction = async (
 }
 
 scope.addEventListener('message', (event: MessageEvent<unknown>) => {
+  if (!isDedicatedWorkerMessage(event)) return
   if (!isFourDStemWorkerRequest(event.data)) {
     post({
       version: 1,

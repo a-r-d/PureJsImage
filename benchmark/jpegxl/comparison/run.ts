@@ -84,8 +84,10 @@ if (runtime !== 'node') {
       res.setHeader('Content-Length', bytes.length)
       res.end(bytes)
     } catch (error) {
+      // Keep error details in the local log, not in the response body.
+      console.error(error)
       res.statusCode = 500
-      res.end(String(error))
+      res.end('Internal server error')
     }
   })
   await new Promise<void>((resolve) => server?.listen(0, '127.0.0.1', resolve))
