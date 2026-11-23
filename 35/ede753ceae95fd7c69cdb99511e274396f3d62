@@ -1,0 +1,50 @@
+tests/icc-fixtures.ts
+  s_fb44c3e6b9dfb0::t_a69215aac54731 89-117
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_6a11d250b76242 398-399
+  s_fb44c3e6b9dfb0::t_60997f016033b1 392-393,397,400
+jpegxl-codec-support.md
+  s_fb44c3e6b9dfb0::t_60997f016033b1 196-197
+README.md
+  s_fb44c3e6b9dfb0::t_14d403319f0349 477-478,480,482,496-497,499
+src/codecs/icc.ts
+  s_fb44c3e6b9dfb0::t_1e9ac0bab3b1ac 707-710,1334-1343,1349,1352-1355,1390-1393,1408,1411
+docs-astro/public/capabilities.json
+  s_fb44c3e6b9dfb0::t_60997f016033b1 6076-6083
+tests/png.test.ts
+  s_fb44c3e6b9dfb0::t_93dff76d54696a 9,156-275,277
+  s_fb44c3e6b9dfb0::t_670c77b5ba1dae 276,278
+tests/jpegxl-untagged-input.test.ts
+  s_fb44c3e6b9dfb0::t_a6aecf210fe1af 27-32,223-253
+  s_fb44c3e6b9dfb0::t_4068144da2449f 254-255
+src/codecs/png.ts
+  s_fb44c3e6b9dfb0::t_1e9ac0bab3b1ac 674-677,1900-1902,1912-1913
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_14d403319f0349 179,556,559,562,571,574,577,616,619,622,871,874,877,886,889,892,931,937,946,949,952,961,964,967,991,994,997,1156,1159,1162,1231,1234,1237,1246,1249,1252,1261,1264,1267,1306,1309,1312,1336,1339,1342,1391,1396,1399,1402,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+capabilities/manifest.json
+  s_fb44c3e6b9dfb0::t_60997f016033b1 4013-4014
+scripts/bundle-size-budgets.ts
+  s_fb44c3e6b9dfb0::t_14d403319f0349 20-23
+docs/jpeg-xl.md
+  s_fb44c3e6b9dfb0::t_60997f016033b1 57-58
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_14d403319f0349 99-101,104-106,109-111,114-116,129
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_14d403319f0349 179,556,559,562,571,574,577,616,619,622,871,874,877,886,889,892,931,937,946,949,952,961,964,967,991,994,997,1156,1159,1162,1231,1234,1237,1246,1249,1252,1261,1264,1267,1306,1309,1312,1336,1339,1342,1391,1396,1399,1402,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "35ede753ceae95fd7c69cdb99511e274396f3d62",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
