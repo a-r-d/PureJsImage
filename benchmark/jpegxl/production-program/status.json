@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentMainSha": "d157a8dc5a704410563026e53e438b79db6161db",
-  "packageVersion": "0.17.0",
+  "currentMainSha": "35ede753ceae95fd7c69cdb99511e274396f3d62",
+  "packageVersion": "0.18.0",
   "currentTarget": "C",
   "milestones": [
     {
@@ -479,7 +479,7 @@
         "range-backed source evidence",
         "viewport and cancellation thresholds"
       ],
-      "status": "PR open",
+      "status": "merged",
       "pr": 36,
       "startRevision": "d157a8dc5a704410563026e53e438b79db6161db",
       "finalRevision": "98b3ba58e881109f962887e9a8a17de50bc43947",
@@ -538,10 +538,10 @@
         "rate-distortion thresholds",
         "performance and memory thresholds"
       ],
-      "status": "locally complete",
+      "status": "merged",
       "pr": 36,
       "startRevision": "2d931aa3b1617561aed770e73d53dcfabeb8b236",
-      "finalRevision": null,
+      "finalRevision": "672aba537214af16e10af381c769d11521c080a1",
       "localCommands": [
         "node benchmark/jpegxl/fetch-m7-corpus.ts",
         "node benchmark/jpegxl/inspect-m7-corpus.ts",
@@ -672,10 +672,10 @@
         "bounded sequence memory",
         "extra-channel discovery"
       ],
-      "status": "locally complete",
-      "pr": null,
+      "status": "merged",
+      "pr": 36,
       "startRevision": "1c6e1433a938bcb3f22a41c3f388c9a22156cbd2",
-      "finalRevision": null,
+      "finalRevision": "672aba537214af16e10af381c769d11521c080a1",
       "localCommands": [
         "node benchmark/jpegxl/verify-m8-sequence.ts",
         "node benchmark/jpegxl/verify-m8-static.ts",
@@ -738,8 +738,8 @@
         "API and package-size freeze",
         "release target B gates"
       ],
-      "status": "locally complete",
-      "pr": null,
+      "status": "merged",
+      "pr": 36,
       "startRevision": "df8a3af907bc7d799f3ddf5753559661c8d3f779",
       "finalRevision": "a7cd5582474afe721604e8d5c0563e18be03917d",
       "localCommands": [
@@ -797,8 +797,8 @@
         "bounded Level 10 resources",
         "runtime and security gates"
       ],
-      "status": "locally complete",
-      "pr": null,
+      "status": "merged",
+      "pr": 36,
       "startRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
       "finalRevision": "a7cd5582474afe721604e8d5c0563e18be03917d",
       "localCommands": [

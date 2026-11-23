@@ -156,6 +156,40 @@ export async function initialize(
       close() {},
     }
   }
+  if (subject === 'imagescript') {
+    const { Image } = await import('imagescript')
+    return {
+      async decode(bytes) {
+        // One thread matches the other subjects; Image always holds sRGB RGBA8 samples.
+        const image = await Image.decode(bytes, { threads: 1 })
+        return {
+          kind: 'pixels',
+          pixels: {
+            width: image.width,
+            height: image.height,
+            channels: 4,
+            data: new Uint8Array(image.bitmap),
+            interpretation: 'srgb',
+          },
+        }
+      },
+      async encode(p, s) {
+        if (!(p.data instanceof Uint8Array) || p.channels !== 4)
+          throw new Error('ImageScript public input requires RGBA8 pixels')
+        const image = new Image(p.width, p.height)
+        image.bitmap = p.data
+        // ImageScript effort is 0-2: 0 is its libjxl fast-lossless port, like libjxl effort 1.
+        const effort = s.effort <= 1 ? 0 : 2
+        return {
+          kind: 'jxl',
+          bytes: await image.encodeJXL(
+            s.lossless ? { effort, threads: 1 } : { quality: s.value, effort, threads: 1 },
+          ),
+        }
+      },
+      close() {},
+    }
+  }
   if (subject === 'oxide') {
     const { default: init, JxlImage } = await import('jxl-oxide-wasm')
     await init({ module_or_path: await asset('oxide.wasm') })

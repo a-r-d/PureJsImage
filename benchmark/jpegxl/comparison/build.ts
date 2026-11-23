@@ -53,7 +53,7 @@ await build({
   tsconfigRaw: { compilerOptions: {} },
 })
 const packages = []
-for (const name of ['@jsquash/jxl', 'jxl-oxide-wasm', 'wasm-vips']) {
+for (const name of ['imagescript', '@jsquash/jxl', 'jxl-oxide-wasm', 'wasm-vips']) {
   const bytes = await readFile(`node_modules/${name}/package.json`)
   packages.push({
     name,
@@ -89,11 +89,12 @@ await json(`${root}/subjects.json`, {
       object(JSON.parse(await readFile('node_modules/esbuild/package.json', 'utf8'))).version,
     ),
     target:
-      'ESM modern browser; minified; code splitting; public PureJsImage dist exports; published WASM assets unchanged',
+      'ESM modern browser; minified; code splitting; public PureJsImage dist exports; published ImageScript dist and WASM assets unchanged',
     node: process.version,
   },
   threads: {
     purejsimage: 1,
+    imagescript: 'threads: 1 on decode and encode; its worker module is not bundled',
     jsquash: 'single thread on non-isolated browser origin and Node default',
     oxide: 1,
     vips: 'concurrency(1), pthread runtime; isolated browser origin required',

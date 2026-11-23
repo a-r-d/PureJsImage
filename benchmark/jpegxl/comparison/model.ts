@@ -1,4 +1,4 @@
-export const subjects = ['purejsimage', 'jsquash', 'oxide', 'vips'] as const
+export const subjects = ['purejsimage', 'imagescript', 'jsquash', 'oxide', 'vips'] as const
 export type Subject = (typeof subjects)[number]
 export const statuses = [
   'verified',

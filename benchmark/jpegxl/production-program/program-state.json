@@ -1,6 +1,6 @@
 {
-  "currentMainSha": "d157a8dc5a704410563026e53e438b79db6161db",
-  "packageVersion": "0.17.0",
+  "currentMainSha": "35ede753ceae95fd7c69cdb99511e274396f3d62",
+  "packageVersion": "0.18.0",
   "currentTarget": "C",
   "milestones": {
     "M0": {
@@ -409,7 +409,7 @@
       "remainingBlockers": []
     },
     "M6": {
-      "status": "PR open",
+      "status": "merged",
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": 36,
       "startRevision": "d157a8dc5a704410563026e53e438b79db6161db",
@@ -459,11 +459,11 @@
       "remainingBlockers": []
     },
     "M7": {
-      "status": "locally complete",
+      "status": "merged",
       "branch": "codex/jpegxl-m06-m10-completion",
       "pr": 36,
       "startRevision": "2d931aa3b1617561aed770e73d53dcfabeb8b236",
-      "finalRevision": null,
+      "finalRevision": "672aba537214af16e10af381c769d11521c080a1",
       "localCommands": [
         "node benchmark/jpegxl/fetch-m7-corpus.ts",
         "node benchmark/jpegxl/inspect-m7-corpus.ts",
@@ -584,11 +584,11 @@
       }
     },
     "M8": {
-      "status": "locally complete",
+      "status": "merged",
       "branch": "codex/jpegxl-m06-m10-completion",
-      "pr": null,
+      "pr": 36,
       "startRevision": "1c6e1433a938bcb3f22a41c3f388c9a22156cbd2",
-      "finalRevision": null,
+      "finalRevision": "672aba537214af16e10af381c769d11521c080a1",
       "localCommands": [
         "node benchmark/jpegxl/verify-m8-sequence.ts",
         "node benchmark/jpegxl/verify-m8-static.ts",
@@ -640,9 +640,9 @@
       "remainingBlockers": []
     },
     "M9": {
-      "status": "locally complete",
+      "status": "merged",
       "branch": "codex/jpegxl-m06-m10-completion",
-      "pr": null,
+      "pr": 36,
       "startRevision": "df8a3af907bc7d799f3ddf5753559661c8d3f779",
       "finalRevision": "a7cd5582474afe721604e8d5c0563e18be03917d",
       "localCommands": [
@@ -690,9 +690,9 @@
       "remainingBlockers": []
     },
     "M10": {
-      "status": "locally complete",
+      "status": "merged",
       "branch": "codex/jpegxl-m06-m10-completion",
-      "pr": null,
+      "pr": 36,
       "startRevision": "dc870f2cfa896ed2ddb2b05d66a314ad3109b011",
       "finalRevision": "a7cd5582474afe721604e8d5c0563e18be03917d",
       "localCommands": [

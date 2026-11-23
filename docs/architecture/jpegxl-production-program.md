@@ -4,24 +4,18 @@ This document is the authoritative human-readable ledger for the staged JPEG XL 
 
 ## Current program state
 
-- Current merged main: `d157a8dc5a704410563026e53e438b79db6161db`
-- Package version: `0.17.0`
-- Current target: A
-- Active milestone: M7 in progress; M6 complete with passing PR checks
-- Active branch: `codex/jpegxl-m06-m10-completion`
-- Previous merged pull request: [#35](https://github.com/a-r-d/PureJsImage/pull/35)
-- Current pull request: [#36](https://github.com/a-r-d/PureJsImage/pull/36)
-- Starting revision: `d157a8dc5a704410563026e53e438b79db6161db`
-- M5 implementation revision: `71ee81cdf3c9c8433daba7968ddc46a2c7191739`
-- Current change: M7 multi-group lossless effort search and forward lossy encoding, with frozen compression and quality gates.
-- M6 promotion gate: passed locally. The source-pinned 40-case report and individual misses are in `benchmark/jpegxl/production-program/m6-report.json`. Remote PR checks are separate; no release is authorized.
+- Released in: `0.18.0`, tag `v0.18.0` at `35ede753ceae95fd7c69cdb99511e274396f3d62`
+- Program status: M0 through M10 are merged. Target C is the current target.
+- M0 through M5 merged in [#35](https://github.com/a-r-d/PureJsImage/pull/35) at `d157a8dc5a704410563026e53e438b79db6161db`.
+- M6 through M10 merged in [#36](https://github.com/a-r-d/PureJsImage/pull/36) on 2026-09-20 at `db8fef9ed98371f4135d04a31ee80b5f9ba6a756`. The branch head was `672aba537214af16e10af381c769d11521c080a1`.
+- Later JPEG XL work landed on `main` after #36 and shipped in 0.18.0: practical coverage in [#37](https://github.com/a-r-d/PureJsImage/pull/37), lossless and lossy compression work, effort 7 and 9 photo decisions ported from libjxl, and the `keepIcc()` and untagged-input encoder fixes. `CHANGELOG.md` lists them.
+- Capability labels: decode is Stable for the common static subset. Lossless writing, the documented static lossy subset and exact JPEG transcode are Stable. Lossy animation remains Experimental.
+- The [completion ledger](jpegxl-m6-m10-completion.md) keeps the M6 through M10 evidence and the remaining named boundaries.
 
-The program normally uses one milestone branch and pull request at a time. For this run, the
-operator explicitly directed M1, M2, M3, M4, and M5 work to continue on the existing M0 branch and pull request.
-M0 through M5 are now merged in PR 35. Their original implementation revisions and evidence below
-remain historical. The supplied M6 through M10 completion brief requests the remaining milestones
-on one branch and PR. The latest direct request authorizes M7 after completing M6; M8 through M10 remain outside the current task. The [completion ledger](jpegxl-m6-m10-completion.md) records that scope
-exception, new baseline, implementation status and unmet gates.
+The program normally used one milestone branch and pull request at a time. The operator
+directed M1 through M5 onto the M0 branch and pull request, and M6 through M10 onto one
+completion branch and pull request. The original implementation revisions and evidence below
+remain historical.
 
 ## Production targets
 
@@ -41,13 +35,13 @@ Target C is the Level 10 stretch target. M10 must pass before the project can cl
 | M3 | A | merged | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `32d5a438e23486b1a46f8ad7269505b5c93034bc` | `13e1e36c521eae0894df53e38134a0c7b5b5d7bb` | passed |
 | M4 | A | merged | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `eb0d1697132a81a2dcc9eb6822b384e09c781bec` | `d61e238814018b8f234c806e57282d07dda39357` | passed |
 | M5 | A | merged | `codex/jpegxl-m00-program-baseline` | [#35](https://github.com/a-r-d/PureJsImage/pull/35) | `a57fbd548c1317af457636a2ddad4563e8bad330` | `71ee81cdf3c9c8433daba7968ddc46a2c7191739` | passed |
-| M6 | A | PR open | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `d157a8dc5a704410563026e53e438b79db6161db` | `98b3ba58e881109f962887e9a8a17de50bc43947` | passed locally |
-| M7 | B | in progress | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `2d931aa3b1617561aed770e73d53dcfabeb8b236` | pending | not passed |
-| M8 | B | not started | `codex/jpegxl-m06-m10-completion` | pending | pending | pending | not passed |
-| M9 | B | not started | `codex/jpegxl-m06-m10-completion` | pending | pending | pending | not passed |
-| M10 | C | not started | `codex/jpegxl-m06-m10-completion` | pending | pending | pending | not passed |
+| M6 | A | merged | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `d157a8dc5a704410563026e53e438b79db6161db` | `98b3ba58e881109f962887e9a8a17de50bc43947` | passed |
+| M7 | B | merged | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `2d931aa3b1617561aed770e73d53dcfabeb8b236` | `672aba537214af16e10af381c769d11521c080a1` | static lossy subset Stable; lossy animation Experimental |
+| M8 | B | merged | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `1c6e1433a938bcb3f22a41c3f388c9a22156cbd2` | `672aba537214af16e10af381c769d11521c080a1` | sequence and native-channel contracts complete; lossy animation Experimental |
+| M9 | B | merged | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `df8a3af907bc7d799f3ddf5753559661c8d3f779` | `a7cd5582474afe721604e8d5c0563e18be03917d` | hardening gates passed; no capability promotion |
+| M10 | C | merged | `codex/jpegxl-m06-m10-completion` | [#36](https://github.com/a-r-d/PureJsImage/pull/36) | `dc870f2cfa896ed2ddb2b05d66a314ad3109b011` | `a7cd5582474afe721604e8d5c0563e18be03917d` | all 39 official conformance cases pass; bounded Level 10 native subset |
 
-Milestone goals and required gates are recorded in `status.json`. The current completion brief supersedes the one-milestone-per-PR rule for M6 through M10.
+Milestone goals and required gates are recorded in `status.json`, generated from `program-state.json`. The completion brief superseded the one-milestone-per-PR rule for M6 through M10.
 
 ## M0 baseline
 

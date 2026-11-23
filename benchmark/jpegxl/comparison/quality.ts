@@ -91,7 +91,13 @@ for (const fixture of selected) {
     await sharp(source).flatten({ background }).png().toFile(path)
     references.set(background, path)
   }
-  for (const subject of ['purejsimage', 'jsquash', 'vips', 'native-libjxl'] as const) {
+  for (const subject of [
+    'purejsimage',
+    'imagescript',
+    'jsquash',
+    'vips',
+    'native-libjxl',
+  ] as const) {
     console.log(`quality ${fixture.id} ${subject}`)
     const adapter =
       subject === 'native-libjxl'
@@ -110,9 +116,11 @@ for (const fixture of selected) {
       })[] = [],
       failures: unknown[] = []
     try {
-      const queue = subject === 'jsquash' ? [11, 51] : [1, 4],
-        minimum = subject === 'jsquash' ? 2 : subject === 'purejsimage' ? 0.25 : 0.1,
-        maximum = subject === 'jsquash' ? (sampling === 'all-bands' ? 101 : 81) : 25
+      // jSquash and ImageScript take a 0-100 quality; search 101 - quality like a distance.
+      const qualityScale = subject === 'jsquash' || subject === 'imagescript'
+      const queue = qualityScale ? [11, 51] : [1, 4],
+        minimum = qualityScale ? 2 : subject === 'purejsimage' ? 0.25 : 0.1,
+        maximum = qualityScale ? (sampling === 'all-bands' ? 101 : 81) : 25
       for (let attempt = 0; attempt < maximumPoints; attempt++) {
         const setting =
           queue.shift() ??
@@ -123,7 +131,7 @@ for (const fixture of selected) {
         const options = {
             lossless: false,
             effort: 7,
-            value: subject === 'jsquash' ? 101 - setting : setting,
+            value: qualityScale ? 101 - setting : setting,
           },
           prefix = `${directory}/${fixture.id}-${subject}-${setting}`
         try {
@@ -227,7 +235,7 @@ for (const fixture of selected) {
       sourceSha256: fixture.sourceSha256,
       inputSha256: fixture.rawSha256,
       settingBounds:
-        subject === 'jsquash'
+        subject === 'jsquash' || subject === 'imagescript'
           ? { minimum: 2, maximum: sampling === 'all-bands' ? 101 : 81, mapping: '101 - quality' }
           : { minimum: subject === 'purejsimage' ? 0.25 : 0.1, maximum: 25, mapping: 'distance' },
       subject,

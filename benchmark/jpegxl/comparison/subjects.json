@@ -1,10 +1,118 @@
 {
   "schemaVersion": 1,
-  "date": "2026-10-01T13:09:35.845Z",
-  "implementationRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
-  "implementationSourceSha256": "088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca",
+  "date": "2026-11-23T17:08:24.847Z",
+  "implementationRevision": "b760669ae677a9d668d30ed6a9e6e99725c0fab7",
+  "implementationSourceSha256": "0718fc14ed17e008265737536fdfee1a5f3f55f6fdea33c4c6bd0ba1b3085beb",
   "implementationDirty": true,
   "packages": [
+    {
+      "name": "imagescript",
+      "manifest": {
+        "name": "imagescript",
+        "version": "4.0.0",
+        "description": "Pure TypeScript image processing that runs everywhere",
+        "main": "./dist/index.js",
+        "types": "./dist/index.d.ts",
+        "exports": {
+          ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+          },
+          "./package.json": "./package.json"
+        },
+        "files": ["dist", "LICENSE", "THIRD_PARTY_NOTICES.md", "licenses", "README.md"],
+        "sideEffects": false,
+        "scripts": {
+          "build": "node scripts/build.js",
+          "typecheck": "tsc -p tsconfig.json --noEmit",
+          "lint": "eslint",
+          "docs": "node scripts/docs.js",
+          "test": "npm run build && node ./tests/run.js",
+          "coverage": "node scripts/build.js --source-maps && c8 node ./tests/run.js && node scripts/coverage-report.js",
+          "prepack": "npm run build",
+          "version": "node scripts/version.js && git add jsr.json"
+        },
+        "repository": {
+          "type": "git",
+          "url": "git+https://github.com/imagescript/ImageScript.git"
+        },
+        "keywords": [
+          "image",
+          "image processing",
+          "image manipulation",
+          "typescript",
+          "zero-dependency",
+          "browser",
+          "deno",
+          "bun",
+          "edge",
+          "cloudflare-workers",
+          "serverless",
+          "png",
+          "jpeg",
+          "jpg",
+          "scale",
+          "resize",
+          "crop",
+          "svg",
+          "bitmap",
+          "gif",
+          "picture",
+          "thumbnail",
+          "webp",
+          "avif",
+          "av1",
+          "jxl",
+          "jpeg xl",
+          "hdr",
+          "ultra hdr",
+          "gain map",
+          "apng",
+          "tiff",
+          "tga",
+          "bmp",
+          "ico",
+          "cur",
+          "qoi",
+          "netpbm",
+          "ppm",
+          "pgm",
+          "pbm",
+          "pam",
+          "pfm",
+          "radiance",
+          "animation",
+          "text rendering",
+          "font"
+        ],
+        "author": "Mathis Mensing <mathis@matmen.dev>",
+        "license": "MIT",
+        "bugs": {
+          "url": "https://github.com/imagescript/ImageScript/issues"
+        },
+        "homepage": "https://imagescript.dev/",
+        "engines": {
+          "node": ">=22.13.0"
+        },
+        "devDependencies": {
+          "@eslint/js": "10.0.1",
+          "c8": "12.0.0",
+          "eslint": "10.14.0",
+          "eslint-plugin-sonarjs": "4.2.2",
+          "typedoc": "0.28.20",
+          "typescript": "6.0.3",
+          "typescript-eslint": "8.72.2"
+        },
+        "overrides": {
+          "minimatch": "11.0.8",
+          "glob": "14.0.5",
+          "typedoc": {
+            "minimatch": "9.0.9"
+          }
+        }
+      },
+      "manifestSha256": "6ca844bba3a4b34a2c14923acc9963b4d7d9a68f41861c2619599976a7f4538a"
+    },
     {
       "name": "@jsquash/jxl",
       "manifest": {
@@ -166,6 +274,13 @@
       "brotliBytes": 5621
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/browser-AQERXQCV.js",
+      "sha256": "969cb356a0e6006f6a872018ef59aa1b986a1eb15386870764c40e8162fced5b",
+      "bytes": 18649,
+      "gzipBytes": 6282,
+      "brotliBytes": 5608
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/browser-VHAPBV5D.js",
       "sha256": "dc688fa0ef647328e3fff03a6a71af4be426414c8d6fea492e18d5ece7c7f25f",
       "bytes": 18621,
@@ -174,10 +289,10 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/browser-worker.js",
-      "sha256": "e3c3ed3afb089d9b517fab9f9489437de50ea4157ad73f022958ad000625cda3",
-      "bytes": 6806,
-      "gzipBytes": 2732,
-      "brotliBytes": 2424
+      "sha256": "7b2267cd588c11d511e9e55cbe1925f4c4c6407c6b78b4d2ddcf1a8cfc56cb4c",
+      "bytes": 7592,
+      "gzipBytes": 2942,
+      "brotliBytes": 2618
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/chunk-4LFTYATI.js",
@@ -201,6 +316,13 @@
       "brotliBytes": 568
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-I64JTMLI.js",
+      "sha256": "f9ca31c4b22fc210295ddb4eefa1b8591e072e2d3e7763b7e922f9d32e172b11",
+      "bytes": 16040,
+      "gzipBytes": 4773,
+      "brotliBytes": 4288
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/chunk-SIPYYJJH.js",
       "sha256": "307b7301f444b2c5da9e075d4b4bc83c1ad347964d6cd863541105aa028ce48d",
       "bytes": 15995,
@@ -215,11 +337,32 @@
       "brotliBytes": 4278
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-WOT6VMZA.js",
+      "sha256": "ff9e0dca4365b7b1581e7275f3c6dbcf1474ffb874d81a3375ecf7a835dbaa6f",
+      "bytes": 106,
+      "gzipBytes": 120,
+      "brotliBytes": 91
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/decode-BZOCFKIT.js",
       "sha256": "2032dc541a86fc2d806feff6ae144d41e2c908ed9a00fbf48e03d3b9196ecad2",
       "bytes": 20176,
       "gzipBytes": 7668,
       "brotliBytes": 6966
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/decode-UKNSG36J.js",
+      "sha256": "247e3901ba5deaec1a9bed16f003adb5f40835403c0b8bc9618ae94e966bbd18",
+      "bytes": 20204,
+      "gzipBytes": 7682,
+      "brotliBytes": 6959
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/dist-IBJORQQN.js",
+      "sha256": "79748ac34ddf674cfe08b9b3b56663b880170eac0ba8babd4887d35b2fcbdb27",
+      "bytes": 1086070,
+      "gzipBytes": 450570,
+      "brotliBytes": 375399
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/encode-IGAQVTBR.js",
@@ -229,11 +372,25 @@
       "brotliBytes": 775
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/encode-JKXJLXJI.js",
+      "sha256": "404179437e6cd86233432e08aed68b4f90f4dc3d5eb45f406fcddb74c52be3ef",
+      "bytes": 1816,
+      "gzipBytes": 899,
+      "brotliBytes": 780
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/executor-4V6RSNQI.js",
       "sha256": "191614f689b7d61f1e88dd9a808cef7c0cbe753d62e5df400617b11aeb7c9afd",
       "bytes": 42302,
       "gzipBytes": 13607,
       "brotliBytes": 11870
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/executor-AXIDGBNQ.js",
+      "sha256": "2a98d752426073440adaee29a093191fc017bef89af22784fc9d9af265f0ef64",
+      "bytes": 42330,
+      "gzipBytes": 13619,
+      "brotliBytes": 11893
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/executor-BKIWEOS2.js",
@@ -257,6 +414,13 @@
       "brotliBytes": 110162
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-US3B6P4S.js",
+      "sha256": "d4e71e61c08939473ed008ad0c5e7f9001a63c9d015f5726e4eea34db584462e",
+      "bytes": 550399,
+      "gzipBytes": 186203,
+      "brotliBytes": 151920
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-XOFU7KHQ.js",
       "sha256": "e31567214252684cb336aad56d1d623769a27c68c6dd6b97e409ed047ff5c264",
       "bytes": 362102,
@@ -271,11 +435,32 @@
       "brotliBytes": 8820
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc-RVRLAL7I.js",
+      "sha256": "d8352dc68ca38d85aed5ea209bf7caec9c6d2e4cddc443eebb815fd3f876b945",
+      "bytes": 26302,
+      "gzipBytes": 9781,
+      "brotliBytes": 8829
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc_mt-TVP6DHGU.js",
       "sha256": "c686761a7473942688c154f4f3e33be62019becf2300575b10febb36d900c0da",
       "bytes": 34095,
       "gzipBytes": 12434,
       "brotliBytes": 11157
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc_mt-YDQD5OXM.js",
+      "sha256": "c36d18cc6ec0b49b250ca78e24e47c62ee499c46244d0f6b3f94d28e6d2a34d4",
+      "bytes": 34123,
+      "gzipBytes": 12453,
+      "brotliBytes": 11205
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc_mt_simd-JO2KHHGB.js",
+      "sha256": "01d89246843e47c6893ddd240dd2e08ac435e6972f23e283b6f019e3635f8eae",
+      "bytes": 34113,
+      "gzipBytes": 12455,
+      "brotliBytes": 11169
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc_mt_simd-YYJQ5EU7.js",
@@ -290,6 +475,13 @@
       "bytes": 9029,
       "gzipBytes": 2972,
       "brotliBytes": 2642
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_oxide_wasm-RXA4OTDF.js",
+      "sha256": "738a4223547ed1aa4902dc2c62dc8005541bd2363bfa8217b183d067643c4708",
+      "bytes": 9057,
+      "gzipBytes": 2997,
+      "brotliBytes": 2673
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/assets/jsquash-dec.wasm",
@@ -336,11 +528,12 @@
   ],
   "build": {
     "esbuild": "0.28.1",
-    "target": "ESM modern browser; minified; code splitting; public PureJsImage dist exports; published WASM assets unchanged",
+    "target": "ESM modern browser; minified; code splitting; public PureJsImage dist exports; published ImageScript dist and WASM assets unchanged",
     "node": "v24.16.0"
   },
   "threads": {
     "purejsimage": 1,
+    "imagescript": "threads: 1 on decode and encode; its worker module is not bundled",
     "jsquash": "single thread on non-isolated browser origin and Node default",
     "oxide": 1,
     "vips": "concurrency(1), pthread runtime; isolated browser origin required"

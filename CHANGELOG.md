@@ -37,6 +37,11 @@ All notable changes to PureJsImage are documented in this file.
   the HTTP response.
 - The JPEG XL transform-gap fixture script passes its build paths to the shell through quoted
   environment variables, so a checkout path with spaces or shell characters still works.
+- The JPEG XL comparison harness adds ImageScript 4.0.0, a pure TypeScript library, as a subject.
+  ImageScript decodes to RGBA8 and encodes lossless and lossy JPEG XL; 16-bit samples, extra
+  channels, animation encode, ICC access, region reads and JPEG reconstruction are reported as not
+  exposed. Chromium runs use the installed Chrome, each job may take 20 minutes, and reports record
+  the machine load average. The published comparison results are not refreshed yet.
 - Two tiled JPEG XL patch tests now pin streams 2 and 3 bytes larger, from the effort-7 hybrid
   split change. A new test checks that effort 7 still finds document patches on a white text
   page. Pinned libjxl 0.12.0 decodes every sample of the new streams.

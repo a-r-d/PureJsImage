@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
-import { cpus, platform, release, totalmem } from 'node:os'
+import { cpus, loadavg, platform, release, totalmem } from 'node:os'
 import { type BrowserType, chromium, firefox, webkit } from '@playwright/test'
 import type { execute, Job } from './execute.ts'
 import { fixtures, hash, implementationIdentity, json, root, work } from './io.ts'
@@ -27,8 +27,12 @@ const selected = subjects.filter((s) => selection.includes(s)),
             ['im26-1030-diagnostic', 'alpha_triangles', 'rgb16-default'].includes(f.id),
           )
 const out = `${work}/runs/${mode}-${runtime}`
+// Four effort-7 lossless encodes of one fixture can take minutes; a job that exceeds this still
+// fails visibly as an execution failure.
+const jobDeadlineMs = 1_200_000
 await mkdir(out, { recursive: true })
 const rows: unknown[] = [],
+  startLoad = loadavg(),
   started = new Date().toISOString(),
   implementation = await implementationIdentity()
 let server: ReturnType<typeof createServer> | undefined,
@@ -97,7 +101,14 @@ if (runtime !== 'node') {
 }
 const browserType: BrowserType =
   runtime === 'firefox' ? firefox : runtime === 'webkit' ? webkit : chromium
-const browser = runtime === 'node' ? undefined : await browserType.launch({ headless: true })
+// Chromium runs use the installed Google Chrome, like the repository's Playwright tests.
+const browser =
+  runtime === 'node'
+    ? undefined
+    : await browserType.launch({
+        headless: true,
+        ...(runtime === 'chromium' ? { channel: 'chrome' } : {}),
+      })
 const report = async () =>
   json(`${root}/results/${mode}-${runtime}.json`, {
     schemaVersion: 1,
@@ -111,6 +122,9 @@ const report = async () =>
       cpu: cpus()[0]?.model,
       logicalCpus: cpus().length,
       hostMemoryBytes: totalmem(),
+      // Other host work can share the CPU; record it so timings can be read with that context.
+      loadAverageAtStart: startLoad,
+      loadAverageAtReport: loadavg(),
       node: process.version,
       browser: browser?.version() ?? null,
       browserMemory: 'unavailable: no consistent cross-browser measurement API',
@@ -124,10 +138,11 @@ const report = async () =>
 try {
   for (const fixture of selectedFixtures)
     for (const subject of selected) {
+      const qualityScale = subject === 'jsquash' || subject === 'imagescript'
       const settings: Settings = {
         lossless: true,
         effort: 1,
-        value: subject === 'jsquash' ? 100 : 1,
+        value: qualityScale ? 100 : 1,
       }
       const jobs: Job[] = [
         {
@@ -140,7 +155,7 @@ try {
       ]
       if (mode === 'main' && fixture.lossy)
         jobs.push({ ...jobs[0], subject, fixture, operation: 'decode-lossy', settings, repeats: 3 })
-      if (fixture.sampleType === 'uint8' || subject !== 'jsquash') {
+      if (fixture.sampleType === 'uint8' || !qualityScale) {
         jobs.push({
           subject,
           fixture,
@@ -153,7 +168,11 @@ try {
             subject,
             fixture,
             operation: 'encode',
-            settings: { lossless: false, effort: 1, value: subject === 'jsquash' ? 75 : 1 },
+            settings: {
+              lossless: false,
+              effort: 1,
+              value: subject === 'jsquash' ? 75 : subject === 'imagescript' ? 90 : 1,
+            },
             repeats: 3,
           })
           // Bounded higher-effort subset; original 12 MP encoder timing remains effort 1.
@@ -166,7 +185,16 @@ try {
                 settings: {
                   lossless,
                   effort: 7,
-                  value: subject === 'jsquash' ? (lossless ? 100 : 75) : 1,
+                  value:
+                    subject === 'jsquash'
+                      ? lossless
+                        ? 100
+                        : 75
+                      : subject === 'imagescript'
+                        ? lossless
+                          ? 100
+                          : 90
+                        : 1,
                 },
                 repeats: 3,
               })
@@ -186,7 +214,7 @@ try {
             const child = spawnSync(
               process.execPath,
               [`${root}/node-worker.ts`, `${out}/job.json`],
-              { encoding: 'utf8', timeout: 240_000, maxBuffer: 8 * 1024 * 1024 },
+              { encoding: 'utf8', timeout: jobDeadlineMs, maxBuffer: 8 * 1024 * 1024 },
             )
             await writeFile(`${prefix}.log`, `${child.stdout ?? ''}\n${child.stderr ?? ''}`)
             if (child.status !== 0)
@@ -209,85 +237,88 @@ try {
             })
             await page.goto(`${origin}/${subject === 'vips' ? 'isolated' : 'plain'}`)
             try {
-              const result = await page.evaluate(async (job: Job) => {
-                const load = async (path: string) =>
-                  new Uint8Array(
-                    await (await fetch(`/fixtures/${path.split('/').at(-1)}`)).arrayBuffer(),
+              const result = await page.evaluate(
+                async ({ job, deadline }: { job: Job; deadline: number }) => {
+                  const load = async (path: string) =>
+                    new Uint8Array(
+                      await (await fetch(`/fixtures/${path.split('/').at(-1)}`)).arrayBuffer(),
+                    )
+                  const input = await load(
+                      job.operation === 'decode-lossy'
+                        ? (job.fixture.lossy ?? job.fixture.lossless)
+                        : job.fixture.lossless,
+                    ),
+                    raw = await load(job.fixture.raw)
+                  const pixels = {
+                    width: job.fixture.width,
+                    height: job.fixture.height,
+                    channels: job.fixture.channels,
+                    interpretation: job.fixture.sampleType === 'uint16' ? 'srgb16' : 'srgb',
+                    data: job.fixture.sampleType === 'uint16' ? new Uint16Array(raw.buffer) : raw,
+                  }
+                  const worker = new Worker('/web/browser-worker.js', { type: 'module' })
+                  const result = await new Promise<Awaited<ReturnType<typeof execute>>>(
+                    (resolve, reject) => {
+                      const timer = setTimeout(() => {
+                        worker.terminate()
+                        reject(new Error(`${deadline / 1000} second worker deadline`))
+                      }, deadline)
+                      worker.onerror = (e) => {
+                        clearTimeout(timer)
+                        reject(new Error(e.message))
+                      }
+                      worker.onmessage = (e) => {
+                        clearTimeout(timer)
+                        resolve(e.data)
+                      }
+                      worker.postMessage({ job, input, pixels })
+                    },
                   )
-                const input = await load(
-                    job.operation === 'decode-lossy'
-                      ? (job.fixture.lossy ?? job.fixture.lossless)
-                      : job.fixture.lossless,
-                  ),
-                  raw = await load(job.fixture.raw)
-                const pixels = {
-                  width: job.fixture.width,
-                  height: job.fixture.height,
-                  channels: job.fixture.channels,
-                  interpretation: job.fixture.sampleType === 'uint16' ? 'srgb16' : 'srgb',
-                  data: job.fixture.sampleType === 'uint16' ? new Uint16Array(raw.buffer) : raw,
-                }
-                const worker = new Worker('/web/browser-worker.js', { type: 'module' })
-                const result = await new Promise<Awaited<ReturnType<typeof execute>>>(
-                  (resolve, reject) => {
-                    const timer = setTimeout(() => {
-                      worker.terminate()
-                      reject(new Error('240 second worker deadline'))
-                    }, 240000)
-                    worker.onerror = (e) => {
-                      clearTimeout(timer)
-                      reject(new Error(e.message))
-                    }
-                    worker.onmessage = (e) => {
-                      clearTimeout(timer)
-                      resolve(e.data)
-                    }
-                    worker.postMessage({ job, input, pixels })
-                  },
-                )
-                worker.terminate()
-                const { output, ...measurement } = result
-                let descriptor: unknown = null
-                if (output) {
-                  const bytes =
-                    output.kind === 'pixels'
-                      ? new Uint8Array(
-                          output.pixels.data.buffer,
-                          output.pixels.data.byteOffset,
-                          output.pixels.data.byteLength,
-                        )
-                      : output.bytes
-                  const copy = new Uint8Array(bytes)
-                  const digest = Array.from(
-                    new Uint8Array(await crypto.subtle.digest('SHA-256', copy)),
-                  )
-                    .map((v) => v.toString(16).padStart(2, '0'))
-                    .join('')
-                  await fetch('/output', { method: 'POST', body: copy })
-                  descriptor =
-                    output.kind === 'pixels'
-                      ? {
-                          ...output.pixels,
-                          data: undefined,
-                          sampleType:
-                            output.pixels.data instanceof Uint16Array
-                              ? 'uint16'
-                              : output.pixels.data instanceof Float32Array
-                                ? 'float32'
-                                : 'uint8',
-                          kind: output.kind,
-                          sha256: digest,
-                          bytes: bytes.length,
-                        }
-                      : { kind: output.kind, sha256: digest, bytes: bytes.length }
-                }
-                return {
-                  ...measurement,
-                  output: descriptor,
-                  crossOriginIsolated,
-                  hardwareConcurrency: navigator.hardwareConcurrency,
-                }
-              }, job)
+                  worker.terminate()
+                  const { output, ...measurement } = result
+                  let descriptor: unknown = null
+                  if (output) {
+                    const bytes =
+                      output.kind === 'pixels'
+                        ? new Uint8Array(
+                            output.pixels.data.buffer,
+                            output.pixels.data.byteOffset,
+                            output.pixels.data.byteLength,
+                          )
+                        : output.bytes
+                    const copy = new Uint8Array(bytes)
+                    const digest = Array.from(
+                      new Uint8Array(await crypto.subtle.digest('SHA-256', copy)),
+                    )
+                      .map((v) => v.toString(16).padStart(2, '0'))
+                      .join('')
+                    await fetch('/output', { method: 'POST', body: copy })
+                    descriptor =
+                      output.kind === 'pixels'
+                        ? {
+                            ...output.pixels,
+                            data: undefined,
+                            sampleType:
+                              output.pixels.data instanceof Uint16Array
+                                ? 'uint16'
+                                : output.pixels.data instanceof Float32Array
+                                  ? 'float32'
+                                  : 'uint8',
+                            kind: output.kind,
+                            sha256: digest,
+                            bytes: bytes.length,
+                          }
+                        : { kind: output.kind, sha256: digest, bytes: bytes.length }
+                  }
+                  return {
+                    ...measurement,
+                    output: descriptor,
+                    crossOriginIsolated,
+                    hardwareConcurrency: navigator.hardwareConcurrency,
+                  }
+                },
+                { job, deadline: jobDeadlineMs },
+              )
               if (result.output)
                 await writeFile(`${prefix}.bin`, await readFile(`${out}/browser-output.bin`))
               await json(`${prefix}.json`, { ...result, requests, errors, memory: null })
@@ -313,7 +344,9 @@ try {
             workflow:
               subject === 'oxide'
                 ? 'decode + mandatory PNG export'
-                : 'materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes',
+                : subject === 'imagescript'
+                  ? 'Image.decode RGBA8 bitmap or encodeJXL bytes; threads 1; effort 1 maps to ImageScript effort 0 and effort 7 to effort 2'
+                  : 'materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes',
             artifact: `${prefix}.bin`,
             ...measurement,
           })

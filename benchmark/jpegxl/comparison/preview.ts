@@ -47,7 +47,7 @@ const server = createServer(async (req, res) => {
 await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
 const address = server.address()
 if (!address || typeof address === 'string') throw new Error('Missing address')
-const browser = await chromium.launch({ headless: true }),
+const browser = await chromium.launch({ headless: true, channel: 'chrome' }),
   rows: unknown[] = []
 try {
   for (const subject of ['purejsimage', 'oxide'] as const)

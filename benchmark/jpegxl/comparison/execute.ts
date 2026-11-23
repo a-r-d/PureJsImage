@@ -36,10 +36,16 @@ export async function execute(
         coldMs: null,
         initializationMs: initialized - coldStart,
       }
-    if (job.subject === 'jsquash' && !(pixels.data instanceof Uint8Array))
+    if (
+      (job.subject === 'jsquash' || job.subject === 'imagescript') &&
+      !(pixels.data instanceof Uint8Array)
+    )
       return {
         status: 'API not exposed' as const,
-        detail: 'ImageData API exposes RGBA8 only; no silent native precision conversion',
+        detail:
+          job.subject === 'jsquash'
+            ? 'ImageData API exposes RGBA8 only; no silent native precision conversion'
+            : 'Image API exposes RGBA8 only; no silent native precision conversion',
         output: null,
         times: [],
         coldMs: null,

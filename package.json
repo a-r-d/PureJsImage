@@ -799,6 +799,7 @@
     "geotiff": "^3.0.5",
     "image-dimensions": "2.5.1",
     "image-js": "1.7.0",
+    "imagescript": "4.0.0",
     "jimp": "1.7.0",
     "jpeg-js": "0.4.4",
     "jxl-oxide-wasm": "0.12.6",

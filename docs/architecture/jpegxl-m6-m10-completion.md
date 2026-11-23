@@ -1,5 +1,9 @@
 # JPEG XL M6 through M10 completion
 
+Status: this work merged in [PR 36](https://github.com/a-r-d/PureJsImage/pull/36) on
+2026-09-20 and shipped in 0.18.0 (tag `v0.18.0`). The record below is historical. Later
+JPEG XL changes are listed in `CHANGELOG.md`.
+
 ## Scope and starting point
 
 The supplied `PureJsImage_JPEGXL_M6_M10_Single_PR_Codex_Prompt.md` is the

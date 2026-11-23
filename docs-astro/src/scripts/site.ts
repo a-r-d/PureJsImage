@@ -203,7 +203,11 @@ export const initializeSite = () => {
     .forEach((region) => {
       region.addEventListener('scroll', () => syncContainedRegions(), { passive: true })
     })
-  window.addEventListener('resize', syncContainedRegions)
+  // WebKit can fire resize before layout reaches the new width, so check again on the next frame.
+  window.addEventListener('resize', () => {
+    syncContainedRegions()
+    window.requestAnimationFrame(syncContainedRegions)
+  })
   syncContainedRegions()
 
   const desktopMatrixQuery = window.matchMedia('(min-width: 821px)')

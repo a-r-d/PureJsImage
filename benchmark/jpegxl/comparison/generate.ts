@@ -287,42 +287,54 @@ for (const subject of subjects) {
             : null,
       })
   const absent: Record<string, string> =
-    subject === 'jsquash'
+    subject === 'imagescript'
       ? {
           'native integer above 8-bit / native float':
-            'ImageData8 wrapper exposes no native high-depth sample API',
+            'Image holds RGBA8 samples only; higher-depth input is converted to 8-bit',
           'extra channels': 'No named extra-channel export',
-          'animation decode / frame timing / frame access / animation encode':
-            'Published encode/decode API has no sequence control or timing result',
-          'ICC / metadata access': 'ImageData result contains no original metadata',
+          'animation encode': 'Animations encode as GIF, APNG or WebP only',
+          'ICC / metadata access':
+            'Embedded profiles are converted to sRGB on decode; no original ICC bytes are returned',
           'incremental input / early progressive output / reduced resolution / region reconstruction / selective source reads':
-            'Only whole ArrayBuffer decode is exposed',
+            'Only whole-buffer Image.decode is exposed',
           'exact JPEG recompression / original-byte reconstruction': 'No JPEG reconstruction API',
         }
-      : subject === 'oxide'
+      : subject === 'jsquash'
         ? {
-            'static encode / animation encode': 'Published binding is decoder-only',
-            'native raw integer planes / native raw float planes':
-              'RenderResult exports PNG, not native raw sample planes; PNG conversion is separate',
-            'extra channels': 'No raw named extra-channel export',
-            'reduced resolution': 'No scale control in published binding',
-            'selective source reads':
-              'Sequential feedBytes, no caller read-at interface; region reconstruction does not imply selective source reads',
-            'exact JPEG recompression / original-byte reconstruction':
-              'No reconstruction API in published binding',
+            'native integer above 8-bit / native float':
+              'ImageData8 wrapper exposes no native high-depth sample API',
+            'extra channels': 'No named extra-channel export',
+            'animation decode / frame timing / frame access / animation encode':
+              'Published encode/decode API has no sequence control or timing result',
+            'ICC / metadata access': 'ImageData result contains no original metadata',
+            'incremental input / early progressive output / reduced resolution / region reconstruction / selective source reads':
+              'Only whole ArrayBuffer decode is exposed',
+            'exact JPEG recompression / original-byte reconstruction': 'No JPEG reconstruction API',
           }
-        : subject === 'vips'
+        : subject === 'oxide'
           ? {
-              'incremental input / early progressive output':
-                'Buffer/source loaders expose materialized Image evaluation, no progressive-pass result API',
-              'reduced-resolution JPEG XL reconstruction':
-                'No shrink/scale option on published jxlloadBuffer loader',
+              'static encode / animation encode': 'Published binding is decoder-only',
+              'native raw integer planes / native raw float planes':
+                'RenderResult exports PNG, not native raw sample planes; PNG conversion is separate',
+              'extra channels': 'No raw named extra-channel export',
+              'reduced resolution': 'No scale control in published binding',
               'selective source reads':
-                'Published Source exposes memory/file inputs, no JavaScript read-at callback. A lazy crop alone does not establish selective reads',
+                'Sequential feedBytes, no caller read-at interface; region reconstruction does not imply selective source reads',
               'exact JPEG recompression / original-byte reconstruction':
-                'No exact JPEG reconstruction entry point on the JXL wrapper',
+                'No reconstruction API in published binding',
             }
-          : {}
+          : subject === 'vips'
+            ? {
+                'incremental input / early progressive output':
+                  'Buffer/source loaders expose materialized Image evaluation, no progressive-pass result API',
+                'reduced-resolution JPEG XL reconstruction':
+                  'No shrink/scale option on published jxlloadBuffer loader',
+                'selective source reads':
+                  'Published Source exposes memory/file inputs, no JavaScript read-at callback. A lazy crop alone does not establish selective reads',
+                'exact JPEG recompression / original-byte reconstruction':
+                  'No exact JPEG reconstruction entry point on the JXL wrapper',
+              }
+            : {}
   for (const [group, detail] of Object.entries(absent))
     for (const feature of group.split(' / '))
       capabilities.push({
@@ -405,7 +417,7 @@ if (qualityEligible && quality && Array.isArray(quality.results)) {
 }
 const losslessPairs = []
 for (const runtime of ['chromium', 'node'])
-  for (const other of ['jsquash', 'vips'])
+  for (const other of ['imagescript', 'jsquash', 'vips'])
     for (const scope of ['capped', 'original', 'specialized'])
       for (const effort of [1, 7]) {
         const eligible = timingRows.filter(
