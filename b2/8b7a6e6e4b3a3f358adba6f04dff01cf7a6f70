@@ -1,0 +1,120 @@
+jpegxl-codec-support.md
+  s_fb44c3e6b9dfb0::t_b34dfd72a0a037 195
+scripts/bundle-size-budgets.ts
+  s_fb44c3e6b9dfb0::t_9bfa91b8ea5ad7 22
+  s_fb44c3e6b9dfb0::t_8bfd91d8388ca8 18-21
+capabilities/manifest.json
+  s_fb44c3e6b9dfb0::t_b34dfd72a0a037 4012
+  s_fb44c3e6b9dfb0::t_c3a497f25105c8 884
+  s_fb44c3e6b9dfb0::t_6a5ca6fd49e7fb 880,883
+src/codecs/jpegxl-container.ts
+  s_fb44c3e6b9dfb0::t_cfd4af74c42766 339-346
+tests/png.test.ts
+  s_fb44c3e6b9dfb0::t_5e28ba94b6a7c4 387,398,403-413
+  s_fb44c3e6b9dfb0::t_827259b833a74d 130-153
+  s_fb44c3e6b9dfb0::t_a75758e4d0325a 185,200-214,217-219,341-371,376-379,388-397,399-402
+  s_fb44c3e6b9dfb0::t_9cda5b3338a5fc 414-415
+README.md
+  s_fb44c3e6b9dfb0::t_4937d3025a8852 278-280
+  s_fb44c3e6b9dfb0::t_8e659c183176c9 263
+  s_fb44c3e6b9dfb0::t_8d5de2322ce438 268-277,281
+  s_fb44c3e6b9dfb0::t_61fe1ac2379a26 264-265
+src/codecs/jpegxl-float-encode.ts
+  s_fb44c3e6b9dfb0::t_b0a39654e2ba31 13,18,21
+src/codecs/jpegxl.ts
+  s_fb44c3e6b9dfb0::t_dfa705ad35f247 53,617
+  s_fb44c3e6b9dfb0::t_bdd89965689072 55,616
+  s_fb44c3e6b9dfb0::t_d2b4faf035a24c 54,618-634,637-661
+  s_fb44c3e6b9dfb0::t_ac427a9cde2417 51-52,56
+  s_fb44c3e6b9dfb0::t_cbe48ef2c58211 7
+src/codecs/jpegxl-decode.ts
+  s_fb44c3e6b9dfb0::t_d95a40c691cdaa 4912-4916,4939-4945,4967-4975
+tests/helpers/jpegxl-untagged-input.ts
+  s_fb44c3e6b9dfb0::t_cf0fe6eb6e9838 1-4,6-49,62-65,67-75,77-86,88-91,93-94,175-179,182-184,218,225-228
+  s_fb44c3e6b9dfb0::t_ff7d9c939606f6 5,50-61,66,76,87,92,95-106,108-123,126-130,142-157,159-171,180,187-189,191-202,210-217,220,222-224
+  s_fb44c3e6b9dfb0::t_23b764da4ca9f7 107,124-125,131-141,158,172-174,181,185-186,190,219,221
+  s_fb44c3e6b9dfb0::t_8d51a6690c2c2e 203-209
+tests/jpegxl-recycled-source-buffers.test.ts
+  s_fb44c3e6b9dfb0::t_d95a40c691cdaa 1-104,136
+  s_fb44c3e6b9dfb0::t_cfd4af74c42766 105-135
+tests/jpegxl-untagged-input.test.ts
+  s_fb44c3e6b9dfb0::t_c2427820a439d8 2,6,8,11,15-16,28-37,46-47,54,56-58,63-66,74-75,114,116-122,124,126-128,130-133,143-144,146,151,333-334,339-340,364
+  s_fb44c3e6b9dfb0::t_cb6a2bae69a9ee 76,78
+  s_fb44c3e6b9dfb0::t_bfca21122b9893 5,38-45,67-73,79-80,85-113,115,123,125,129,134-136,142,145
+  s_fb44c3e6b9dfb0::t_92b51b66de7431 10,13,77,81-84,137-141,147-149
+  s_fb44c3e6b9dfb0::t_827259b833a74d 246-258
+  s_fb44c3e6b9dfb0::t_94cf9e09c9e572 9,150
+  s_fb44c3e6b9dfb0::t_23b764da4ca9f7 3,17,19,21,24-26,48-53,152-177,190-192,315,325,330-331,335-337,344,355-356
+  s_fb44c3e6b9dfb0::t_f7341c62a3e587 14,55,59-62
+  s_fb44c3e6b9dfb0::t_ea39a4005a6025 341-343,345-349,353-354,361-363
+  s_fb44c3e6b9dfb0::t_8d51a6690c2c2e 351-352
+  s_fb44c3e6b9dfb0::t_3bdbf7bde0e6da 287
+  s_fb44c3e6b9dfb0::t_082e2d1858d386 7,12,18,20,22-23,27,178-189,193-215,281-286,288-314,316-324,326-329,332,338,350,357-360
+  s_fb44c3e6b9dfb0::t_5e28ba94b6a7c4 1,4,216-245,259-280
+png-codec-support.md
+  s_fb44c3e6b9dfb0::t_c3a497f25105c8 60
+  s_fb44c3e6b9dfb0::t_6a5ca6fd49e7fb 56,59
+docs-astro/public/capabilities.json
+  s_fb44c3e6b9dfb0::t_b34dfd72a0a037 573,6073-6075
+  s_fb44c3e6b9dfb0::t_6a5ca6fd49e7fb 556,566-571,6072
+  s_fb44c3e6b9dfb0::t_c3a497f25105c8 572
+browser-tests/jpegxl-untagged-input.pw.ts
+  s_fb44c3e6b9dfb0::t_8d51a6690c2c2e 34
+  s_fb44c3e6b9dfb0::t_ea39a4005a6025 1-2,4,6-7,9-26,29-30,32-33,35
+  s_fb44c3e6b9dfb0::t_23b764da4ca9f7 3,8,27-28,31
+  s_fb44c3e6b9dfb0::t_082e2d1858d386 5
+src/codecs/jpegxl-modular-encode.ts
+  s_fb44c3e6b9dfb0::t_8f8046078f285d 6694-6695,6700,6702-6703,6709,6711,6807-6808
+  s_fb44c3e6b9dfb0::t_bdd89965689072 6710
+  s_fb44c3e6b9dfb0::t_63b7d51f1f62ca 6690-6693,6697-6699,6704-6705
+  s_fb44c3e6b9dfb0::t_dfa705ad35f247 6712-6713,6783-6806
+  s_fb44c3e6b9dfb0::t_d0e5ae2caf0df7 6816-6819
+  s_fb44c3e6b9dfb0::t_c11ac494fd6483 6696,6701
+  s_fb44c3e6b9dfb0::t_f586ad3413935d 9,6718,6747,6756,6760-6761,6767-6768
+  s_fb44c3e6b9dfb0::t_d2b4faf035a24c 6706-6708,6714-6717,6719-6746,6748-6755,6757-6759,6762-6766,6769-6782
+tests/jpegxl.test.ts
+  s_fb44c3e6b9dfb0::t_d0e5ae2caf0df7 7,11,552-562,567
+  s_fb44c3e6b9dfb0::t_c97388f7c2695f 518,520
+tests/icc-fixtures.ts
+  s_fb44c3e6b9dfb0::t_a90526169a4add 21-22,28,59-63,80-86
+  s_fb44c3e6b9dfb0::t_7edc8340fa9449 87-88
+src/codecs/icc.ts
+  s_fb44c3e6b9dfb0::t_4bd159d388dd66 682-684,686-690,693,699-700
+  s_fb44c3e6b9dfb0::t_93873636d23c20 1368-1369,1373-1378
+  s_fb44c3e6b9dfb0::t_a5387feb8e77a4 819,822-825,832-837,1671-1740,1743
+  s_fb44c3e6b9dfb0::t_cc78b9479abd57 718,838,1362-1367,1370-1372,1379-1380,1744
+  s_fb44c3e6b9dfb0::t_c661a4dfa56c03 621-622,625,694-698,701-702
+  s_fb44c3e6b9dfb0::t_309ab2f6d8687e 2-7,555-567,609-620,623-624,626,631-649,654-681,685,691-692,703-717
+  s_fb44c3e6b9dfb0::t_d2b4faf035a24c 605-608,627-630,650-653
+  s_fb44c3e6b9dfb0::t_464de69df23d55 719,839,1741-1742,1745
+src/codecs/jpeg-baseline.ts
+  s_fb44c3e6b9dfb0::t_8ef301a4672a42 2117
+  s_fb44c3e6b9dfb0::t_93873636d23c20 11,16
+  s_fb44c3e6b9dfb0::t_cc78b9479abd57 496-498
+docs/jpeg-xl.md
+  s_fb44c3e6b9dfb0::t_6a5ca6fd49e7fb 46-47,52
+  s_fb44c3e6b9dfb0::t_61fe1ac2379a26 48-51,53-54,56,58-61
+  s_fb44c3e6b9dfb0::t_8be315d724b96e 44-45,62,349
+  s_fb44c3e6b9dfb0::t_c3a497f25105c8 55,57
+src/codecs/png.ts
+  s_fb44c3e6b9dfb0::t_a5387feb8e77a4 31,35-36,41,43,76-77,664,670-671,701-702,1894-1903,1911-1919,1929-1932
+  s_fb44c3e6b9dfb0::t_d2b4faf035a24c 660-662
+  s_fb44c3e6b9dfb0::t_bdd89965689072 220-221
+  s_fb44c3e6b9dfb0::t_cc78b9479abd57 39,674-676,1904-1910
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b28b7a6e6e4b3a3f358adba6f04dff01cf7a6f70",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
