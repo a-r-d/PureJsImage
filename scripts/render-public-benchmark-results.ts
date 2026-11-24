@@ -1,6 +1,6 @@
-import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { basename, join, relative } from 'node:path'
 
 type ValidationStatus = 'failed' | 'partial' | 'passed' | 'unverified'
@@ -134,10 +134,15 @@ const latestSourceIndex = async (): Promise<{
   return { generatedAt: string(document.generatedAt, `${path}.generatedAt`), path, results }
 }
 
+// Publish the newest run that the index marks eligible for headlines, so a later partial run of
+// the same profile cannot replace the published snapshot. Profiles with no eligible run publish
+// their newest run.
 const latestEntry = (entries: readonly SourceEntry[], profile: string): SourceEntry => {
-  const entry = entries
+  const candidates = entries
     .filter((candidate) => candidate.profile === profile)
-    .sort((left, right) => right.date.localeCompare(left.date))[0]
+    .sort((left, right) => right.date.localeCompare(left.date))
+  const entry =
+    candidates.find((candidate) => candidate.eligibleForDocumentationHeadlines) ?? candidates[0]
   if (entry === undefined) throw new Error(`Source result index has no ${profile} profile`)
   return entry
 }

@@ -214,6 +214,37 @@ describe('package contract', () => {
     })
   })
 
+  it('publishes the newest complete competitor and web codec runs', () => {
+    const publicIndex = JSON.parse(readFileSync('benchmark/results/public/index.json', 'utf8')) as {
+      readonly sourceResultIndex: string
+      readonly results: readonly {
+        readonly profile: string
+        readonly sourceResultPaths: readonly string[]
+      }[]
+    }
+    const sourceIndex = JSON.parse(readFileSync(publicIndex.sourceResultIndex, 'utf8')) as {
+      readonly results: readonly {
+        readonly date: string
+        readonly eligibleForDocumentationHeadlines: boolean
+        readonly profile: string
+        readonly resultPaths: readonly string[]
+      }[]
+    }
+    const partialRuns = sourceIndex.results.filter(({ resultPaths }) =>
+      resultPaths.some((path) => path.includes('/native-precision-baseline-')),
+    )
+    expect(partialRuns.length).toBeGreaterThan(0)
+    for (const run of partialRuns) expect(run.eligibleForDocumentationHeadlines).toBe(false)
+    for (const profile of ['competitors', 'web-codecs']) {
+      const newestEligible = sourceIndex.results
+        .filter((run) => run.profile === profile && run.eligibleForDocumentationHeadlines)
+        .sort((left, right) => right.date.localeCompare(left.date))[0]
+      expect(publicIndex.results.find((run) => run.profile === profile)?.sourceResultPaths).toEqual(
+        newestEligible?.resultPaths,
+      )
+    }
+  })
+
   it('publishes compact benchmark inputs that survive a clean checkout', () => {
     const publicIndex = JSON.parse(readFileSync('benchmark/results/public/index.json', 'utf8')) as {
       readonly results: readonly {
@@ -365,8 +396,9 @@ describe('package contract', () => {
     expect(performancePage).toContain('packageMetrics.wasmAssets')
     expect(performancePage).toContain('Native and WASM payloads are')
     const recordedEngines = JSON.stringify(documentationData.ordinary.engineVersions)
-    for (const version of ['1.6.0', '1.7.0', '0.35.3']) {
-      expect(recordedEngines).toContain(version)
+    // The published snapshot must come from a run with the pinned comparator versions.
+    for (const name of ['jimp', 'sharp', 'image-js', '@jsquash/jpeg'] as const) {
+      expect(recordedEngines).toContain(packageJson.devDependencies[name])
     }
     expect(recordedEngines).toContain('native')
     expect(recordedEngines).toContain('webassembly')

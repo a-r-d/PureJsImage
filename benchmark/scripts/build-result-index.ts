@@ -176,14 +176,20 @@ const validationStatus = (value: Record<string, unknown>): ResultIndexEntry['val
   return 'unverified'
 }
 
-const isCompleteWebCodecRun = (value: Record<string, unknown>): boolean => {
+// A headline run must cover every workflow in its profile. Single-workflow runs that record
+// the same profile name, such as the native-precision baselines, stay in the index without
+// becoming the published snapshot.
+const isCompleteProfileRun = (
+  value: Record<string, unknown>,
+  profile: 'competitors' | 'web-codecs',
+): boolean => {
   if (!isRecord(value.configuration) || !Array.isArray(value.results)) return false
   const runs = value.configuration.defaultRuns
   const warmups = value.configuration.defaultWarmups
   if (typeof runs !== 'number' || runs < 3 || typeof warmups !== 'number' || warmups < 1) {
     return false
   }
-  const expectedWorkflows = new Set(workflowsForProfile('web-codecs').map(({ id }) => id))
+  const expectedWorkflows = new Set(workflowsForProfile(profile).map(({ id }) => id))
   const recordedWorkflows = new Set(
     value.results.flatMap((result) => {
       if (!isRecord(result)) return []
@@ -257,7 +263,10 @@ const entryFor = async (file: string): Promise<ResultIndexEntry> => {
   const path = relative(repositoryDirectory, file)
   const resultProfile = profile(value, path)
   const resultValidationStatus = validationStatus(value)
-  const completeForHeadline = resultProfile !== 'web-codecs' || isCompleteWebCodecRun(value)
+  const completeForHeadline =
+    resultProfile === 'competitors' || resultProfile === 'web-codecs'
+      ? isCompleteProfileRun(value, resultProfile)
+      : true
   const eligibleForDocumentation =
     completeForHeadline &&
     (value.eligibleForDocumentation === true ||

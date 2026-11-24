@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-24T21:17:25.384Z",
-  "sourceResultIndex": "benchmark/results/result-index-2026-08-24T21-17-25-198Z.json",
+  "generatedAt": "2026-11-24T04:07:00.713Z",
+  "sourceResultIndex": "benchmark/results/result-index-2026-11-24T04-07-00-493Z.json",
   "results": [
     {
       "commit": "a2f0ba6",
@@ -37,35 +37,35 @@
       "sourceValidationStatus": "passed"
     },
     {
-      "commit": "865611a4dfdf0b49db0c8fc67fc01386c1a0b91c",
-      "date": "2026-08-24T20:51:40.120Z",
+      "commit": "1028944af32e0cc577f41ecdf01c4d302736a8dc",
+      "date": "2026-11-24T04:04:33.863Z",
       "eligibleForDocumentationHeadlines": true,
       "engineVersions": {
-        "purejsimage": "0.16.0 (workspace)",
-        "purejsimage-wasm": "0.16.0 (workspace WASM)",
-        "jimp": "1.6.0",
-        "sharp": "0.35.3",
-        "sharp-single-thread": "0.35.3",
+        "purejsimage": "0.18.0 (workspace)",
+        "purejsimage-wasm": "0.18.0 (workspace WASM)",
+        "jimp": "1.7.0",
+        "sharp": "0.35.5",
+        "sharp-single-thread": "0.35.5",
         "image-js": "1.7.0",
         "jsquash": "avif 2.1.1; jpeg 1.6.0; png 3.1.1; webp 1.5.0; resize 2.1.1"
       },
-      "environmentFingerprint": "cd191b4e57b3cbd4131ddc3c22a2a11686d065569aa34fd60f4c603a21b03df0",
-      "fixtureManifestHash": "20d9b39e77da4238954d00e85fb649e9bc6cf68fc599f1f60fc6e4ae33796bb6",
+      "environmentFingerprint": "35b6da6b07cd0cc542ff6eb4413fbe37ae30cccc1e30d2cd6866a82dc6863922",
+      "fixtureManifestHash": "698acba0f5eb837b1207afa570c2e8b9f720a7e1e00498c1a46f0bdbaba327d1",
       "profile": "web-codecs",
       "publicationValidationStatus": "passed",
       "validationStatus": "passed",
       "resultPaths": [
-        "benchmark/results/public/web-codecs-2026-08-24T20-51-40-120Z.json",
-        "benchmark/results/public/web-codecs-2026-08-24T20-51-40-120Z.md"
+        "benchmark/results/public/web-codecs-2026-11-24T04-04-33-863Z.json",
+        "benchmark/results/public/web-codecs-2026-11-24T04-04-33-863Z.md"
       ],
       "sha256": {
-        "json": "0655ce6a393cc2025edbcdacf7394a17969acd7c9939defee7867a1097caba1f",
-        "markdown": "5042636fba06ed8194c051ec32bf468b39c13af05fb39dc552da01afdf60289d"
+        "json": "e74e6064bc5007a0920f48ba5c057fd8d57c235379f50318619ffacc50c25819",
+        "markdown": "69bef81d55b51457d2dca38af0dd4c97b6063f08a0c364ae1d3d8bfdd7249190"
       },
       "sourceEligibilityForDocumentationHeadlines": true,
       "sourceResultPaths": [
-        "benchmark/results/2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
-        "benchmark/results/2026-08-24T20-51-40-120Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
+        "benchmark/results/2026-11-24T04-04-33-863Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json",
+        "benchmark/results/2026-11-24T04-04-33-863Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md"
       ],
       "sourceValidationStatus": "passed"
     },

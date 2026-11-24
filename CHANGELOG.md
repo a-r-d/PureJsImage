@@ -65,8 +65,18 @@ All notable changes to PureJsImage are documented in this file.
   installed size by 0.5 MiB. Interleaved same-machine reruns of the Jimp smoke, transform, and
   competitor workflows show Jimp importing in 140 to 170 ms instead of about 80 ms, with 4 to 11
   MiB more peak RSS on most workflows and up to 32 MiB more on three. Wall time did not change
-  beyond run-to-run noise. Published speed and memory results still use Jimp 1.6.0 and sharp
-  0.35.3.
+  beyond run-to-run noise.
+- The published web codec benchmark is rerun with PureJsImage 0.18.0, Jimp 1.7.0 and sharp
+  0.35.5. The README table, website charts and public snapshot use the new run. All 122
+  supported cases pass with no invalid output. Against the August 24 run, median wall time moved
+  -3% for PureJsImage, +17% for Jimp and +15% for single-threaded sharp. Engines whose versions
+  did not change (sharp with default threads, image-js and jSquash) moved -1% to +4%. PureJsImage
+  peak RSS on the 24-megapixel photo pipeline is 197.3 MiB, up from 181.8 MiB, and Jimp's is
+  1198.6 MiB.
+- The benchmark result index marks a competitors run as a headline source only when it covers
+  every workflow in the profile, as it already did for web codec runs. The public snapshot
+  writer publishes the newest headline run. Since August 29, the one-workflow native-precision
+  baseline runs counted as the newest competitors run, so `benchmark:public:write` failed.
 - The TIFF competitor conformance run is redone with Jimp 1.7.0 and the sharp 0.35.5 oracle.
   Every result matches the August run except one: Jimp 1.7.0's file-type 21 reads
   `valid/pc260001.tif` as a Sony ARW raw file and refuses to decode it, so Jimp now decodes 73 of

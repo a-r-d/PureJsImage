@@ -14,7 +14,9 @@ These versions were the stable npm releases when pinned on August 8, 2026.
 
 On November 23, 2026 the suite moved from Jimp 1.6.0 to 1.7.0 and from Sharp
 0.35.3 to 0.35.5. The results on this page were recorded with Jimp 1.6.0 and
-Sharp 0.35.3. Each result file records the engine versions it ran with.
+Sharp 0.35.3. Each result file records the engine versions it ran with. The
+current web codec snapshot in the README and on the website was recorded on
+November 24, 2026 with Jimp 1.7.0 and Sharp 0.35.5.
 
 A result only counts when the output is supported, decodes successfully, has
 the expected dimensions, and passes the workflow's pixel or structural checks.
