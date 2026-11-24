@@ -426,7 +426,7 @@ describe('package contract', () => {
     expect(performancePage).toContain('Native and WASM payloads are')
     const recordedEngines = JSON.stringify(documentationData.ordinary.engineVersions)
     // The published snapshot must come from a run with the pinned comparator versions.
-    for (const name of ['jimp', 'sharp', 'image-js', '@jsquash/jpeg'] as const) {
+    for (const name of ['jimp', 'sharp', 'image-js', 'imagescript', '@jsquash/jpeg'] as const) {
       expect(recordedEngines).toContain(packageJson.devDependencies[name])
     }
     expect(recordedEngines).toContain('native')

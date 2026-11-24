@@ -64,6 +64,17 @@ All notable changes to PureJsImage are documented in this file.
   codec workflows and all competitor workflows except the HEIC one, which it cannot decode. Its
   metadata workflows decode the full image because it has no header-only reader. Its AVIF decoder
   and encoder use worker threads by default, so its AVIF CPU time is higher than its wall time.
+- The published web codec benchmark is rerun with ImageScript as an eighth engine. The README
+  table, website charts and public snapshot use the new run, with 143 passing and 25 unsupported
+  cases. The seven other engines keep the same results, and their median wall times moved −4% to
+  +3%, with load averaging 4.3. Against the TypeScript PureJsImage path, ImageScript is faster on 8
+  of 21 workflows and uses less peak RSS on 4. On the 24 MP photo pipeline it takes 1346 ms and
+  334.0 MiB, against 723 ms and 154.3 MiB. It is faster at EXIF auto-orient (161 ms against 410
+  ms), AVIF decode and lossless WebP decode. Its JPEG to AVIF encode takes 2395 ms of wall time
+  and 8.4 s of CPU, against 949 ms. On the 100 MP PNG downscale its peak RSS is 1268.4 MiB,
+  against 204.2 MiB.
+- The web codec and competitor charts size each workflow group and the legend from the number of
+  engines, so eight engines no longer overlap the next group's title or the axis labels.
 - Two tiled JPEG XL patch tests now pin streams 2 and 3 bytes larger, from the effort-7 hybrid
   split change. A new test checks that effort 7 still finds document patches on a white text
   page. Pinned libjxl 0.12.0 decodes every sample of the new streams.

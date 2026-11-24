@@ -225,14 +225,17 @@ const formatMetric = (result: BenchmarkResult, value: number, metric: Metric): s
 const chartSvg = (metric: Metric): string => {
   const workflows = metric === 'quality' ? qualityWorkflows : performanceWorkflows
   const width = 2400
-  const groupHeight = 220
-  const height = 490 + workflows.length * groupHeight
+  const barHeight = 19
+  const rowHeight = 26
+  // Each workflow group holds its title row and one bar row per engine, and the axis labels sit
+  // below the last legend row, so both grow with the engine count.
+  const groupHeight = 46 + engines.length * rowHeight
+  const legendRows = Math.ceil(engines.length / 3)
+  const plotTop = 214 + legendRows * 38 + 62
+  const height = plotTop + 160 + workflows.length * groupHeight
   const plotLeft = 760
   const plotRight = 2220
   const plotWidth = plotRight - plotLeft
-  const plotTop = 330
-  const barHeight = 19
-  const rowHeight = 26
   const gridBottom = plotTop + workflows.length * groupHeight - 28
   const speedTicks = [0.1, 1, 10, 100, 1000, 10_000]
   const largestMemory = Math.max(
