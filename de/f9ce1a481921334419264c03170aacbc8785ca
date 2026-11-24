@@ -1,0 +1,56 @@
+scripts/measure-bundle-size.ts
+  s_fb44c3e6b9dfb0::t_f40bfb602d0aaa 112
+scripts/bundle-size-config.ts
+  s_fb44c3e6b9dfb0::t_31ffee19f71511 37-43
+  s_fb44c3e6b9dfb0::t_f40bfb602d0aaa 429-436
+  s_fb44c3e6b9dfb0::t_33535ff5a84d4a 437
+benchmark/startup-worker.ts
+  s_fb44c3e6b9dfb0::t_f0afa3c9f382ac 15
+benchmark/worker.ts
+  s_fb44c3e6b9dfb0::t_f0afa3c9f382ac 16
+package.json
+  s_fb44c3e6b9dfb0::t_501db99ef44662 672,674
+tests/project-contract.test.ts
+  s_fb44c3e6b9dfb0::t_f40bfb602d0aaa 409
+  s_fb44c3e6b9dfb0::t_56abb1b01aa40c 367,442
+benchmark/engines/imagescript.ts
+  s_fb44c3e6b9dfb0::t_a8ca8f003c6863 1-158,161-183
+  s_fb44c3e6b9dfb0::t_31ffee19f71511 159-160
+benchmark/run.ts
+  s_fb44c3e6b9dfb0::t_f0afa3c9f382ac 32
+tests/benchmark-harness.test.ts
+  s_fb44c3e6b9dfb0::t_e02c4b273c5368 6,283,308-352
+  s_fb44c3e6b9dfb0::t_3adf84b39e2faf 353
+benchmark/README.md
+  s_fb44c3e6b9dfb0::t_aa291f41649af8 5-6,422,442,447-452
+benchmarks.md
+  s_fb44c3e6b9dfb0::t_aa291f41649af8 95-98
+  s_fb44c3e6b9dfb0::t_b1d8e342ff92fa 21-24
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_ed0a73140a19d3 61-66
+benchmark/scripts/render-competitor-charts.ts
+  s_fb44c3e6b9dfb0::t_501db99ef44662 66
+  s_fb44c3e6b9dfb0::t_56abb1b01aa40c 342
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_e643e05fefb0e3 179,2034-2056
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_dd30395d505722 179,2034-2056
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_bb1db6bbbf406b 129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "def9ce1a481921334419264c03170aacbc8785ca",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
