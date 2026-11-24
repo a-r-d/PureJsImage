@@ -91,16 +91,11 @@ const main = async (): Promise<void> => {
 
   await engine.prepareInputs?.(workflow, inputs)
 
+  // Warmup output is not decoded for validation. A validation decode leaves allocator pages
+  // resident, so it would change the level the measured run starts from. The measured output is
+  // validated after measurement.
   for (let index = 0; index < warmups; index += 1) {
-    const warmup = await engine.execute({ workflow, inputs })
-    const validation = await validateExecution({ workflow, execution: warmup })
-    if (!validation.valid) {
-      sendResult({
-        status: 'invalid-output',
-        errors: [`Warmup output failed: ${validation.errors.join('; ')}`],
-      })
-      return
-    }
+    await engine.execute({ workflow, inputs })
   }
 
   await settleGarbage()
@@ -128,11 +123,6 @@ const main = async (): Promise<void> => {
   const execution = await engine.execute({ workflow, inputs })
   const wallMilliseconds = performance.now() - startedAt
   const cpu = process.cpuUsage(cpuStart)
-  const validation = await validateExecution({ workflow, execution })
-  if (!validation.valid) {
-    sendResult({ status: 'invalid-output', errors: validation.errors })
-    return
-  }
   const resourceUsage = process.resourceUsage()
   const finalMemory = process.memoryUsage()
   if (process.send) {
@@ -145,6 +135,12 @@ const main = async (): Promise<void> => {
       process.on('message', acknowledgeMeasurement)
       process.send?.({ type: 'measurement-complete' })
     })
+  }
+  // Validation decodes the output, so it runs after peak-RSS sampling stops, as wall timing does.
+  const validation = await validateExecution({ workflow, execution })
+  if (!validation.valid) {
+    sendResult({ status: 'invalid-output', errors: validation.errors })
+    return
   }
   let qualityPsnrDb: QualityPsnr | undefined
   if (measureQuality && workflow.qualityReference) {

@@ -59,6 +59,12 @@ performance benchmark suite.
 * Keep startup/import measurements separate from warm workflow timings.
 * Build and decode the exact-area quality reference after measurement, outside
   both wall timing and peak-RSS sampling.
+* Validate the measured output after measurement, also outside wall timing and
+  peak-RSS sampling. Warmup output is not decoded, because a validation decode
+  leaves allocator pages resident and changes the level the measured run starts
+  from. Before November 24, 2026, both decodes counted toward peak RSS, which
+  added up to 70 MiB to PNG output rows and made some rows swing by about
+  30 MiB between runs.
 
 ## Corpus
 

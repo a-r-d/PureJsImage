@@ -265,6 +265,17 @@ describe('competitor benchmark classification', () => {
     expect(summary.qualityPsnrDb).toBe(measured)
   })
 
+  it('decodes outputs for validation only after peak-RSS sampling stops', () => {
+    // Validating the warmup output and the measured output inside the sampled window added up to
+    // 70 MiB to PNG output rows and let resident allocator pages swing some rows by about 30 MiB.
+    const worker = readFileSync('benchmark/worker.ts', 'utf8')
+    const measurementComplete = worker.indexOf("process.send?.({ type: 'measurement-complete' })")
+    const validations = [...worker.matchAll(/validateExecution\(/g)].map((match) => match.index)
+    expect(measurementComplete).toBeGreaterThan(0)
+    expect(validations).toHaveLength(1)
+    expect(validations[0]).toBeGreaterThan(measurementComplete)
+  })
+
   it('reports the installed comparator versions pinned in package.json', () => {
     expect(jimpEngine.version).toBe(packageJson.devDependencies.jimp)
     expect(imageJsEngine.version).toBe(packageJson.devDependencies['image-js'])
