@@ -89,6 +89,16 @@ All notable changes to PureJsImage are documented in this file.
   did not change (sharp with default threads, image-js and jSquash) moved -1% to +4%. PureJsImage
   peak RSS on the 24-megapixel photo pipeline is 197.3 MiB, up from 181.8 MiB, and Jimp's is
   1198.6 MiB.
+- The published web codec benchmark is rerun again after the JPEG XL and AVIF codecs started
+  loading their heavy code on first use. All 122 supported cases still pass. Against the earlier
+  November 24 run, PureJsImage median peak RSS is 14.1 MiB lower and median wall time 2.9% lower.
+  Peak RSS on the photo pipeline is 180.1 MiB, 85.0% below Jimp's 1197.3 MiB, and benchmark
+  startup import is 110.9 MiB in 83 ms instead of 130.2 MiB in 146 ms. `auto-orient-6` and
+  `jpeg-to-png` read 18 to 30 MiB higher than before. With the same code, their peak moves
+  between about 188 and 220 MiB from run to run, depending on when V8 frees an earlier full-frame
+  buffer. In interleaved runs of the old and new code, both are lower with the new code. The
+  run's speed check flagged nine rows, all for sharp, image-js and jSquash, whose versions did not
+  change.
 - The benchmark result index marks a competitors run as a headline source only when it covers
   every workflow in the profile, as it already did for web codec runs. The public snapshot
   writer publishes the newest headline run. Since August 29, the one-workflow native-precision
