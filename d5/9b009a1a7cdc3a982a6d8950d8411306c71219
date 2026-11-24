@@ -1,0 +1,56 @@
+README.md
+  s_394b4847628aeb::t_56f66e055316df 140-142,146,434
+docs-astro/public/assets/web-codecs-speed-2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  s_394b4847628aeb::t_56f66e055316df 1-309
+docs-astro/public/assets/readme/web-codec-speed.svg
+  s_394b4847628aeb::t_56f66e055316df 50-51,53-54,56-57,59-60,62-63,65-66,68-69,73-74,76-77,79-80,82-83,85-86,88-89,91-92,96-97,99-100,102-103,105-106,108-109,111-112,114-115,119-120,122-123,125-126,128-129,131-132,134-135,137-138,142-143,145-146,150-151,153-154,158-159,163-164,166-167,171-172,174-175,179-180,184-185,187-188,192-193,195-196,200-201,205-206,208-209,211-212,214-215,217-218,220-221,227-228,230-231,235-236,238-239,243-244,248-249,251-252,256-257,259-260,264-265,269-270,272-273,277-278,280-281,289-290,292-293,297-298,300-301,305-306,308
+benchmark/results/public/web-codecs-2026-11-24T18-05-27-049Z.md
+  s_394b4847628aeb::t_56f66e055316df 1-12
+benchmark/results/result-index-2026-11-24T18-05-55-981Z.md
+  s_394b4847628aeb::t_56f66e055316df 1-272
+benchmark/results/public/index.md
+  s_394b4847628aeb::t_56f66e055316df 3,8
+benchmark/results/web-codecs-memory-2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  s_394b4847628aeb::t_56f66e055316df 1-307
+benchmark/results/web-codecs-quality-2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  s_394b4847628aeb::t_56f66e055316df 1-136
+docs-astro/src/data/documentation-data.json
+  s_394b4847628aeb::t_56f66e055316df 143,148,153,157,206-208,211-212
+CHANGELOG.md
+  s_394b4847628aeb::t_601c1cf2be46e1 97-99
+  s_394b4847628aeb::t_7efef0edb56a74 106-110
+docs-astro/public/assets/readme/web-codec-memory.svg
+  s_394b4847628aeb::t_56f66e055316df 48-49,51-52,54-55,57-58,60-61,63-64,66-67,71-72,74-75,77-78,80-81,83-84,86-87,89-90,94-95,97-98,100-101,103-104,106-107,109-110,112-113,117-118,120-121,123-124,126-127,129-130,132-133,135-136,140-141,143-144,148-149,151-152,156-157,161-162,164-165,169-170,172-173,177-178,182-183,185-186,190-191,193-194,198-199,203-204,206-207,209-210,212-213,215-216,218-219,225-226,228-229,233-234,236-237,241-242,246-247,249-250,254-255,257-258,262-263,267-268,270-271,275-276,278-279,287-288,290-291,295-296,298-299,303-304,306
+benchmark/results/web-codecs-speed-2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  s_394b4847628aeb::t_56f66e055316df 1-309
+benchmark/results/result-index-2026-11-24T18-05-55-981Z.json
+  s_394b4847628aeb::t_56f66e055316df 1-4165
+docs-astro/public/assets/web-codecs-memory-2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  s_394b4847628aeb::t_56f66e055316df 1-307
+benchmark/results/public/web-codecs-2026-11-24T18-05-27-049Z.json
+  s_394b4847628aeb::t_56f66e055316df 1-1248
+benchmark/results/public/index.json
+  s_394b4847628aeb::t_56f66e055316df 3-4,40-41,58-59,62-63,67-68
+docs-astro/public/assets/web-codecs-quality-2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.svg
+  s_394b4847628aeb::t_56f66e055316df 1-136
+benchmark/results/2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.json
+  s_394b4847628aeb::t_481f8aa8c47b67 1-22860
+benchmark/results/2026-11-24T18-05-27-049Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-jsquash-web-codecs.md
+  s_394b4847628aeb::t_b89219b47893db 1-245
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "d59b009a1a7cdc3a982a6d8950d8411306c71219",
+  "prompts": {},
+  "sessions": {
+    "s_394b4847628aeb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fc8ea64-f738-4fbc-96d6-2b4997f0cea7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
