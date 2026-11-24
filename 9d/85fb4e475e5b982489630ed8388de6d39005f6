@@ -1,0 +1,39 @@
+src/codecs/av1-qmatrix.ts
+  s_394b4847628aeb::t_6eb6405f2e6ae6 710-713
+tests/project-contract.test.ts
+  s_394b4847628aeb::t_25add40173a0d2 875,879,884
+README.md
+  s_394b4847628aeb::t_602d2a936c3cdb 477,496
+  s_394b4847628aeb::t_1b4ea147bd2aa9 478
+  s_394b4847628aeb::t_bd74217100552c 497
+docs-astro/src/data/documentation-data.json
+  s_394b4847628aeb::t_602d2a936c3cdb 111,116,129
+  s_394b4847628aeb::t_08282400759ba8 109-110
+  s_394b4847628aeb::t_10960d36f0ee40 114-115
+src/codecs/avif.ts
+  s_394b4847628aeb::t_7d56e51f5e9070 3541-3545
+benchmark/generated/package-metrics.json
+  s_394b4847628aeb::t_602d2a936c3cdb 179,556,559,562,1369,1475,1506,1551
+  s_394b4847628aeb::t_a284ec698831b8 1366,1372,1472,1478,1503,1509,1548,1554
+CHANGELOG.md
+  s_394b4847628aeb::t_c883db2de497a6 20-24
+docs-astro/src/data/package-metrics.json
+  s_394b4847628aeb::t_602d2a936c3cdb 179,556,559,562,1369,1475,1506,1551
+  s_394b4847628aeb::t_06ced351a25900 1366,1372,1472,1478,1503,1509,1548,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9d85fb4e475e5b982489630ed8388de6d39005f6",
+  "prompts": {},
+  "sessions": {
+    "s_394b4847628aeb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fc8ea64-f738-4fbc-96d6-2b4997f0cea7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
