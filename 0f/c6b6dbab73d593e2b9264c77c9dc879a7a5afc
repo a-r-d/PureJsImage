@@ -1,0 +1,48 @@
+src/codecs/jpegxl-native-encode.ts
+  s_394b4847628aeb::t_ca7c7f4335d811 6
+src/codecs/jpegxl-modular-encode.ts
+  s_394b4847628aeb::t_cbd578e880544b 11-13
+  s_394b4847628aeb::t_743cb82c6edc49 10
+benchmark/generated/package-metrics.json
+  s_394b4847628aeb::t_a478be25948cd4 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/package-metrics.json
+  s_394b4847628aeb::t_a478be25948cd4 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+src/codecs/jpegxl-float-encode.ts
+  s_394b4847628aeb::t_ca7c7f4335d811 7
+scripts/bundle-size-budgets.ts
+  s_394b4847628aeb::t_b8301ad0583941 25-28,32-33
+docs-astro/src/data/documentation-data.json
+  s_394b4847628aeb::t_a478be25948cd4 109-111,129
+src/codecs/jpegxl-codec-encoder.ts
+  s_394b4847628aeb::t_ca7c7f4335d811 23
+  s_394b4847628aeb::t_22ee6f259c123a 1-22,24-119
+tests/project-contract.test.ts
+  s_394b4847628aeb::t_fb913c284ccef3 875-896
+  s_394b4847628aeb::t_098340c743ce9d 863
+  s_394b4847628aeb::t_8a41c51a775622 52-78
+README.md
+  s_394b4847628aeb::t_a478be25948cd4 478,497
+src/codecs/jpegxl-color-semantics.ts
+  s_394b4847628aeb::t_93277406c49040 1-61
+CHANGELOG.md
+  s_394b4847628aeb::t_1eb3775d2bb885 9-19
+src/codecs/jpegxl.ts
+  s_394b4847628aeb::t_d1fb7fc4370339 511,540,564,586
+  s_394b4847628aeb::t_22ee6f259c123a 9,25,384-389,481-482,484,615-616
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0fc6b6dbab73d593e2b9264c77c9dc879a7a5afc",
+  "prompts": {},
+  "sessions": {
+    "s_394b4847628aeb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2fc8ea64-f738-4fbc-96d6-2b4997f0cea7",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
