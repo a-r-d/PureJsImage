@@ -475,7 +475,7 @@ Generated from the repository manifests and recorded package metrics (package ve
 | --- | ---: | ---: | ---: |
 | Core API | 19.5 KiB | 6.6 KiB | 5.9 KiB |
 | Common web codecs | 658.4 KiB | 240.8 KiB | 199.7 KiB |
-| All stable codecs | 1401.9 KiB | 485.7 KiB | 392.1 KiB |
+| All stable codecs | 1407.3 KiB | 487.2 KiB | 394.7 KiB |
 | Scientific platform | 197.5 KiB | 56.3 KiB | 47.4 KiB |
 | All scientific readers | 1249.7 KiB | 361.6 KiB | 288.3 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
@@ -494,7 +494,7 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 19.5 KiB | 6.6 KiB | 5.9 KiB |
 | Core + common web codecs | `purejsimage/codecs/web` | 658.4 KiB | 240.8 KiB | 199.7 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1401.9 KiB | 485.7 KiB | 392.1 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1407.3 KiB | 487.2 KiB | 394.7 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 197.5 KiB | 56.3 KiB | 47.4 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1249.7 KiB | 361.6 KiB | 288.3 KiB |
 

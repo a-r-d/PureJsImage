@@ -22,11 +22,15 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // ICC curves and the real-primaries check on structured ICC color.
   // 2026-11-23: raised by 2,000 bytes again for the lint cleanup that replaced non-null
   // assertions with `?? 0` sample reads and checked plane reads.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 647_000 },
+  // 2026-11-24: raised by 6,000 bytes, owner approved. The codec loads its VarDCT, sequence,
+  // native-sample and encoder modules on first use, and a single-file bundle wraps each lazily
+  // loaded module in an init function.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 653_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 721_000 },
+  // 2026-11-24: raised by 7,000 bytes for the same lazy-load wrappers, owner approved.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 728_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

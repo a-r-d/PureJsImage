@@ -1,34 +1,19 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
-import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
 import { defaultImageLimits, validateImageDimensions } from '../limits.ts'
 import { type PixelBlock, pixelStorage } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
+import { acceptsJpegXlColorSemantics } from './jpegxl-color-semantics.ts'
 import { jpegXlPartsByteLength } from './jpegxl-encoder-memory.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
-  acceptsJpegXlColorSemantics,
   encodedJpegXlMetadataBoxes,
-  isUntaggedJpegXlColorSemantics,
   jpegXlIccStreamCommands,
   resolveJpegXlEncodeOptions,
 } from './jpegxl-modular-encode.ts'
 import { encodeJpegXlNative } from './jpegxl-native-encode.ts'
-
-/** The JPEG XL codec's pipeline check. Untagged integer samples are encoded as sRGB, or in a kept ICC profile. */
-export const acceptsJpegXlFloatColorSemantics = (semantics: PixelColorSemantics): boolean =>
-  acceptsJpegXlColorSemantics(semantics) ||
-  isUntaggedJpegXlColorSemantics(semantics) ||
-  ((semantics.family === 'gray' || semantics.family === 'rgb') &&
-    semantics.transfer.kind === 'source-profile' &&
-    semantics.icc !== undefined &&
-    semantics.matrix === 'identity' &&
-    semantics.range === 'full' &&
-    (semantics.alpha === 'none' ||
-      semantics.alpha === 'straight' ||
-      semantics.alpha === 'premultiplied'))
 
 /** Direct planar staging preserves native samples without an interleaved full-image copy. */
 export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest): ImageEncoder => {

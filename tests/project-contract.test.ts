@@ -49,6 +49,33 @@ const capabilityManifest = parseCapabilityManifest(capabilityManifestJson)
 const pureJsImageEntryTargets = createPureJsImageEntryTargets(capabilityManifest)
 const competitorBundleTargets = createCompetitorBundleTargets(capabilityManifest)
 
+/** Source modules, relative to `src`, that load when the entry loads. Dynamic imports are skipped. */
+const staticRuntimeModules = (entry: string): readonly string[] => {
+  const pending = [resolve(entry)]
+  const visited = new Set<string>()
+  while (pending.length > 0) {
+    const path = pending.pop()
+    if (!path || visited.has(path)) continue
+    visited.add(path)
+    const source = readFileSync(path, 'utf8')
+    const declarations = source.matchAll(
+      /(?:^|\n)\s*(?:import|export)\s+([\s\S]*?)\s+from\s+['"](\.[^'"]+)['"]/g,
+    )
+    for (const declaration of declarations) {
+      const clause = declaration[1]
+      const specifier = declaration[2]
+      if (!clause || !specifier || clause.trimStart().startsWith('type ')) continue
+      pending.push(resolve(dirname(path), specifier))
+    }
+    for (const sideEffectImport of source.matchAll(/(?:^|\n)\s*import\s+['"](\.[^'"]+)['"]/g)) {
+      const specifier = sideEffectImport[1]
+      if (specifier) pending.push(resolve(dirname(path), specifier))
+    }
+  }
+  const sourceRoot = resolve('src')
+  return [...visited].map((path) => relative(sourceRoot, path))
+}
+
 describe('package contract', () => {
   it('does not publish unusable source maps without source files', () => {
     expect(buildTsconfig.compilerOptions.sourceMap).toBe(false)
@@ -833,31 +860,7 @@ describe('package contract', () => {
   })
 
   it('keeps codec implementations outside the root runtime module graph', () => {
-    const root = resolve('src/index.ts')
-    const pending = [root]
-    const visited = new Set<string>()
-    while (pending.length > 0) {
-      const path = pending.pop()
-      if (!path || visited.has(path)) continue
-      visited.add(path)
-      const source = readFileSync(path, 'utf8')
-      const declarations = source.matchAll(
-        /(?:^|\n)\s*(?:import|export)\s+([\s\S]*?)\s+from\s+['"](\.[^'"]+)['"]/g,
-      )
-      for (const declaration of declarations) {
-        const clause = declaration[1]
-        const specifier = declaration[2]
-        if (!clause || !specifier || clause.trimStart().startsWith('type ')) continue
-        pending.push(resolve(dirname(path), specifier))
-      }
-      for (const sideEffectImport of source.matchAll(/(?:^|\n)\s*import\s+['"](\.[^'"]+)['"]/g)) {
-        const specifier = sideEffectImport[1]
-        if (specifier) pending.push(resolve(dirname(path), specifier))
-      }
-    }
-
-    const sourceRoot = resolve('src')
-    const runtimeModules = [...visited].map((path) => relative(sourceRoot, path))
+    const runtimeModules = staticRuntimeModules('src/index.ts')
     expect(runtimeModules.some((path) => path.startsWith(`codecs/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`codec-entries/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`accelerators/`))).toBe(false)
@@ -867,6 +870,28 @@ describe('package contract', () => {
     expect(runtimeModules.some((path) => path.startsWith(`analysis/`))).toBe(false)
     expect(runtimeModules.some((path) => path.startsWith(`extensions/`))).toBe(false)
     expect(readFileSync(resolve('src/executor.ts'), 'utf8')).not.toMatch(/from ['"].*operations\//)
+  })
+
+  it('loads the JPEG XL decoders and encoders on first use, not with allCodecs', () => {
+    // These modules hold most of the JPEG XL code. Loading them with allCodecs added 18 to 43 MiB
+    // to the peak RSS of JPEG, PNG, WebP, AVIF and TIFF workflows that never touch JPEG XL.
+    const runtimeModules = staticRuntimeModules('src/codec-entries/all.ts')
+    expect(runtimeModules).toContain('codecs/jpegxl.ts')
+    expect(
+      runtimeModules.filter((path) =>
+        [
+          'codecs/jpegxl-codec-encoder.ts',
+          'codecs/jpegxl-float-encode.ts',
+          'codecs/jpegxl-modular-encode.ts',
+          'codecs/jpegxl-native-encode.ts',
+          'codecs/jpegxl-native-pixel.ts',
+          'codecs/jpegxl-sequence.ts',
+          'codecs/jpegxl-vardct.ts',
+          'codecs/jpegxl-vardct-encode.ts',
+          'codecs/jpegxl-vardct-render.ts',
+        ].includes(path),
+      ),
+    ).toEqual([])
   })
 
   it('publishes browser and codec capabilities through explicit package subpaths', () => {

@@ -3,13 +3,13 @@ import { normalizePixelColorSemantics, type PixelColorSemantics } from '../color
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '../limits.ts'
 import { inspectIccProfile } from './icc.ts'
+import { acceptsJpegXlColorSemantics } from './jpegxl-color-semantics.ts'
 import { jpegXlContainerSignature } from './jpegxl-container.ts'
 import type { JpegXlAnimationHeader, JpegXlFrameStructure } from './jpegxl-decode.ts'
 import { jpegXlPartsByteLength } from './jpegxl-encoder-memory.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
-  acceptsJpegXlColorSemantics,
   JpegXlBitWriter,
   jpegXlAlphaDimensionShiftDistribution,
   jpegXlAnimationDenominatorDistribution,

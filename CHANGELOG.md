@@ -6,6 +6,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Registering the JPEG XL codec, for example through `allCodecs`, no longer loads its VarDCT,
+  animation, native-sample and encoder code. That code loads on the first JPEG XL decode or encode
+  that needs it. Since 0.17.0 the codec had grown to 1.7 MB of JavaScript that loaded with
+  `allCodecs`, so JPEG, PNG, WebP, AVIF and TIFF workflows paid for it without reading JPEG XL. On
+  eight web codec benchmark workflows, peak RSS is now 29 to 58 MiB lower, for example 170.7 MiB
+  instead of 200.0 MiB on the 24-megapixel photo pipeline. Importing the library with `allCodecs`
+  takes 79 ms instead of 151 ms. The first JPEG XL encode in a process takes about 50 ms longer
+  because it loads the encoder then. Code that registers only the codecs it uses, such as
+  `[jpegCodec, pngCodec]` or `allWebCodecs`, was not affected. The minified Core + JPEG XL bundle
+  grows by 5.3 KB and the JPEG XL specialized APIs bundle by 6.8 KB, because a single-file bundle
+  wraps each module that loads later.
 - JPEG XL lossless effort 7 is 3.4 to 8.1 times faster on the eight 1-megapixel comparison images:
   182 s instead of 819 s in total, with files 0.29% larger in total. Effort 7 now trains predictor
   trees once on four times the default samples, and also on the default samples only when that
