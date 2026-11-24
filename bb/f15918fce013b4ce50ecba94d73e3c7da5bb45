@@ -1,0 +1,69 @@
+benchmark/results/web-codecs-memory-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1,3,5-36,345
+  s_fb44c3e6b9dfb0::t_5623b30ba422ba 2,4,37-344
+docs-astro/public/assets/web-codecs-speed-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1-347
+docs-astro/public/assets/readme/web-codec-speed.svg
+  s_fb44c3e6b9dfb0::t_be476387d681d7 33-346
+  s_fb44c3e6b9dfb0::t_34750cace3c8be 2,4
+benchmark/results/public/index.json
+  s_fb44c3e6b9dfb0::t_be476387d681d7 3-4,40-41,50,59-60,63-64,68-69
+benchmark/results/public/index.md
+  s_fb44c3e6b9dfb0::t_be476387d681d7 3,8
+tests/project-contract.test.ts
+  s_fb44c3e6b9dfb0::t_b50546270eaa25 429
+README.md
+  s_fb44c3e6b9dfb0::t_be476387d681d7 140-142,146,434
+docs-astro/public/assets/readme/web-codec-memory.svg
+  s_fb44c3e6b9dfb0::t_be476387d681d7 33-344
+  s_fb44c3e6b9dfb0::t_53095de20f84e7 2,4
+benchmark/results/public/web-codecs-2026-11-24T18-40-34-578Z.json
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1-1421
+benchmark/results/result-index-2026-11-24T18-41-00-318Z.json
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1-4189
+benchmarks.md
+  s_fb44c3e6b9dfb0::t_b50546270eaa25 19,22-23
+docs-astro/src/pages/index.astro
+  s_fb44c3e6b9dfb0::t_b50546270eaa25 232
+benchmark/results/web-codecs-speed-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1,3,5-36,347
+  s_fb44c3e6b9dfb0::t_5623b30ba422ba 2,4,37-346
+benchmark/results/web-codecs-quality-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_5623b30ba422ba 2,4,37-146
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1,3,5-36,147
+docs-astro/public/assets/web-codecs-memory-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1-345
+benchmark/results/public/web-codecs-2026-11-24T18-40-34-578Z.md
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1-12
+benchmark/results/result-index-2026-11-24T18-41-00-318Z.md
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1-273
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_b50546270eaa25 67-77
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_be476387d681d7 143,147-148,152-153,157,189-193,211-213,216-217,219
+  s_fb44c3e6b9dfb0::t_952e34bcdcb2ea 142
+docs-astro/public/assets/web-codecs-quality-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_be476387d681d7 1-147
+benchmark/scripts/render-competitor-charts.ts
+  s_fb44c3e6b9dfb0::t_775910ded7a4a4 228-235
+benchmark/results/2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.json
+  s_fb44c3e6b9dfb0::t_7b18ed3a5692ec 1-26600
+benchmark/results/2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.md
+  s_fb44c3e6b9dfb0::t_c1ed66b68dfb2e 1-275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bbf15918fce013b4ce50ecba94d73e3c7da5bb45",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
