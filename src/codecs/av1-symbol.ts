@@ -39,14 +39,7 @@ export class Av1SymbolDecoder {
       this.#range -= split
       this.#value -= split
     } else this.#range = split
-    const bits = 15 - floorLog2(this.#range)
-    const scale = 1 << bits
-    this.#range *= scale
-    const newBits = Math.min(bits, Math.max(0, this.#maximumBits))
-    const newData = this.#readRaw(newBits)
-    const paddedData = newData * (1 << (bits - newBits))
-    this.#value = paddedData ^ ((this.#value + 1) * scale - 1)
-    this.#maximumBits -= bits
+    this.#normalize()
     return symbol
   }
 
@@ -90,18 +83,11 @@ export class Av1SymbolDecoder {
 
     this.#range = previous - current
     this.#value -= current
-    const bits = 15 - floorLog2(this.#range)
-    const scale = 1 << bits
-    this.#range *= scale
-    const newBits = Math.min(bits, Math.max(0, this.#maximumBits))
-    const newData = this.#readRaw(newBits)
-    const paddedData = newData * (1 << (bits - newBits))
-    this.#value = paddedData ^ ((this.#value + 1) * scale - 1)
-    this.#maximumBits -= bits
+    this.#normalize()
 
     if (this.#updateCdfs) {
       const count = cdf[symbols] ?? 0
-      const rate = 3 + (count > 15 ? 1 : 0) + (count > 31 ? 1 : 0) + Math.min(floorLog2(symbols), 2)
+      const rate = 3 + (count > 15 ? 1 : 0) + (count > 31 ? 1 : 0) + (symbols < 4 ? 1 : 2)
       let target = 0
       for (let index = 0; index < symbols - 1; index += 1) {
         if (index === symbol) target = CDF_PROBABILITY_TOP
@@ -133,6 +119,17 @@ export class Av1SymbolDecoder {
         )
       }
     }
+  }
+
+  #normalize(): void {
+    if (this.#range >= CDF_PROBABILITY_TOP) return
+    // The nonzero range is below 32768. Shift its highest set bit to bit 15.
+    const bits = Math.clz32(this.#range) - 16
+    this.#range <<= bits
+    const newBits = Math.min(bits, Math.max(0, this.#maximumBits))
+    const newData = this.#readRaw(newBits) << (bits - newBits)
+    this.#value = newData ^ (((this.#value + 1) << bits) - 1)
+    this.#maximumBits -= bits
   }
 
   #readRaw(bits: number): number {

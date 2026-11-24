@@ -1129,11 +1129,15 @@ class RestrictedIntraTileDecoder {
     this.#intraFlags = new Uint8Array(lumaContextLength)
     this.#motionX = new Int32Array(frame.header.allowIntrabc ? lumaContextLength : 0)
     this.#motionY = new Int32Array(frame.header.allowIntrabc ? lumaContextLength : 0)
-    this.#paletteSizes = [new Uint8Array(lumaContextLength), new Uint8Array(lumaContextLength)]
+    const paletteContextLength = frame.header.allowScreenContentTools ? lumaContextLength : 0
+    this.#paletteSizes = [
+      new Uint8Array(paletteContextLength),
+      new Uint8Array(paletteContextLength),
+    ]
     this.#paletteColors = [
-      new Uint16Array(lumaContextLength * 8),
-      new Uint16Array(lumaContextLength * 8),
-      new Uint16Array(lumaContextLength * 8),
+      new Uint16Array(paletteContextLength * 8),
+      new Uint16Array(paletteContextLength * 8),
+      new Uint16Array(paletteContextLength * 8),
     ]
     const transformContextLength = (planeIndex: number): number =>
       (this.#planeContextColumns[planeIndex] ?? 0) * (this.#planeContextRows[planeIndex] ?? 0)
@@ -2958,6 +2962,7 @@ class RestrictedIntraTileDecoder {
     uvPalette: PalettePlane | undefined,
     vColors: Uint16Array | undefined,
   ): void {
+    if (this.#paletteSizes[0].length === 0) return
     for (let localRow = 0; localRow < blockRows; localRow += 1) {
       for (let localColumn = 0; localColumn < blockColumns; localColumn += 1) {
         const contextRow = row + localRow
@@ -4899,47 +4904,49 @@ export const av1ToRgbaRegion = (
       const cbGreen = blueGreenChroma * chromaGain
       const cbBlue = blueChroma * chromaGain
       const midpoint = sampleMidpoint
+      const endX = region.x + region.width
       for (let localY = 0; localY < region.height; localY += 1) {
         const sourceY = region.y + localY
         const lumaRow = (sourceY - yOrigin) * yStride
-        const chromaInteriorY = chromaYOrigin === 0 && sourceY >= 1 && sourceY < chromaYLimit
-        const outputRow = localY * region.width * 4
-        for (let localX = 0; localX < region.width; localX += 1) {
-          const sourceX = region.x + localX
-          const chromaInterior = chromaInteriorY && sourceX >= 1 && sourceX < chromaXLimit
-          const luma = yPlane[lumaRow + sourceX] ?? 0
-          const cb = chromaInterior
-            ? sampleChroma420Interior(uPlane, chromaStride, chromaYOrigin, sourceX, sourceY)
-            : sampleChroma420(
-                uPlane,
-                chromaStride,
-                chromaWidth,
-                chromaHeight,
-                chromaYOrigin,
-                sourceX,
-                sourceY,
-                midpoint,
-              )
-          const cr = chromaInterior
-            ? sampleChroma420Interior(vPlane, chromaStride, chromaYOrigin, sourceX, sourceY)
-            : sampleChroma420(
-                vPlane,
-                chromaStride,
-                chromaWidth,
-                chromaHeight,
-                chromaYOrigin,
-                sourceX,
-                sourceY,
-                midpoint,
-              )
-          const y = luma * lumaGain + lumaBias
-          const cb0 = cb - midpoint
-          const cr0 = cr - midpoint
-          const target = outputRow + localX * 4
-          output[target] = clampByte(y + crRed * cr0)
-          output[target + 1] = clampByte(y - crGreen * cr0 - cbGreen * cb0)
-          output[target + 2] = clampByte(y + cbBlue * cb0)
-          output[target + 3] = 255
+        const top = (sourceY - 1) >> 1
+        const topRow = (Math.max(0, top) - chromaYOrigin) * chromaStride
+        const bottomRow = (Math.min(chromaHeight - 1, top + 1) - chromaYOrigin) * chromaStride
+        const bottomWeight = (sourceY & 1) === 1 ? 1 : 3
+        const topWeight = 4 - bottomWeight
+        let sourceX = region.x
+        let chromaX = (sourceX - 1) >> 1
+        const first = Math.max(0, chromaX)
+        let leftU =
+          (uPlane[topRow + first] ?? midpoint) * topWeight +
+          (uPlane[bottomRow + first] ?? midpoint) * bottomWeight
+        let leftV =
+          (vPlane[topRow + first] ?? midpoint) * topWeight +
+          (vPlane[bottomRow + first] ?? midpoint) * bottomWeight
+        let target = localY * region.width * 4
+        while (sourceX < endX) {
+          chromaX += 1
+          const right = Math.min(chromaX, chromaWidth - 1)
+          const rightU =
+            (uPlane[topRow + right] ?? midpoint) * topWeight +
+            (uPlane[bottomRow + right] ?? midpoint) * bottomWeight
+          const rightV =
+            (vPlane[topRow + right] ?? midpoint) * topWeight +
+            (vPlane[bottomRow + right] ?? midpoint) * bottomWeight
+          // Two adjacent luma samples share the same pair of vertical chroma sums.
+          const endPair = Math.min(endX, 2 * chromaX + 1)
+          for (; sourceX < endPair; sourceX += 1) {
+            const rightWeight = (sourceX & 1) === 1 ? 1 : 3
+            const cb = (leftU * (4 - rightWeight) + rightU * rightWeight) / 16 - midpoint
+            const cr = (leftV * (4 - rightWeight) + rightV * rightWeight) / 16 - midpoint
+            const y = (yPlane[lumaRow + sourceX] ?? 0) * lumaGain + lumaBias
+            output[target] = clampByte(y + crRed * cr)
+            output[target + 1] = clampByte(y - crGreen * cr - cbGreen * cb)
+            output[target + 2] = clampByte(y + cbBlue * cb)
+            output[target + 3] = 255
+            target += 4
+          }
+          leftU = rightU
+          leftV = rightV
         }
       }
       return output

@@ -6,6 +6,7 @@ import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import { applyRgbIcc, parseRgbIccTransform } from '../src/codecs/icc.ts'
+import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
 import { jpegCodec } from '../src/codecs/jpeg.ts'
 import { ImageError } from '../src/index.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -485,6 +486,42 @@ describe('JPEG pixel pipeline', () => {
     },
   )
 
+  it('resumes progressive entropy decoding after a large comment between scans', async () => {
+    const sos = Buffer.from([0xff, 0xda])
+    const firstScan = progressiveJpeg.indexOf(sos)
+    const secondScan = progressiveJpeg.indexOf(sos, firstScan + sos.length)
+    expect(secondScan).toBeGreaterThan(firstScan)
+    const comment = Buffer.alloc(65_537)
+    comment.set([0xff, 0xfe, 0xff, 0xff])
+    const input = Buffer.concat([
+      progressiveJpeg.subarray(0, secondScan),
+      comment,
+      progressiveJpeg.subarray(secondScan),
+    ])
+    expect(await decodeRgb(input, 2)).toEqual(await decodeRgb(progressiveJpeg, 2))
+  })
+
+  it.each([
+    [1, 1, 15, 11, 'e7089d5221711df567f2ddb3eda9147e753d49cf249ba68f50d5e214516f42d0'],
+    [2, 0, 13, 12, 'd10834eab25eea2f2b3072400012d5123762aa33175d8f36e6ec0664f3ac272c'],
+    [15, 0, 1, 12, '5fee51c5120c8a98c4317f17bb78d58730b16a6e5fe328099187b5c4aa4c93a5'],
+  ] as const)(
+    'preserves scaled progressive 4:2:0 chroma at crop (%i, %i, %i, %i)',
+    async (x, y, width, height, digest) => {
+      const decoder = await jpegCodec.createDecoder?.(
+        new MemorySource(progressiveJpeg),
+        defaultImageLimits,
+      )
+      if (!decoder) throw new Error('JPEG decoder is unavailable')
+      const pixels = await collectRgb(
+        decoder.decode({ x, y, width, height, scaleDenominator: 2 }),
+        width,
+        height,
+      )
+      expect(createHash('sha256').update(pixels).digest('hex')).toBe(digest)
+    },
+  )
+
   it.each([
     ['4:4:4', 2, '508bac9254b17a71bf88b948322db31f8bb16ffa3ee2cc1e88d3472fb8dce87f'],
     ['4:4:4', 4, '1e88786d62aecd443fbd310702b05fc31b1b6020de85cf3e1b95d8b03d366dbb'],
@@ -898,6 +935,33 @@ describe('JPEG pixel pipeline', () => {
       await sharp(baseline).removeAlpha().raw().toBuffer(),
     )
   })
+
+  it.each([-4, 4])(
+    'preserves quantization at half-integers for a gray impulse of %i',
+    async (delta) => {
+      const x = 3
+      const y = 5
+      const samples = Buffer.alloc(64, 128)
+      samples[y * 8 + x] = 128 + delta
+      const input = Buffer.concat([Buffer.from('P5\n8 8\n255\n'), samples])
+      const bytes = await (await Image.open(input)).jpeg({ quality: 100 }).toBuffer()
+      const parsed = await parseJpegCoefficientImage(
+        new MemorySource(bytes),
+        defaultImageLimits,
+        1024,
+      )
+
+      // Quantizers are all one at quality 100. Only the impulse contributes to the DCT.
+      const basis = (frequency: number, position: number): number =>
+        0.5 *
+        (frequency === 0 ? Math.SQRT1_2 : 1) *
+        Math.cos(((2 * position + 1) * frequency * Math.PI) / 16)
+      const expected = Int16Array.from({ length: 64 }, (_, i) =>
+        Math.round(delta * basis(i % 8, x) * basis(Math.floor(i / 8), y)),
+      )
+      expect(parsed?.components[0]?.coefficients.subarray(0, 64)).toEqual(expected)
+    },
+  )
 
   it('encodes gray8 input as a native one-component JPEG', async () => {
     const image = new PNG({ width: 17, height: 9 })

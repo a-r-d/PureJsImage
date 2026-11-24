@@ -30,7 +30,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.
   // 2026-11-24: raised by 7,000 bytes for the same lazy-load wrappers, owner approved.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 728_000 },
+  // 2026-11-24: raised by 2,000 bytes, owner approved. The entry bundles the JPEG decoder and
+  // encoder for JPEG transcoding, which gained batched progressive AC scans, an 8-bit Huffman
+  // prefix lookup, a 4:2:0 color fast path and a factored forward DCT.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 730_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

@@ -107,3 +107,80 @@ describe('auto-orient temporary storage', () => {
     })
   })
 })
+
+describe('tiled EXIF orientation', () => {
+  it.each(['rgb8', 'rgb16'] as const)(
+    'preserves %s partial tiles, padded strides and outstanding blocks',
+    async (format) => {
+      const width = 97
+      const height = 71
+      const bytesPerPixel = format === 'rgb8' ? 3 : 6
+      const stride = width * bytesPerPixel + 4
+      const source = Uint8Array.from(
+        { length: stride * height },
+        (_, i) => (i * 13 + (i >>> 8)) % 251,
+      )
+      const blocks = async function* (): AsyncGenerator<PixelBlock> {
+        yield { x: 0, y: 0, width, height, stride, format, data: source }
+      }
+
+      for (const orientation of [3, 4, 5, 6, 7, 8] as const) {
+        const transform = createOrientationTransform(
+          width,
+          height,
+          format,
+          orientation,
+          createNodeRuntime(),
+        )
+        const output = new Uint8Array(width * height * bytesPerPixel)
+        const held: PixelBlock[] = []
+        let previousRelease: (() => void) | undefined
+        let received = 0
+        for await (const block of transform.apply(blocks())) {
+          expect(block.y).toBe(received)
+          received += block.height
+          if (previousRelease) {
+            previousRelease()
+            previousRelease = undefined
+            held.push(block)
+          } else {
+            output.set(block.data, block.y * block.stride)
+            block.release?.()
+            previousRelease = block.release
+          }
+        }
+        expect(received).toBe(transform.height)
+        for (const block of held) {
+          output.set(block.data, block.y * block.stride)
+          block.release?.()
+        }
+
+        const expected = new Uint8Array(width * height * bytesPerPixel)
+        for (let y = 0; y < height; y += 1) {
+          for (let x = 0; x < width; x += 1) {
+            const targetX =
+              orientation === 3
+                ? width - 1 - x
+                : orientation === 4
+                  ? x
+                  : orientation === 6 || orientation === 7
+                    ? height - 1 - y
+                    : y
+            const targetY =
+              orientation <= 4
+                ? height - 1 - y
+                : orientation === 7 || orientation === 8
+                  ? width - 1 - x
+                  : x
+            const offset = y * stride + x * bytesPerPixel
+            expected.set(
+              source.subarray(offset, offset + bytesPerPixel),
+              (targetY * transform.width + targetX) * bytesPerPixel,
+            )
+          }
+        }
+        expect(output).toEqual(expected)
+      }
+    },
+  )
+})

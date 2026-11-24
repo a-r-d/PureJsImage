@@ -6,6 +6,26 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- EXIF auto-orient of a JPEG is 48% faster: 220 ms instead of 421 ms for the 2.16 MP
+  `auto-orient-6` benchmark, with 5% lower peak RSS. The orientation transform reads each
+  spooled tile once, copies RGB pixels in runs instead of one small copy per pixel, and reuses
+  an output band after the encoder releases it. The JPEG encoder copies RGB and grayscale rows
+  in bulk and uses a factored forward DCT. Coefficients near a rounding boundary are recomputed
+  in the original order, so JPEG output bytes are unchanged. Plain JPEG resize to JPEG is 3%
+  faster too.
+- Progressive JPEG decoding is faster: the 12 MP progressive resize benchmark takes 600 ms
+  instead of 735 ms. AC scans decode runs of blocks between restart and buffer-refill points
+  without returning to the async scan loop, common Huffman codes decode from one 8-bit lookup,
+  all scans share one entropy buffer, and 4:2:0 color conversion shares chroma interpolation
+  between neighboring pixels. Coefficients stay in compact Int16 storage and pixels are still
+  rebuilt in bounded MCU rows. Output is unchanged.
+- AVIF decoding is faster with identical pixels. On the 1204 x 800 benchmark photo, full decode
+  to PNG takes 611 ms instead of 671 ms, resize to JPEG 465 ms instead of 505 ms, and crop and
+  resize 380 ms instead of 433 ms. The AV1 decoder reuses sums in the deblocking and
+  self-guided restoration filters, computes the radius-2 self-guided pass only on the rows it
+  uses, simplifies symbol renormalization and coefficient contexts, avoids typed-array views in
+  inverse transforms, shares chroma interpolation between neighboring pixels, and no longer
+  allocates palette context when screen content tools are off.
 - Registering the JPEG XL codec, for example through `allCodecs`, no longer loads its VarDCT,
   animation, native-sample and encoder code. That code loads on the first JPEG XL decode or encode
   that needs it. Since 0.17.0 the codec had grown to 1.7 MB of JavaScript that loaded with

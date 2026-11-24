@@ -876,6 +876,7 @@ export const parseBaselineJpegSource = async (
 }
 
 interface JpegBitReader {
+  readHuffmanPrefix(lengths: Uint8Array, symbols: Uint8Array): number
   readBit(): number
   readBits(length: number): number
   peekBits(length: number): number | undefined
@@ -936,6 +937,15 @@ class EntropyReader implements JpegBitReader {
     if (this.#bitCount === 0) this.#bits = 0
     this.#bits = ((this.#bits << 8) | value) >>> 0
     this.#bitCount += 8
+  }
+
+  readHuffmanPrefix(lengths: Uint8Array, symbols: Uint8Array): number {
+    const prefix = this.peekBits(8)
+    if (prefix === undefined) return -1
+    const length = lengths[prefix] ?? 0
+    if (length === 0) return -1
+    this.#bitCount -= length
+    return symbols[prefix] ?? 0
   }
 
   readBit(): number {
@@ -1728,6 +1738,121 @@ const renderNativeComponentRows = (
   }
 }
 
+interface Chroma420Plan {
+  readonly luminanceWidth: number
+  readonly chromaWidth: number
+  readonly haloRows: number
+}
+
+const coefficientRenderPlan = (
+  jpeg: RenderJpeg,
+  region: JpegRegion,
+  blockSize: number,
+): RenderPlan | Chroma420Plan => {
+  const [luminance, blueChroma, redChroma] = jpeg.components
+  if (
+    jpeg.colorTransform === 'ycbcr' &&
+    luminance &&
+    blueChroma &&
+    redChroma &&
+    luminance.horizontalSampling === jpeg.maximumHorizontalSampling &&
+    luminance.verticalSampling === jpeg.maximumVerticalSampling &&
+    blueChroma.horizontalSampling * 2 === jpeg.maximumHorizontalSampling &&
+    blueChroma.verticalSampling * 2 === jpeg.maximumVerticalSampling &&
+    redChroma.horizontalSampling === blueChroma.horizontalSampling &&
+    redChroma.verticalSampling === blueChroma.verticalSampling
+  ) {
+    return {
+      luminanceWidth: jpeg.mcusPerLine * luminance.horizontalSampling * blockSize,
+      chromaWidth: jpeg.mcusPerLine * blueChroma.horizontalSampling * blockSize,
+      haloRows: blockSize,
+    }
+  }
+  return createRenderPlan(jpeg, region, blockSize)
+}
+
+const writeYcbcrPixel = (
+  data: Uint8Array,
+  target: number,
+  y: number,
+  cb: number,
+  cr: number,
+): void => {
+  data[target] = clamp(y + 1.402 * cr)
+  data[target + 1] = clamp(y - 0.3441363 * cb - 0.71413636 * cr)
+  data[target + 2] = clamp(y + 1.772 * cb)
+}
+
+const renderYcbcr420Rows = (
+  planes: readonly Uint8Array[],
+  region: JpegRegion,
+  rowStart: number,
+  first: number,
+  height: number,
+  data: Uint8Array,
+  plan: Chroma420Plan,
+): void => {
+  const [luminancePlane, blueChromaPlane, redChromaPlane] = planes
+  if (!luminancePlane || !blueChromaPlane || !redChromaPlane)
+    throw invalidInput('JPEG color components are missing')
+  const { luminanceWidth, chromaWidth } = plan
+  // Adjacent output pixels interpolate the same two chroma columns in opposite ratios.
+  // Keep the vertical sums unrounded until both dimensions have been interpolated.
+  const endX = region.x + region.width
+  for (let row = 0; row < height; row++) {
+    const localY = first + row - rowStart
+    const lumaRow = (plan.haloRows + localY) * luminanceWidth
+    const topRow = (plan.haloRows + Math.floor((localY - 1) / 2)) * chromaWidth
+    const bottomRow = topRow + chromaWidth
+    const bottomWeight = (localY & 1) === 0 ? 3 : 1
+    const topWeight = 4 - bottomWeight
+    let x = region.x
+    let column = Math.floor((x - 1) / 2)
+    const firstColumn = Math.max(0, column)
+    let blueLeft =
+      byte(blueChromaPlane, topRow + firstColumn) * topWeight +
+      byte(blueChromaPlane, bottomRow + firstColumn) * bottomWeight
+    let redLeft =
+      byte(redChromaPlane, topRow + firstColumn) * topWeight +
+      byte(redChromaPlane, bottomRow + firstColumn) * bottomWeight
+    let target = row * region.width * 3
+    while (x < endX) {
+      column++
+      const right = Math.min(column, chromaWidth - 1)
+      const blueRight =
+        byte(blueChromaPlane, topRow + right) * topWeight +
+        byte(blueChromaPlane, bottomRow + right) * bottomWeight
+      const redRight =
+        byte(redChromaPlane, topRow + right) * topWeight +
+        byte(redChromaPlane, bottomRow + right) * bottomWeight
+      if ((x & 1) !== 0) {
+        writeYcbcrPixel(
+          data,
+          target,
+          byte(luminancePlane, lumaRow + x),
+          ((3 * blueLeft + blueRight + 8) >> 4) - 128,
+          ((3 * redLeft + redRight + 8) >> 4) - 128,
+        )
+        x++
+        target += 3
+      }
+      if (x < endX) {
+        writeYcbcrPixel(
+          data,
+          target,
+          byte(luminancePlane, lumaRow + x),
+          ((blueLeft + 3 * blueRight + 8) >> 4) - 128,
+          ((redLeft + 3 * redRight + 8) >> 4) - 128,
+        )
+        x++
+        target += 3
+      }
+      blueLeft = blueRight
+      redLeft = redRight
+    }
+  }
+}
+
 const renderYcbcrRows = (
   jpeg: RenderJpeg,
   planes: readonly Uint8Array[],
@@ -2084,7 +2209,7 @@ const renderRows = (
   planes: readonly Uint8Array[],
   mcuRow: number,
   region: JpegRegion,
-  plan: RenderPlan,
+  plan: RenderPlan | Chroma420Plan,
   data: Uint8Array,
   blockSize: number,
   nativeChannels?: number,
@@ -2100,7 +2225,10 @@ const renderRows = (
   const bytesPerPixel = nativeChannels ?? 3
   const stride = region.width * bytesPerPixel
 
-  if (nativeChannels !== undefined) {
+  if ('chromaWidth' in plan) {
+    renderYcbcr420Rows(planes, region, rowStart, first, height, data, plan)
+    if (jpeg.iccTransform?.kind === 'rgb') applyRgbIcc(data, jpeg.iccTransform)
+  } else if (nativeChannels !== undefined) {
     renderNativeComponentRows(
       jpeg,
       planes,
@@ -2501,6 +2629,11 @@ const setCoefficient = (coefficients: Int16Array, index: number, value: number):
   coefficients[index] = value
 }
 
+const decodeProgressiveHuffman = (reader: JpegBitReader, table: HuffmanTable): number => {
+  const symbol = reader.readHuffmanPrefix(table.fastLengths, table.fastSymbols)
+  return symbol >= 0 ? symbol : decodeHuffman(reader, table)
+}
+
 const decodeProgressiveDcFirst = (
   reader: JpegBitReader,
   selected: ProgressiveScanComponent,
@@ -2509,7 +2642,7 @@ const decodeProgressiveDcFirst = (
   successiveLow: number,
 ): void => {
   if (!selected.dcTable) throw invalidInput('Progressive JPEG DC table is missing')
-  const length = decodeHuffman(reader, selected.dcTable)
+  const length = decodeProgressiveHuffman(reader, selected.dcTable)
   if (length > 11) throw invalidInput('Progressive JPEG DC coefficient is invalid')
   const predictor = byte(predictors, selected.componentIndex) + reader.receiveAndExtend(length)
   predictors[selected.componentIndex] = predictor
@@ -2541,7 +2674,7 @@ const decodeProgressiveAcFirst = (
   }
   let spectral = scan.spectralStart
   while (spectral <= scan.spectralEnd) {
-    const symbol = decodeHuffman(reader, selected.acTable)
+    const symbol = decodeProgressiveHuffman(reader, selected.acTable)
     const zeroes = symbol >>> 4
     const length = symbol & 15
     if (length === 0) {
@@ -2600,7 +2733,7 @@ const decodeProgressiveAcRefinement = (
   }
 
   while (spectral <= scan.spectralEnd) {
-    const symbol = decodeHuffman(reader, selected.acTable)
+    const symbol = decodeProgressiveHuffman(reader, selected.acTable)
     let zeroes = symbol >>> 4
     const length = symbol & 15
     if (length === 0) {
@@ -2932,9 +3065,34 @@ interface ProgressiveSourceScanResult {
   readonly recovered: boolean
 }
 
+// AC scans contain one block per MCU. Stay in a synchronous loop until a
+// row, restart interval or entropy-buffer refill requires the outer scanner.
+const decodeProgressiveAcBlocks = (
+  reader: JpegEntropyReader,
+  selected: ProgressiveScanComponent,
+  first: number,
+  count: number,
+  scan: ProgressiveScan,
+  state: ProgressiveState,
+): number => {
+  const end = first + 64 * count
+  let offset = first
+  if (scan.successiveHigh === 0) {
+    do {
+      decodeProgressiveAcFirst(reader, selected, offset, scan, state)
+      offset += 64
+    } while (offset < end && !reader.needsMcuRefill)
+  } else {
+    do {
+      decodeProgressiveAcRefinement(reader, selected, offset, scan, state)
+      offset += 64
+    } while (offset < end && !reader.needsMcuRefill)
+  }
+  return (offset - first) / 64
+}
+
 const decodeProgressiveSourceScan = async (
-  source: ImageSource,
-  offset: number,
+  reader: JpegEntropyReader,
   scan: ProgressiveScan,
   mcusPerLine: number,
   mcusPerColumn: number,
@@ -2942,7 +3100,6 @@ const decodeProgressiveSourceScan = async (
   tolerantDecoding = false,
 ): Promise<ProgressiveSourceScanResult> => {
   validateProgressiveScan(scan)
-  const reader = new JpegEntropyReader(source, offset, false, tolerantDecoding)
   const predictors = new Int32Array(
     Math.max(...scan.components.map((selected) => selected.componentIndex)) + 1,
   )
@@ -2955,7 +3112,7 @@ const decodeProgressiveSourceScan = async (
 
   for (let mcuY = 0; mcuY < scanMcusPerColumn; mcuY += 1) {
     for (let mcuX = 0; mcuX < scanMcusPerLine; mcuX += 1) {
-      if (reader.available < 8_192) await reader.refill()
+      if (reader.needsMcuRefill) await reader.refill()
       if (restartInterval > 0 && mcu > 0 && mcu % restartInterval === 0) {
         reader.restart(restart)
         restart += 1
@@ -2963,15 +3120,31 @@ const decodeProgressiveSourceScan = async (
         state.eobRun = 0
       }
       try {
-        for (const selected of scan.components) {
-          const blocksWide = single ? 1 : selected.component.horizontalSampling
-          const blocksHigh = single ? 1 : selected.component.verticalSampling
-          for (let blockY = 0; blockY < blocksHigh; blockY += 1) {
-            for (let blockX = 0; blockX < blocksWide; blockX += 1) {
-              const x = single ? mcuX : mcuX * blocksWide + blockX
-              const y = single ? mcuY : mcuY * blocksHigh + blockY
-              const target = coefficientOffset(selected.component, x, y)
-              if (scan.spectralStart === 0) {
+        if (single && scan.spectralStart > 0) {
+          const rowRemaining = scanMcusPerLine - mcuX
+          const count =
+            restartInterval > 0
+              ? Math.min(rowRemaining, restartInterval - (mcu % restartInterval))
+              : rowRemaining
+          const consumed = decodeProgressiveAcBlocks(
+            reader,
+            single,
+            coefficientOffset(single.component, mcuX, mcuY),
+            count,
+            scan,
+            state,
+          )
+          mcuX += consumed - 1
+          mcu += consumed - 1
+        } else {
+          for (const selected of scan.components) {
+            const blocksWide = single ? 1 : selected.component.horizontalSampling
+            const blocksHigh = single ? 1 : selected.component.verticalSampling
+            for (let blockY = 0; blockY < blocksHigh; blockY += 1) {
+              for (let blockX = 0; blockX < blocksWide; blockX += 1) {
+                const x = single ? mcuX : mcuX * blocksWide + blockX
+                const y = single ? mcuY : mcuY * blocksHigh + blockY
+                const target = coefficientOffset(selected.component, x, y)
                 if (scan.successiveHigh === 0) {
                   decodeProgressiveDcFirst(reader, selected, predictors, target, scan.successiveLow)
                 } else {
@@ -2982,10 +3155,6 @@ const decodeProgressiveSourceScan = async (
                     scan.successiveLow,
                   )
                 }
-              } else if (scan.successiveHigh === 0) {
-                decodeProgressiveAcFirst(reader, selected, target, scan, state)
-              } else {
-                decodeProgressiveAcRefinement(reader, selected, target, scan, state)
               }
             }
           }
@@ -3115,6 +3284,7 @@ export const parseCoefficientJpegSource = async (
   let mcusPerColumn = 0
   let restartInterval = 0
   let scanCount = 0
+  let progressiveReader: JpegEntropyReader | undefined
   let recoveredProgressiveScan = false
   const scans: JpegCoefficientScan[] = []
   const sequentialSeen = new Set<number>()
@@ -3252,9 +3422,18 @@ export const parseCoefficientJpegSource = async (
       scans.push(coefficientScan(scan))
       let nextOffset: number
       if (progressive) {
+        if (progressiveReader) {
+          progressiveReader.startScan(reader.position)
+        } else {
+          progressiveReader = new JpegEntropyReader(
+            source,
+            reader.position,
+            false,
+            tolerantDecoding,
+          )
+        }
         const result = await decodeProgressiveSourceScan(
-          source,
-          reader.position,
+          progressiveReader,
           scan,
           mcusPerLine,
           mcusPerColumn,
@@ -3291,7 +3470,7 @@ export const decodeJpegCoefficientImage = async function* (
   const sampleWorkspace = new Float64Array(8)
   const blockSize = outputSizeForScale(scaleDenominator)
   const inverseBlock = inverseDctForScale(scaleDenominator)
-  const plan = createRenderPlan(jpeg, region, blockSize)
+  const plan = coefficientRenderPlan(jpeg, region, blockSize)
   const mcuWidth = jpeg.maximumHorizontalSampling * blockSize
   const mcuHeight = jpeg.maximumVerticalSampling * blockSize
   const firstMcuColumn = Math.max(0, Math.floor(region.x / mcuWidth) - 1)

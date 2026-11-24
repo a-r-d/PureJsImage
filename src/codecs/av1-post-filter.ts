@@ -66,17 +66,11 @@ const round2 = (value: number, bits: number): number =>
 
 const floorLog2 = (value: number): number => Math.floor(Math.log2(value))
 
-const planeSample = (plane: Av1FilterPlane, x: number, y: number): number => {
-  if (x < 0 || x >= plane.width || y < 0 || y >= plane.height) return 0
-  const mappedRow = plane.rowOffsets?.[y]
-  if (plane.rowOffsets) {
-    return mappedRow === undefined || mappedRow < 0
-      ? 0
-      : (plane.data[mappedRow * plane.stride + x] ?? 0)
-  }
-  const localY = y - (plane.yOrigin ?? 0)
-  const storageHeight = plane.storageHeight ?? plane.height
-  return localY < 0 || localY >= storageHeight ? 0 : (plane.data[localY * plane.stride + x] ?? 0)
+const boundaryRowOffset = (plane: Av1FilterPlane, y: number): number => {
+  if (y < 0 || y >= plane.height) return -1
+  if (plane.rowOffsets) return (plane.rowOffsets[y] ?? -1) * plane.stride
+  const row = y - (plane.yOrigin ?? 0)
+  return row < 0 || row >= (plane.storageHeight ?? plane.height) ? -1 : row * plane.stride
 }
 
 const sampleBuffer = (
@@ -213,18 +207,31 @@ const wideFilter = (
   scratch: Int16Array,
 ): void => {
   const n = log2Size === 4 ? 6 : isLuma ? 3 : 2
-  const n2 = log2Size === 3 && isLuma ? 0 : 1
+  const inner = log2Size === 3 && isLuma ? 0 : 1
+  const center = y * plane.stride + x
+  const step = dy * plane.stride + dx
+  const data = plane.data
+  const left = data[center - (n + 1) * step] ?? 0
+
+  // The kernel is the sum of two box filters. At the first output position
+  // the long box repeats the left edge n times, followed by samples -n..0.
+  let total = n * left
+  for (let j = -n; j <= 0; j += 1) total += data[center + j * step] ?? 0
+  total += data[center - n * step] ?? 0
+  if (inner === 1) total += left + (data[center - (n - 1) * step] ?? 0)
+
+  const rounding = 1 << (log2Size - 1)
   for (let i = -n; i < n; i += 1) {
-    let total = 0
-    for (let j = -n; j <= n; j += 1) {
-      const position = clip(-(n + 1), n, i + j)
-      const tap = Math.abs(j) <= n2 ? 2 : 1
-      total += (plane.data[(y + position * dy) * plane.stride + x + position * dx] ?? 0) * tap
-    }
-    scratch[i + n] = round2(total, log2Size)
+    scratch[i + n] = (total + rounding) >> log2Size
+    if (i + 1 === n) break
+    total +=
+      (data[center + Math.min(n, i + n + 1) * step] ?? 0) -
+      (data[center + Math.max(-n - 1, i - n) * step] ?? 0) +
+      (data[center + (i + inner + 1) * step] ?? 0) -
+      (data[center + (i - inner) * step] ?? 0)
   }
   for (let i = -n; i < n; i += 1) {
-    plane.data[(y + i * dy) * plane.stride + x + i * dx] = scratch[i + n] ?? 0
+    data[center + i * step] = scratch[i + n] ?? 0
   }
 }
 
@@ -754,29 +761,6 @@ const snapshotRestorationBoundaries = (
   ]
 }
 
-const sourceSample = (
-  deblocked: Av1FilterPlane,
-  cdef: Av1FilterPlane,
-  inputX: number,
-  inputY: number,
-  planeEndX: number,
-  planeEndY: number,
-  stripeStartY: number,
-  stripeEndY: number,
-): number => {
-  const x = clip(0, planeEndX, inputX)
-  let y = clip(0, planeEndY, inputY)
-  if (y < stripeStartY) {
-    y = Math.max(stripeStartY - 2, y)
-    return planeSample(deblocked, x, y)
-  }
-  if (y > stripeEndY) {
-    y = Math.min(stripeEndY + 2, y)
-    return planeSample(deblocked, x, y)
-  }
-  return cdef.data[y * cdef.stride + x] ?? 0
-}
-
 const wienerCoefficients = (
   source: Int8Array,
   offset: number,
@@ -1003,40 +987,34 @@ const fillRestorationWindow = (
   const originY = y - 1 - radius
   const rows = height + 2 + 2 * radius
   const columns = width + 2 + 2 * radius
-  const interior =
-    originX >= 0 &&
-    originX + columns - 1 <= planeEndX &&
-    originY >= 0 &&
-    originY + rows - 1 <= planeEndY &&
-    originY >= stripeStartY &&
-    originY + rows - 1 <= stripeEndY &&
-    cdef.rowOffsets === undefined
-  if (interior) {
-    const cdefData = cdef.data
-    const cdefStride = cdef.stride
-    for (let row = 0; row < rows; row += 1) {
-      const source = (originY + row) * cdefStride + originX
-      const destination = row * windowStride
-      for (let column = 0; column < columns; column += 1) {
-        window[destination + column] = cdefData[source + column] ?? 0
-      }
-    }
-    return
-  }
+  const first = Math.max(0, -originX)
+  const end = Math.min(columns, planeEndX + 1 - originX)
   for (let row = 0; row < rows; row += 1) {
-    const sampleY = originY + row
-    const rowOffset = row * windowStride
-    for (let column = 0; column < columns; column += 1) {
-      window[rowOffset + column] = sourceSample(
-        deblocked,
-        cdef,
-        originX + column,
-        sampleY,
-        planeEndX,
-        planeEndY,
-        stripeStartY,
-        stripeEndY,
-      )
+    const sourceY = clip(0, planeEndY, originY + row)
+    const destination = row * windowStride
+    let data = cdef.data
+    let offset = sourceY * cdef.stride
+    let endColumn = end
+    let rightEdge = planeEndX
+    if (sourceY < stripeStartY || sourceY > stripeEndY) {
+      const boundaryY = clip(stripeStartY - 2, stripeEndY + 2, sourceY)
+      offset = boundaryRowOffset(deblocked, boundaryY)
+      if (offset < 0 || deblocked.width === 0) {
+        window.fill(0, destination, destination + columns)
+        continue
+      }
+      data = deblocked.data
+      endColumn = Math.min(end, deblocked.width - originX)
+      if (rightEdge >= deblocked.width) rightEdge = -1
+    }
+    if (first > 0) window.fill(data[offset] ?? 0, destination, destination + first)
+    const source = offset + originX
+    for (let column = first; column < endColumn; column += 1) {
+      window[destination + column] = data[source + column] ?? 0
+    }
+    if (endColumn < columns) {
+      const pad = rightEdge < 0 ? 0 : (data[offset + rightEdge] ?? 0)
+      window.fill(pad, destination + Math.max(first, endColumn), destination + columns)
     }
   }
 }
@@ -1066,7 +1044,8 @@ const boxFilter8 = (
   const nSquaredEpsilon = n * n * epsilon
   const scale = Math.floor((1_048_576 + Math.floor(nSquaredEpsilon / 2)) / nSquaredEpsilon)
   const oneOverN = Math.floor((4096 + Math.floor(n / 2)) / n)
-  for (let inputRow = -1; inputRow <= height; inputRow += 1) {
+  const rowStep = pass === 0 ? 2 : 1
+  for (let inputRow = -1; inputRow <= height; inputRow += rowStep) {
     const centerRow = inputRow + 1 + windowRadius
     const topRow = (centerRow - radius) * prefixStride
     const bottomRow = (centerRow + radius + 1) * prefixStride
@@ -1092,46 +1071,30 @@ const boxFilter8 = (
       aValues[target] = a
       bValues[target] = b
     }
+    if (pass === 0) {
+      // The radius-two pass uses this horizontal blend on an odd row and
+      // on each neighboring even row. Its inputs are still ahead of the write.
+      const start = (inputRow + 1) * boxWidth
+      for (let i = start; i < start + width; i += 1) {
+        aValues[i] = 5 * ((aValues[i] ?? 0) + (aValues[i + 2] ?? 0)) + 6 * (aValues[i + 1] ?? 0)
+        bValues[i] = 5 * ((bValues[i] ?? 0) + (bValues[i + 2] ?? 0)) + 6 * (bValues[i + 1] ?? 0)
+      }
+    }
   }
   if (pass === 0) {
     for (let row = 0; row < height; row += 1) {
-      const oddRow = (row & 1) === 1
-      const shift = oddRow ? 8 : 9
+      const odd = row & 1
+      const shift = odd ? 8 : 9
       const rounding = 1 << (shift - 1)
       const cdefRow = (y + row) * cdefStride + x
-      const row0 = row * boxWidth
-      const row1 = row0 + boxWidth
-      const row2 = row1 + boxWidth
+      const first = (row + odd) * boxWidth
+      const second = first + 2 * boxWidth
       for (let column = 0; column < width; column += 1) {
-        let a = 0
-        let b = 0
-        if (oddRow) {
-          const origin = row1 + column
-          a =
-            5 * (aValues[origin] ?? 0) +
-            6 * (aValues[origin + 1] ?? 0) +
-            5 * (aValues[origin + 2] ?? 0)
-          b =
-            5 * (bValues[origin] ?? 0) +
-            6 * (bValues[origin + 1] ?? 0) +
-            5 * (bValues[origin + 2] ?? 0)
-        } else {
-          const top = row0 + column
-          const bottom = row2 + column
-          a =
-            5 *
-              ((aValues[top] ?? 0) +
-                (aValues[top + 2] ?? 0) +
-                (aValues[bottom] ?? 0) +
-                (aValues[bottom + 2] ?? 0)) +
-            6 * ((aValues[top + 1] ?? 0) + (aValues[bottom + 1] ?? 0))
-          b =
-            5 *
-              ((bValues[top] ?? 0) +
-                (bValues[top + 2] ?? 0) +
-                (bValues[bottom] ?? 0) +
-                (bValues[bottom + 2] ?? 0)) +
-            6 * ((bValues[top + 1] ?? 0) + (bValues[bottom + 1] ?? 0))
+        let a = aValues[first + column] ?? 0
+        let b = bValues[first + column] ?? 0
+        if (!odd) {
+          a += aValues[second + column] ?? 0
+          b += bValues[second + column] ?? 0
         }
         filtered[row * width + column] =
           (a * (cdefData[cdefRow + column] ?? 0) + b + rounding) >> shift
@@ -1392,18 +1355,16 @@ const restoreSelfGuidedBlock = (
       const windowRow = row * windowStride
       const prefixRow = (row + 1) * prefixStride
       const previousPrefixRow = row * prefixStride
+      let rowSum = 0
+      let rowSquares = 0
       for (let column = 0; column < windowColumns; column += 1) {
         const sample = window[windowRow + column] ?? 0
+        rowSum += sample
+        rowSquares += sample * sample
         prefixSums[prefixRow + column + 1] =
-          (prefixSums[previousPrefixRow + column + 1] ?? 0) +
-          (prefixSums[prefixRow + column] ?? 0) -
-          (prefixSums[previousPrefixRow + column] ?? 0) +
-          sample
+          (prefixSums[previousPrefixRow + column + 1] ?? 0) + rowSum
         prefixSquares[prefixRow + column + 1] =
-          (prefixSquares[previousPrefixRow + column + 1] ?? 0) +
-          (prefixSquares[prefixRow + column] ?? 0) -
-          (prefixSquares[previousPrefixRow + column] ?? 0) +
-          sample * sample
+          (prefixSquares[previousPrefixRow + column + 1] ?? 0) + rowSquares
       }
     }
   }

@@ -19,34 +19,10 @@ const defaultScan8x4 = [
   0, 8, 1, 16, 9, 2, 24, 17, 10, 3, 25, 18, 11, 4, 26, 19, 12, 5, 27, 20, 13, 6, 28, 21, 14, 7, 29,
   22, 15, 30, 23, 31,
 ] as const
-const significantOffsets = [
-  [0, 1],
-  [1, 0],
-  [1, 1],
-  [0, 2],
-  [2, 0],
-] as const
 const magnitudeOffsets = [
   [0, 1],
   [1, 0],
   [1, 1],
-] as const
-const significantOffsetsByClass = [
-  significantOffsets,
-  [
-    [0, 1],
-    [1, 0],
-    [0, 2],
-    [0, 3],
-    [0, 4],
-  ],
-  [
-    [0, 1],
-    [1, 0],
-    [2, 0],
-    [3, 0],
-    [4, 0],
-  ],
 ] as const
 const magnitudeOffsetsByClass = [
   magnitudeOffsets,
@@ -61,14 +37,6 @@ const magnitudeOffsetsByClass = [
     [2, 0],
   ],
 ] as const
-const coefficientContextOffsets = [
-  [0, 1, 6, 6, 21],
-  [1, 6, 6, 21, 21],
-  [6, 6, 21, 21, 21],
-  [6, 21, 21, 21, 21],
-  [21, 21, 21, 21, 21],
-] as const
-
 const makeCdf = (values: readonly number[]): Uint16Array => new Uint16Array(values)
 const dcSignDefaults = [
   [16000, 13056, 18816],
@@ -392,47 +360,33 @@ export class Av1CoefficientDecoder {
     transformType: number,
     rectangularDirection: number,
   ): number {
+    const txClass = transformClass(transformType)
+    if (txClass === 0 && position === 0) return 0
     const row = Math.floor(position / width)
     const column = position % width
-    const txClass = transformClass(transformType)
+    // Coefficient signs are read only after this reverse scan, so every neighbor is a magnitude.
     let magnitude = 0
-    for (const [rowOffset, columnOffset] of significantOffsetsByClass[txClass]) {
-      const referenceRow = row + rowOffset
-      const referenceColumn = column + columnOffset
-      if (referenceRow < height && referenceColumn < width) {
-        magnitude += Math.min(
-          Math.abs(coefficients[referenceRow * width + referenceColumn] ?? 0),
-          3,
-        )
+    if (column + 1 < width) magnitude += Math.min(coefficients[position + 1] ?? 0, 3)
+    if (row + 1 < height) magnitude += Math.min(coefficients[position + width] ?? 0, 3)
+    if (txClass === 0) {
+      if (column + 1 < width && row + 1 < height) {
+        magnitude += Math.min(coefficients[position + width + 1] ?? 0, 3)
       }
+      if (column + 2 < width) magnitude += Math.min(coefficients[position + 2] ?? 0, 3)
+      if (row + 2 < height) magnitude += Math.min(coefficients[position + 2 * width] ?? 0, 3)
+      const base = Math.min((magnitude + 1) >> 1, 4)
+      if (rectangularDirection < 0 && row < 2) return base + 11
+      if (rectangularDirection > 0 && column < 2) return base + 16
+      const diagonal = row + column
+      return base + (diagonal === 1 ? 1 : diagonal < 4 ? 6 : 21)
     }
-    const base = Math.min((magnitude + 1) >> 1, 4)
-    if (txClass !== 0) {
-      const index = txClass === 1 ? column : row
-      const offset = [26, 31, 36][Math.min(index, 2)]
-      if (offset === undefined) throw invalidInput('AV1 coefficient position context is invalid')
-      return base + offset
+    const axis = txClass === 1 ? column : row
+    const end = txClass === 1 ? width : height
+    const stride = txClass === 1 ? 1 : width
+    for (let distance = 2; distance <= 4 && axis + distance < end; distance += 1) {
+      magnitude += Math.min(coefficients[position + distance * stride] ?? 0, 3)
     }
-    if (position === 0) return 0
-    const offsets =
-      rectangularDirection < 0
-        ? [
-            [0, 11, 11, 11, width === 4 ? 0 : 11],
-            [11, 11, 11, 11, width === 4 ? 0 : 11],
-            [6, 6, 21, 21, width === 4 ? 0 : 21],
-            [6, 21, 21, 21, width === 4 ? 0 : 21],
-            [21, 21, 21, 21, width === 4 ? 0 : 21],
-          ]
-        : rectangularDirection > 0
-          ? [
-              [0, 16, 6, 6, 21],
-              [16, 16, 6, 21, 21],
-              [16, 16, 21, 21, 21],
-              [16, 16, 21, 21, 21],
-              height === 4 ? [0, 0, 0, 0, 0] : [16, 16, 21, 21, 21],
-            ]
-          : coefficientContextOffsets
-    return base + (offsets[Math.min(row, 4)]?.[Math.min(column, 4)] ?? 0)
+    return Math.min((magnitude + 1) >> 1, 4) + 26 + 5 * Math.min(axis, 2)
   }
 
   #rangeContext(

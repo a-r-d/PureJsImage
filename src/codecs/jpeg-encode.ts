@@ -981,58 +981,93 @@ const dctBasis = Float64Array.from({ length: 64 }, (_, index) => {
   return 0.5 * normalization * Math.cos(((2 * position + 1) * frequency * Math.PI) / 16)
 })
 
+// The orthonormal eight-point DCT uses cos(k*pi/16)/2 for the AC frequencies.
+const dcScale = dctBasis[0] ?? 0
+const cos1 = dctBasis[8] ?? 0
+const cos2 = dctBasis[16] ?? 0
+const cos3 = dctBasis[9] ?? 0
+const cos5 = dctBasis[10] ?? 0
+const cos6 = dctBasis[17] ?? 0
+const cos7 = dctBasis[11] ?? 0
+
+const forwardDctPass = (input: Float64Array, output: Float64Array, offset: number): void => {
+  for (let row = 0; row < 8; row += 1) {
+    const start = row * 8
+    const s0 = input[start] ?? 0
+    const s1 = input[start + 1] ?? 0
+    const s2 = input[start + 2] ?? 0
+    const s3 = input[start + 3] ?? 0
+    const s4 = input[start + 4] ?? 0
+    const s5 = input[start + 5] ?? 0
+    const s6 = input[start + 6] ?? 0
+    const s7 = input[start + 7] ?? 0
+    const outer = s0 + s7
+    const inner = s3 + s4
+    const middle1 = s1 + s6
+    const middle2 = s2 + s5
+    const even0 = outer + inner
+    const even1 = middle1 + middle2
+    const even2 = outer - inner
+    const even3 = middle1 - middle2
+    const d0 = s0 - s7
+    const d1 = s1 - s6
+    const d2 = s2 - s5
+    const d3 = s3 - s4
+
+    // Transposed output makes the second pass another set of contiguous rows.
+    const index = offset + row
+    output[index] = dcScale * (even0 + even1)
+    output[index + 8] = cos1 * d0 + cos3 * d1 + cos5 * d2 + cos7 * d3
+    output[index + 16] = cos2 * even2 + cos6 * even3
+    output[index + 24] = cos3 * d0 - cos7 * d1 - cos1 * d2 - cos5 * d3
+    output[index + 32] = dcScale * (even0 - even1)
+    output[index + 40] = cos5 * d0 - cos1 * d1 + cos7 * d2 + cos3 * d3
+    output[index + 48] = cos6 * even2 - cos2 * even3
+    output[index + 56] = cos7 * d0 - cos5 * d1 + cos3 * d2 - cos1 * d3
+  }
+}
+
+// Each DCT sums eight terms on each axis. With 8-bit samples and basis weights
+// at most 0.5, a 1e-15 difference in a symmetric weight contributes less than
+// 1e-11 to a coefficient. Allow 1e-8 for both passes and their rounding.
+const safeRoundingDistance = 0.5 - 1e-8
+
+const directDctCoefficient = (samples: Float64Array, index: number): number => {
+  const horizontal = (index % 8) * 8
+  const vertical = index - (index % 8)
+  let result = 0
+  for (let row = 0; row < 8; row += 1) {
+    let horizontalSum = 0
+    for (let x = 0; x < 8; x += 1) {
+      horizontalSum += (samples[row * 8 + x] ?? 0) * (dctBasis[horizontal + x] ?? 0)
+    }
+    result += horizontalSum * (dctBasis[vertical + row] ?? 0)
+  }
+  return result
+}
+
 const quantize = (
   samples: Float64Array,
   table: Uint8Array,
   intermediate: Float64Array,
   output: Int32Array,
 ): void => {
-  for (let row = 0; row < 8; row += 1) {
-    const sampleOffset = row * 8
-    const s0 = samples[sampleOffset] ?? 0
-    const s1 = samples[sampleOffset + 1] ?? 0
-    const s2 = samples[sampleOffset + 2] ?? 0
-    const s3 = samples[sampleOffset + 3] ?? 0
-    const s4 = samples[sampleOffset + 4] ?? 0
-    const s5 = samples[sampleOffset + 5] ?? 0
-    const s6 = samples[sampleOffset + 6] ?? 0
-    const s7 = samples[sampleOffset + 7] ?? 0
-    for (let frequency = 0; frequency < 8; frequency += 1) {
-      const basisOffset = frequency * 8
-      intermediate[sampleOffset + frequency] =
-        s0 * (dctBasis[basisOffset] ?? 0) +
-        s1 * (dctBasis[basisOffset + 1] ?? 0) +
-        s2 * (dctBasis[basisOffset + 2] ?? 0) +
-        s3 * (dctBasis[basisOffset + 3] ?? 0) +
-        s4 * (dctBasis[basisOffset + 4] ?? 0) +
-        s5 * (dctBasis[basisOffset + 5] ?? 0) +
-        s6 * (dctBasis[basisOffset + 6] ?? 0) +
-        s7 * (dctBasis[basisOffset + 7] ?? 0)
+  forwardDctPass(samples, intermediate, 0)
+  forwardDctPass(intermediate, intermediate, 64)
+  for (let i = 0; i < 64; i += 1) {
+    const divisor = table[i] ?? 1
+    const coefficient = intermediate[64 + i] ?? 0
+    if (Math.abs(coefficient) < divisor * safeRoundingDistance) {
+      output[i] = 0
+      continue
     }
-  }
-  for (let horizontal = 0; horizontal < 8; horizontal += 1) {
-    const i0 = intermediate[horizontal] ?? 0
-    const i1 = intermediate[8 + horizontal] ?? 0
-    const i2 = intermediate[16 + horizontal] ?? 0
-    const i3 = intermediate[24 + horizontal] ?? 0
-    const i4 = intermediate[32 + horizontal] ?? 0
-    const i5 = intermediate[40 + horizontal] ?? 0
-    const i6 = intermediate[48 + horizontal] ?? 0
-    const i7 = intermediate[56 + horizontal] ?? 0
-    for (let vertical = 0; vertical < 8; vertical += 1) {
-      const basisOffset = vertical * 8
-      output[vertical * 8 + horizontal] = Math.round(
-        (i0 * (dctBasis[basisOffset] ?? 0) +
-          i1 * (dctBasis[basisOffset + 1] ?? 0) +
-          i2 * (dctBasis[basisOffset + 2] ?? 0) +
-          i3 * (dctBasis[basisOffset + 3] ?? 0) +
-          i4 * (dctBasis[basisOffset + 4] ?? 0) +
-          i5 * (dctBasis[basisOffset + 5] ?? 0) +
-          i6 * (dctBasis[basisOffset + 6] ?? 0) +
-          i7 * (dctBasis[basisOffset + 7] ?? 0)) /
-          (table[vertical * 8 + horizontal] ?? 1),
-      )
-    }
+    const value = coefficient / divisor
+    const rounded = Math.round(value)
+    // Preserve the direct evaluation order near a rounding boundary.
+    output[i] =
+      Math.abs(value - rounded) > safeRoundingDistance
+        ? Math.round(directDctCoefficient(samples, i) / divisor)
+        : rounded
   }
 }
 
@@ -1601,7 +1636,7 @@ class JpegEncoder implements ImageEncoder {
   readonly #luminanceSamples = new Float64Array(64)
   readonly #blueDifferenceSamples = new Float64Array(64)
   readonly #redDifferenceSamples = new Float64Array(64)
-  readonly #intermediate = new Float64Array(64)
+  readonly #intermediate = new Float64Array(128)
   readonly #coefficients = new Int32Array(64)
   #progressivePlanes: ProgressivePlanes | undefined
   #receivedRows = 0
@@ -1693,18 +1728,9 @@ class JpegEncoder implements ImageEncoder {
 
   #appendRow(source: Uint8Array, sourceOffset: number): void {
     const targetOffset = this.#bufferedRows * this.#width * (this.#grayscale ? 1 : 3)
-    if (this.#format === 'gray8') {
-      for (let x = 0; x < this.#width; x += 1) {
-        this.#rows[targetOffset + x] = source[sourceOffset + x] ?? 0
-      }
-    } else if (this.#format === 'rgb8') {
-      for (let x = 0; x < this.#width; x += 1) {
-        const input = sourceOffset + x * 3
-        const output = targetOffset + x * 3
-        this.#rows[output] = source[input] ?? 0
-        this.#rows[output + 1] = source[input + 1] ?? 0
-        this.#rows[output + 2] = source[input + 2] ?? 0
-      }
+    if (this.#format === 'gray8' || this.#format === 'rgb8') {
+      const rowBytes = this.#width * this.#sourceChannels
+      this.#rows.set(source.subarray(sourceOffset, sourceOffset + rowBytes), targetOffset)
     } else {
       for (let x = 0; x < this.#width; x += 1) {
         const input = sourceOffset + x * 4
@@ -2214,7 +2240,7 @@ export const encodeJpegIdentityComponents = (
   const quantization = new Uint8Array(64).fill(1)
   const writer = new ByteWriter()
   const samples = new Float64Array(64)
-  const intermediate = new Float64Array(64)
+  const intermediate = new Float64Array(128)
   const coefficients = new Int32Array(64)
   const predictors = new Int32Array(channels)
   for (let originY = 0; originY < height; originY += 8) {

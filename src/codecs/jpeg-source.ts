@@ -62,8 +62,26 @@ export class JpegEntropyReader {
     this.#recoverScanBoundary = recoverScanBoundary
   }
 
+  startScan(offset: number): void {
+    const relative = offset - this.#bufferStart
+    if (relative >= 0 && relative <= this.#end) {
+      this.#offset = relative
+    } else {
+      this.#bufferStart = offset
+      this.#offset = 0
+      this.#end = 0
+    }
+    this.#bits = 0
+    this.#bitCount = 0
+    this.#ended = false
+  }
+
   get available(): number {
     return this.#end - this.#offset
+  }
+
+  get needsMcuRefill(): boolean {
+    return this.available < 8_192 && this.#bufferStart + this.#end < this.#source.size
   }
 
   get position(): number {
@@ -130,6 +148,17 @@ export class JpegEntropyReader {
     if (this.#bitCount === 0) this.#bits = 0
     this.#bits = ((this.#bits << 8) | value) >>> 0
     this.#bitCount += 8
+  }
+
+  // Most progressive symbols fit in eight bits. The prefix length is already
+  // buffered on a hit, so consuming it needs no second refill or skip loop.
+  readHuffmanPrefix(lengths: Uint8Array, symbols: Uint8Array): number {
+    if (this.#bitCount < 8 && !this.#tryFillBits()) return -1
+    const prefix = (this.#bits >>> (this.#bitCount - 8)) & 255
+    const length = lengths[prefix] ?? 0
+    if (length === 0) return -1
+    this.#bitCount -= length
+    return symbols[prefix] ?? 0
   }
 
   readBit(): number {

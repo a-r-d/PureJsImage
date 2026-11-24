@@ -27,23 +27,6 @@ const temporaryStorageError = (operation: string, error: unknown): ImageError =>
   )
 }
 
-const sourcePixel = (
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  orientation: ExifOrientation,
-): number => {
-  if (orientation === 2) return y * width + width - 1 - x
-  if (orientation === 3) return (height - 1 - y) * width + width - 1 - x
-  if (orientation === 4) return (height - 1 - y) * width + x
-  if (orientation === 5) return x * width + y
-  if (orientation === 6) return (height - 1 - x) * width + y
-  if (orientation === 7) return (height - 1 - x) * width + width - 1 - y
-  if (orientation === 8) return x * width + width - 1 - y
-  return y * width + x
-}
-
 const writeAll = async (
   store: TemporaryStore,
   data: Uint8Array,
@@ -128,8 +111,6 @@ const spoolTiles = async (
   format: PixelFormat,
   bytesPerPixel: number,
 ): Promise<{
-  readonly tilesAcross: number
-  readonly tileBytes: number
   readonly displayRanges?: PixelBlock['displayRanges']
   readonly colorSemantics?: PixelColorSemantics
 }> => {
@@ -187,8 +168,6 @@ const spoolTiles = async (
   }
   if (receivedRows % tileSize !== 0) await writeAll(store, tileRow, tileY * tileRow.byteLength)
   return {
-    tilesAcross,
-    tileBytes,
     ...(displayRanges === undefined ? {} : { displayRanges }),
     ...(colorSemantics === undefined ? {} : { colorSemantics }),
   }
@@ -224,30 +203,62 @@ const orientedBlocks = async function* (
       throw temporaryStorageError('setup', error)
     }
     const spooled = await spoolTiles(store, blocks, width, height, format, bytesPerPixel)
-    for (let outputY = 0; outputY < outputHeight; outputY += tileSize) {
-      const blockHeight = Math.min(tileSize, outputHeight - outputY)
-      const data = new Uint8Array(outputStride * blockHeight)
-      const cachedTiles = new Map<number, Uint8Array>()
-      for (let row = 0; row < blockHeight; row += 1) {
-        for (let x = 0; x < outputWidth; x += 1) {
-          const pixel = sourcePixel(x, outputY + row, width, height, orientation)
-          const sourceX = pixel % width
-          const sourceY = Math.floor(pixel / width)
-          const tileIndex =
-            Math.floor(sourceY / tileSize) * tilesAcross + Math.floor(sourceX / tileSize)
-          let tile = cachedTiles.get(tileIndex)
-          if (!tile) {
-            tile = new Uint8Array(spooled.tileBytes)
-            await readAll(store, tile, tileIndex * spooled.tileBytes)
-            cachedTiles.set(tileIndex, tile)
+    const tile = new Uint8Array(tileBytes)
+    const transpose = orientation >= 5
+    const reverseX = orientation === 3 || orientation === 6 || orientation === 7
+    const reverseY =
+      orientation === 3 || orientation === 4 || orientation === 7 || orientation === 8
+    const stepX = (transpose ? tileSize : 1) * bytesPerPixel * (reverseX ? -1 : 1)
+    const stepY = (transpose ? 1 : tileSize) * bytesPerPixel * (reverseY ? -1 : 1)
+
+    // Work in source-aligned bands so each tile is read exactly once, including partial edges.
+    const bands = Math.ceil(outputHeight / tileSize)
+    let spare: Uint8Array | undefined
+    for (let band = 0; band < bands; band += 1) {
+      const sourceBand = reverseY ? bands - 1 - band : band
+      const bandStart = sourceBand * tileSize
+      const blockHeight = Math.min(tileSize, outputHeight - bandStart)
+      const outputY = reverseY ? outputHeight - bandStart - blockHeight : bandStart
+      const length = outputStride * blockHeight
+      const data: Uint8Array = spare?.length === length ? spare : new Uint8Array(length)
+      spare = undefined
+      for (let spanStart = 0; spanStart < outputWidth; spanStart += tileSize) {
+        const span = spanStart / tileSize
+        const tileIndex = transpose
+          ? span * tilesAcross + sourceBand
+          : sourceBand * tilesAcross + span
+        await readAll(store, tile, tileIndex * tileBytes)
+        const spanWidth = Math.min(tileSize, outputWidth - spanStart)
+        const outputX = reverseX ? outputWidth - spanStart - spanWidth : spanStart
+        const first =
+          (reverseY ? (1 - blockHeight) * stepY : 0) + (reverseX ? (1 - spanWidth) * stepX : 0)
+        for (let row = 0; row < blockHeight; row += 1) {
+          let source = first + row * stepY
+          let target = row * outputStride + outputX * bytesPerPixel
+          if (bytesPerPixel === 3) {
+            for (let x = 0; x < spanWidth; x += 1) {
+              data[target++] = tile[source] ?? 0
+              data[target++] = tile[source + 1] ?? 0
+              data[target++] = tile[source + 2] ?? 0
+              source += stepX
+            }
+            continue
           }
-          const sourceOffset =
-            ((sourceY % tileSize) * tileSize + (sourceX % tileSize)) * bytesPerPixel
-          const outputOffset = row * outputStride + x * bytesPerPixel
-          data.set(tile.subarray(sourceOffset, sourceOffset + bytesPerPixel), outputOffset)
+          for (let x = 0; x < spanWidth; x += 1) {
+            for (let byte = 0; byte < bytesPerPixel; byte += 1) {
+              data[target++] = tile[source + byte] ?? 0
+            }
+            source += stepX
+          }
         }
       }
+      let released = false
       yield {
+        release() {
+          if (released) return
+          released = true
+          spare = data
+        },
         x: 0,
         y: outputY,
         width: outputWidth,
