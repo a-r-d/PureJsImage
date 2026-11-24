@@ -17,6 +17,11 @@ All notable changes to PureJsImage are documented in this file.
   `[jpegCodec, pngCodec]` or `allWebCodecs`, was not affected. The minified Core + JPEG XL bundle
   grows by 5.3 KB and the JPEG XL specialized APIs bundle by 6.8 KB, because a single-file bundle
   wraps each module that loads later.
+- Registering the AVIF codec, including through `allWebCodecs`, no longer loads the AV1 encoder or
+  unpacks the AV1 quantization matrices. The encoder loads on the first AVIF encode, and the
+  matrices on the first decode that uses them. Importing `allWebCodecs` takes 14.2 MiB instead of
+  16.8 MiB of extra RSS, and `allCodecs` 20.1 MiB instead of 23.6 MiB. Peak RSS on JPEG, PNG and
+  WebP benchmark workflows is about 3 to 10 MiB lower.
 - JPEG XL lossless effort 7 is 3.4 to 8.1 times faster on the eight 1-megapixel comparison images:
   182 s instead of 819 s in total, with files 0.29% larger in total. Effort 7 now trains predictor
   trees once on four times the default samples, and also on the default samples only when that

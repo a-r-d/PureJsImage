@@ -872,14 +872,16 @@ describe('package contract', () => {
     expect(readFileSync(resolve('src/executor.ts'), 'utf8')).not.toMatch(/from ['"].*operations\//)
   })
 
-  it('loads the JPEG XL decoders and encoders on first use, not with allCodecs', () => {
+  it('loads the JPEG XL decoders and the JPEG XL and AVIF encoders on first use', () => {
     // These modules hold most of the JPEG XL code. Loading them with allCodecs added 18 to 43 MiB
     // to the peak RSS of JPEG, PNG, WebP, AVIF and TIFF workflows that never touch JPEG XL.
     const runtimeModules = staticRuntimeModules('src/codec-entries/all.ts')
+    expect(runtimeModules).toContain('codecs/avif.ts')
     expect(runtimeModules).toContain('codecs/jpegxl.ts')
     expect(
       runtimeModules.filter((path) =>
         [
+          'codecs/avif-encode.ts',
           'codecs/jpegxl-codec-encoder.ts',
           'codecs/jpegxl-float-encode.ts',
           'codecs/jpegxl-modular-encode.ts',

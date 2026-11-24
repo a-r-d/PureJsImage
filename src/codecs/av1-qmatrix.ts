@@ -687,10 +687,6 @@ const decodeBase64 = (encoded: string): Uint8Array => {
   return output.subarray(0, offset)
 }
 
-// Normative inverse quantization matrices from AV1 specification section
-// 9.5.3, packed only to keep the portable JavaScript module compact.
-const packedMatrices = decodeBase64(packedMatrixData)
-
 const readExtendedLength = (
   data: Uint8Array,
   position: { value: number },
@@ -711,6 +707,10 @@ let matrixCache: Uint8Array | undefined
 
 const unpackMatrices = (): Uint8Array => {
   if (matrixCache) return matrixCache
+  // Normative inverse quantization matrices from AV1 specification section 9.5.3, packed only to
+  // keep the portable JavaScript module compact. They unpack on first use, so loading the AVIF
+  // codec does not decode them.
+  const packedMatrices = decodeBase64(packedMatrixData)
   const output = new Uint8Array(matrixDataSize)
   const source = { value: 0 }
   let destination = 0

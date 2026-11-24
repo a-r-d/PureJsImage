@@ -33,7 +33,6 @@ import {
   estimateRestrictedAv1WorkingBytes,
   supportsRestrictedAv1IntraRows,
 } from './av1-intra.ts'
-import { createAvifEncoder } from './avif-encode.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
@@ -3539,6 +3538,10 @@ export const avifCodec: ImageCodec = {
   },
   metadata: inspectAvif,
   preservedMetadata: preservedAvifMetadata,
-  createEncoder: createAvifEncoder,
+  // The AV1 encoder loads on first encode, so registering this codec does not load it.
+  async createEncoder(sink, request) {
+    const { createAvifEncoder } = await import('./avif-encode.ts')
+    return createAvifEncoder(sink, request)
+  },
   createDecoder: createAvifDecoder,
 }
