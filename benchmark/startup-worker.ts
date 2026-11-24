@@ -12,6 +12,7 @@ const readArgument = (name: string): string | undefined => {
 
 const engineIds = new Set([
   'image-js',
+  'imagescript',
   'jimp',
   'jsquash',
   'purejsimage',

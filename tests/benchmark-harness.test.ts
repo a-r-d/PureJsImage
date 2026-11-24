@@ -3,6 +3,7 @@ import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 import { engine as imageJsEngine } from '../benchmark/engines/image-js.ts'
+import { engine as imageScriptEngine } from '../benchmark/engines/imagescript.ts'
 import { engine as jimpEngine } from '../benchmark/engines/jimp.ts'
 import { engine as jsquashEngine } from '../benchmark/engines/jsquash.ts'
 import { engine as pureJsImageEngine } from '../benchmark/engines/purejsimage.ts'
@@ -279,6 +280,7 @@ describe('competitor benchmark classification', () => {
   it('reports the installed comparator versions pinned in package.json', () => {
     expect(jimpEngine.version).toBe(packageJson.devDependencies.jimp)
     expect(imageJsEngine.version).toBe(packageJson.devDependencies['image-js'])
+    expect(imageScriptEngine.version).toBe(packageJson.devDependencies.imagescript)
     expect(sharpEngine.version).toBe(packageJson.devDependencies.sharp)
   })
 
@@ -301,6 +303,52 @@ describe('competitor benchmark classification', () => {
     expect(pureJsImageExperimentalHeicEngine.kind).toBe('pure-javascript')
     expect(pureJsImageExperimentalHeicEngine.packageName).toBe('purejsimage')
     expect(pureJsImageExperimentalHeicEngine.version).toContain('experimental HEIC')
+  })
+
+  it('runs every web codec workflow through ImageScript and rejects HEIC and raw decode', async () => {
+    for (const workflow of workflowsForProfile('web-codecs')) {
+      await expect(
+        Promise.resolve(imageScriptEngine.unsupportedReason(workflow, [])),
+        workflow.id,
+      ).resolves.toBeUndefined()
+    }
+    await expect(
+      Promise.resolve(
+        imageScriptEngine.unsupportedReason(competitorWorkflow('heif-iphone-resize-jpeg'), []),
+      ),
+    ).resolves.toContain('no HEIC decoder')
+    const raw = workflowsForProfile('tiff').find((candidate) => candidate.id === 'tiff-large-raw')
+    if (!raw) throw new Error('Missing tiff-large-raw workflow')
+    await expect(Promise.resolve(imageScriptEngine.unsupportedReason(raw, []))).resolves.toContain(
+      'no streaming raw-decode',
+    )
+  })
+
+  it('resizes with ImageScript and flattens transparency onto the requested background', async () => {
+    const source = new PNG({ width: 8, height: 4 })
+    source.data.fill(0)
+    const workflow: PipelineWorkflow = {
+      id: 'imagescript-flatten',
+      title: 'ImageScript flatten',
+      tier: 'smoke',
+      input: 'unused',
+      operations: [
+        { type: 'resize', width: 4 },
+        { type: 'encode', format: 'jpeg', quality: 90, background: '#ffffff' },
+      ],
+      expected: { format: 'jpeg', width: 4, height: 2 },
+    }
+
+    const execution = await imageScriptEngine.execute({
+      workflow,
+      inputs: [PNG.sync.write(source)],
+    })
+    const validation = await validateExecution({ workflow, execution })
+    if (!execution.output) throw new Error('ImageScript produced no output')
+    const pixels = await sharp(execution.output).raw().toBuffer()
+
+    expect(validation.errors).toEqual([])
+    expect(Math.min(...pixels)).toBeGreaterThanOrEqual(250)
   })
 
   it('identifies jSquash as a multi-package WebAssembly engine', () => {

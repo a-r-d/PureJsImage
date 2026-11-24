@@ -63,6 +63,7 @@ const engines = [
     color: '#dc2626',
   },
   { id: 'image-js', label: 'image-js · pure JS', color: '#059669' },
+  { id: 'imagescript', label: 'ImageScript · pure JS', color: '#ca8a04' },
   { id: 'jsquash', label: 'jSquash · WebAssembly', color: '#0891b2' },
 ] as const
 
@@ -338,7 +339,7 @@ const chartSvg = (metric: Metric): string => {
   const environment = `${report.environment.platform} ${report.environment.architecture} · ${report.environment.node}`
   const footer =
     metric === 'speed'
-      ? 'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp uses bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.'
+      ? 'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp and ImageScript use bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.'
       : metric === 'memory'
         ? 'Absolute process RSS from isolated workers. PureJsImage WASM accelerates eligible JPEG, PNG, and WebP work and uses TypeScript fallback for TIFF and AVIF; jSquash AVIF is WebAssembly.'
         : 'Premultiplied-RGBA PSNR against an independently decoded exact-area reference. Exact means every compared channel matched. Quality measurement is outside timing.'

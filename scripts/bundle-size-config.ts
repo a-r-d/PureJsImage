@@ -34,7 +34,13 @@ export interface CompetitorBundleTarget extends BundleTarget {
   readonly category: 'competitor'
   readonly codecs: readonly BundleCodec[]
   readonly implementation: Exclude<BundleImplementation, 'package-core'>
-  readonly packageName: '@jsquash/jpeg' | 'image-js' | 'jimp' | 'purejsimage' | 'sharp'
+  readonly packageName:
+    | '@jsquash/jpeg'
+    | 'image-js'
+    | 'imagescript'
+    | 'jimp'
+    | 'purejsimage'
+    | 'sharp'
   readonly packageNames?: readonly string[]
 }
 
@@ -419,6 +425,15 @@ export const createCompetitorBundleTargets = (
       name: 'image-js',
       packageName: 'image-js',
       packageExport: 'image-js',
+    }),
+    packageTarget({
+      codecs: ['JPEG', 'PNG', 'TIFF', 'WebP', 'GIF', 'AVIF', 'JPEG XL', 'BMP'],
+      contents: "export * from 'imagescript'",
+      id: 'imagescript',
+      implementation: 'pure-javascript',
+      name: 'ImageScript',
+      packageName: 'imagescript',
+      packageExport: 'imagescript',
     }),
     packageTarget({
       codecs: commonCompetitorCodecs,

@@ -364,6 +364,7 @@ describe('package contract', () => {
     expect(packageJson.devDependencies.jimp).toBe('1.7.0')
     expect(packageJson.devDependencies.sharp).toBe('0.35.5')
     expect(packageJson.devDependencies['image-js']).toBe('1.7.0')
+    expect(packageJson.devDependencies.imagescript).toBe('4.0.0')
     expect(packageJson.devDependencies['@jsquash/resize']).toBe('2.1.1')
     expect('skia-canvas' in packageJson.devDependencies).toBe(false)
   })
@@ -405,6 +406,7 @@ describe('package contract', () => {
       'purejsimage-all',
       'jimp',
       'image-js',
+      'imagescript',
       'jsquash',
       'sharp',
     ])
@@ -437,7 +439,7 @@ describe('package contract', () => {
     expect(packageJson.devDependencies['@jsquash/png']).toBe('3.1.1')
     expect(packageJson.devDependencies['@jsquash/resize']).toBe('2.1.1')
     expect(packageJson.devDependencies['@jsquash/webp']).toBe('1.5.0')
-    expect(packageJson.scripts['bench:competitors']).toContain('image-js,jsquash')
+    expect(packageJson.scripts['bench:competitors']).toContain('image-js,imagescript,jsquash')
     expect(packageJson.scripts['browser:test']).toBe('playwright test')
     expect(packageJson.scripts['browser:bench']).toContain('--project=chromium')
   })

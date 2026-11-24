@@ -2,8 +2,8 @@
 
 This suite is the performance and workflow-success contract for PureJsImage.
 Jimp remains the original Lambda baseline and is pinned at 1.7.0. The broader competitor
-profile also pins Sharp 0.35.5, image-js 1.7.0, and jSquash's JPEG 1.6.0, PNG 3.1.1,
-WebP 1.5.0, and resize 2.1.1 packages. Results recorded before November 23, 2026 used
+profile also pins Sharp 0.35.5, image-js 1.7.0, ImageScript 4.0.0, and jSquash's JPEG 1.6.0,
+PNG 3.1.1, WebP 1.5.0, and resize 2.1.1 packages. Results recorded before November 23, 2026 used
 Jimp 1.6.0 and Sharp 0.35.3. Each result file records the engine versions it ran with.
 Jimp 1.7.0 needs zod 4. If another root development dependency pulls zod 3 to the root, npm
 nests a zod 4 copy under each of 16 `@jimp/*` packages, and Jimp's measured import time, memory,
@@ -419,7 +419,7 @@ documentation copies the current SVG set into the site public assets.
 The equivalent direct harness command, after `npm run build`, is:
 
 ```sh
-node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,jsquash --profile web-codecs
+node benchmark/run.ts --engines purejsimage,purejsimage-wasm,jimp,sharp,sharp-single-thread,image-js,imagescript,jsquash --profile web-codecs
 ```
 
 This is the primary common-web profile. It covers JPEG metadata, resize, crop,
@@ -439,12 +439,17 @@ and fallback rules; TIFF and AVIF execute through the same TypeScript reference 
 experimental codec. It must not be added to the default or competitor engine lists.
 
 Resize workflows use each engine's public default kernel. PureJsImage and Sharp
-use Lanczos 3; Jimp uses bilinear. Cross-kernel timings describe each package's
+use Lanczos 3; Jimp and ImageScript use bilinear. Cross-kernel timings describe each package's
 default experience and are not matched-quality speed comparisons. `sharp` uses
 its production defaults. `sharp-single-thread` is a separate engine and process
 that calls `sharp.concurrency(1)` before processing. image-js uses its normal
 public decode, transform, and encode APIs. Its optional Canvas integration is
-omitted and is not part of the benchmark dependency tree.
+omitted and is not part of the benchmark dependency tree. ImageScript uses its
+public `Image` API with default options, except that EXIF orientation is applied
+only in workflows that ask for it. It has no header-only reader, so its metadata
+workflows decode the full image, as Jimp's do. By default its AVIF decoder and
+encoder can use worker threads. The report's CPU time shows that work, and its
+peak RSS includes it because the threads run in the same process.
 
 For quality-enabled JPEG, PNG, and WebP workflows, the harness independently decodes
 the pinned input, applies crop and exact-area resize semantics, applies alpha

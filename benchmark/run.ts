@@ -29,6 +29,7 @@ const workerPath = join(benchmarkDirectory, 'worker.ts')
 const startupWorkerPath = join(benchmarkDirectory, 'startup-worker.ts')
 const engineIds = new Set([
   'image-js',
+  'imagescript',
   'jimp',
   'jsquash',
   'purejsimage',

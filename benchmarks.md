@@ -18,6 +18,10 @@ Sharp 0.35.3. Each result file records the engine versions it ran with. The
 current web codec snapshot in the README and on the website was recorded on
 November 24, 2026 with Jimp 1.7.0 and Sharp 0.35.5.
 
+ImageScript 4.0.0, a pure TypeScript library, joined the `web-codecs` and
+`competitors` profiles on November 24, 2026. The older results on this page do
+not include it.
+
 A result only counts when the output is supported, decodes successfully, has
 the expected dimensions, and passes the workflow's pixel or structural checks.
 A fast invalid image is a failed run.
@@ -88,11 +92,10 @@ It bundles each public import with the same esbuild settings and also measures
 the npm package (unpacked) contents and production dependency tree. The npm
 package (unpacked) value is not the compressed `.tgz` download size; run
 `npm pack --dry-run --json` to see both `size` and `unpackedSize`. JPEG and PNG are the matched codec
-set because all five libraries support them. PureJsImage and jSquash can
-assemble exactly that set; the normal Jimp, image-js, and Sharp imports bring
-the additional codecs reported in the output. The report records exact
-versions: PureJsImage 0.7.0, Jimp 1.6.0, image-js 1.7.0, Sharp 0.35.3, and
-jSquash JPEG 1.6.0, PNG 3.1.1, and resize 2.1.1.
+set because all six libraries support them. PureJsImage and jSquash can
+assemble exactly that set; the normal Jimp, image-js, ImageScript, and Sharp
+imports bring the additional codecs reported in the output. The report records
+the exact version of each package.
 
 Sharp's minified JavaScript is only its wrapper. Its deployment footprint also
 includes the native addon and platform-specific libvips package. Both values are

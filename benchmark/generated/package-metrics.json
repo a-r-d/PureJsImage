@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.18.0",
-    "unpackedPackageBytes": 8990925,
+    "unpackedPackageBytes": 8990949,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -2030,6 +2030,29 @@
       "productionPackageCount": 46,
       "recordedBaselineMinifiedBytes": null,
       "brotliBytes": 96999
+    },
+    {
+      "category": "competitor",
+      "codecs": ["JPEG", "PNG", "TIFF", "WebP", "GIF", "AVIF", "JPEG XL", "BMP"],
+      "configuredCeilingMinifiedBytes": null,
+      "entry": {
+        "packageExports": ["imagescript"]
+      },
+      "gzipBytes": 445658,
+      "id": "imagescript",
+      "implementation": "pure-javascript",
+      "unpackedPackageBytes": 2570430,
+      "minifiedJsBytes": 1069530,
+      "name": "ImageScript",
+      "packageVersions": [
+        {
+          "name": "imagescript",
+          "version": "4.0.0"
+        }
+      ],
+      "productionPackageCount": 1,
+      "recordedBaselineMinifiedBytes": null,
+      "brotliBytes": 371393
     },
     {
       "category": "competitor",

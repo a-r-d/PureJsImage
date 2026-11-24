@@ -58,6 +58,12 @@ All notable changes to PureJsImage are documented in this file.
   channels, animation encode, ICC access, region reads and JPEG reconstruction are reported as not
   exposed. Chromium runs use the installed Chrome, each job may take 20 minutes, and reports record
   the machine load average. The published comparison results are not refreshed yet.
+- The `web-codecs` and `competitors` benchmark profiles add ImageScript 4.0.0 as an engine, and
+  the package size comparison adds its public import. ImageScript runs with its default options,
+  except that EXIF orientation is applied only in workflows that ask for it. It passes all 21 web
+  codec workflows and all competitor workflows except the HEIC one, which it cannot decode. Its
+  metadata workflows decode the full image because it has no header-only reader. Its AVIF decoder
+  and encoder use worker threads by default, so its AVIF CPU time is higher than its wall time.
 - Two tiled JPEG XL patch tests now pin streams 2 and 3 bytes larger, from the effort-7 hybrid
   split change. A new test checks that effort 7 still finds document patches on a white text
   page. Pinned libjxl 0.12.0 decodes every sample of the new streams.

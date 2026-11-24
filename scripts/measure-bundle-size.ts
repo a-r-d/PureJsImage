@@ -109,7 +109,7 @@ printTargetTable(
 )
 console.log('')
 console.log(
-  'JPEG and PNG are the codecs available in all five compared libraries. PureJsImage and jSquash can assemble that matched set explicitly. The normal public imports for Jimp, image-js, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.',
+  'JPEG and PNG are the codecs available in all six compared libraries. PureJsImage and jSquash can assemble that matched set explicitly. The normal public imports for Jimp, image-js, ImageScript, and Sharp include the additional codecs shown rather than offering equivalent codec-level tree shaking.',
 )
 console.log(
   "Sharp's JavaScript number is only its wrapper. Its npm package (unpacked) includes the native addon and this platform's libvips package, so the wrapper size must not be presented as its deployment size.",
