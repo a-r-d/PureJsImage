@@ -94,19 +94,20 @@ All notable changes to PureJsImage are documented in this file.
   November 24 run, PureJsImage median peak RSS is 14.1 MiB lower and median wall time 2.9% lower.
   Peak RSS on the photo pipeline is 180.1 MiB, 85.0% below Jimp's 1197.3 MiB, and benchmark
   startup import is 110.9 MiB in 83 ms instead of 130.2 MiB in 146 ms. `auto-orient-6` and
-  `jpeg-to-png` read 18 to 30 MiB higher than before. With the same code, their peak moves
-  between about 188 and 220 MiB from run to run, depending on when V8 frees an earlier full-frame
-  buffer. In interleaved runs of the old and new code, both are lower with the new code. The
-  run's speed check flagged nine rows, all for sharp, image-js and jSquash, whose versions did not
-  change.
+  `jpeg-to-png` read 18 to 30 MiB higher than before, because of the benchmark harness swing
+  described in the next entry. The run's speed check flagged nine rows, all for sharp, image-js
+  and jSquash, whose versions did not change.
 - The benchmark worker decodes the measured output for validation after peak-RSS sampling stops,
   as wall timing already did, and no longer decodes the warmup output. Both decodes counted toward
   peak RSS before. They added up to 70 MiB to PNG output rows and left allocator pages resident
   in a timing-dependent way, which made some rows swing by about 30 MiB between runs. With the
   same build, PureJsImage `auto-orient-6` now measures 147 to 153 MiB in six runs instead of 188
   to 220 MiB, `jpeg-to-png` 147 to 152 MiB instead of 202 to 238 MiB, and the photo pipeline 154
-  to 160 MiB. Every engine's peak RSS drops by the cost of decoding its output. The published
-  snapshot still uses the earlier measurement.
+  to 160 MiB. Every engine's peak RSS drops by the cost of decoding its output. The published web
+  codec snapshot is rerun with this measurement. PureJsImage peak RSS on the photo pipeline is
+  153.6 MiB, 87.2% below Jimp's 1197.1 MiB, and `auto-orient-6` and `jpeg-to-png` read 150.4
+  and 150.1 MiB. Against the previous snapshot, median wall time per engine moved -8.9% to +4.8%
+  at a load average of 4.3, and the speed check flagged 11 rows across all engines.
 - The benchmark result index marks a competitors run as a headline source only when it covers
   every workflow in the profile, as it already did for web codec runs. The public snapshot
   writer publishes the newest headline run. Since August 29, the one-workflow native-precision
