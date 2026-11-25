@@ -1,6 +1,6 @@
 import { once } from 'node:events'
 import { type FileHandle, mkdtemp, open, rm } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { availableParallelism, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { constants, createDeflate, type Deflate, deflateSync, type ZlibOptions } from 'node:zlib'
 
@@ -285,12 +285,31 @@ class NodeDeflateEncoder implements DeflateEncoder {
 
 export const createNodeRuntime = (options: Readonly<NodeRuntimeOptions> = {}): ImageRuntime =>
   Object.freeze({
+    availableParallelism,
     createTemporaryStore: createTemporaryStoreFactory(options),
     createDeflateEncoder(
       options: DeflateOptions,
       onData: (chunk: Uint8Array) => Promise<void>,
     ): DeflateEncoder {
       return new NodeDeflateEncoder(options, onData)
+    },
+    async createParallelDeflateEncoder(
+      options: DeflateOptions,
+      onData: (chunk: Uint8Array) => Promise<void>,
+      threads: number,
+      inputBytes: number,
+    ): Promise<DeflateEncoder | undefined> {
+      // libuv defaults to four threads. Keep the per-image memory bound on larger pools too.
+      const poolSize = Number(process.env.UV_THREADPOOL_SIZE ?? 4)
+      if (!Number.isSafeInteger(threads) || !Number.isSafeInteger(poolSize)) return undefined
+      const jobs = Math.min(threads, poolSize, 4)
+      if (jobs < 2) return undefined
+      const { ParallelDeflateEncoder, deflateChunkBytes } = await import(
+        './node-parallel-deflate.ts'
+      )
+      return inputBytes > deflateChunkBytes
+        ? new ParallelDeflateEncoder(jobs, zlibOptions(options), onData)
+        : undefined
     },
     async deflate(data: Uint8Array, options: DeflateOptions): Promise<Uint8Array> {
       return Uint8Array.from(deflateSync(data, zlibOptions(options)))

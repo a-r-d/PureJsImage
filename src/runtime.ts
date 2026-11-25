@@ -17,17 +17,26 @@ export interface DeflateOptions {
 }
 
 export interface DeflateEncoder {
+  /** Scratch for the next write, if available. The producer discards the view after writing. */
+  inputBuffer?(length: number): Uint8Array | undefined
   write(data: Uint8Array): Promise<void>
   finish(): Promise<void>
   abort(reason: unknown): Promise<void>
 }
 
 export interface ImageRuntime {
+  availableParallelism?(): number
   createTemporaryStore(options: TemporaryStoreOptions): Promise<TemporaryStore>
   createDeflateEncoder(
     options: DeflateOptions,
     onData: (chunk: Uint8Array) => Promise<void>,
   ): DeflateEncoder
+  createParallelDeflateEncoder?(
+    options: DeflateOptions,
+    onData: (chunk: Uint8Array) => Promise<void>,
+    threads: number,
+    inputBytes: number,
+  ): Promise<DeflateEncoder | undefined>
   deflate(data: Uint8Array, options: DeflateOptions): Promise<Uint8Array>
 }
 

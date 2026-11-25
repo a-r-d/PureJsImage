@@ -152,6 +152,7 @@ interface HuffmanTable {
   readonly firstSymbols: Int32Array
   readonly fastLengths: Uint8Array
   readonly fastSymbols: Uint8Array
+  readonly packedAc: Int32Array
 }
 
 interface FrameComponent {
@@ -260,7 +261,25 @@ const segmentEnd = (data: Uint8Array, offset: number): number => {
   return offset + length
 }
 
-const huffmanTable = (counts: Uint8Array, symbols: Uint8Array): HuffmanTable => {
+const emptyAcPrefixes = new Int32Array(0)
+
+// One prefix can contain both the AC symbol and its signed magnitude.
+const packedAcPrefixes = (lengths: Uint8Array, symbols: Uint8Array): Int32Array => {
+  const packed = new Int32Array(256)
+  for (let prefix = 0; prefix < 256; prefix++) {
+    const bits = lengths[prefix] ?? 0
+    const symbol = symbols[prefix] ?? 0
+    const size = symbol & 15
+    if (bits === 0 || bits + size > 8) continue
+    const raw = (prefix >> (8 - bits - size)) & ((1 << size) - 1)
+    const value = size === 0 || raw >= 1 << (size - 1) ? raw : raw + 1 - (1 << size)
+    // Low four bits count consumed bits, followed by the symbol and signed amplitude.
+    packed[prefix] = (value << 12) | (symbol << 4) | (bits + size)
+  }
+  return packed
+}
+
+const huffmanTable = (counts: Uint8Array, symbols: Uint8Array, ac = false): HuffmanTable => {
   const firstCodes = new Int32Array(16)
   const firstSymbols = new Int32Array(16)
   const fastLengths = new Uint8Array(256)
@@ -288,16 +307,25 @@ const huffmanTable = (counts: Uint8Array, symbols: Uint8Array): HuffmanTable => 
     code = (code + count) << 1
     symbol += count
   }
-  return { counts, symbols, firstCodes, firstSymbols, fastLengths, fastSymbols }
+  return {
+    counts,
+    symbols,
+    firstCodes,
+    firstSymbols,
+    fastLengths,
+    fastSymbols,
+    packedAc: ac ? packedAcPrefixes(fastLengths, fastSymbols) : emptyAcPrefixes,
+  }
 }
 const installMjpegHuffmanTables = (
   dcTables: Map<number, HuffmanTable>,
   acTables: Map<number, HuffmanTable>,
 ): void => {
   if (!dcTables.has(0)) dcTables.set(0, huffmanTable(luminanceDcCounts, luminanceDcValues))
-  if (!acTables.has(0)) acTables.set(0, huffmanTable(luminanceAcCounts, luminanceAcValues))
+  if (!acTables.has(0)) acTables.set(0, huffmanTable(luminanceAcCounts, luminanceAcValues, true))
   if (!dcTables.has(1)) dcTables.set(1, huffmanTable(chrominanceDcCounts, chrominanceDcValues))
-  if (!acTables.has(1)) acTables.set(1, huffmanTable(chrominanceAcCounts, chrominanceAcValues))
+  if (!acTables.has(1))
+    acTables.set(1, huffmanTable(chrominanceAcCounts, chrominanceAcValues, true))
 }
 
 const parseQuantizationTables = (
@@ -344,7 +372,11 @@ const parseHuffmanTables = (
     for (const count of counts) symbolCount += count
     if (symbolCount < 1 || offset + symbolCount > end)
       throw truncatedInput('JPEG Huffman table symbols are truncated')
-    const table = huffmanTable(counts, data.slice(offset, offset + symbolCount))
+    const table = huffmanTable(
+      counts,
+      data.slice(offset, offset + symbolCount),
+      specification >>> 4 === 1,
+    )
     offset += symbolCount
     const tableClass = specification >>> 4
     if (tableClass === 0) dcTables.set(specification & 15, table)
@@ -877,6 +909,7 @@ export const parseBaselineJpegSource = async (
 
 interface JpegBitReader {
   readHuffmanPrefix(lengths: Uint8Array, symbols: Uint8Array): number
+  readAcPrefix(table: Int32Array): number
   readBit(): number
   readBits(length: number): number
   peekBits(length: number): number | undefined
@@ -937,6 +970,14 @@ class EntropyReader implements JpegBitReader {
     if (this.#bitCount === 0) this.#bits = 0
     this.#bits = ((this.#bits << 8) | value) >>> 0
     this.#bitCount += 8
+  }
+
+  readAcPrefix(table: Int32Array): number {
+    const prefix = this.peekBits(8)
+    if (prefix === undefined) return 0
+    const packed = table[prefix] ?? 0
+    this.#bitCount -= packed & 15
+    return packed
   }
 
   readHuffmanPrefix(lengths: Uint8Array, symbols: Uint8Array): number {
@@ -1072,14 +1113,8 @@ class EntropyReader implements JpegBitReader {
 }
 
 const decodeHuffman = (reader: JpegBitReader, table: HuffmanTable): number => {
-  const prefix = reader.peekBits(8)
-  if (prefix !== undefined) {
-    const length = byte(table.fastLengths, prefix)
-    if (length !== 0) {
-      reader.skipBits(length)
-      return byte(table.fastSymbols, prefix)
-    }
-  }
+  const symbol = reader.readHuffmanPrefix(table.fastLengths, table.fastSymbols)
+  if (symbol >= 0) return symbol
   let code = 0
   for (let length = 0; length < 16; length += 1) {
     code = (code << 1) | reader.readBit()
@@ -1107,7 +1142,8 @@ const decodeBlock = (
   coefficients[0] = nextPredictor
   let index = 1
   while (index < 64) {
-    const symbol = decodeHuffman(reader, component.acTable)
+    const packed = reader.readAcPrefix(component.acTable.packedAc)
+    const symbol = packed === 0 ? decodeHuffman(reader, component.acTable) : (packed >>> 4) & 255
     const zeroes = symbol >>> 4
     const length = symbol & 15
     if (length === 0) {
@@ -1117,7 +1153,8 @@ const decodeBlock = (
     }
     index += zeroes
     if (index >= 64) throw invalidInput('JPEG AC coefficient exceeds its block')
-    coefficients[byte(zigZag, index)] = reader.receiveAndExtend(length)
+    coefficients[byte(zigZag, index)] =
+      packed === 0 ? reader.receiveAndExtend(length) : packed >> 12
     index += 1
   }
   return nextPredictor
@@ -1254,6 +1291,12 @@ const decodeBlockLimited = (
   return nextPredictor
 }
 
+// Clip before conversion so even unusually large coefficients stay in byte range.
+const idctSample = (value: number): number => {
+  const shifted = value + 128
+  return shifted < 0.5 ? 0 : (Math.min(255, shifted) + 0.5) | 0
+}
+
 const inverseDct = (
   coefficients: JpegCoefficients,
   quantization: Int32Array,
@@ -1270,43 +1313,40 @@ const inverseDct = (
   for (let vertical = 0; vertical < 8; vertical += 1) {
     const rowOffset = vertical * 8
     let rowActive = false
+    let sum0 = 0
+    let sum1 = 0
+    let sum2 = 0
+    let sum3 = 0
+    let sum4 = 0
+    let sum5 = 0
+    let sum6 = 0
+    let sum7 = 0
     for (let horizontal = 0; horizontal < 8; horizontal += 1) {
       const index = rowOffset + horizontal
       const coefficient = coefficients[coefficientOffset + index] ?? 0
       if (coefficient === 0) continue
       const scaled = coefficient * (quantization[index] ?? 0)
       const basisOffset = horizontal * 8
-      const basis0 = idctBasis[basisOffset] ?? 0
-      const basis1 = idctBasis[basisOffset + 1] ?? 0
-      const basis2 = idctBasis[basisOffset + 2] ?? 0
-      const basis3 = idctBasis[basisOffset + 3] ?? 0
-      const basis4 = idctBasis[basisOffset + 4] ?? 0
-      const basis5 = idctBasis[basisOffset + 5] ?? 0
-      const basis6 = idctBasis[basisOffset + 6] ?? 0
-      const basis7 = idctBasis[basisOffset + 7] ?? 0
-      if (rowActive) {
-        workspace[rowOffset] = (workspace[rowOffset] ?? 0) + scaled * basis0
-        workspace[rowOffset + 1] = (workspace[rowOffset + 1] ?? 0) + scaled * basis1
-        workspace[rowOffset + 2] = (workspace[rowOffset + 2] ?? 0) + scaled * basis2
-        workspace[rowOffset + 3] = (workspace[rowOffset + 3] ?? 0) + scaled * basis3
-        workspace[rowOffset + 4] = (workspace[rowOffset + 4] ?? 0) + scaled * basis4
-        workspace[rowOffset + 5] = (workspace[rowOffset + 5] ?? 0) + scaled * basis5
-        workspace[rowOffset + 6] = (workspace[rowOffset + 6] ?? 0) + scaled * basis6
-        workspace[rowOffset + 7] = (workspace[rowOffset + 7] ?? 0) + scaled * basis7
-      } else {
-        workspace[rowOffset] = scaled * basis0
-        workspace[rowOffset + 1] = scaled * basis1
-        workspace[rowOffset + 2] = scaled * basis2
-        workspace[rowOffset + 3] = scaled * basis3
-        workspace[rowOffset + 4] = scaled * basis4
-        workspace[rowOffset + 5] = scaled * basis5
-        workspace[rowOffset + 6] = scaled * basis6
-        workspace[rowOffset + 7] = scaled * basis7
-        activeRowIndices[activeRowCount] = vertical
-        activeRowCount += 1
-        rowActive = true
-      }
+      sum0 += scaled * (idctBasis[basisOffset] ?? 0)
+      sum1 += scaled * (idctBasis[basisOffset + 1] ?? 0)
+      sum2 += scaled * (idctBasis[basisOffset + 2] ?? 0)
+      sum3 += scaled * (idctBasis[basisOffset + 3] ?? 0)
+      sum4 += scaled * (idctBasis[basisOffset + 4] ?? 0)
+      sum5 += scaled * (idctBasis[basisOffset + 5] ?? 0)
+      sum6 += scaled * (idctBasis[basisOffset + 6] ?? 0)
+      sum7 += scaled * (idctBasis[basisOffset + 7] ?? 0)
+      rowActive = true
     }
+    if (!rowActive) continue
+    activeRowIndices[activeRowCount++] = vertical
+    workspace[rowOffset] = sum0
+    workspace[rowOffset + 1] = sum1
+    workspace[rowOffset + 2] = sum2
+    workspace[rowOffset + 3] = sum3
+    workspace[rowOffset + 4] = sum4
+    workspace[rowOffset + 5] = sum5
+    workspace[rowOffset + 6] = sum6
+    workspace[rowOffset + 7] = sum7
   }
   for (let y = 0; y < 8; y += 1) {
     const outputOffset = (blockY * 8 + y) * outputStride + blockX * 8
@@ -1331,22 +1371,14 @@ const inverseDct = (
       value6 += basis * (workspace[workspaceOffset + 6] ?? 0)
       value7 += basis * (workspace[workspaceOffset + 7] ?? 0)
     }
-    const sample0 = Math.round(value0 + 128)
-    const sample1 = Math.round(value1 + 128)
-    const sample2 = Math.round(value2 + 128)
-    const sample3 = Math.round(value3 + 128)
-    const sample4 = Math.round(value4 + 128)
-    const sample5 = Math.round(value5 + 128)
-    const sample6 = Math.round(value6 + 128)
-    const sample7 = Math.round(value7 + 128)
-    output[outputOffset] = sample0 < 0 ? 0 : sample0 > 255 ? 255 : sample0
-    output[outputOffset + 1] = sample1 < 0 ? 0 : sample1 > 255 ? 255 : sample1
-    output[outputOffset + 2] = sample2 < 0 ? 0 : sample2 > 255 ? 255 : sample2
-    output[outputOffset + 3] = sample3 < 0 ? 0 : sample3 > 255 ? 255 : sample3
-    output[outputOffset + 4] = sample4 < 0 ? 0 : sample4 > 255 ? 255 : sample4
-    output[outputOffset + 5] = sample5 < 0 ? 0 : sample5 > 255 ? 255 : sample5
-    output[outputOffset + 6] = sample6 < 0 ? 0 : sample6 > 255 ? 255 : sample6
-    output[outputOffset + 7] = sample7 < 0 ? 0 : sample7 > 255 ? 255 : sample7
+    output[outputOffset] = idctSample(value0)
+    output[outputOffset + 1] = idctSample(value1)
+    output[outputOffset + 2] = idctSample(value2)
+    output[outputOffset + 3] = idctSample(value3)
+    output[outputOffset + 4] = idctSample(value4)
+    output[outputOffset + 5] = idctSample(value5)
+    output[outputOffset + 6] = idctSample(value6)
+    output[outputOffset + 7] = idctSample(value7)
   }
 }
 
@@ -1744,7 +1776,7 @@ interface Chroma420Plan {
   readonly haloRows: number
 }
 
-const coefficientRenderPlan = (
+const createColorRenderPlan = (
   jpeg: RenderJpeg,
   region: JpegRegion,
   blockSize: number,
@@ -2339,7 +2371,10 @@ export const decodeBaselineJpeg = async function* (
   const sampleWorkspace = new Float64Array(8)
   const inverseBlock = inverseDctForScale(scaleDenominator)
   const lastNeededZigZag = lastZigZagForScale(scaleDenominator)
-  const plan = createRenderPlan(jpeg, region, blockSize)
+  const plan =
+    nativeChannels === undefined
+      ? createColorRenderPlan(jpeg, region, blockSize)
+      : createRenderPlan(jpeg, region, blockSize)
   let currentPlanes = componentPlanes(jpeg, blockSize)
   let pendingPlanes: Uint8Array[] | undefined
   let pendingRow = -1
@@ -2629,11 +2664,6 @@ const setCoefficient = (coefficients: Int16Array, index: number, value: number):
   coefficients[index] = value
 }
 
-const decodeProgressiveHuffman = (reader: JpegBitReader, table: HuffmanTable): number => {
-  const symbol = reader.readHuffmanPrefix(table.fastLengths, table.fastSymbols)
-  return symbol >= 0 ? symbol : decodeHuffman(reader, table)
-}
-
 const decodeProgressiveDcFirst = (
   reader: JpegBitReader,
   selected: ProgressiveScanComponent,
@@ -2642,7 +2672,7 @@ const decodeProgressiveDcFirst = (
   successiveLow: number,
 ): void => {
   if (!selected.dcTable) throw invalidInput('Progressive JPEG DC table is missing')
-  const length = decodeProgressiveHuffman(reader, selected.dcTable)
+  const length = decodeHuffman(reader, selected.dcTable)
   if (length > 11) throw invalidInput('Progressive JPEG DC coefficient is invalid')
   const predictor = byte(predictors, selected.componentIndex) + reader.receiveAndExtend(length)
   predictors[selected.componentIndex] = predictor
@@ -2674,7 +2704,7 @@ const decodeProgressiveAcFirst = (
   }
   let spectral = scan.spectralStart
   while (spectral <= scan.spectralEnd) {
-    const symbol = decodeProgressiveHuffman(reader, selected.acTable)
+    const symbol = decodeHuffman(reader, selected.acTable)
     const zeroes = symbol >>> 4
     const length = symbol & 15
     if (length === 0) {
@@ -2733,7 +2763,7 @@ const decodeProgressiveAcRefinement = (
   }
 
   while (spectral <= scan.spectralEnd) {
-    const symbol = decodeProgressiveHuffman(reader, selected.acTable)
+    const symbol = decodeHuffman(reader, selected.acTable)
     let zeroes = symbol >>> 4
     const length = symbol & 15
     if (length === 0) {
@@ -3470,7 +3500,7 @@ export const decodeJpegCoefficientImage = async function* (
   const sampleWorkspace = new Float64Array(8)
   const blockSize = outputSizeForScale(scaleDenominator)
   const inverseBlock = inverseDctForScale(scaleDenominator)
-  const plan = coefficientRenderPlan(jpeg, region, blockSize)
+  const plan = createColorRenderPlan(jpeg, region, blockSize)
   const mcuWidth = jpeg.maximumHorizontalSampling * blockSize
   const mcuHeight = jpeg.maximumVerticalSampling * blockSize
   const firstMcuColumn = Math.max(0, Math.floor(region.x / mcuWidth) - 1)

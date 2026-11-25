@@ -150,7 +150,14 @@ export class JpegEntropyReader {
     this.#bitCount += 8
   }
 
-  // Most progressive symbols fit in eight bits. The prefix length is already
+  readAcPrefix(table: Int32Array): number {
+    if (this.#bitCount < 8 && !this.#tryFillBits()) return 0
+    const packed = table[(this.#bits >>> (this.#bitCount - 8)) & 255] ?? 0
+    this.#bitCount -= packed & 15
+    return packed
+  }
+
+  // Most Huffman symbols fit in eight bits. The prefix length is already
   // buffered on a hit, so consuming it needs no second refill or skip loop.
   readHuffmanPrefix(lengths: Uint8Array, symbols: Uint8Array): number {
     if (this.#bitCount < 8 && !this.#tryFillBits()) return -1

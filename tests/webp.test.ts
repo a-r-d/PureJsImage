@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
@@ -649,6 +651,32 @@ describe('WebP codec', () => {
     malformed[alpha + 8] = flags
 
     await expect((await Image.open(malformed)).png().toBuffer()).rejects.toMatchObject({ code })
+  })
+
+  it('preserves every RGBA sample in the lossless Tux fixture', async () => {
+    const input = await readFile(
+      new URL('../benchmark/corpus/files/webp-lossless-tux-386x395.webp', import.meta.url),
+    )
+    const decoder = await webpCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('WebP decoder is unavailable')
+    const hash = createHash('sha256')
+    for await (const block of decoder.decode()) hash.update(block.data)
+    expect(hash.digest('hex')).toBe(
+      '1d85e1ae043937b7d4a6b0eb9e3042400fbe13d4239e89e0f52a6f533b779e9a',
+    )
+  })
+
+  it('stops lossless Huffman reads at the VP8L chunk boundary', async () => {
+    const chunk = webpChunkOffset(lossless, 'VP8L')
+    const length = uint32LittleEndian(lossless, chunk + 4)
+    const end = chunk + 8 + length
+    // Drop the final compressed byte and its pad, then append another valid chunk.
+    const shortened = removeRiffBytes(lossless, end - 1, 2)
+    writeUint32LittleEndian(shortened, chunk + 4, length - 1)
+    const input = insertRiffBytes(shortened, shortened.length, riffChunk('JUNK', Uint8Array.of(0)))
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'TRUNCATED_INPUT',
+    })
   })
 
   it('rejects truncated WebP input', async () => {

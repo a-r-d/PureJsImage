@@ -40,7 +40,10 @@ interface PureImage {
 }
 
 interface PureImageLibrary {
-  open(input: Uint8Array, options?: { readonly tolerantDecoding?: boolean }): Promise<PureImage>
+  open(
+    input: Uint8Array,
+    options?: { readonly tolerantDecoding?: boolean; readonly threads?: number },
+  ): Promise<PureImage>
 }
 
 interface PureImageLibraryConfiguration {
@@ -67,6 +70,7 @@ interface NamedImport {
 }
 
 export interface PureJsImageEngineOptions {
+  readonly threads?: number
   readonly id: string
   readonly kind: EngineKind
   readonly versionSuffix: string
@@ -392,7 +396,14 @@ const applyOperations = async ({
 export const createPureJsImageEngine = async (
   options: PureJsImageEngineOptions,
 ): Promise<Engine> => {
-  const Image = await loadImageLibrary(options.codecs ?? [], options.accelerators ?? [])
+  const library = await loadImageLibrary(options.codecs ?? [], options.accelerators ?? [])
+  const threads = options.threads
+  const Image: PureImageLibrary =
+    threads === undefined
+      ? library
+      : {
+          open: (input, openOptions) => library.open(input, { ...openOptions, threads }),
+        }
   const hasExperimentalHeic = options.codecs?.some(
     ({ exportName }) => exportName === 'experimentalHeifCodec',
   )

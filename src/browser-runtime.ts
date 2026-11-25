@@ -307,6 +307,10 @@ const validateBrowserDeflateOptions = (options: DeflateOptions): void => {
 }
 
 export const browserRuntime: ImageRuntime = Object.freeze({
+  availableParallelism: (): number =>
+    typeof Worker === 'function' && typeof navigator !== 'undefined'
+      ? navigator.hardwareConcurrency || 1
+      : 1,
   createTemporaryStore,
   createDeflateEncoder(
     options: DeflateOptions,

@@ -20,7 +20,7 @@ import type { ImageLimits } from '../limits.ts'
 import { validateImageDimensions } from '../limits.ts'
 import { iccColorSpace } from '../metadata.ts'
 import { type PixelBlock, type PixelFormat, resumePixelBlocks } from '../pixel.ts'
-import type { DeflateEncoder } from '../runtime.ts'
+import type { DeflateEncoder, DeflateOptions } from '../runtime.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
 import { readExactly } from '../source.ts'
@@ -1738,7 +1738,8 @@ class PngEncoder implements ImageEncoder {
             rows,
           )
         } else {
-          scanlines = new Uint8Array((rowBytes + 1) * rows)
+          const length = (rowBytes + 1) * rows
+          scanlines = this.#deflater.inputBuffer?.(length) ?? new Uint8Array(length)
           for (let row = 0; row < rows; row += 1) {
             const sourceOffset = (firstRow + row) * block.stride
             const source = block.data.subarray(sourceOffset, sourceOffset + rowBytes)
@@ -1894,15 +1895,23 @@ const createPngEncoder = async (
       await writeChunk(sink, nativeColorSignal.type, nativeColorSignal.data)
     }
     if (request.metadata?.exif) await writeChunk(sink, 'eXIf', request.metadata.exif)
+    const options: DeflateOptions = {
+      level,
+      strategy: request.pixelFormat === 'rgb8' ? 'rle' : 'default',
+    }
+    const onData = (chunk: Uint8Array): Promise<void> => writeChunk(sink, 'IDAT', chunk)
+    const parallel =
+      request.threads === undefined
+        ? undefined
+        : await runtime.createParallelDeflateEncoder?.(
+            options,
+            onData,
+            request.threads,
+            (1 + request.width * bytesPerPixel(request.pixelFormat)) * request.height,
+          )
     return new PngEncoder(
       sink,
-      runtime.createDeflateEncoder(
-        {
-          level,
-          strategy: request.pixelFormat === 'rgb8' ? 'rle' : 'default',
-        },
-        (chunk) => writeChunk(sink, 'IDAT', chunk),
-      ),
+      parallel ?? runtime.createDeflateEncoder(options, onData),
       request.width,
       request.height,
       request.pixelFormat,

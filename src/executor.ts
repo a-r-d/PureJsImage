@@ -33,6 +33,7 @@ import type { ImageSink } from './sink.ts'
 import { drainSourceEvidenceDependencies, type ImageSource } from './source.ts'
 
 export interface ExecutionContext {
+  readonly threads?: number
   readonly source: ImageSource
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
@@ -336,6 +337,7 @@ export const executePipeline = async (
     options.evidence?.operation({ operationId: 'decoder-open', phase: 'start' })
     const decoder = await context.codec.createDecoder(context.source, context.limits, {
       preserveIcc: icc !== undefined,
+      ...(context.threads === undefined ? {} : { threads: context.threads }),
       tolerantDecoding: context.tolerantDecoding,
       ...(options.signal === undefined ? {} : { signal: options.signal }),
       ...(context.frame === undefined ? {} : { frame: context.frame }),
@@ -636,6 +638,7 @@ export const executePipeline = async (
       ...(colorSemantics === undefined ? {} : { colorSemantics }),
       options: encoderOptions,
       runtime: context.runtime,
+      ...(context.threads === undefined ? {} : { threads: context.threads }),
       limits: context.limits,
       ...(options.signal === undefined ? {} : { signal: options.signal }),
       ...(!exif && !icc

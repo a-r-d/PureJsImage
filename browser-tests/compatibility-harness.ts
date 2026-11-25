@@ -1560,6 +1560,10 @@ const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
     throw new Error('Alpha PNG metadata did not preserve the source shape and alpha flag')
   }
   const output = await image.rotate(90).png().toUint8Array()
+  const threaded = await (await images.open(bytes, { threads: 4 })).rotate(90).png().toUint8Array()
+  if (threaded.length !== output.length || !threaded.every((byte, i) => byte === output[i])) {
+    throw new Error('Browser parallel request changed sequential PNG bytes')
+  }
   const bitmap = await createImageBitmap(new Blob([Uint8Array.from(output)], { type: 'image/png' }))
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
   const context = canvas.getContext('2d')

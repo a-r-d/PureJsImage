@@ -62,6 +62,9 @@ export interface ImageExecutionOptions extends AbortOptions {
 }
 
 export interface ImageOpenOptions extends AbortOptions {
+  /** Maximum parallel jobs. Defaults to 1. Node PNG compression uses up to four jobs,
+   * at roughly 1.5 MiB per job including input, dictionary, zlib state and compressed output. */
+  readonly threads?: number
   readonly limits?: ImageLimitOptions
   readonly frame?: number
   readonly resolutionLevel?: number
@@ -89,6 +92,7 @@ export interface ImageLibrary<Input, Output extends Uint8Array> {
 }
 
 interface ImageContext<Input, Output extends Uint8Array> {
+  readonly threads?: number
   readonly source: ImageSource
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
@@ -138,6 +142,14 @@ export class Image<Input, Output extends Uint8Array> {
     if (options.tolerantDecoding !== undefined && typeof options.tolerantDecoding !== 'boolean') {
       throw invalidInput('tolerantDecoding must be a boolean')
     }
+    const requested = options.threads
+    if (requested !== undefined && (!Number.isSafeInteger(requested) || requested < 1)) {
+      throw invalidInput('threads must be a positive safe integer')
+    }
+    const threads =
+      requested !== undefined && requested > 1
+        ? Math.min(requested, platform.runtime.availableParallelism?.() ?? 1)
+        : 1
     const limits = resolveLimits(options.limits)
     throwIfAborted(options.signal)
     const source = await platform.createImageSource(input, limits, options)
@@ -157,6 +169,7 @@ export class Image<Input, Output extends Uint8Array> {
     return new Image({
       source,
       codec,
+      ...(threads > 1 ? { threads } : {}),
       frame: options.frame,
       resolutionLevel: options.resolutionLevel,
       tolerantDecoding: options.tolerantDecoding ?? true,

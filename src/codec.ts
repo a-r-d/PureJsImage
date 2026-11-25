@@ -182,6 +182,7 @@ export interface PreservedMetadata {
 }
 
 export interface DecoderOptions extends AbortOptions {
+  readonly threads?: number
   readonly frame?: number
   readonly resolutionLevel?: number
   /** Zero-based alpha extra-channel selection for formats that can carry more than one alpha. */
@@ -208,6 +209,7 @@ export interface MetadataPreservationOptions extends AbortOptions {
 }
 
 export interface EncodeRequest extends AbortOptions {
+  readonly threads?: number
   readonly width: number
   readonly height: number
   readonly pixelFormat: PixelFormat

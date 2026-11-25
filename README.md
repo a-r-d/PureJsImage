@@ -201,6 +201,27 @@ increase the web-focused bundle. Use `purejsimage/codecs/all` when you need ever
 inputs, outputs and limits, and the [native precision guide](docs/native-precision.md) for supported
 high-depth transforms, color handling and explicit sample conversion.
 
+### Parallel PNG compression
+
+Pass `threads` to `open()` to let Node compress PNG scanlines on its shared libuv thread pool.
+
+```ts
+const image = await images.open(input, { threads: 4 });
+const bytes = await image.png({ compressionLevel: 6 }).toBuffer();
+```
+
+The default is one thread. Pass a positive safe integer to request more. Node uses at most four
+jobs per image, capped by the available CPUs and the configured libuv pool size. Each job can
+hold 384 KiB of filtered input and a 32 KiB dictionary. Allow roughly 1.5 MiB per job for these buffers, zlib
+state and temporary copies of compressed output. The encoder can reuse another 384 KiB for
+filtering scanlines. The output sink uses memory separately.
+
+Parallel compression uses more CPU at once and can change the file size. The pixels stay identical.
+Images with at most 384 KiB of filtered scanlines, single-threaded runtimes and browsers with
+CompressionStream use the sequential compressor and produce the default bytes. CompressionStream
+does not expose a preset dictionary or a sync flush for joining chunks.
+[CompressionStream interface](https://compression.spec.whatwg.org/#compressionstream).
+
 ### Memory and optional temporary storage
 
 Node orientation and rotation use lazy chunked memory by default. They do not open temporary files.
@@ -473,13 +494,13 @@ Generated from the repository manifests and recorded package metrics (package ve
 
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 19.5 KiB | 6.6 KiB | 6.0 KiB |
-| Common web codecs | 668.3 KiB | 244.5 KiB | 203.9 KiB |
-| All stable codecs | 1416.9 KiB | 493.2 KiB | 398.0 KiB |
-| Scientific platform | 198.6 KiB | 56.6 KiB | 47.7 KiB |
-| All scientific readers | 1252.0 KiB | 362.7 KiB | 289.3 KiB |
+| Core API | 20.1 KiB | 6.8 KiB | 6.1 KiB |
+| Common web codecs | 671.9 KiB | 246.3 KiB | 205.1 KiB |
+| All stable codecs | 1420.5 KiB | 494.9 KiB | 399.4 KiB |
+| Scientific platform | 201.5 KiB | 57.7 KiB | 48.6 KiB |
+| All scientific readers | 1252.8 KiB | 363.1 KiB | 289.7 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 634.2 KiB | 192.2 KiB | 155.7 KiB |
+| All Geo readers | 634.4 KiB | 192.4 KiB | 155.9 KiB |
 
 The extracted npm package is 8.6 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -492,11 +513,11 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| Core API initial chunk | `purejsimage` | 19.5 KiB | 6.6 KiB | 6.0 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 668.3 KiB | 244.5 KiB | 203.9 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1416.9 KiB | 493.2 KiB | 398.0 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 198.6 KiB | 56.6 KiB | 47.7 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1252.0 KiB | 362.7 KiB | 289.3 KiB |
+| Core API initial chunk | `purejsimage` | 20.1 KiB | 6.8 KiB | 6.1 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 671.9 KiB | 246.3 KiB | 205.1 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1420.5 KiB | 494.9 KiB | 399.4 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 201.5 KiB | 57.7 KiB | 48.6 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1252.8 KiB | 363.1 KiB | 289.7 KiB |
 
 The 8 optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
 

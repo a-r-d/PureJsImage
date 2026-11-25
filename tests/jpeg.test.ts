@@ -502,6 +502,23 @@ describe('JPEG pixel pipeline', () => {
   })
 
   it.each([
+    [1, 1, 15, 11, 'f9ba164f70bdca6022d8f5cc4bbb341ff62ee98db3673a65f367e5837f691402'],
+    [2, 0, 13, 12, '6906f87d4d40a8ae4f4a17cd4f2cfc306f8c835402f3f113d55ddeeaede8538d'],
+    [16, 1, 1, 12, '32e5d29d3ca50100e6e2b04fb24ae4eb5ce7db5fc5a352f49b37c9090879d0c3'],
+  ] as const)(
+    'preserves full-resolution baseline 4:2:0 pixels at crop (%i, %i, %i, %i)',
+    async (x, y, width, height, digest) => {
+      const decoder = await jpegCodec.createDecoder?.(
+        new MemorySource(Buffer.from(baselineJpegFixtures['4:2:0'], 'base64')),
+        defaultImageLimits,
+      )
+      if (!decoder) throw new Error('JPEG decoder is unavailable')
+      const pixels = await collectRgb(decoder.decode({ x, y, width, height }), width, height)
+      expect(createHash('sha256').update(pixels).digest('hex')).toBe(digest)
+    },
+  )
+
+  it.each([
     [1, 1, 15, 11, 'e7089d5221711df567f2ddb3eda9147e753d49cf249ba68f50d5e214516f42d0'],
     [2, 0, 13, 12, 'd10834eab25eea2f2b3072400012d5123762aa33175d8f36e6ec0664f3ac272c'],
     [15, 0, 1, 12, '5fee51c5120c8a98c4317f17bb78d58730b16a6e5fe328099187b5c4aa4c93a5'],

@@ -271,9 +271,24 @@ Full bitmap allocation is an explicit fallback, not the default execution model.
 
 ### Parallelism
 
-Do not add worker-thread complexity yet. Current target workloads are small Lambda functions and single-threaded execution should be optimized first.
+The default execution path is single-threaded, and it stays the primary optimization target:
+small Lambda functions run on one vCPU, and every extra thread costs memory.
 
-Architecture should not prevent future parallel execution, but workers are not a current optimization target.
+Parallel execution is allowed only behind the explicit `threads` option on `Image.open()`,
+which is off by default. Any parallel path must:
+
+- leave default behavior unchanged: same output bytes, speed and memory when `threads` is unset;
+- resolve capabilities once in the runtime adapters (`availableParallelism()` in Node,
+  `navigator.hardwareConcurrency` and feature detection in browsers) before any hot loop, and
+  fall back to the sequential path with the same output when parallelism is unavailable;
+- keep Node-only parallel code behind the Node adapter and out of the portable module graph;
+- bound its extra memory per thread and document that cost next to the option;
+- produce output that decodes to the same pixels, and measure it as a separate benchmark engine
+  (`purejsimage-threads`) rather than changing the default engine.
+
+Prefer existing thread pools, such as Node's libuv pool for zlib, over new worker threads. Add
+`worker_threads` or Web Workers only when a measurement shows a clear end-to-end gain after
+startup, transfer and memory costs.
 
 ### Benchmark requirement
 

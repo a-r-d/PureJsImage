@@ -1046,6 +1046,23 @@ const directDctCoefficient = (samples: Float64Array, index: number): number => {
   return result
 }
 
+const quantizedCoefficient = (
+  samples: Float64Array,
+  table: Uint8Array,
+  intermediate: Float64Array,
+  i: number,
+): number => {
+  const divisor = table[i] ?? 1
+  const coefficient = intermediate[64 + i] ?? 0
+  if (Math.abs(coefficient) < divisor * safeRoundingDistance) return 0
+  const value = coefficient / divisor
+  const rounded = Math.round(value)
+  // Preserve the direct evaluation order near a rounding boundary.
+  return Math.abs(value - rounded) > safeRoundingDistance
+    ? Math.round(directDctCoefficient(samples, i) / divisor)
+    : rounded
+}
+
 const quantize = (
   samples: Float64Array,
   table: Uint8Array,
@@ -1055,30 +1072,22 @@ const quantize = (
   forwardDctPass(samples, intermediate, 0)
   forwardDctPass(intermediate, intermediate, 64)
   for (let i = 0; i < 64; i += 1) {
-    const divisor = table[i] ?? 1
-    const coefficient = intermediate[64 + i] ?? 0
-    if (Math.abs(coefficient) < divisor * safeRoundingDistance) {
-      output[i] = 0
-      continue
-    }
-    const value = coefficient / divisor
-    const rounded = Math.round(value)
-    // Preserve the direct evaluation order near a rounding boundary.
-    output[i] =
-      Math.abs(value - rounded) > safeRoundingDistance
-        ? Math.round(directDctCoefficient(samples, i) / divisor)
-        : rounded
+    output[i] = quantizedCoefficient(samples, table, intermediate, i)
   }
 }
 
 const encodeBlock = (
   writer: ByteWriter,
-  coefficients: Int32Array,
+  samples: Float64Array,
+  table: Uint8Array,
+  intermediate: Float64Array,
   previousDc: number,
   dcCodes: HuffmanCodes,
   acCodes: HuffmanCodes,
 ): number => {
-  const dc = coefficients[0] ?? 0
+  forwardDctPass(samples, intermediate, 0)
+  forwardDctPass(intermediate, intermediate, 64)
+  const dc = quantizedCoefficient(samples, table, intermediate, 0)
   const difference = dc - previousDc
   const dcCategory = difference === 0 ? 0 : 32 - Math.clz32(Math.abs(difference))
   writer.code(dcCodes, dcCategory)
@@ -1088,7 +1097,7 @@ const encodeBlock = (
 
   let zeroes = 0
   for (let index = 1; index < 64; index += 1) {
-    const coefficient = coefficients[zigZag[index] ?? 0] ?? 0
+    const coefficient = quantizedCoefficient(samples, table, intermediate, zigZag[index] ?? 0)
     if (coefficient === 0) {
       zeroes += 1
       continue
@@ -1854,15 +1863,11 @@ class JpegEncoder implements ImageEncoder {
       }
       if (this.#grayscale) {
         fillGray8(this.#rows, this.#width, mcuX * 8, this.#luminanceSamples)
-        quantize(
+        this.#previousY = encodeBlock(
+          this.#writer,
           this.#luminanceSamples,
           this.#luminanceTable,
           this.#intermediate,
-          this.#coefficients,
-        )
-        this.#previousY = encodeBlock(
-          this.#writer,
-          this.#coefficients,
           this.#previousY,
           luminanceDcCodes,
           luminanceAcCodes,
@@ -1879,15 +1884,11 @@ class JpegEncoder implements ImageEncoder {
             blockY * 8,
             this.#luminanceSamples,
           )
-          quantize(
+          this.#previousY = encodeBlock(
+            this.#writer,
             this.#luminanceSamples,
             this.#luminanceTable,
             this.#intermediate,
-            this.#coefficients,
-          )
-          this.#previousY = encodeBlock(
-            this.#writer,
-            this.#coefficients,
             this.#previousY,
             luminanceDcCodes,
             luminanceAcCodes,
@@ -1903,28 +1904,20 @@ class JpegEncoder implements ImageEncoder {
         this.#blueDifferenceSamples,
         this.#redDifferenceSamples,
       )
-      quantize(
+      this.#previousCb = encodeBlock(
+        this.#writer,
         this.#blueDifferenceSamples,
         this.#chrominanceTable,
         this.#intermediate,
-        this.#coefficients,
-      )
-      this.#previousCb = encodeBlock(
-        this.#writer,
-        this.#coefficients,
         this.#previousCb,
         chrominanceDcCodes,
         chrominanceAcCodes,
       )
-      quantize(
+      this.#previousCr = encodeBlock(
+        this.#writer,
         this.#redDifferenceSamples,
         this.#chrominanceTable,
         this.#intermediate,
-        this.#coefficients,
-      )
-      this.#previousCr = encodeBlock(
-        this.#writer,
-        this.#coefficients,
         this.#previousCr,
         chrominanceDcCodes,
         chrominanceAcCodes,
@@ -2241,7 +2234,6 @@ export const encodeJpegIdentityComponents = (
   const writer = new ByteWriter()
   const samples = new Float64Array(64)
   const intermediate = new Float64Array(128)
-  const coefficients = new Int32Array(64)
   const predictors = new Int32Array(channels)
   for (let originY = 0; originY < height; originY += 8) {
     for (let originX = 0; originX < width; originX += 8) {
@@ -2253,10 +2245,11 @@ export const encodeJpegIdentityComponents = (
             samples[localY * 8 + localX] = (pixels[(y * width + x) * channels + channel] ?? 0) - 128
           }
         }
-        quantize(samples, quantization, intermediate, coefficients)
         predictors[channel] = encodeBlock(
           writer,
-          coefficients,
+          samples,
+          quantization,
+          intermediate,
           predictors[channel] ?? 0,
           luminanceDcCodes,
           luminanceAcCodes,

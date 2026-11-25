@@ -4,7 +4,31 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `open(input, { threads })` turns on parallel PNG compression in Node. It is off by default; the
+  default single-threaded path, its output bytes, speed and memory are unchanged. With
+  `threads: 4`, Node compresses filtered scanlines in 384 KiB chunks on its libuv thread pool, at
+  most four jobs per image, each primed with the previous chunk's last 32 KiB so the joined zlib
+  stream compresses almost as well. Allow roughly 1.5 MiB of extra memory per job. Pixels are
+  identical and files stayed within 1% of the default size on the benchmark images. AVIF to PNG
+  takes 319 ms instead of 475 ms with `threads: 4`. Images with at most 384 KiB of scanlines,
+  single-threaded runtimes and browsers use the sequential compressor. The benchmark suite adds a
+  separate `purejsimage-threads` engine for this mode.
+
 ### Changed
+
+- Baseline JPEG decoding is faster with identical pixels. Short AC Huffman codes decode together
+  with their signed value from one lookup, sparse IDCT rows accumulate in locals, 4:2:0 color
+  conversion shares chroma interpolation between neighboring pixels, and the encoder quantizes
+  coefficients as it writes them. EXIF auto-orient of the 2.16 MP benchmark JPEG takes 151 ms
+  instead of 215 ms, JPEG to PNG 240 ms instead of 354 ms, and JPEG crop and resize is 4% faster.
+  JPEG output bytes are unchanged.
+- Lossless WebP decoding is faster with identical pixels. Huffman codes up to 8 bits decode from
+  one lookup table, the LZ77 history is sized from the largest distance the stream's codes can
+  reach instead of always 1 MiB pixels, and predictor loops are chosen once per tile. The
+  400 x 301 benchmark image decodes and converts to PNG in 42 ms instead of 52 ms, and allocates
+  about 0.5 MB less history.
 
 - EXIF auto-orient of a JPEG is 48% faster: 220 ms instead of 421 ms for the 2.16 MP
   `auto-orient-6` benchmark, with 5% lower peak RSS. The orientation transform reads each
@@ -74,6 +98,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Testing, CI and docs
 
+- `AGENTS.md` now allows parallel execution only behind the explicit, default-off `threads`
+  option, with capability detection in the runtime adapters, bounded memory per thread, and a
+  separate benchmark engine. The single-threaded path stays the default and the main target.
 - The website's X-Ray, HDR, OME-Zarr, and 4D-STEM workers now ignore messages that do not come
   from the page that created them. They share one check with the JPEG XL workbench worker.
 - Local benchmark servers log request errors instead of sending error text and stack traces in

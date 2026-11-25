@@ -1,5 +1,5 @@
 import { PNG } from 'pngjs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createImageLibrary } from '../src/browser.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
@@ -38,6 +38,20 @@ describe('browser image library', () => {
     expect(decoded.width).toBe(3)
     expect(decoded.height).toBe(2)
     expect([...decoded.data.subarray(0, 4)]).toEqual([255, 0, 0, 255])
+  })
+
+  it('uses the same PNG stream on multi-core browsers when threads are requested', async () => {
+    vi.stubGlobal('Worker', class {})
+    vi.stubGlobal('navigator', { hardwareConcurrency: 8 })
+    try {
+      expect(browserRuntime.availableParallelism?.()).toBe(8)
+      const bytes = PNG.sync.write(new PNG({ width: 517, height: 385, fill: true }))
+      const sequential = await (await images.open(bytes)).png().toUint8Array()
+      const parallel = await (await images.open(bytes, { threads: 4 })).png().toUint8Array()
+      expect(parallel).toEqual(sequential)
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 
   it('uses bounded browser temporary storage for rotation', async () => {

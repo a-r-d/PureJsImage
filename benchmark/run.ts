@@ -33,6 +33,7 @@ const engineIds = new Set([
   'jimp',
   'jsquash',
   'purejsimage',
+  'purejsimage-threads',
   'purejsimage-wasm',
   'purejsimage-experimental-heic',
   'sharp',

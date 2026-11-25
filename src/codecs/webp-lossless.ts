@@ -276,37 +276,44 @@ class BitReader {
   constructor(data: Uint8Array, offset: number, length: number) {
     this.#data = data
     this.#offset = offset
-    this.#end = offset + length
+    this.#end = Math.min(data.length, offset + length)
   }
 
   readBits(length: number): number {
     if (length < 0 || length > 24) throw invalidInput('WebP bit length is invalid')
-    let value = 0
-    let written = 0
-    while (written < length) {
-      if (this.#bitCount === 0) {
-        const next = this.#data[this.#offset]
-        if (next === undefined || this.#offset >= this.#end)
-          throw truncatedInput('WebP lossless bitstream is truncated')
-        this.#bits = next
-        this.#offset += 1
-        this.#bitCount = 8
-      }
-      const take = Math.min(this.#bitCount, length - written)
-      value |= (this.#bits & ((1 << take) - 1)) << written
-      this.#bits >>>= take
-      this.#bitCount -= take
-      written += take
-    }
+    const value = this.peekBits(length)
+    this.dropBits(length)
     return value
+  }
+
+  // Missing lookahead bits are zero. Only the selected code's actual length
+  // must be present, including when a short code ends in the final byte.
+  peekBits(length: number): number {
+    while (this.#bitCount < length && this.#offset < this.#end) {
+      this.#bits |= (this.#data[this.#offset] ?? 0) << this.#bitCount
+      this.#offset += 1
+      this.#bitCount += 8
+    }
+    return this.#bits & ((1 << length) - 1)
+  }
+
+  dropBits(length: number): void {
+    if (length > this.#bitCount) throw truncatedInput('WebP lossless bitstream is truncated')
+    this.#bits >>>= length
+    this.#bitCount -= length
   }
 }
 
-interface HuffmanCode {
-  readonly symbols: ReadonlyMap<number, number>
-  readonly maximumLength: number
-  readonly singleSymbol?: number
-}
+type HuffmanCode =
+  | { readonly singleSymbol: number; readonly maximumSymbol: number }
+  | {
+      readonly singleSymbol?: undefined
+      readonly maximumSymbol: number
+      readonly lookup: Uint16Array
+      readonly lookupBits: number
+      readonly symbols: ReadonlyMap<number, number>
+      readonly maximumLength: number
+    }
 
 interface PrefixGroup {
   readonly green: HuffmanCode
@@ -359,28 +366,24 @@ const buildHuffmanCode = (lengths: Uint8Array): HuffmanCode => {
   const counts = new Uint16Array(16)
   let symbolCount = 0
   let maximumLength = 0
-  let singleSymbol: number | undefined
+  let maximumSymbol = 0
   for (let symbol = 0; symbol < lengths.length; symbol += 1) {
     const length = lengths[symbol] ?? 0
     if (length > 15) throw invalidInput('WebP Huffman code length exceeds 15 bits')
     if (length === 0) continue
     counts[length] = (counts[length] ?? 0) + 1
     maximumLength = Math.max(maximumLength, length)
-    singleSymbol = symbol
+    maximumSymbol = symbol
     symbolCount += 1
   }
-  if (symbolCount === 0) return { symbols: new Map(), maximumLength: 0, singleSymbol: 0 }
+  if (symbolCount <= 1) return { singleSymbol: maximumSymbol, maximumSymbol }
 
   let available = 1
   for (let length = 1; length <= 15; length += 1) {
     available = available * 2 - (counts[length] ?? 0)
     if (available < 0) throw invalidInput('WebP Huffman tree is oversubscribed')
   }
-  if (symbolCount > 1 && available !== 0) throw invalidInput('WebP Huffman tree is incomplete')
-  if (symbolCount === 1) {
-    if (singleSymbol === undefined) throw invalidInput('WebP Huffman symbol is missing')
-    return { symbols: new Map(), maximumLength: 0, singleSymbol }
-  }
+  if (available !== 0) throw invalidInput('WebP Huffman tree is incomplete')
 
   const nextCode = new Uint16Array(16)
   let code = 0
@@ -388,21 +391,36 @@ const buildHuffmanCode = (lengths: Uint8Array): HuffmanCode => {
     code = (code + (counts[length - 1] ?? 0)) << 1
     nextCode[length] = code
   }
+  // Keep the root small for sparse alphabets, even when one code is very long.
+  const lookupBits = Math.min(maximumLength, 8, 1 + Math.ceil(Math.log2(symbolCount)))
+  const lookup = new Uint16Array(1 << lookupBits)
   const symbols = new Map<number, number>()
   for (let symbol = 0; symbol < lengths.length; symbol += 1) {
     const length = lengths[symbol] ?? 0
     if (length === 0) continue
     const canonical = nextCode[length] ?? 0
     nextCode[length] = canonical + 1
-    symbols.set((1 << length) | reverseBits(canonical, length), symbol)
+    const reversed = reverseBits(canonical, length)
+    if (length <= lookupBits) {
+      const entry = (symbol << 4) | length
+      for (let index = reversed; index < lookup.length; index += 1 << length) lookup[index] = entry
+    } else {
+      symbols.set((1 << length) | reversed, symbol)
+    }
   }
-  return { symbols, maximumLength }
+  return { lookup, lookupBits, symbols, maximumLength, maximumSymbol }
 }
 
 const readHuffmanSymbol = (reader: BitReader, code: HuffmanCode): number => {
   if (code.singleSymbol !== undefined) return code.singleSymbol
-  let bits = 0
-  for (let length = 1; length <= code.maximumLength; length += 1) {
+  let bits = reader.peekBits(code.lookupBits)
+  const entry = code.lookup[bits] ?? 0
+  if (entry !== 0) {
+    reader.dropBits(entry & 15)
+    return entry >>> 4
+  }
+  reader.dropBits(code.lookupBits)
+  for (let length = code.lookupBits + 1; length <= code.maximumLength; length += 1) {
     bits |= reader.readBits(1) << (length - 1)
     const symbol = code.symbols.get((1 << length) | bits)
     if (symbol !== undefined) return symbol
@@ -484,7 +502,18 @@ const distanceValue = (code: number, width: number): number => {
   return Math.max(1, x + y * width)
 }
 
-const maximumBackwardDistance = 1_048_576
+// The distance trees bound which pixels a later LZ77 copy can reference.
+const historyCapacity = (groups: readonly PrefixGroup[], width: number, pixels: number): number => {
+  let prefix = 0
+  for (const group of groups) prefix = Math.max(prefix, group.distance.maximumSymbol)
+  const maximumCode = prefix < 4 ? prefix + 1 : (3 + (prefix & 1)) << ((prefix - 2) >>> 1)
+  // Codes 1..120 describe 2D offsets in nonmonotonic order. Later codes are linear.
+  let distance = Math.max(1, maximumCode - 120)
+  for (let code = 1; code <= Math.min(120, maximumCode); code += 1) {
+    distance = Math.max(distance, distanceValue(code, width))
+  }
+  return Math.min(pixels, 2 ** Math.ceil(Math.log2(distance)))
+}
 
 function* decodeImageRows(
   reader: BitReader,
@@ -527,7 +556,7 @@ function* decodeImageRows(
   }
 
   const pixelCount = width * height
-  const historyLength = Math.min(pixelCount, maximumBackwardDistance)
+  const historyLength = historyCapacity(groups, width, pixelCount)
   const history = new Uint32Array(historyLength)
   const historyMask = historyLength - 1
   const historyPowerOfTwo = (historyLength & historyMask) === 0
@@ -769,16 +798,37 @@ const inversePredictorRow = (
   const modes = transform.data
   const last = width - 1
   const rowOffset = (y >>> sizeBits) * transformWidth
-  for (let x = 1; x < width; x += 1) {
-    const mode = ((modes[rowOffset + (x >>> sizeBits)] ?? 0) >>> 8) & 255
-    const left = row[x - 1] ?? 0
-    const top = previous[x] ?? 0
-    const topLeft = previous[x - 1] ?? 0
-    const predicted =
-      mode === 11
-        ? selectPacked(left, top, topLeft)
-        : predictor(mode, left, top, topLeft, x === last ? (row[0] ?? 0) : (previous[x + 1] ?? 0))
-    row[x] = addPacked(row[x] ?? 0, predicted)
+  let x = 1
+  while (x < width) {
+    const tile = x >>> sizeBits
+    const end = Math.min(width, (tile + 1) << sizeBits)
+    const mode = ((modes[rowOffset + tile] ?? 0) >>> 8) & 255
+    if (mode === 1) {
+      let left = row[x - 1] ?? 0
+      for (; x < end; x += 1) {
+        left = addPacked(row[x] ?? 0, left)
+        row[x] = left
+      }
+    } else if (mode === 2) {
+      for (; x < end; x += 1) row[x] = addPacked(row[x] ?? 0, previous[x] ?? 0)
+    } else {
+      for (; x < end; x += 1) {
+        const left = row[x - 1] ?? 0
+        const top = previous[x] ?? 0
+        const topLeft = previous[x - 1] ?? 0
+        const predicted =
+          mode === 11
+            ? selectPacked(left, top, topLeft)
+            : predictor(
+                mode,
+                left,
+                top,
+                topLeft,
+                x === last ? (row[0] ?? 0) : (previous[x + 1] ?? 0),
+              )
+        row[x] = addPacked(row[x] ?? 0, predicted)
+      }
+    }
   }
 }
 
