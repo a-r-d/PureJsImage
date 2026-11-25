@@ -40,7 +40,9 @@ Then apply these selection rules:
 
 The runner has no family filter. If the user named a family, pass an explicit
 `--workload` from that family. Omitting `--workload` surveys the entire suite and
-will ignore a soft family hint.
+will ignore a soft family hint. Web workloads outside the `web-codecs` profile
+also need `--profile`, for example `--profile transforms`, `--profile standard`
+or `--profile webp`.
 
 State:
 
@@ -54,6 +56,7 @@ Run one of:
 ```sh
 npm run bench:hillclimb -- --suite web --workload northstar-photo-pipeline --goal memory --base-ref origin/main
 npm run bench:hillclimb -- --suite web --workload jpeg-resize-1200 --goal speed --base-ref origin/main
+npm run bench:hillclimb -- --suite web --profile transforms --workload transform-arbitrary-angle-jpeg --goal speed --base-ref origin/main
 npm run bench:hillclimb -- --suite scientific --workload scaling-tiff-large-warm-regions --goal speed --base-ref origin/main
 ```
 

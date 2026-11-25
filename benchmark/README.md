@@ -247,6 +247,13 @@ npm run bench:hillclimb -- --suite web --workload northstar-photo-pipeline --goa
 npm run bench:hillclimb -- --suite scientific --workload scaling-tiff-large-warm-regions --goal speed --base-ref origin/main
 ```
 
+Web workloads run in the `web-codecs` profile by default. Pass `--profile` for a workload from
+another web profile, such as `standard`, `transforms` or `webp`:
+
+```sh
+npm run bench:hillclimb -- --suite web --profile transforms --workload transform-arbitrary-angle-jpeg --goal speed --base-ref origin/main
+```
+
 The runner creates a temporary base worktree, builds both revisions with the current Node runtime,
 and alternates base and candidate one-sample harness runs. Seven paired trials are used by default.
 It compares raw correctness and performance samples, path-independent fixture and

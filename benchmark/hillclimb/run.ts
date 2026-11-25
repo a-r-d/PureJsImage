@@ -13,6 +13,8 @@ type WebEngine = 'purejsimage' | 'purejsimage-wasm'
 
 interface Options {
   readonly suite: Suite
+  /** Web benchmark profile that holds the workload. Defaults to web-codecs. */
+  readonly profile: string
   readonly engine: WebEngine
   readonly goal: HillclimbGoal
   readonly workload: string | undefined
@@ -89,8 +91,14 @@ const parseOptions = (): Options => {
   if (suite === 'scientific' && engine !== 'purejsimage') {
     throw new Error('--engine purejsimage-wasm is only available for the web suite')
   }
+  const profile = argument('profile') ?? (suite === 'web' ? 'web-codecs' : 'scaling')
+  if (suite === 'scientific' && profile !== 'scaling') {
+    throw new Error('--profile is only available for the web suite')
+  }
+  if (suite === 'web') workflowsForProfile(profile)
   return Object.freeze({
     suite,
+    profile,
     engine,
     goal,
     workload: argument('workload'),
@@ -342,7 +350,7 @@ const harnessArguments = (options: Options, workload: string, stem: string): rea
         '--engines',
         options.engine,
         '--profile',
-        'web-codecs',
+        options.profile,
         '--workflow',
         workload,
         '--runs',
@@ -449,11 +457,7 @@ const freshWorkload = async (
         )
   for (const path of await recentJsonFiles(directory)) {
     const parsed: unknown = JSON.parse(await readFile(path, 'utf8'))
-    if (
-      !isRecord(parsed) ||
-      parsed.profile !== (options.suite === 'web' ? 'web-codecs' : 'scaling')
-    )
-      continue
+    if (!isRecord(parsed) || parsed.profile !== options.profile) continue
     const environment = isRecord(parsed.environment) ? parsed.environment : {}
     const reportRevision =
       isRecord(parsed.revision) && typeof parsed.revision.gitCommit === 'string'
@@ -480,7 +484,7 @@ const freshWorkload = async (
           return []
         if (
           typeof value.workflow !== 'string' ||
-          !new Set(surveyWorkloads('web')).has(value.workflow)
+          !new Set(surveyWorkloads(options)).has(value.workflow)
         )
           return []
         const summary = value.summary
@@ -524,10 +528,10 @@ const freshWorkload = async (
   return undefined
 }
 
-const surveyWorkloads = (suite: Suite): readonly string[] =>
-  suite === 'scientific'
+const surveyWorkloads = (options: Options): readonly string[] =>
+  options.suite === 'scientific'
     ? workloadsForScientificProfile('scaling').map(({ id }) => id)
-    : workflowsForProfile('web-codecs')
+    : workflowsForProfile(options.profile)
         .filter(({ id }) => !id.includes('metadata'))
         .map(({ id }) => id)
 
@@ -541,7 +545,7 @@ const selectWorkload = async (
   const fresh = await freshWorkload(options, candidate.revision)
   if (fresh !== undefined) return fresh
   const surveyed: { readonly workload: string; readonly metric: number }[] = []
-  for (const workload of surveyWorkloads(options.suite)) {
+  for (const workload of surveyWorkloads(options)) {
     const result = await runTrial(options, workload, candidate, rawDirectory, `survey-${workload}`)
     surveyed.push({
       workload,
@@ -698,7 +702,7 @@ const main = async (): Promise<void> => {
       workload: selection.workload,
       selectionReason: selection.reason,
       goal: options.goal,
-      reproductionCommand: `npm run bench:hillclimb -- --suite ${options.suite} --engine ${options.engine} --workload ${selection.workload} --goal ${options.goal} --base-ref ${options.baseRef}`,
+      reproductionCommand: `npm run bench:hillclimb -- --suite ${options.suite}${options.suite === 'web' && options.profile !== 'web-codecs' ? ` --profile ${options.profile}` : ''} --engine ${options.engine} --workload ${selection.workload} --goal ${options.goal} --base-ref ${options.baseRef}`,
       baseRef: options.baseRef,
       baseRevision,
       candidateRevision,

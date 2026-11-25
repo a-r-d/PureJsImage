@@ -143,6 +143,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Testing, CI and docs
 
+- `npm run bench:hillclimb` takes `--profile` for web workloads outside the `web-codecs` profile,
+  such as `transforms`, `standard` and `webp`. It still defaults to `web-codecs`.
 - The PureJsImage benchmark engine now opens frame 0 on the two workflows that benchmark the first
   frame of an animated GIF, `gif-first-frame-png` and `lambda-logo-gif`. Both failed for
   PureJsImage after animated GIF decoding started to require an explicit frame. Pipeline
