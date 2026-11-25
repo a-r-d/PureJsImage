@@ -10,6 +10,9 @@ export class Av1SymbolDecoder {
   readonly #data: Uint8Array
   readonly #updateCdfs: boolean
   #position = 0
+  #buffer = 0
+  #bufferBits = 0
+  #nextByte = 0
   #range = CDF_PROBABILITY_TOP
   #value: number
   #maximumBits: number
@@ -133,12 +136,17 @@ export class Av1SymbolDecoder {
   }
 
   #readRaw(bits: number): number {
-    let value = 0
-    for (let index = 0; index < bits; index += 1) {
-      value = value * 2 + this.#rawBit(this.#position)
-      this.#position += 1
+    if (this.#bufferBits < bits) {
+      // The largest request is the initial 15 bits. Refill two bytes at a time
+      // and keep the remaining low bits for the following symbols.
+      const next = ((this.#data[this.#nextByte] ?? 0) << 8) | (this.#data[this.#nextByte + 1] ?? 0)
+      this.#buffer = (this.#buffer << 16) | next
+      this.#nextByte += 2
+      this.#bufferBits += 16
     }
-    return value
+    this.#position += bits
+    this.#bufferBits -= bits
+    return (this.#buffer >>> this.#bufferBits) & ((1 << bits) - 1)
   }
 
   #rawBit(position: number): number {

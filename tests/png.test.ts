@@ -800,6 +800,42 @@ describe('PNG pixel pipeline', () => {
     expect(PNG.sync.read(await readFile(path)).data).toEqual(PNG.sync.read(input).data)
   })
 
+  it('preserves residual bytes as the adaptive filter changes between rows', async () => {
+    const input = specializedPng(
+      4,
+      5,
+      8,
+      0,
+      Uint8Array.from(
+        [
+          [0, 10, 10, 10, 0],
+          [0, 20, 20, 20, 0],
+          [0, 20, 20, 0, 0],
+          [0, 10, 10, 0, 0],
+          [0, 0, 0, 0, 0],
+        ].flat(),
+      ),
+    )
+    const output = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()
+    const rows = uncompressedPngScanlines(output)
+
+    expect(Array.from(rows.subarray(0, 5))).toEqual([1, 10, 0, 0, 246])
+    expect(Array.from(rows.subarray(5, 10))).toEqual([4, 10, 0, 0, 246])
+    expect(Array.from(rows.subarray(10, 15))).toEqual([2, 0, 0, 236, 0])
+    expect(Array.from(rows.subarray(15, 20))).toEqual([3, 0, 251, 251, 0])
+    expect(Array.from(rows.subarray(20))).toEqual([0, 0, 0, 0, 0])
+  })
+
+  it('preserves Paeth residuals for neighbor differences near 32', async () => {
+    const previous = [96, 64, 95, 127, 94, 62, 93, 125, 92]
+    const current = [127, 96, 96, 127, 94, 62, 93, 125, 92]
+    const input = specializedPng(9, 2, 8, 0, Uint8Array.of(0, ...previous, 0, ...current))
+    const output = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()
+    expect(Array.from(uncompressedPngScanlines(output).subarray(10))).toEqual([
+      4, 31, 0, 0, 0, 0, 0, 0, 0, 0,
+    ])
+  })
+
   it('uses adaptive row filters to reduce smooth-image output size', async () => {
     const input = rgbaPng(256, 128)
     const decoded = PNG.sync.read(input)

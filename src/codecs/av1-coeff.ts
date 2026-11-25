@@ -19,24 +19,14 @@ const defaultScan8x4 = [
   0, 8, 1, 16, 9, 2, 24, 17, 10, 3, 25, 18, 11, 4, 26, 19, 12, 5, 27, 20, 13, 6, 28, 21, 14, 7, 29,
   22, 15, 30, 23, 31,
 ] as const
-const magnitudeOffsets = [
-  [0, 1],
-  [1, 0],
-  [1, 1],
-] as const
-const magnitudeOffsetsByClass = [
-  magnitudeOffsets,
-  [
-    [0, 1],
-    [1, 0],
-    [0, 2],
-  ],
-  [
-    [0, 1],
-    [1, 0],
-    [2, 0],
-  ],
-] as const
+// Fixed pitch leaves four zero neighbors beyond every coded rectangle.
+const levelPitch = 64
+const levelOffsets = [4, 8, 16, 32].map((width) =>
+  Uint16Array.from(
+    { length: width * 32 },
+    (_, pos) => Math.floor(pos / width) * levelPitch + (pos % width),
+  ),
+)
 const makeCdf = (values: readonly number[]): Uint16Array => new Uint16Array(values)
 const dcSignDefaults = [
   [16000, 13056, 18816],
@@ -106,6 +96,7 @@ export interface Av1CoefficientBlock {
 }
 
 export class Av1CoefficientDecoder {
+  readonly #levels = new Uint8Array(36 * levelPitch)
   readonly #symbols: Av1SymbolDecoder
   readonly #quantizerContext: number
   readonly #eobPoint4x4: readonly (readonly Uint16Array[])[]
@@ -180,7 +171,8 @@ export class Av1CoefficientDecoder {
     height: CoefficientDimension,
     transformType: number,
     dcSignContext = 0,
-  ): Av1CoefficientBlock {
+    scratch?: Int32Array,
+  ): Av1CoefficientBlock & { readonly activeRows: number } {
     if (this.#quantizerContext < 0 || this.#quantizerContext > 3) {
       throw unsupportedOperation(
         `AV1 nonzero coefficients for quantizer context ${this.#quantizerContext}`,
@@ -194,7 +186,12 @@ export class Av1CoefficientDecoder {
     const adjustedHeight = Math.min(height, 32) as 4 | 8 | 16 | 32
     const scan = scanFor(adjustedWidth, adjustedHeight, transformType)
     const area = adjustedWidth * adjustedHeight
-    const classContext = transformClass(transformType) === 0 ? 0 : 1
+    const txClass = transformClass(transformType)
+    const classContext = txClass === 0 ? 0 : 1
+    const offsets = levelOffsets[Math.log2(adjustedWidth) - 2]
+    if (!offsets) throw invalidInput('AV1 coefficient dimensions are invalid')
+    const levels = this.#levels
+    const direction = Math.sign(width - height)
     const eobPoints =
       area === 16
         ? this.#eobPoint4x4
@@ -265,10 +262,14 @@ export class Av1CoefficientDecoder {
     }
     if (eob < 1 || eob > area) throw invalidInput(`Invalid AV1 ${width}x${height} EOB: ${eob}`)
 
-    const coefficients = new Int32Array(area)
+    const coefficients =
+      scratch && adjustedWidth === width && adjustedHeight === height && scratch.length >= area
+        ? scratch
+        : new Int32Array(area)
     for (let scanIndex = eob - 1; scanIndex >= 0; scanIndex -= 1) {
       const position = scan[scanIndex]
       if (position === undefined) throw invalidInput('AV1 coefficient scan is invalid')
+      const site = offsets[position] ?? 0
       let level: number
       let coefficientContext: number
       if (scanIndex === eob - 1) {
@@ -278,45 +279,37 @@ export class Av1CoefficientDecoder {
         if (!baseEobCdf) throw invalidInput('AV1 coefficient EOB base CDF is missing')
         level = this.#symbols.readSymbol(baseEobCdf) + 1
       } else {
-        coefficientContext = this.#baseContext(
-          coefficients,
-          position,
-          adjustedWidth,
-          adjustedHeight,
-          transformType,
-          Math.sign(width - height),
-        )
+        coefficientContext = this.#baseContext(site, txClass, direction)
         const baseCdf = base[planeType]?.[coefficientContext]
         if (!baseCdf)
           throw invalidInput(`AV1 coefficient base context ${coefficientContext} is missing`)
         level = this.#symbols.readSymbol(baseCdf)
       }
       if (level > 2) {
+        const context = this.#rangeContext(site, txClass)
+        const rangeCdf = range[planeType]?.[context]
+        if (!rangeCdf) throw invalidInput(`AV1 coefficient range context ${context} is missing`)
         for (let index = 0; index < 4; index += 1) {
-          const context = this.#rangeContext(
-            coefficients,
-            position,
-            adjustedWidth,
-            adjustedHeight,
-            transformType,
-          )
-          const rangeCdf = range[planeType]?.[context]
-          if (!rangeCdf) throw invalidInput(`AV1 coefficient range context ${context} is missing`)
           const extra = this.#symbols.readSymbol(rangeCdf)
           level += extra
           if (extra < 3) break
         }
       }
-      coefficients[position] = level
+      levels[site] = level
     }
 
+    let lastPosition = 0
     let dcCategory = 0
     let levelContext = 0
     for (let scanIndex = 0; scanIndex < eob; scanIndex += 1) {
       const position = scan[scanIndex]
       if (position === undefined) throw invalidInput('AV1 coefficient scan is invalid')
-      let magnitude = coefficients[position] ?? 0
+      const site = offsets[position] ?? 0
+      let magnitude = levels[site] ?? 0
       if (magnitude === 0) continue
+      // The sign scan consumes each nonzero site once. Restore its zero halo for the next block.
+      levels[site] = 0
+      lastPosition = Math.max(lastPosition, position)
       let sign: number
       if (scanIndex === 0) {
         const signCdf = this.#dcSign[planeType]?.[dcSignContext]
@@ -339,81 +332,61 @@ export class Av1CoefficientDecoder {
       if (position === 0) dcCategory = sign === 1 ? 1 : 2
       coefficients[position] = sign === 1 ? -magnitude : magnitude
     }
+    const activeRows = Math.floor(lastPosition / adjustedWidth) + 1
     if (adjustedWidth === width && adjustedHeight === height) {
-      return { coefficients, dcCategory, eob, levelContext: Math.min(63, levelContext) }
+      return { coefficients, activeRows, dcCategory, eob, levelContext: Math.min(63, levelContext) }
     }
     const expanded = new Int32Array(width * height)
-    for (let row = 0; row < adjustedHeight; row += 1) {
+    for (let row = 0; row < activeRows; row += 1) {
       expanded.set(
         coefficients.subarray(row * adjustedWidth, row * adjustedWidth + adjustedWidth),
         row * width,
       )
     }
-    return { coefficients: expanded, dcCategory, eob, levelContext: Math.min(63, levelContext) }
+    return {
+      coefficients: expanded,
+      activeRows,
+      dcCategory,
+      eob,
+      levelContext: Math.min(63, levelContext),
+    }
   }
 
-  #baseContext(
-    coefficients: Int32Array,
-    position: number,
-    width: CoefficientDimension,
-    height: CoefficientDimension,
-    transformType: number,
-    rectangularDirection: number,
-  ): number {
-    const txClass = transformClass(transformType)
-    if (txClass === 0 && position === 0) return 0
-    const row = Math.floor(position / width)
-    const column = position % width
-    // Coefficient signs are read only after this reverse scan, so every neighbor is a magnitude.
-    let magnitude = 0
-    if (column + 1 < width) magnitude += Math.min(coefficients[position + 1] ?? 0, 3)
-    if (row + 1 < height) magnitude += Math.min(coefficients[position + width] ?? 0, 3)
+  #baseContext(site: number, txClass: number, direction: number): number {
+    if (txClass === 0 && site === 0) return 0
+    const row = site >> 6
+    const col = site & 63
+    const levels = this.#levels
+    let sum = Math.min(levels[site + 1] ?? 0, 3) + Math.min(levels[site + levelPitch] ?? 0, 3)
     if (txClass === 0) {
-      if (column + 1 < width && row + 1 < height) {
-        magnitude += Math.min(coefficients[position + width + 1] ?? 0, 3)
-      }
-      if (column + 2 < width) magnitude += Math.min(coefficients[position + 2] ?? 0, 3)
-      if (row + 2 < height) magnitude += Math.min(coefficients[position + 2 * width] ?? 0, 3)
-      const base = Math.min((magnitude + 1) >> 1, 4)
-      if (rectangularDirection < 0 && row < 2) return base + 11
-      if (rectangularDirection > 0 && column < 2) return base + 16
-      const diagonal = row + column
+      sum +=
+        Math.min(levels[site + levelPitch + 1] ?? 0, 3) +
+        Math.min(levels[site + 2] ?? 0, 3) +
+        Math.min(levels[site + 2 * levelPitch] ?? 0, 3)
+      const base = Math.min((sum + 1) >> 1, 4)
+      if (direction < 0 && row < 2) return base + 11
+      if (direction > 0 && col < 2) return base + 16
+      const diagonal = row + col
       return base + (diagonal === 1 ? 1 : diagonal < 4 ? 6 : 21)
     }
-    const axis = txClass === 1 ? column : row
-    const end = txClass === 1 ? width : height
-    const stride = txClass === 1 ? 1 : width
-    for (let distance = 2; distance <= 4 && axis + distance < end; distance += 1) {
-      magnitude += Math.min(coefficients[position + distance * stride] ?? 0, 3)
-    }
-    return Math.min((magnitude + 1) >> 1, 4) + 26 + 5 * Math.min(axis, 2)
+    const stride = txClass === 1 ? 1 : levelPitch
+    sum +=
+      Math.min(levels[site + 2 * stride] ?? 0, 3) +
+      Math.min(levels[site + 3 * stride] ?? 0, 3) +
+      Math.min(levels[site + 4 * stride] ?? 0, 3)
+    return Math.min((sum + 1) >> 1, 4) + 26 + 5 * Math.min(txClass === 1 ? col : row, 2)
   }
 
-  #rangeContext(
-    coefficients: Int32Array,
-    position: number,
-    width: CoefficientDimension,
-    height: CoefficientDimension,
-    transformType: number,
-  ): number {
-    const row = Math.floor(position / width)
-    const column = position % width
-    const txClass = transformClass(transformType)
-    let magnitude = 0
-    for (const [rowOffset, columnOffset] of magnitudeOffsetsByClass[txClass]) {
-      const referenceRow = row + rowOffset
-      const referenceColumn = column + columnOffset
-      if (referenceRow < height && referenceColumn < width) {
-        magnitude += Math.min(
-          Math.abs(coefficients[referenceRow * width + referenceColumn] ?? 0),
-          15,
-        )
-      }
-    }
-    const base = Math.min((magnitude + 1) >> 1, 6)
-    if (position === 0) return base
-    if (txClass === 0) return base + (row < 2 && column < 2 ? 7 : 14)
-    if (txClass === 1) return base + (column === 0 ? 7 : 14)
-    return base + (row === 0 ? 7 : 14)
+  #rangeContext(site: number, txClass: number): number {
+    const levels = this.#levels
+    const third = txClass === 0 ? levelPitch + 1 : txClass === 1 ? 2 : 2 * levelPitch
+    const sum =
+      (levels[site + 1] ?? 0) + (levels[site + levelPitch] ?? 0) + (levels[site + third] ?? 0)
+    const base = Math.min((sum + 1) >> 1, 6)
+    if (site === 0) return base
+    const row = site >> 6,
+      col = site & 63
+    const near = txClass === 0 ? row < 2 && col < 2 : txClass === 1 ? col === 0 : row === 0
+    return base + (near ? 7 : 14)
   }
 }

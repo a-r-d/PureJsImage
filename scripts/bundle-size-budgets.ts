@@ -11,7 +11,9 @@ export interface BundleSizeBudget {
  */
 export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
-  'core-execution': { maxMinifiedBytes: 73 * 1024 },
+  // 2026-11-24: raised from 73 KiB to 74 KiB, owner approved, for the opaque RGBA resize path
+  // that filters RGB only when the decoder reports every pixel is opaque.
+  'core-execution': { maxMinifiedBytes: 74 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // Owner approved campaign ceiling increases on 2026-10-10. Report sizes; they are not promotion gates.
   // 2026-11-20: raised to fit the libjxl-derived effort-7 encoder (about 25.5 KB), owner approved.
@@ -25,7 +27,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-24: raised by 6,000 bytes, owner approved. The codec loads its VarDCT, sequence,
   // native-sample and encoder modules on first use, and a single-file bundle wraps each lazily
   // loaded module in an init function.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 653_000 },
+  // 2026-11-24: raised by 1,000 bytes, owner approved, for the same opaque RGBA resize path in
+  // the core execution code this entry bundles.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 654_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.

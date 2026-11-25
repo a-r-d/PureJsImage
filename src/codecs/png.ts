@@ -1546,8 +1546,8 @@ const chooseAdaptiveFilter = (
   up: number,
   average: number,
   paethScore: number,
-): number => {
-  let filter = 0
+): 0 | 1 | 2 | 3 | 4 => {
+  let filter: 0 | 1 | 2 | 3 = 0
   let score = none
   if (sub < score) {
     filter = 1
@@ -1565,12 +1565,28 @@ const chooseAdaptiveFilter = (
   return filter
 }
 
+// Paeth is invariant to adding the same value to all three neighbors.
+// Store its offset from the corner for common differences in [-32, 31].
+const paethOffsets = new Int8Array(64 * 64)
+for (let left = -32; left < 32; left += 1) {
+  for (let above = -32; above < 32; above += 1) {
+    paethOffsets[(left + 32) * 64 + above + 32] = paeth(left, above, 0)
+  }
+}
+
+const encodePaeth = (left: number, above: number, corner: number): number => {
+  const x = left - corner + 32
+  const y = above - corner + 32
+  if ((x | y) >>> 0 < 64) return corner + (paethOffsets[x * 64 + y] ?? 0)
+  return paeth(left, above, corner)
+}
+
 const applyFilterScanline = (
   source: Uint8Array,
   previous: Uint8Array,
   bytesPerPixel: number,
   output: Uint8Array,
-  filter: number,
+  filter: 0 | 1 | 2 | 3,
 ): void => {
   output[0] = filter
   if (filter === 0) {
@@ -1591,24 +1607,21 @@ const applyFilterScanline = (
     return
   }
   for (let index = 0; index < bytesPerPixel; index += 1) {
-    const value = source[index] ?? 0
     const above = previous[index] ?? 0
-    output[index + 1] = filter === 3 ? (value - (above >>> 1)) & 0xff : (value - above) & 0xff
-  }
-  if (filter === 3) {
-    for (let index = bytesPerPixel; index < source.byteLength; index += 1) {
-      const left = source[index - bytesPerPixel] ?? 0
-      const above = previous[index] ?? 0
-      output[index + 1] = ((source[index] ?? 0) - ((left + above) >>> 1)) & 0xff
-    }
-    return
+    output[index + 1] = ((source[index] ?? 0) - (above >>> 1)) & 0xff
   }
   for (let index = bytesPerPixel; index < source.byteLength; index += 1) {
     const left = source[index - bytesPerPixel] ?? 0
     const above = previous[index] ?? 0
-    const upperLeft = previous[index - bytesPerPixel] ?? 0
-    output[index + 1] = ((source[index] ?? 0) - paeth(left, above, upperLeft)) & 0xff
+    output[index + 1] = ((source[index] ?? 0) - ((left + above) >>> 1)) & 0xff
   }
+}
+
+const isZeroScanline = (source: Uint8Array): boolean => {
+  for (let index = 0; index < source.byteLength; index += 1) {
+    if (source[index] !== 0) return false
+  }
+  return true
 }
 
 const filterScanline = (
@@ -1618,8 +1631,9 @@ const filterScanline = (
   output: Uint8Array,
   adaptive: boolean,
 ): void => {
-  let filter = 0
-  if (adaptive) {
+  let filter: 0 | 1 | 2 | 3 | 4 = 0
+  // An all-zero row gives None the lowest possible score and it wins all ties.
+  if (adaptive && !isZeroScanline(source)) {
     let none = 0
     let sub = 0
     let up = 0
@@ -1634,6 +1648,7 @@ const filterScanline = (
       sub += filteredMagnitude(value)
       up += filteredMagnitude(residual)
       average += filteredMagnitude((value - Math.floor(above / 2)) & 0xff)
+      output[index + 1] = residual
       paethScore += filteredMagnitude(residual)
     }
     for (let index = bytesPerPixel; index < length; index += 1) {
@@ -1645,9 +1660,16 @@ const filterScanline = (
       sub += filteredMagnitude((value - left) & 0xff)
       up += filteredMagnitude((value - above) & 0xff)
       average += filteredMagnitude((value - Math.floor((left + above) / 2)) & 0xff)
-      paethScore += filteredMagnitude((value - paeth(left, above, upperLeft)) & 0xff)
+      const residual = (value - encodePaeth(left, above, upperLeft)) & 0xff
+      output[index + 1] = residual
+      paethScore += filteredMagnitude(residual)
     }
     filter = chooseAdaptiveFilter(none, sub, up, average, paethScore)
+    // The Paeth residuals are already in the output row from scoring.
+    if (filter === 4) {
+      output[0] = filter
+      return
+    }
   }
   applyFilterScanline(source, previous, bytesPerPixel, output, filter)
 }

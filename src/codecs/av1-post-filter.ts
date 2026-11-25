@@ -79,32 +79,6 @@ const sampleBuffer = (
 ): Uint8Array | Uint16Array =>
   source instanceof Uint8Array ? new Uint8Array(length) : new Uint16Array(length)
 
-const planeContextWidth = (state: Av1PostFilterState, plane: number): number => {
-  const shiftX = plane === 0 ? 0 : state.chromaShiftX
-  return (state.contextMiColumns + (1 << shiftX) - 1) >> shiftX
-}
-
-const transformAt = (
-  transforms: readonly [Uint8Array, Uint8Array, Uint8Array],
-  state: Av1PostFilterState,
-  plane: number,
-  row: number,
-  column: number,
-): number => {
-  const shiftX = plane === 0 ? 0 : state.chromaShiftX
-  const shiftY = plane === 0 ? 0 : state.chromaShiftY
-  const contextColumn = (column - state.miColumnStart) >> shiftX
-  const contextRow = (row - state.miRowStart) >> shiftY
-  if (
-    contextColumn < 0 ||
-    contextColumn >= planeContextWidth(state, plane) ||
-    contextRow < 0 ||
-    contextRow >= state.contextMiRows >> shiftY
-  ) {
-    return 0
-  }
-  return transforms[plane]?.[contextRow * planeContextWidth(state, plane) + contextColumn] ?? 0
-}
 const segmentAt = (state: Av1PostFilterState, row: number, column: number): number => {
   if (state.segmentIds.length === 0) return 0
   const contextRow = row - state.miRowStart
@@ -166,51 +140,40 @@ const filter4Clamp = (value: number, depthShift: number): number =>
   clip(-128 << depthShift, (128 << depthShift) - 1, value)
 
 const narrowFilter = (
-  plane: Av1FilterPlane,
-  x: number,
-  y: number,
-  dx: number,
-  dy: number,
+  data: Uint8Array | Uint16Array,
+  center: number,
+  step: number,
+  p1: number,
+  p0: number,
+  q0: number,
+  q1: number,
   highEdgeVariance: boolean,
   depthShift: number,
 ): void => {
-  const q0Index = y * plane.stride + x
-  const q1Index = (y + dy) * plane.stride + x + dx
-  const p0Index = (y - dy) * plane.stride + x - dx
-  const p1Index = (y - 2 * dy) * plane.stride + x - 2 * dx
-  const q0 = plane.data[q0Index] ?? 0
-  const q1 = plane.data[q1Index] ?? 0
-  const p0 = plane.data[p0Index] ?? 0
-  const p1 = plane.data[p1Index] ?? 0
   const sampleMaximum = (256 << depthShift) - 1
   let filter = highEdgeVariance ? filter4Clamp(p1 - q1, depthShift) : 0
   filter = filter4Clamp(filter + 3 * (q0 - p0), depthShift)
   const filter1 = Math.min(filter + 4, (128 << depthShift) - 1) >> 3
   const filter2 = Math.min(filter + 3, (128 << depthShift) - 1) >> 3
-  plane.data[q0Index] = clip(0, sampleMaximum, q0 - filter1)
-  plane.data[p0Index] = clip(0, sampleMaximum, p0 + filter2)
+  data[center] = clip(0, sampleMaximum, q0 - filter1)
+  data[center - step] = clip(0, sampleMaximum, p0 + filter2)
   if (!highEdgeVariance) {
     const outerFilter = (filter1 + 1) >> 1
-    plane.data[q1Index] = clip(0, sampleMaximum, q1 - outerFilter)
-    plane.data[p1Index] = clip(0, sampleMaximum, p1 + outerFilter)
+    data[center + step] = clip(0, sampleMaximum, q1 - outerFilter)
+    data[center - 2 * step] = clip(0, sampleMaximum, p1 + outerFilter)
   }
 }
 
 const wideFilter = (
-  plane: Av1FilterPlane,
-  x: number,
-  y: number,
-  dx: number,
-  dy: number,
+  data: Uint8Array | Uint16Array,
+  center: number,
+  step: number,
   log2Size: 3 | 4,
   isLuma: boolean,
   scratch: Int16Array,
 ): void => {
   const n = log2Size === 4 ? 6 : isLuma ? 3 : 2
   const inner = log2Size === 3 && isLuma ? 0 : 1
-  const center = y * plane.stride + x
-  const step = dy * plane.stride + dx
-  const data = plane.data
   const left = data[center - (n + 1) * step] ?? 0
 
   // The kernel is the sum of two box filters. At the first output position
@@ -236,11 +199,9 @@ const wideFilter = (
 }
 
 const filterSample = (
-  plane: Av1FilterPlane,
-  x: number,
-  y: number,
-  dx: number,
-  dy: number,
+  data: Uint8Array | Uint16Array,
+  center: number,
+  step: number,
   filterSize: number,
   limit: number,
   blockLimit: number,
@@ -249,49 +210,60 @@ const filterSample = (
   wideScratch: Int16Array,
   depthShift: number,
 ): void => {
-  const sample = (offset: number): number =>
-    plane.data[(y + offset * dy) * plane.stride + x + offset * dx] ?? 0
-  const q0 = sample(0)
-  const q1 = sample(1)
-  const p0 = sample(-1)
-  const p1 = sample(-2)
-  const highEdgeVariance = Math.abs(p1 - p0) > threshold || Math.abs(q1 - q0) > threshold
+  const q0 = data[center] ?? 0
+  const q1 = data[center + step] ?? 0
+  const p0 = data[center - step] ?? 0
+  const p1 = data[center - 2 * step] ?? 0
+  const leftDifference = Math.abs(p1 - p0)
+  const rightDifference = Math.abs(q1 - q0)
+  if (
+    leftDifference > limit ||
+    rightDifference > limit ||
+    2 * Math.abs(p0 - q0) + (Math.abs(p1 - q1) >> 1) > blockLimit
+  )
+    return
   const filterLength = filterSize === 4 ? 4 : !isLuma ? 6 : filterSize === 8 ? 8 : 16
-  let masked =
-    Math.abs(p1 - p0) > limit ||
-    Math.abs(q1 - q0) > limit ||
-    2 * Math.abs(p0 - q0) + Math.floor(Math.abs(p1 - q1) / 2) > blockLimit
-  if (filterLength >= 6) {
-    masked ||= Math.abs(sample(-3) - p1) > limit || Math.abs(sample(2) - q1) > limit
-  }
-  if (filterLength >= 8) {
-    masked ||= Math.abs(sample(-4) - sample(-3)) > limit || Math.abs(sample(3) - sample(2)) > limit
-  }
-  if (masked) return
   const flatThreshold = 1 << depthShift
   let flat = false
   if (filterLength >= 6) {
+    const p2 = data[center - 3 * step] ?? 0
+    const q2 = data[center + 2 * step] ?? 0
+    if (Math.abs(p2 - p1) > limit || Math.abs(q2 - q1) > limit) return
     flat =
-      Math.abs(p1 - p0) <= flatThreshold &&
-      Math.abs(q1 - q0) <= flatThreshold &&
-      Math.abs(sample(-3) - p0) <= flatThreshold &&
-      Math.abs(sample(2) - q0) <= flatThreshold &&
-      (filterLength < 8 ||
-        (Math.abs(sample(-4) - p0) <= flatThreshold && Math.abs(sample(3) - q0) <= flatThreshold))
+      leftDifference <= flatThreshold &&
+      rightDifference <= flatThreshold &&
+      Math.abs(p2 - p0) <= flatThreshold &&
+      Math.abs(q2 - q0) <= flatThreshold
+    if (filterLength >= 8) {
+      const p3 = data[center - 4 * step] ?? 0
+      const q3 = data[center + 3 * step] ?? 0
+      if (Math.abs(p3 - p2) > limit || Math.abs(q3 - q2) > limit) return
+      flat &&= Math.abs(p3 - p0) <= flatThreshold && Math.abs(q3 - q0) <= flatThreshold
+    }
   }
   if (filterSize === 4 || !flat) {
-    narrowFilter(plane, x, y, dx, dy, highEdgeVariance, depthShift)
+    narrowFilter(
+      data,
+      center,
+      step,
+      p1,
+      p0,
+      q0,
+      q1,
+      leftDifference > threshold || rightDifference > threshold,
+      depthShift,
+    )
     return
   }
   const flat2 =
     filterLength >= 16 &&
-    Math.abs(sample(-7) - p0) <= flatThreshold &&
-    Math.abs(sample(6) - q0) <= flatThreshold &&
-    Math.abs(sample(-6) - p0) <= flatThreshold &&
-    Math.abs(sample(5) - q0) <= flatThreshold &&
-    Math.abs(sample(-5) - p0) <= flatThreshold &&
-    Math.abs(sample(4) - q0) <= flatThreshold
-  wideFilter(plane, x, y, dx, dy, flat2 ? 4 : 3, isLuma, wideScratch)
+    Math.abs((data[center - 7 * step] ?? 0) - p0) <= flatThreshold &&
+    Math.abs((data[center + 6 * step] ?? 0) - q0) <= flatThreshold &&
+    Math.abs((data[center - 6 * step] ?? 0) - p0) <= flatThreshold &&
+    Math.abs((data[center + 5 * step] ?? 0) - q0) <= flatThreshold &&
+    Math.abs((data[center - 5 * step] ?? 0) - p0) <= flatThreshold &&
+    Math.abs((data[center + 4 * step] ?? 0) - q0) <= flatThreshold
+  wideFilter(data, center, step, flat2 ? 4 : 3, isLuma, wideScratch)
 }
 
 export const applyAv1LoopFilter = (
@@ -310,51 +282,35 @@ export const applyAv1LoopFilter = (
     const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
     const stepX = 1 << shiftX
     const stepY = 1 << shiftY
+    const contextWidth = (state.contextMiColumns + stepX - 1) >> shiftX
+    const contextHeight = state.contextMiRows >> shiftY
     for (let pass = 0; pass < 2; pass += 1) {
-      const dx = pass === 0 ? 1 : 0
-      const dy = pass === 0 ? 0 : 1
+      const extents = (pass === 0 ? state.transformWidths : state.transformHeights)[planeIndex]
+      const otherExtents = (pass === 0 ? state.transformHeights : state.transformWidths)[planeIndex]
+      if (!extents || !otherExtents) continue
+      const step = pass === 0 ? 1 : plane.stride
+      const alongEdge = pass === 0 ? plane.stride : 1
       for (let inputRow = 0; inputRow < state.miRows; inputRow += stepY) {
+        const lumaY = inputRow * 4
+        if (lumaY >= header.frameHeight || (pass === 1 && lumaY === 0)) continue
+        const row = inputRow | shiftY
+        const contextRow = (row - state.miRowStart) >> shiftY
+        if (contextRow < 0 || contextRow >= contextHeight) continue
+        const rowOffset = contextRow * contextWidth
+        const y = lumaY >> shiftY
         for (let inputColumn = 0; inputColumn < state.miColumns; inputColumn += stepX) {
           const lumaX = inputColumn * 4
-          const lumaY = inputRow * 4
-          if (
-            lumaX >= header.frameWidth ||
-            lumaY >= header.frameHeight ||
-            (pass === 0 ? lumaX === 0 : lumaY === 0)
-          ) {
-            continue
-          }
-          const row = inputRow | shiftY
+          if (lumaX >= header.frameWidth || (pass === 0 && lumaX === 0)) continue
           const column = inputColumn | shiftX
-          const previousRow = row - (dy << shiftY)
-          const previousColumn = column - (dx << shiftX)
+          const contextColumn = (column - state.miColumnStart) >> shiftX
+          if (contextColumn < 0 || contextColumn >= contextWidth) continue
+          const idx = rowOffset + contextColumn
           const x = lumaX >> shiftX
-          const y = lumaY >> shiftY
-          const transformWidth = transformAt(state.transformWidths, state, planeIndex, row, column)
-          const transformHeight = transformAt(
-            state.transformHeights,
-            state,
-            planeIndex,
-            row,
-            column,
-          )
-          const previousTransformWidth = transformAt(
-            state.transformWidths,
-            state,
-            planeIndex,
-            previousRow,
-            previousColumn,
-          )
-          const previousTransformHeight = transformAt(
-            state.transformHeights,
-            state,
-            planeIndex,
-            previousRow,
-            previousColumn,
-          )
-          if (transformWidth === 0 || transformHeight === 0) continue
-          const transformEdge = pass === 0 ? x % transformWidth === 0 : y % transformHeight === 0
-          if (!transformEdge) continue
+          // Most 4x4 positions are inside a larger transform. Read the previous
+          // transform and segment only after finding an edge in this direction.
+          const current = extents[idx] ?? 0
+          if (!current || (pass === 0 ? x : y) % current !== 0) continue
+          if (!otherExtents[idx]) continue
           const levelIndex = planeIndex === 0 ? pass : planeIndex + 1
           const level = filterLevels[levelIndex]?.[segmentAt(state, row, column)] ?? 0
           if (level === 0) continue
@@ -366,18 +322,22 @@ export const applyAv1LoopFilter = (
               : Math.max(1, level >> sharpnessShift)
           const blockLimit = 2 * (level + 2) + limit
           const threshold = level >> 4
-          const baseFilterSize =
+          const previous =
             pass === 0
-              ? Math.min(previousTransformWidth, transformWidth)
-              : Math.min(previousTransformHeight, transformHeight)
+              ? contextColumn > 0
+                ? (extents[idx - 1] ?? 0)
+                : 0
+              : contextRow > 0
+                ? (extents[idx - contextWidth] ?? 0)
+                : 0
+          const baseFilterSize = Math.min(previous, current)
           const filterSize = Math.min(planeIndex === 0 ? 16 : 8, baseFilterSize)
+          const start = y * plane.stride + x
           for (let index = 0; index < 4; index += 1) {
             filterSample(
-              plane,
-              x + dy * index,
-              y + dx * index,
-              dx,
-              dy,
+              plane.data,
+              start + alongEdge * index,
+              step,
               filterSize,
               limit << depthShift,
               blockLimit << depthShift,
@@ -792,8 +752,8 @@ const restoreWienerBlock = (
   stripeEndY: number,
   verticalFilter: Int16Array,
   horizontalFilter: Int16Array,
-  intermediate: Int32Array,
-  window: Int32Array,
+  intermediate: Int16Array,
+  window: Uint8Array | Uint16Array,
   windowStride: number,
   bitDepth: 8 | 10 | 12,
 ): void => {
@@ -816,44 +776,44 @@ const restoreWienerBlock = (
     !highBitDepth &&
     originX >= 0 &&
     originX + windowColumns - 1 <= planeEndX &&
-    originY >= 0 &&
-    originY + windowRows - 1 <= planeEndY &&
-    originY >= stripeStartY &&
-    originY + windowRows - 1 <= stripeEndY &&
+    originX + windowColumns <= deblocked.width &&
+    deblocked.data instanceof Uint8Array &&
     cdef.rowOffsets === undefined &&
     cdef.data instanceof Uint8Array
   const h0 = horizontalFilter[0] ?? 0
   const h1 = horizontalFilter[1] ?? 0
   const h2 = horizontalFilter[2] ?? 0
   const h3 = horizontalFilter[3] ?? 0
-  const h4 = horizontalFilter[4] ?? 0
-  const h5 = horizontalFilter[5] ?? 0
-  const h6 = horizontalFilter[6] ?? 0
   const v0 = verticalFilter[0] ?? 0
   const v1 = verticalFilter[1] ?? 0
   const v2 = verticalFilter[2] ?? 0
   const v3 = verticalFilter[3] ?? 0
-  const v4 = verticalFilter[4] ?? 0
-  const v5 = verticalFilter[5] ?? 0
-  const v6 = verticalFilter[6] ?? 0
   const outputData = output.data
   const outputStride = output.stride
+  // A zero outer vertical tap leaves the first and last intermediate rows unused.
+  const verticalInset = v0 === 0 ? 1 : 0
   if (interior) {
-    const cdefData = cdef.data
-    const cdefStride = cdef.stride
-    for (let row = 0; row < windowRows; row += 1) {
-      const sourceRow = (originY + row) * cdefStride + originX
+    for (let row = verticalInset; row < windowRows - verticalInset; row += 1) {
+      const sourceY = clip(0, planeEndY, originY + row)
+      const acrossStripe = sourceY < stripeStartY || sourceY > stripeEndY
+      const cdefData = acrossStripe ? deblocked.data : cdef.data
+      const rowBase = acrossStripe
+        ? boundaryRowOffset(deblocked, clip(stripeStartY - 2, stripeEndY + 2, sourceY))
+        : sourceY * cdef.stride
       const intermediateRow = row * width
+      // Missing halo rows have the same zero padding as the general window gather.
+      if (rowBase < 0) {
+        intermediate.fill(0, intermediateRow, intermediateRow + width)
+        continue
+      }
+      const sourceRow = rowBase + originX
       for (let column = 0; column < width; column += 1) {
         const origin = sourceRow + column
         const sum =
-          h0 * (cdefData[origin] ?? 0) +
-          h1 * (cdefData[origin + 1] ?? 0) +
-          h2 * (cdefData[origin + 2] ?? 0) +
-          h3 * (cdefData[origin + 3] ?? 0) +
-          h4 * (cdefData[origin + 4] ?? 0) +
-          h5 * (cdefData[origin + 5] ?? 0) +
-          h6 * (cdefData[origin + 6] ?? 0)
+          (h0 === 0 ? 0 : h0 * ((cdefData[origin] ?? 0) + (cdefData[origin + 6] ?? 0))) +
+          h1 * ((cdefData[origin + 1] ?? 0) + (cdefData[origin + 5] ?? 0)) +
+          h2 * ((cdefData[origin + 2] ?? 0) + (cdefData[origin + 4] ?? 0)) +
+          h3 * (cdefData[origin + 3] ?? 0)
         const rounded = Math.floor((sum + 4) / 8)
         intermediate[intermediateRow + column] =
           rounded < -2048 ? -2048 : rounded > 6143 ? 6143 : rounded
@@ -864,13 +824,18 @@ const restoreWienerBlock = (
       const dest = row * outputStride + x
       for (let column = 0; column < width; column += 1) {
         const sum =
-          v0 * (intermediate[row0 + column] ?? 0) +
-          v1 * (intermediate[row0 + width + column] ?? 0) +
-          v2 * (intermediate[row0 + width * 2 + column] ?? 0) +
-          v3 * (intermediate[row0 + width * 3 + column] ?? 0) +
-          v4 * (intermediate[row0 + width * 4 + column] ?? 0) +
-          v5 * (intermediate[row0 + width * 5 + column] ?? 0) +
-          v6 * (intermediate[row0 + width * 6 + column] ?? 0)
+          (v0 === 0
+            ? 0
+            : v0 *
+              ((intermediate[row0 + column] ?? 0) +
+                (intermediate[row0 + width * 6 + column] ?? 0))) +
+          v1 *
+            ((intermediate[row0 + width + column] ?? 0) +
+              (intermediate[row0 + width * 5 + column] ?? 0)) +
+          v2 *
+            ((intermediate[row0 + width * 2 + column] ?? 0) +
+              (intermediate[row0 + width * 4 + column] ?? 0)) +
+          v3 * (intermediate[row0 + width * 3 + column] ?? 0)
         const rounded = Math.floor((sum + 1024) / 2048)
         outputData[dest + column] = rounded < 0 ? 0 : rounded > 255 ? 255 : rounded
       }
@@ -893,19 +858,16 @@ const restoreWienerBlock = (
     windowStride,
   )
   if (!highBitDepth) {
-    for (let row = 0; row < height + 6; row += 1) {
+    for (let row = verticalInset; row < windowRows - verticalInset; row += 1) {
       const windowRow = row * windowStride
       const intermediateRow = row * width
       for (let column = 0; column < width; column += 1) {
         const origin = windowRow + column
         const sum =
-          h0 * (window[origin] ?? 0) +
-          h1 * (window[origin + 1] ?? 0) +
-          h2 * (window[origin + 2] ?? 0) +
-          h3 * (window[origin + 3] ?? 0) +
-          h4 * (window[origin + 4] ?? 0) +
-          h5 * (window[origin + 5] ?? 0) +
-          h6 * (window[origin + 6] ?? 0)
+          (h0 === 0 ? 0 : h0 * ((window[origin] ?? 0) + (window[origin + 6] ?? 0))) +
+          h1 * ((window[origin + 1] ?? 0) + (window[origin + 5] ?? 0)) +
+          h2 * ((window[origin + 2] ?? 0) + (window[origin + 4] ?? 0)) +
+          h3 * (window[origin + 3] ?? 0)
         const rounded = Math.floor((sum + 4) / 8)
         intermediate[intermediateRow + column] =
           rounded < -2048 ? -2048 : rounded > 6143 ? 6143 : rounded
@@ -916,13 +878,18 @@ const restoreWienerBlock = (
       const dest = row * outputStride + x
       for (let column = 0; column < width; column += 1) {
         const sum =
-          v0 * (intermediate[row0 + column] ?? 0) +
-          v1 * (intermediate[row0 + width + column] ?? 0) +
-          v2 * (intermediate[row0 + width * 2 + column] ?? 0) +
-          v3 * (intermediate[row0 + width * 3 + column] ?? 0) +
-          v4 * (intermediate[row0 + width * 4 + column] ?? 0) +
-          v5 * (intermediate[row0 + width * 5 + column] ?? 0) +
-          v6 * (intermediate[row0 + width * 6 + column] ?? 0)
+          (v0 === 0
+            ? 0
+            : v0 *
+              ((intermediate[row0 + column] ?? 0) +
+                (intermediate[row0 + width * 6 + column] ?? 0))) +
+          v1 *
+            ((intermediate[row0 + width + column] ?? 0) +
+              (intermediate[row0 + width * 5 + column] ?? 0)) +
+          v2 *
+            ((intermediate[row0 + width * 2 + column] ?? 0) +
+              (intermediate[row0 + width * 4 + column] ?? 0)) +
+          v3 * (intermediate[row0 + width * 3 + column] ?? 0)
         const rounded = Math.floor((sum + 1024) / 2048)
         outputData[dest + column] = rounded < 0 ? 0 : rounded > 255 ? 255 : rounded
       }
@@ -934,13 +901,10 @@ const restoreWienerBlock = (
     for (let column = 0; column < width; column += 1) {
       const origin = windowRow + column
       const sum =
-        h0 * (window[origin] ?? 0) +
-        h1 * (window[origin + 1] ?? 0) +
-        h2 * (window[origin + 2] ?? 0) +
-        h3 * (window[origin + 3] ?? 0) +
-        h4 * (window[origin + 4] ?? 0) +
-        h5 * (window[origin + 5] ?? 0) +
-        h6 * (window[origin + 6] ?? 0)
+        h0 * ((window[origin] ?? 0) + (window[origin + 6] ?? 0)) +
+        h1 * ((window[origin + 1] ?? 0) + (window[origin + 5] ?? 0)) +
+        h2 * ((window[origin + 2] ?? 0) + (window[origin + 4] ?? 0)) +
+        h3 * (window[origin + 3] ?? 0)
       intermediate[row * width + column] = clip(
         0,
         horizontalMaximum,
@@ -952,13 +916,14 @@ const restoreWienerBlock = (
     const row0 = row * width
     for (let column = 0; column < width; column += 1) {
       const sum =
-        v0 * (intermediate[row0 + column] ?? 0) +
-        v1 * (intermediate[row0 + width + column] ?? 0) +
-        v2 * (intermediate[row0 + width * 2 + column] ?? 0) +
-        v3 * (intermediate[row0 + width * 3 + column] ?? 0) +
-        v4 * (intermediate[row0 + width * 4 + column] ?? 0) +
-        v5 * (intermediate[row0 + width * 5 + column] ?? 0) +
-        v6 * (intermediate[row0 + width * 6 + column] ?? 0)
+        v0 * ((intermediate[row0 + column] ?? 0) + (intermediate[row0 + width * 6 + column] ?? 0)) +
+        v1 *
+          ((intermediate[row0 + width + column] ?? 0) +
+            (intermediate[row0 + width * 5 + column] ?? 0)) +
+        v2 *
+          ((intermediate[row0 + width * 2 + column] ?? 0) +
+            (intermediate[row0 + width * 4 + column] ?? 0)) +
+        v3 * (intermediate[row0 + width * 3 + column] ?? 0)
       outputData[row * outputStride + x + column] = clip(
         0,
         sampleMaximum,
@@ -980,7 +945,7 @@ const fillRestorationWindow = (
   planeEndY: number,
   stripeStartY: number,
   stripeEndY: number,
-  window: Int32Array,
+  window: Uint8Array | Uint16Array,
   windowStride: number,
 ): void => {
   const originX = x - 1 - radius
@@ -1019,6 +984,18 @@ const fillRestorationWindow = (
   }
 }
 
+// The 8-bit variance expression consumes the signed high 12 bits of its product.
+// Keep its rare negative values as well as its saturated positive range.
+const sgrProjectionA = Int16Array.from({ length: 4096 }, (_, index) => {
+  const z = (index << 20) >> 20
+  return z >= 255 ? 256 : z === 0 ? 1 : Math.floor((z * 256 + (z >> 1)) / (z + 1))
+})
+
+const sgrProjectionFactor = (oneOverN: number): Int32Array =>
+  Int32Array.from(sgrProjectionA, (a, index) => (index === 4095 ? 0 : (256 - a) * oneOverN))
+const sgrFactor3 = sgrProjectionFactor(455)
+const sgrFactor5 = sgrProjectionFactor(164)
+
 const boxFilter8 = (
   cdefData: Uint8Array,
   cdefStride: number,
@@ -1032,9 +1009,10 @@ const boxFilter8 = (
   aValues: Int32Array,
   bValues: Int32Array,
   filtered: Int32Array,
-  prefixSums: Int32Array,
-  prefixSquares: Int32Array,
-  prefixStride: number,
+  sums: Int32Array,
+  squareSums: Int32Array,
+  window: Uint8Array | Uint16Array,
+  windowStride: number,
 ): void => {
   const radius = sgrParameters[set * 4 + pass * 2] ?? 0
   if (radius === 0) return
@@ -1043,33 +1021,55 @@ const boxFilter8 = (
   const n = (2 * radius + 1) ** 2
   const nSquaredEpsilon = n * n * epsilon
   const scale = Math.floor((1_048_576 + Math.floor(nSquaredEpsilon / 2)) / nSquaredEpsilon)
-  const oneOverN = Math.floor((4096 + Math.floor(n / 2)) / n)
+  const factors = radius === 2 ? sgrFactor5 : sgrFactor3
   const rowStep = pass === 0 ? 2 : 1
+  // Track the moments of the current vertical box in one short row per pass.
+  const box = 2 * radius + 1
+  const columns = boxWidth + box - 1
+  const start = (windowRadius - radius) * (windowStride + 1)
+  for (let x = 0; x < columns; x += 1) {
+    let sum = 0,
+      squares = 0
+    for (let k = 0; k < box; k += 1) {
+      const v = window[start + k * windowStride + x] ?? 0
+      sum += v
+      squares += v * v
+    }
+    sums[x] = sum
+    squareSums[x] = squares
+  }
   for (let inputRow = -1; inputRow <= height; inputRow += rowStep) {
-    const centerRow = inputRow + 1 + windowRadius
-    const topRow = (centerRow - radius) * prefixStride
-    const bottomRow = (centerRow + radius + 1) * prefixStride
-    for (let inputColumn = -1; inputColumn <= width; inputColumn += 1) {
-      const centerColumn = inputColumn + 1 + windowRadius
-      const left = centerColumn - radius
-      const right = centerColumn + radius + 1
-      const sum =
-        (prefixSums[bottomRow + right] ?? 0) -
-        (prefixSums[topRow + right] ?? 0) -
-        (prefixSums[bottomRow + left] ?? 0) +
-        (prefixSums[topRow + left] ?? 0)
-      const squares =
-        (prefixSquares[bottomRow + right] ?? 0) -
-        (prefixSquares[topRow + right] ?? 0) -
-        (prefixSquares[bottomRow + left] ?? 0) +
-        (prefixSquares[topRow + left] ?? 0)
+    let sum = 0,
+      squares = 0
+    const targetRow = (inputRow + 1) * boxWidth
+    for (let c = 0; c < box - 1; c += 1) {
+      sum += sums[c] ?? 0
+      squares += squareSums[c] ?? 0
+    }
+    for (let c = 0; c < boxWidth; c += 1) {
+      sum += sums[c + box - 1] ?? 0
+      squares += squareSums[c + box - 1] ?? 0
       const variance = Math.max(0, squares * n - sum * sum)
-      const z = (variance * scale + 524_288) >> 20
-      const a = z >= 255 ? 256 : z === 0 ? 1 : Math.floor((z * 256 + (z >> 1)) / (z + 1))
-      const b = ((256 - a) * sum * oneOverN + 2048) >> 12
-      const target = (inputRow + 1) * boxWidth + inputColumn + 1
+      const index = (variance * scale + 524_288) >>> 20
+      const a = sgrProjectionA[index] ?? 0
+      const b = ((factors[index] ?? 0) * sum + 2048) >> 12
+      const target = targetRow + c
       aValues[target] = a
       bValues[target] = b
+      sum -= sums[c] ?? 0
+      squares -= squareSums[c] ?? 0
+    }
+    if (inputRow + rowStep <= height) {
+      for (let k = 0; k < rowStep; k += 1) {
+        const outgoing = start + (inputRow + 1 + k) * windowStride
+        const incoming = outgoing + box * windowStride
+        for (let c = 0; c < columns; c += 1) {
+          const a = window[outgoing + c] ?? 0
+          const b = window[incoming + c] ?? 0
+          sums[c] = (sums[c] ?? 0) + b - a
+          squareSums[c] = (squareSums[c] ?? 0) + b * b - a * a
+        }
+      }
     }
     if (pass === 0) {
       // The radius-two pass uses this horizontal blend on an odd row and
@@ -1102,48 +1102,72 @@ const boxFilter8 = (
     }
     return
   }
+  // The radius-one pass leaves its coefficients for the final projection below.
+}
+
+const projectSelfGuided3x3 = (
+  cdefData: Uint8Array,
+  cdefStride: number,
+  output: Av1FilterPlane,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  aValues: Int32Array,
+  bValues: Int32Array,
+  filtered0: Int32Array,
+  weight0: number,
+  weight2: number,
+): void => {
+  const weight1 = 128 - weight0 - weight2
+  const boxWidth = width + 2
   for (let row = 0; row < height; row += 1) {
     const cdefRow = (y + row) * cdefStride + x
     const row0 = row * boxWidth
     const row1 = row0 + boxWidth
     const row2 = row1 + boxWidth
+    // Each column of three coefficients contributes to three adjacent outputs.
+    let aLeftOuter = (aValues[row0 + 0] ?? 0) + (aValues[row2 + 0] ?? 0)
+    let aLeftMiddle = aValues[row1 + 0] ?? 0
+    let aCenterOuter = (aValues[row0 + 1] ?? 0) + (aValues[row2 + 1] ?? 0)
+    let aCenterMiddle = aValues[row1 + 1] ?? 0
+    let bLeftOuter = (bValues[row0 + 0] ?? 0) + (bValues[row2 + 0] ?? 0)
+    let bLeftMiddle = bValues[row1 + 0] ?? 0
+    let bCenterOuter = (bValues[row0 + 1] ?? 0) + (bValues[row2 + 1] ?? 0)
+    let bCenterMiddle = bValues[row1 + 1] ?? 0
     for (let column = 0; column < width; column += 1) {
-      const top = row0 + column
-      const middle = row1 + column
-      const bottom = row2 + column
+      const next = column + 2
+      const aRightOuter = (aValues[row0 + next] ?? 0) + (aValues[row2 + next] ?? 0)
+      const aRightMiddle = aValues[row1 + next] ?? 0
       const a =
-        3 *
-          ((aValues[top] ?? 0) +
-            (aValues[top + 2] ?? 0) +
-            (aValues[bottom] ?? 0) +
-            (aValues[bottom + 2] ?? 0)) +
-        4 *
-          ((aValues[top + 1] ?? 0) +
-            (aValues[middle] ?? 0) +
-            (aValues[middle + 1] ?? 0) +
-            (aValues[middle + 2] ?? 0) +
-            (aValues[bottom + 1] ?? 0))
+        3 * (aLeftOuter + aRightOuter) +
+        4 * (aLeftMiddle + aCenterOuter + aCenterMiddle + aRightMiddle)
+      const bRightOuter = (bValues[row0 + next] ?? 0) + (bValues[row2 + next] ?? 0)
+      const bRightMiddle = bValues[row1 + next] ?? 0
       const b =
-        3 *
-          ((bValues[top] ?? 0) +
-            (bValues[top + 2] ?? 0) +
-            (bValues[bottom] ?? 0) +
-            (bValues[bottom + 2] ?? 0)) +
-        4 *
-          ((bValues[top + 1] ?? 0) +
-            (bValues[middle] ?? 0) +
-            (bValues[middle + 1] ?? 0) +
-            (bValues[middle + 2] ?? 0) +
-            (bValues[bottom + 1] ?? 0))
-      filtered[row * width + column] = (a * (cdefData[cdefRow + column] ?? 0) + b + 256) >> 9
+        3 * (bLeftOuter + bRightOuter) +
+        4 * (bLeftMiddle + bCenterOuter + bCenterMiddle + bRightMiddle)
+      const source = cdefData[cdefRow + column] ?? 0
+      const last = (a * source + b + 256) >> 9
+      const projected =
+        weight1 * (source << 4) + weight0 * (filtered0[row * width + column] ?? 0) + weight2 * last
+      output.data[row * output.stride + x + column] = clip(0, 255, round2(projected, 11))
+      aLeftOuter = aCenterOuter
+      aLeftMiddle = aCenterMiddle
+      aCenterOuter = aRightOuter
+      aCenterMiddle = aRightMiddle
+      bLeftOuter = bCenterOuter
+      bLeftMiddle = bCenterMiddle
+      bCenterOuter = bRightOuter
+      bCenterMiddle = bRightMiddle
     }
   }
 }
 
 const boxFilter = (
   cdef: Av1FilterPlane,
-  _window: Int32Array,
-  _windowStride: number,
+  window: Uint8Array | Uint16Array,
+  windowStride: number,
   windowRadius: number,
   x: number,
   y: number,
@@ -1175,7 +1199,8 @@ const boxFilter = (
       filtered,
       prefixSums,
       prefixSquares,
-      prefixStride,
+      window,
+      windowStride,
     )
     return
   }
@@ -1322,7 +1347,7 @@ const restoreSelfGuidedBlock = (
   bValues: Int32Array,
   filtered0: Int32Array,
   filtered1: Int32Array,
-  window: Int32Array,
+  window: Uint8Array | Uint16Array,
   windowStride: number,
   prefixSums: Int32Array,
   prefixSquares: Int32Array,
@@ -1349,6 +1374,8 @@ const restoreSelfGuidedBlock = (
       window,
       windowStride,
     )
+  }
+  if (windowRadius > 0 && (bitDepth !== 8 || !(cdef.data instanceof Uint8Array))) {
     const windowRows = height + 2 + 2 * windowRadius
     const windowColumns = width + 2 + 2 * windowRadius
     for (let row = 0; row < windowRows; row += 1) {
@@ -1409,6 +1436,24 @@ const restoreSelfGuidedBlock = (
   const weight0 = unit.sgrXqd[unitIndex * 2] ?? 0
   const weight1 = unit.sgrXqd[unitIndex * 2 + 1] ?? 0
   const weight2 = 128 - weight0 - weight1
+  if (bitDepth === 8 && radius1 !== 0 && cdef.data instanceof Uint8Array) {
+    // The final blend already reads the source. Project it directly into the output stripe.
+    projectSelfGuided3x3(
+      cdef.data,
+      cdef.stride,
+      output,
+      x,
+      y,
+      width,
+      height,
+      aValues,
+      bValues,
+      filtered0,
+      radius0 ? weight0 : 0,
+      weight2,
+    )
+    return
+  }
   for (let row = 0; row < height; row += 1) {
     for (let column = 0; column < width; column += 1) {
       const target = row * output.stride + x + column
@@ -1429,7 +1474,7 @@ const countRestorationUnits = (unitSize: number, planeSize: number): number =>
 
 const validateRestorationPlaneState = (
   header: Av1FrameHeader,
-  state: Av1PostFilterState,
+  state: Av1RestorationState,
   planeIndex: number,
 ): void => {
   const plane = state.restoration[planeIndex]
@@ -1503,59 +1548,27 @@ const validateRestorationPlaneState = (
   }
 }
 
-const validateRestorationState = (header: Av1FrameHeader, state: Av1PostFilterState): void => {
+export const validateRestorationState = (
+  header: Av1FrameHeader,
+  state: Av1RestorationState,
+): void => {
   for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
     validateRestorationPlaneState(header, state, planeIndex)
   }
 }
 
-export const applyAv1LoopRestoration = (
+export type Av1RestorationState = Pick<
+  Av1PostFilterState,
+  'bitDepth' | 'chromaShiftX' | 'chromaShiftY' | 'restoration'
+>
+
+export const createAv1RestorationBandFilter = (
   deblocked: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   cdef: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   header: Av1FrameHeader,
-  state: Av1PostFilterState,
-): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
-  validateRestorationState(header, state)
-  const bandHeight = state.bitDepth === 8 ? 8 : 4
-  const createBand = (plane: Av1FilterPlane, rows: number): Av1FilterPlane => ({
-    ...plane,
-    data: sampleBuffer(plane.data, plane.stride * rows),
-    height: rows,
-  })
-  const createBands = (): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => [
-    createBand(cdef[0], bandHeight),
-    createBand(cdef[1], bandHeight >> state.chromaShiftY),
-    createBand(cdef[2], bandHeight >> state.chromaShiftY),
-  ]
-  let pendingOldest = createBands()
-  let pendingNewest = createBands()
-  let current = createBands()
-  let pendingOldestLumaY = 0
-  let pendingNewestLumaY = 0
-  let pendingCount = 0
-  const copyFromSource = (target: Av1FilterPlane, source: Av1FilterPlane, startY: number): void => {
-    const rows = Math.min(target.height, source.height - startY)
-    const length = rows * source.stride
-    target.data.fill(0)
-    target.data.set(source.data.subarray(startY * source.stride, startY * source.stride + length))
-  }
-  const commit = (target: Av1FilterPlane, source: Av1FilterPlane, startY: number): void => {
-    const rows = Math.min(source.height, target.height - startY)
-    const length = rows * target.stride
-    target.data.set(source.data.subarray(0, length), startY * target.stride)
-  }
-  const commitBands = (
-    bands: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
-    lumaY: number,
-  ): void => {
-    for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
-      const plane = cdef[planeIndex]
-      const band = bands[planeIndex]
-      if (!plane || !band) continue
-      const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
-      commit(plane, band, lumaY >> shiftY)
-    }
-  }
+  state: Av1RestorationState,
+  maxBandHeight = state.bitDepth === 8 ? 8 : 4,
+) => {
   const verticalFilter = new Int16Array(7)
   const horizontalFilter = new Int16Array(7)
   let maxTileWidth = 4
@@ -1568,24 +1581,41 @@ export const applyAv1LoopRestoration = (
     if (unit.unitSize > maxTileWidth) maxTileWidth = unit.unitSize
     if (lastWidth > maxTileWidth) maxTileWidth = lastWidth
   }
-  const windowRows = bandHeight + 6
+  if (maxBandHeight > 8) maxTileWidth = Math.min(maxTileWidth, 128)
+  const windowRows = maxBandHeight + 6
   const windowStride = maxTileWidth + 6
-  const window = new Int32Array(windowStride * windowRows)
+  const byteCdef = cdef.every((plane) => plane.data instanceof Uint8Array)
+  const byteWindow = byteCdef && deblocked.every((plane) => plane.data instanceof Uint8Array)
+  const window = byteWindow
+    ? new Uint8Array(windowStride * windowRows)
+    : new Uint16Array(windowStride * windowRows)
   const prefixStride = windowStride + 1
-  const prefixSums = new Int32Array(prefixStride * (windowRows + 1))
-  const prefixSquares = new Int32Array(prefixStride * (windowRows + 1))
-  const aValues = new Int32Array((maxTileWidth + 2) * (bandHeight + 2))
-  const bValues = new Int32Array((maxTileWidth + 2) * (bandHeight + 2))
-  const filtered0 = new Int32Array(maxTileWidth * bandHeight)
-  const filtered1 = new Int32Array(maxTileWidth * bandHeight)
-  const intermediate = new Int32Array(maxTileWidth * windowRows)
-  for (let lumaY = 0; lumaY < header.frameHeight; lumaY += bandHeight) {
+  const useByteMoments = state.bitDepth === 8 && byteCdef
+  const momentsLength = useByteMoments ? windowStride : prefixStride * (windowRows + 1)
+  const prefixSums = new Int32Array(momentsLength)
+  const prefixSquares = new Int32Array(momentsLength)
+  const aValues = new Int32Array((maxTileWidth + 2) * (maxBandHeight + 2))
+  const bValues = new Int32Array((maxTileWidth + 2) * (maxBandHeight + 2))
+  const filtered0 = new Int32Array(maxTileWidth * maxBandHeight)
+  const filtered1 = new Int32Array(useByteMoments ? 0 : maxTileWidth * maxBandHeight)
+  // The first Wiener pass clips to [-2048, 6143] for bytes and [0, 32767]
+  // for both high-bit-depth paths.
+  const intermediate = new Int16Array(maxTileWidth * windowRows)
+  return (
+    lumaY: number,
+    current: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+    left: number,
+    right: number,
+    bandHeight = maxBandHeight,
+  ): void => {
     for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
       const plane = cdef[planeIndex]
       const band = current[planeIndex]
       if (!plane || !band) continue
       const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
-      copyFromSource(band, plane, lumaY >> shiftY)
+      const start = (lumaY >> shiftY) * plane.stride
+      const length = Math.min(band.data.length, (bandHeight >> shiftY) * plane.stride)
+      band.data.set(plane.data.subarray(start, start + length))
     }
     const stripeNumber = Math.floor((lumaY + 8) / 64)
     for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
@@ -1604,7 +1634,9 @@ export const applyAv1LoopRestoration = (
       if (height < 1) continue
       const stripeStartY = (-8 + stripeNumber * 64) >> shiftY
       const stripeEndY = stripeStartY + (64 >> shiftY) - 1
-      for (let x = 0; x <= planeEndX; ) {
+      const firstX = left >> shiftX
+      const endX = Math.min(planeEndX + 1, Math.ceil(right / (1 << shiftX)))
+      for (let x = firstX; x < endX; ) {
         const unitRow = Math.min(unit.rows - 1, Math.floor(((lumaY + 8) >> shiftY) / unit.unitSize))
         const unitColumn = Math.min(unit.columns - 1, Math.floor(x / unit.unitSize))
         const unitIndex = unitRow * unit.columns + unitColumn
@@ -1613,8 +1645,8 @@ export const applyAv1LoopRestoration = (
           unitColumn + 1 < unit.columns ? (unitColumn + 1) * unit.unitSize : planeEndX + 1
         // Int32 prefix squares overflow on wide 10/12-bit windows (12-bit 4x4 is already near the
         // signed 32-bit limit). Keep 8-bit tiles unit-wide; high-bit stays on 4-sample tiles.
-        const tileLimit = state.bitDepth === 8 ? nextUnitX - x : 4 >> shiftX
-        const width = Math.min(tileLimit, planeEndX - x + 1)
+        const tileLimit = state.bitDepth === 8 ? maxTileWidth : 4 >> shiftX
+        const width = Math.min(tileLimit, nextUnitX - x, endX - x)
         if (type === 1) {
           restoreWienerBlock(
             deblockedPlane,
@@ -1667,6 +1699,53 @@ export const applyAv1LoopRestoration = (
         x += width
       }
     }
+  }
+}
+
+export const applyAv1LoopRestoration = (
+  deblocked: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+  cdef: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+  header: Av1FrameHeader,
+  state: Av1RestorationState,
+): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => {
+  validateRestorationState(header, state)
+  const bandHeight = state.bitDepth === 8 ? 8 : 4
+  const createBand = (plane: Av1FilterPlane, rows: number): Av1FilterPlane => ({
+    ...plane,
+    data: sampleBuffer(plane.data, plane.stride * rows),
+    height: rows,
+  })
+  const createBands = (): [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane] => [
+    createBand(cdef[0], bandHeight),
+    createBand(cdef[1], bandHeight >> state.chromaShiftY),
+    createBand(cdef[2], bandHeight >> state.chromaShiftY),
+  ]
+  let pendingOldest = createBands()
+  let pendingNewest = createBands()
+  let current = createBands()
+  let pendingOldestLumaY = 0
+  let pendingNewestLumaY = 0
+  let pendingCount = 0
+  const commit = (target: Av1FilterPlane, source: Av1FilterPlane, startY: number): void => {
+    const rows = Math.min(source.height, target.height - startY)
+    const length = rows * target.stride
+    target.data.set(source.data.subarray(0, length), startY * target.stride)
+  }
+  const commitBands = (
+    bands: readonly [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
+    lumaY: number,
+  ): void => {
+    for (let planeIndex = 0; planeIndex < 3; planeIndex += 1) {
+      const plane = cdef[planeIndex]
+      const band = bands[planeIndex]
+      if (!plane || !band) continue
+      const shiftY = planeIndex === 0 ? 0 : state.chromaShiftY
+      commit(plane, band, lumaY >> shiftY)
+    }
+  }
+  const restoreBand = createAv1RestorationBandFilter(deblocked, cdef, header, state)
+  for (let lumaY = 0; lumaY < header.frameHeight; lumaY += bandHeight) {
+    restoreBand(lumaY, current, 0, header.upscaledWidth)
     if (pendingCount === 2) commitBands(pendingOldest, pendingOldestLumaY)
     const reusable = pendingOldest
     pendingOldest = pendingNewest
@@ -1691,16 +1770,22 @@ export const applyAv1DeblockAndCdef = (
   planes: [Av1FilterPlane, Av1FilterPlane, Av1FilterPlane],
   header: Av1FrameHeader,
   state: Av1PostFilterState,
+  immutableRestorationInput = false,
 ): Av1PreRestorationPlanes => {
   applyAv1LoopFilter(planes, header, state)
   const hasRestoration = state.restoration.some((plane) => plane.types.some((value) => value !== 0))
-  const deblocked = hasRestoration ? snapshotRestorationBoundaries(planes, header, state) : planes
   const hasCdef =
     state.cdefIndices.some((value) => value !== 0) &&
     (header.cdefYPrimaryStrengths.some((value) => value !== 0) ||
       header.cdefYSecondaryStrengths.some((value) => value !== 0) ||
       header.cdefUvPrimaryStrengths.some((value) => value !== 0) ||
       header.cdefUvSecondaryStrengths.some((value) => value !== 0))
+  // An out-of-place restoration reader can read the original stripe boundaries
+  // directly when CDEF leaves the deblocked planes untouched.
+  const deblocked =
+    hasRestoration && (hasCdef || !immutableRestorationInput)
+      ? snapshotRestorationBoundaries(planes, header, state)
+      : planes
   const cdef = hasCdef ? applyAv1Cdef(planes, header, state) : planes
   return { cdef, deblocked, hasRestoration }
 }

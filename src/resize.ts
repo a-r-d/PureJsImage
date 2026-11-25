@@ -1411,6 +1411,52 @@ const horizontalRgbaOpaque = (
   }
 }
 
+const hasContiguousSamples = (axis: AxisCoefficients): boolean => {
+  for (let x = 1; x < axis.offsets.length; x += 1) {
+    const end = axis.offsets[x] ?? 0
+    for (let k = (axis.offsets[x - 1] ?? 0) + 1; k < end; k += 1) {
+      if (axis.indices[k] !== (axis.indices[k - 1] ?? 0) + 1) return false
+    }
+  }
+  return true
+}
+
+// The plan has verified that each filter interval addresses adjacent RGBA pixels.
+const horizontalOpaqueRgb: HorizontalKernel = (
+  source: Uint8Array,
+  outputWidth: number,
+  axis: AxisCoefficients,
+  output: Float32Array,
+): void => {
+  for (let x = 0; x < outputWidth; x += 1) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[x + 1] ?? first
+    let red = 0
+    let green = 0
+    let blue = 0
+    let sourceOffset = (axis.indices[first] ?? 0) * 4
+    let sampleIndex = first
+    for (; sampleIndex + 1 < last; sampleIndex += 2) {
+      const a = axis.weights[sampleIndex] ?? 0
+      const b = axis.weights[sampleIndex + 1] ?? 0
+      red = red + (source[sourceOffset] ?? 0) * a + (source[sourceOffset + 4] ?? 0) * b
+      green = green + (source[sourceOffset + 1] ?? 0) * a + (source[sourceOffset + 5] ?? 0) * b
+      blue = blue + (source[sourceOffset + 2] ?? 0) * a + (source[sourceOffset + 6] ?? 0) * b
+      sourceOffset += 8
+    }
+    if (sampleIndex < last) {
+      const weight = axis.weights[sampleIndex] ?? 0
+      red += (source[sourceOffset] ?? 0) * weight
+      green += (source[sourceOffset + 1] ?? 0) * weight
+      blue += (source[sourceOffset + 2] ?? 0) * weight
+    }
+    const outputOffset = x * 3
+    output[outputOffset] = red
+    output[outputOffset + 1] = green
+    output[outputOffset + 2] = blue
+  }
+}
+
 const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, output): void => {
   let opaque = true
   for (let offset = 3; offset < source.length; offset += 4) {
@@ -1523,6 +1569,39 @@ const writeContent = (
   }
 }
 
+// At this range binary64 addition by one half preserves every byte boundary.
+const roundedOpaqueByte = (value: number): number =>
+  value < 0.5 ? 0 : value >= 254.5 ? 255 : (value + 0.5) | 0
+
+const writeOpaqueContent = (
+  accumulated: Float32Array,
+  block: Uint8Array,
+  blockOffset: number,
+  width: number,
+  vertical: AxisCoefficients,
+  first: number,
+  last: number,
+): void => {
+  // Match the Float32 vertical alpha accumulation and the RGBA unpremultiply.
+  let alphaValue = 0
+  for (let tap = first; tap < last; tap += 1) {
+    alphaValue = Math.fround(alphaValue + 255 * (vertical.weights[tap] ?? 0))
+  }
+  const alpha = clamp(alphaValue, 0, 255)
+  const scale = alpha > 0 ? 255 / alpha : 0
+  const opacity = Math.round(alpha)
+  let source = 0
+  let target = blockOffset
+  for (let x = 0; x < width; x += 1) {
+    block[target] = roundedOpaqueByte((accumulated[source] ?? 0) * scale)
+    block[target + 1] = roundedOpaqueByte((accumulated[source + 1] ?? 0) * scale)
+    block[target + 2] = roundedOpaqueByte((accumulated[source + 2] ?? 0) * scale)
+    block[target + 3] = opacity
+    source += 3
+    target += 4
+  }
+}
+
 const resizedBlocks = async function* (
   input: AsyncIterable<PixelBlock>,
   sourceWidth: number,
@@ -1530,6 +1609,7 @@ const resizedBlocks = async function* (
   sourceFormat: PixelFormat,
   plan: ResizePlan,
   outputFormat: PixelFormat,
+  opaqueRgba8: boolean,
 ): AsyncGenerator<PixelBlock> {
   const horizontal = coefficients(
     sourceWidth,
@@ -1546,14 +1626,15 @@ const resizedBlocks = async function* (
     plan.kernel,
   )
   const sourceRows = rows(input, sourceWidth, sourceHeight, sourceFormat)[Symbol.asyncIterator]()
-  const sourceChannels = channels(sourceFormat)
+  const contiguousOpaque = opaqueRgba8 && hasContiguousSamples(horizontal)
+  const sourceChannels = contiguousOpaque ? 3 : channels(sourceFormat)
   const requiredSourceRows = new Uint8Array(sourceHeight)
   for (const sourceRow of vertical.indices) requiredSourceRows[sourceRow] = 1
   const ringCapacity = verticalRingCapacity(vertical, plan.contentHeight)
   const retainedSourceRows = new Int32Array(ringCapacity)
   retainedSourceRows.fill(-1)
   const retainedRows: (Float32Array | undefined)[] = new Array(ringCapacity)
-  const resizeHorizontal = horizontalKernel(sourceFormat)
+  const resizeHorizontal = contiguousOpaque ? horizontalOpaqueRgb : horizontalKernel(sourceFormat)
   const outputChannels = channels(outputFormat)
   const outputStride = plan.canvasWidth * outputChannels
   const blockCapacity = Math.min(outputBlockRows, plan.canvasHeight)
@@ -1602,14 +1683,25 @@ const resizedBlocks = async function* (
             accumulated[index] = (accumulated[index] ?? 0) + (row[index] ?? 0) * weight
           }
         }
-        writeContent(
-          accumulated,
-          sourceFormat,
-          block,
-          blockOffset + plan.padX * outputChannels,
-          plan.contentWidth,
-          outputFormat,
-        )
+        if (contiguousOpaque) {
+          writeOpaqueContent(
+            accumulated,
+            block,
+            blockOffset + plan.padX * outputChannels,
+            plan.contentWidth,
+            vertical,
+            first,
+            last,
+          )
+        } else
+          writeContent(
+            accumulated,
+            sourceFormat,
+            block,
+            blockOffset + plan.padX * outputChannels,
+            plan.contentWidth,
+            outputFormat,
+          )
       }
 
       blockHeight += 1
@@ -1677,6 +1769,7 @@ export const createResizeTransform = (
   options: ResizeOptions,
   colorSemantics?: PixelColorSemantics,
   sampleBitDepths?: readonly number[],
+  opaqueRgba8 = false,
 ): ResizeTransform => {
   const plan = resizePlan(width, height, options)
   const format = resultFormat(pixelFormat, plan.background)
@@ -1737,7 +1830,15 @@ export const createResizeTransform = (
           ? blocks
           : boxShrinkBlocks(blocks, width, height, pixelFormat, factorX, factorY)
       if (shrinkCompletesPlan) return shrunk
-      return resizedBlocks(shrunk, resizedWidth, resizedHeight, pixelFormat, plan, format)
+      return resizedBlocks(
+        shrunk,
+        resizedWidth,
+        resizedHeight,
+        pixelFormat,
+        plan,
+        format,
+        opaqueRgba8 && pixelFormat === 'rgba8',
+      )
     },
   }
 }

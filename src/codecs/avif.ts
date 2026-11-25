@@ -26,6 +26,7 @@ import {
 import { type Av1Frame, inspectAv1FrameHeader, parseAv1FrameObus } from './av1-frame.ts'
 import {
   type Av1DecodedFrame,
+  type Av1DeferredRestoration,
   av1ToRgbaRegion,
   decodeRestrictedAv1Intra,
   decodeRestrictedAv1IntraRows,
@@ -33,6 +34,7 @@ import {
   estimateRestrictedAv1WorkingBytes,
   supportsRestrictedAv1IntraRows,
 } from './av1-intra.ts'
+import { type Av1FilterPlane, createAv1RestorationBandFilter } from './av1-post-filter.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
 import {
   ColorManagedDecoder,
@@ -2026,16 +2028,93 @@ interface AvifAlphaFrame {
   readonly frame: Av1DecodedFrame
 }
 
+// Keep the chroma interpolation halo between adjacent RGBA blocks. Restoration reads
+// the original CDEF planes; each reader owns its scratch, including interleaved crops.
+const restoredFrameRows = (
+  frame: Av1DecodedFrame,
+  restoration: Av1DeferredRestoration,
+  region: PixelRegion,
+) => {
+  const { cdef, deblocked, header, state } = restoration
+  const restoreBand = createAv1RestorationBandFilter(deblocked, cdef, header, state, 32)
+  const strip = (plane: Av1FilterPlane, shift: number): Av1FilterPlane => ({
+    ...plane,
+    data: new Uint8Array(plane.stride * Math.min(plane.height, 72 >> shift)),
+  })
+  const strips = [
+    strip(cdef[0], 0),
+    strip(cdef[1], state.chromaShiftY),
+    strip(cdef[2], state.chromaShiftY),
+  ] as const
+  const left = Math.max(0, region.x - 2)
+  const right = region.x + region.width + 2
+  let origin = Math.max(0, Math.floor((region.y - 2) / 8) * 8)
+  let nextBand = origin
+  const regionEnd = 8 * Math.ceil(Math.min(frame.height, region.y + region.height + 2) / 8)
+  return (y: number, height: number): Av1DecodedFrame => {
+    const first = Math.max(0, Math.floor((y - 2) / 8) * 8)
+    const end = Math.min(frame.height, y + height + 2)
+    if (first !== origin) {
+      for (const [index, plane] of strips.entries()) {
+        const shift = index === 0 ? 0 : state.chromaShiftY
+        plane.data.copyWithin(
+          0,
+          ((first - origin) >> shift) * plane.stride,
+          ((nextBand - origin) >> shift) * plane.stride,
+        )
+      }
+      origin = first
+    }
+    const band = (plane: Av1FilterPlane, shift: number, rows: number): Av1FilterPlane => {
+      const offset = ((nextBand - origin) >> shift) * plane.stride
+      return {
+        ...plane,
+        data: plane.data.subarray(offset, offset + (rows >> shift) * plane.stride),
+      }
+    }
+    // End the lookahead on a restoration band boundary. The next RGBA block
+    // can then restore a whole band instead of gathering two overlapping halos.
+    const alignedEnd = Math.min(regionEnd, 32 * Math.ceil((end + 8) / 32) - 8)
+    while (nextBand < alignedEnd) {
+      // AV1 restoration stripes start at -8 and advance by 64 luma samples.
+      // Splitting on the intervening 32-row boundary also respects every unit row.
+      const rows = Math.min(alignedEnd - nextBand, 32 - ((nextBand + 8) % 32))
+      restoreBand(
+        nextBand,
+        [
+          band(strips[0], 0, rows),
+          band(strips[1], state.chromaShiftY, rows),
+          band(strips[2], state.chromaShiftY, rows),
+        ],
+        left,
+        right,
+        rows,
+      )
+      nextBand += rows
+    }
+    return {
+      ...frame,
+      yOrigin: origin,
+      chromaYOrigin: origin >> state.chromaShiftY,
+      y: strips[0].data,
+      u: strips[1].data,
+      v: strips[2].data,
+    }
+  }
+}
+
 class AvifFrameDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
+  readonly opaqueRgba8: boolean
   readonly pixelFormat = 'rgba8' as const
   readonly capabilities = Object.freeze({
     sequential: true,
-    regionDecode: false,
+    regionDecode: true,
     scaledDecode: false,
     progressive: false,
   })
+  readonly #restoration: Av1DeferredRestoration | undefined
   readonly #alpha: AvifAlphaFrame | undefined
   readonly #coded: AvifCodedImageInspection
   readonly #color: NclxColor | undefined
@@ -2052,13 +2131,16 @@ class AvifFrameDecoder implements ImageDecoder {
     alpha: AvifAlphaFrame | undefined,
     premultipliedAlpha: boolean,
     toneMap?: NclxHdrToneMap,
+    restoration?: Av1DeferredRestoration,
   ) {
     this.width = displayRegion.width
     this.height = displayRegion.height
+    this.#restoration = restoration
     this.#coded = coded
     this.#frame = frame
     this.#displayRegion = displayRegion
     this.#color = color
+    this.opaqueRgba8 = alpha === undefined
     this.#alpha = alpha
     this.#premultipliedAlpha = premultipliedAlpha
     this.#toneMap = toneMap
@@ -2069,12 +2151,21 @@ class AvifFrameDecoder implements ImageDecoder {
     const region = decodeRegion(this.width, this.height, request)
     const sourceX = this.#displayRegion.x + region.x
     const rowsPerBlock = 32
+    const firstY = this.#displayRegion.y + region.y
+    const readRows = this.#restoration
+      ? restoredFrameRows(this.#frame, this.#restoration, {
+          x: sourceX,
+          y: firstY,
+          width: region.width,
+          height: region.height,
+        })
+      : undefined
     for (let rowStart = 0; rowStart < region.height; rowStart += rowsPerBlock) {
       const blockHeight = Math.min(rowsPerBlock, region.height - rowStart)
       const sourceY = this.#displayRegion.y + region.y + rowStart
       const data = av1ToRgbaRegion(
         this.#coded.sequence,
-        this.#frame,
+        readRows?.(sourceY, blockHeight) ?? this.#frame,
         { x: sourceX, y: sourceY, width: region.width, height: blockHeight },
         this.#color,
         1,
@@ -3068,6 +3159,7 @@ const createCodedAvifDecoder = (
   color: NclxColor | undefined,
   limits: ImageLimits,
   toneMap?: NclxHdrToneMap,
+  allowRegionRestoration = false,
 ): AvifDecoderWorkingSet => {
   const frame = parseCodedImageFrame(coded, limits)
   if (supportsRestrictedAv1IntraRows(frame)) {
@@ -3079,16 +3171,42 @@ const createCodedAvifDecoder = (
       workingBytes,
     }
   }
-  validateAvifWorkingBytes(
-    coded.payloadBytes + estimateRestrictedAv1WorkingBytes(coded.sequence, frame),
+  const workingBytes = coded.payloadBytes + estimateRestrictedAv1WorkingBytes(coded.sequence, frame)
+  validateAvifWorkingBytes(workingBytes)
+  // Up to 72 padded rows of each 8-bit plane and a 128x32 restoration tile.
+  const paddedWidth = Math.ceil(frame.header.frameWidth / 8) * 8
+  const regionScratchBytes = 72 * 3 * paddedWidth + 96 * 1024
+  const canStream =
+    allowRegionRestoration &&
+    !toneMap &&
+    coded.sequence.bitDepth === 8 &&
+    workingBytes + regionScratchBytes <= MAX_BOUNDED_AVIF_WORKING_BYTES
+  let restoration: Av1DeferredRestoration | undefined
+  const decoded = decodeRestrictedAv1Intra(
+    coded.sequence,
+    frame,
+    canStream
+      ? (value) => {
+          restoration = value
+        }
+      : undefined,
   )
-  const decoded = decodeRestrictedAv1Intra(coded.sequence, frame)
   return {
-    decoder: new AvifFrameDecoder(coded, decoded, displayRegion, color, undefined, false, toneMap),
-    workingBytes:
-      coded.payloadBytes +
-      decodedFrameBytes(decoded) +
-      displayRegion.width * Math.min(32, displayRegion.height) * 4,
+    decoder: new AvifFrameDecoder(
+      coded,
+      decoded,
+      displayRegion,
+      color,
+      undefined,
+      false,
+      toneMap,
+      restoration,
+    ),
+    workingBytes: restoration
+      ? workingBytes + regionScratchBytes
+      : coded.payloadBytes +
+        decodedFrameBytes(decoded) +
+        displayRegion.width * Math.min(32, displayRegion.height) * 4,
   }
 }
 
@@ -3182,7 +3300,14 @@ const createSingleAvifDecoder = (
         inspection.displayRegion.width * Math.min(32, inspection.displayRegion.height) * 4,
     }
   }
-  return createCodedAvifDecoder(coded, inspection.displayRegion, inspection.nclx, limits, toneMap)
+  return createCodedAvifDecoder(
+    coded,
+    inspection.displayRegion,
+    inspection.nclx,
+    limits,
+    toneMap,
+    !inspection.gainMap,
+  )
 }
 
 const createGridAvifDecoder = (

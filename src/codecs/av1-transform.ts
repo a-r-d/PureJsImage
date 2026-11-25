@@ -73,14 +73,12 @@ const reversedBits = (value: number, bits: number): number => {
   return result
 }
 
-const inverseDct = (input: Int32Array, offset: number, length: number): Int32Array => {
-  const bits = Math.log2(length)
-  if (bits !== 2 && bits !== 3 && bits !== 4 && bits !== 5 && bits !== 6)
-    throw unsupportedOperation(`Unsupported AV1 inverse DCT length ${length}`)
-  const values = transformValues
-  for (let index = 0; index < length; index += 1) {
-    values[index] = input[offset + reversedBits(index, bits)] ?? 0
-  }
+const dctStages = <T>(
+  values: T,
+  bits: number,
+  butterfly: (values: T, first: number, second: number, angle: number, flip: boolean) => void,
+  hadamard: (values: T, first: number, second: number, flip?: boolean) => void,
+): void => {
   if (bits === 6) {
     for (let index = 0; index < 16; index += 1) {
       butterfly(values, 32 + index, 63 - index, 63 - 4 * reversedBits(index, 4), false)
@@ -238,15 +236,25 @@ const inverseDct = (input: Int32Array, offset: number, length: number): Int32Arr
     }
     for (let index = 0; index < 32; index += 1) hadamard(values, index, 63 - index)
   }
+}
+
+const inverseDct = (input: Int32Array, offset: number, length: number): Int32Array => {
+  const bits = Math.log2(length)
+  if (bits !== 2 && bits !== 3 && bits !== 4 && bits !== 5 && bits !== 6)
+    throw unsupportedOperation(`Unsupported AV1 inverse DCT length ${length}`)
+  const values = transformValues
+  for (let index = 0; index < length; index += 1) {
+    values[index] = input[offset + reversedBits(index, bits)] ?? 0
+  }
+  dctStages(values, bits, butterfly, hadamard)
   return values
 }
 
-const inverseAdst8 = (input: Int32Array, offset: number): Int32Array => {
-  const values = transformValues
-  for (let index = 0; index < 8; index += 1) {
-    const source = (index & 1) === 1 ? index - 1 : 7 - index
-    values[index] = input[offset + source] ?? 0
-  }
+const adst8Stages = <T>(
+  values: T,
+  butterfly: (values: T, first: number, second: number, angle: number, flip: boolean) => void,
+  hadamard: (values: T, first: number, second: number, flip?: boolean) => void,
+): void => {
   for (let index = 0; index < 4; index += 1)
     butterfly(values, 2 * index, 2 * index + 1, 60 - 16 * index, true)
   for (let index = 0; index < 4; index += 1) hadamard(values, index, 4 + index)
@@ -258,24 +266,13 @@ const inverseAdst8 = (input: Int32Array, offset: number): Int32Array => {
   }
   butterfly(values, 2, 3, 32, true)
   butterfly(values, 6, 7, 32, true)
-  const output = transformOutput
-  for (let index = 0; index < 8; index += 1) {
-    const a = (index >> 3) & 1
-    const b = ((index >> 2) & 1) ^ ((index >> 3) & 1)
-    const c = ((index >> 1) & 1) ^ ((index >> 2) & 1)
-    const d = (index & 1) ^ ((index >> 1) & 1)
-    const source = ((d << 3) | (c << 2) | (b << 1) | a) >> 1
-    output[index] = (index & 1) === 1 ? -(values[source] ?? 0) : (values[source] ?? 0)
-  }
-  return output
 }
 
-const inverseAdst16 = (input: Int32Array, offset: number): Int32Array => {
-  const values = transformValues
-  for (let index = 0; index < 16; index += 1) {
-    const source = (index & 1) === 1 ? index - 1 : 15 - index
-    values[index] = input[offset + source] ?? 0
-  }
+const adst16Stages = <T>(
+  values: T,
+  butterfly: (values: T, first: number, second: number, angle: number, flip: boolean) => void,
+  hadamard: (values: T, first: number, second: number, flip?: boolean) => void,
+): void => {
   for (let index = 0; index < 8; index += 1) {
     butterfly(values, 2 * index, 2 * index + 1, 62 - 8 * index, true)
   }
@@ -302,6 +299,146 @@ const inverseAdst16 = (input: Int32Array, offset: number): Int32Array => {
   for (let index = 0; index < 4; index += 1) {
     butterfly(values, 2 + 4 * index, 3 + 4 * index, 32, true)
   }
+}
+
+// Resolve operand order and rotation coefficients once for every supported length.
+const parallelStagePlan = (bits: number, dct: boolean) => {
+  const entries: number[] = []
+  const rotate = (
+    ops: number[],
+    left: number,
+    right: number,
+    angle: number,
+    flip: boolean,
+  ): void => {
+    const cos = cosine(angle)
+    const sin = sine(angle)
+    ops.push(left, right, flip ? sin : cos, flip ? cos : -sin, flip ? cos : sin, flip ? -sin : cos)
+  }
+  const add = (ops: number[], left: number, right: number, flip = false): void => {
+    // A negative operand marks an add/subtract pair, including index zero.
+    ops.push(~(flip ? right : left), flip ? left : right, 0, 0, 0, 0)
+  }
+  if (dct) dctStages(entries, bits, rotate, add)
+  else if (bits === 3) adst8Stages(entries, rotate, add)
+  else adst16Stages(entries, rotate, add)
+  // Bound each lane by an integer multiple of the largest input sample.
+  // Ceil at every rotation also covers its half-up rounding.
+  const gains = new Uint16Array(1 << bits).fill(1)
+  let maximumGain = 1
+  for (let op = 0; op < entries.length; op += 6) {
+    const left = entries[op] ?? 0
+    const right = entries[op + 1] ?? 0
+    if (left < 0) {
+      const gain = (gains[~left] ?? 0) + (gains[right] ?? 0)
+      gains[~left] = gain
+      gains[right] = gain
+      maximumGain = Math.max(maximumGain, gain)
+    } else {
+      const u = gains[left] ?? 0
+      const v = gains[right] ?? 0
+      gains[left] = Math.ceil(
+        (u * Math.abs(entries[op + 2] ?? 0) + v * Math.abs(entries[op + 3] ?? 0)) / 4096,
+      )
+      gains[right] = Math.ceil(
+        (u * Math.abs(entries[op + 4] ?? 0) + v * Math.abs(entries[op + 5] ?? 0)) / 4096,
+      )
+    }
+  }
+  return { operations: Int16Array.from(entries), maximumGain }
+}
+const dctPlans = [2, 3, 4, 5, 6].map((bits) => parallelStagePlan(bits, true))
+const adstPlans = [3, 4].map((bits) => parallelStagePlan(bits, false))
+
+const runParallelStages = (values: Int32Array, width: number, bits: number, dct: boolean): void => {
+  const plan = dct ? dctPlans[bits - 2] : adstPlans[bits - 3]
+  if (!plan) throw unsupportedOperation('Unsupported AV1 transform stages')
+  const ops = plan.operations
+  // Below this bound every stage addition already fits its required clamp.
+  const safeInput = Math.floor(transformClampMaximum / plan.maximumGain)
+  let unclipped = true
+  for (let i = 0; i < width << bits; i += 1) {
+    if (Math.abs(values[i] ?? 0) > safeInput) {
+      unclipped = false
+      break
+    }
+  }
+  for (let op = 0; op < ops.length; op += 6) {
+    const left = ops[op] ?? 0
+    const b = (ops[op + 1] ?? 0) * width
+    if (left < 0) {
+      const a = ~left * width
+      if (unclipped) {
+        for (let i = 0; i < width; i += 1) {
+          const u = values[a + i] ?? 0
+          const v = values[b + i] ?? 0
+          values[a + i] = u + v
+          values[b + i] = u - v
+        }
+        continue
+      }
+      for (let i = 0; i < width; i += 1) {
+        const u = values[a + i] ?? 0
+        const v = values[b + i] ?? 0
+        values[a + i] = clampTransform(u + v)
+        values[b + i] = clampTransform(u - v)
+      }
+    } else {
+      const a = left * width
+      const aa = ops[op + 2] ?? 0
+      const ab = ops[op + 3] ?? 0
+      const ba = ops[op + 4] ?? 0
+      const bb = ops[op + 5] ?? 0
+      if (transformClampMaximum === 32767) {
+        // With 16-bit inputs, the largest rotation numerator in any of the
+        // fixed DCT/ADST stage plans is at most 189794304, including rounding.
+        for (let i = 0; i < width; i += 1) {
+          const u = values[a + i] ?? 0
+          const v = values[b + i] ?? 0
+          values[a + i] = (Math.imul(u, aa) + Math.imul(v, ab) + 2048) >> 12
+          values[b + i] = (Math.imul(u, ba) + Math.imul(v, bb) + 2048) >> 12
+        }
+      } else {
+        for (let i = 0; i < width; i += 1) {
+          const u = values[a + i] ?? 0
+          const v = values[b + i] ?? 0
+          values[a + i] = Math.floor((u * aa + v * ab + 2048) / 4096)
+          values[b + i] = Math.floor((u * ba + v * bb + 2048) / 4096)
+        }
+      }
+    }
+  }
+}
+
+const columnInputRow = (row: number, height: number, bits: number, dct: boolean): number =>
+  dct ? reversedBits(row, bits) : (row & 1) === 0 ? row + 1 : height - 1 - row
+
+const inverseAdst8 = (input: Int32Array, offset: number): Int32Array => {
+  const values = transformValues
+  for (let index = 0; index < 8; index += 1) {
+    const source = (index & 1) === 1 ? index - 1 : 7 - index
+    values[index] = input[offset + source] ?? 0
+  }
+  adst8Stages(values, butterfly, hadamard)
+  const output = transformOutput
+  for (let index = 0; index < 8; index += 1) {
+    const a = (index >> 3) & 1
+    const b = ((index >> 2) & 1) ^ ((index >> 3) & 1)
+    const c = ((index >> 1) & 1) ^ ((index >> 2) & 1)
+    const d = (index & 1) ^ ((index >> 1) & 1)
+    const source = ((d << 3) | (c << 2) | (b << 1) | a) >> 1
+    output[index] = (index & 1) === 1 ? -(values[source] ?? 0) : (values[source] ?? 0)
+  }
+  return output
+}
+
+const inverseAdst16 = (input: Int32Array, offset: number): Int32Array => {
+  const values = transformValues
+  for (let index = 0; index < 16; index += 1) {
+    const source = (index & 1) === 1 ? index - 1 : 15 - index
+    values[index] = input[offset + source] ?? 0
+  }
+  adst16Stages(values, butterfly, hadamard)
   const output = transformOutput
   for (let index = 0; index < 16; index += 1) {
     const a = (index >> 3) & 1
@@ -383,6 +520,7 @@ const dequantizeAv1Coefficients = (
   header: Av1FrameHeader,
   quantizer: number,
   bitDepth: 8 | 10 | 12,
+  activeRows: number,
 ): Int32Array => {
   const dcDelta = plane === 0 ? header.deltaYDc : plane === 1 ? header.deltaUDc : header.deltaVDc
   const acDelta = plane === 0 ? 0 : plane === 1 ? header.deltaUAc : header.deltaVAc
@@ -397,13 +535,22 @@ const dequantizeAv1Coefficients = (
       : undefined
 
   const dequantized = dequantScratch
-  const coefficientCount = width * height
+  const coefficientCount = width * activeRows
   const matrixWidth = Math.min(width, 32)
   const matrixHeight = Math.min(height, 32)
   const rectangularScale = width * 2 === height || height * 2 === width
   const sizeContext = (Math.log2(width >> 2) + Math.log2(height >> 2) + 1) >> 1
   const dequantizerDivisor = 2 ** Math.max(0, sizeContext - 2)
   const coefficientLimit = 2 ** (bitDepth + 7)
+  if (!matrix && !rectangularScale && dequantizerDivisor === 1) {
+    const minimum = -coefficientLimit
+    const maximum = coefficientLimit - 1
+    dequantized[0] = Math.max(minimum, Math.min(maximum, (quantized[0] ?? 0) * dc))
+    for (let index = 1; index < coefficientCount; index += 1) {
+      dequantized[index] = Math.max(minimum, Math.min(maximum, (quantized[index] ?? 0) * ac))
+    }
+    return dequantized
+  }
   for (let index = 0; index < coefficientCount; index += 1) {
     const level = quantized[index] ?? 0
     if (level === 0) {
@@ -432,7 +579,34 @@ const dequantizeAv1Coefficients = (
   return dequantized
 }
 
-export const inverseTransform = (
+// A complete eight-bit destination can receive batched residuals directly.
+// Other transforms return their bounded residual block to the caller.
+export function inverseTransform(
+  quantized: Int32Array,
+  width: 4 | 8 | 16 | 32 | 64,
+  height: 4 | 8 | 16 | 32 | 64,
+  transformType: number,
+  plane: 0 | 1 | 2,
+  header: Av1FrameHeader,
+  quantizer?: number,
+  bitDepth?: 8 | 10 | 12,
+  activeRows?: number,
+): Int32Array
+export function inverseTransform(
+  quantized: Int32Array,
+  width: 4 | 8 | 16 | 32 | 64,
+  height: 4 | 8 | 16 | 32 | 64,
+  transformType: number,
+  plane: 0 | 1 | 2,
+  header: Av1FrameHeader,
+  quantizer: number,
+  bitDepth: 8 | 10 | 12,
+  activeRows: number,
+  target8: Uint8ClampedArray | undefined,
+  offset: number,
+  stride: number,
+): Int32Array | undefined
+export function inverseTransform(
   quantized: Int32Array,
   width: 4 | 8 | 16 | 32 | 64,
   height: 4 | 8 | 16 | 32 | 64,
@@ -441,7 +615,11 @@ export const inverseTransform = (
   header: Av1FrameHeader,
   quantizer = header.baseQuantizer,
   bitDepth: 8 | 10 | 12 = 8,
-): Int32Array => {
+  activeRows: number = height,
+  target8?: Uint8ClampedArray,
+  offset = 0,
+  stride: number = width,
+): Int32Array | undefined {
   if (transformType < 0 || transformType > 15) {
     throw unsupportedOperation(`Unsupported AV1 transform type ${transformType}`)
   }
@@ -454,6 +632,7 @@ export const inverseTransform = (
     header,
     quantizer,
     bitDepth,
+    header.codedLossless ? height : activeRows,
   )
   if (header.codedLossless) {
     if (width !== 4 || height !== 4) {
@@ -506,48 +685,124 @@ export const inverseTransform = (
   const columnClampMaximum = -columnClampMinimum - 1
   transformClampMinimum = rowClampMinimum
   transformClampMaximum = rowClampMaximum
-  for (let row = 0; row < height; row += 1) {
-    const rowOrigin = row * width
-    let nonzero = false
-    for (let column = 0; column < width; column += 1) {
-      if ((dequantized[rowOrigin + column] ?? 0) !== 0) {
-        nonzero = true
-        break
+  const batchColumns =
+    (columnUsesDct && activeRows > 1) || (columnUsesAdst && (height === 8 || height === 16))
+  const columnBits = Math.log2(height)
+  // Write rows directly in the input order of the vertical stages. Rows outside
+  // the coded extent have no coefficients and may still contain the previous block.
+  if (batchColumns && activeRows < height) intermediate.fill(0, 0, width * height)
+  if (activeRows >= 2 && (rowUsesDct || (rowUsesAdst && (width === 8 || width === 16)))) {
+    const bits = Math.log2(width)
+    const values = residualScratch
+    for (let lane = 0; lane < width; lane += 1) {
+      const source = rowUsesDct
+        ? reversedBits(lane, bits)
+        : (lane & 1) === 1
+          ? lane - 1
+          : width - 1 - lane
+      const origin = lane * activeRows
+      for (let row = 0; row < activeRows; row += 1)
+        values[origin + row] = dequantized[row * width + source] ?? 0
+    }
+    runParallelStages(values, activeRows, bits, rowUsesDct)
+    for (let row = 0; row < activeRows; row += 1) {
+      const destination =
+        (batchColumns ? columnInputRow(row, height, columnBits, columnUsesDct) : row) * width
+      for (let col = 0; col < width; col += 1) {
+        const origin = rowUsesDct ? col : reversedBits(col ^ (col >> 1), bits)
+        const value = values[origin * activeRows + row] ?? 0
+        const signed = !rowUsesDct && (col & 1) !== 0 ? -value : value
+        intermediate[destination + col] = Math.max(
+          columnClampMinimum,
+          Math.min(columnClampMaximum, roundedShift(signed, rowShift)),
+        )
       }
     }
-    if (!nonzero) {
-      for (let column = 0; column < width; column += 1) intermediate[rowOrigin + column] = 0
-      continue
-    }
-    const transformed =
-      rowUsesDct || rowUsesAdst
-        ? oneDimensional(dequantized, rowOrigin, width, rowUsesAdst)
-        : inverseIdentity(dequantized, rowOrigin, width)
-    for (let column = 0; column < width; column += 1) {
-      intermediate[rowOrigin + column] = Math.max(
-        columnClampMinimum,
-        Math.min(columnClampMaximum, roundedShift(transformed[column] ?? 0, rowShift)),
-      )
+  } else {
+    for (let row = 0; row < activeRows; row += 1) {
+      const rowOrigin = row * width
+      const targetOrigin = batchColumns
+        ? columnInputRow(row, height, columnBits, columnUsesDct) * width
+        : rowOrigin
+      const dc = dequantized[rowOrigin] ?? 0
+      let hasAc = false
+      for (let column = 1; column < width; column += 1) {
+        if ((dequantized[rowOrigin + column] ?? 0) !== 0) {
+          hasAc = true
+          break
+        }
+      }
+      if (!hasAc && (dc === 0 || rowUsesDct)) {
+        // A DC-only DCT broadcasts the same 45-degree rotation to every output.
+        const rotated = clampTransform(roundedShift(dc * 2896, 12))
+        const value = Math.max(
+          columnClampMinimum,
+          Math.min(columnClampMaximum, roundedShift(rotated, rowShift)),
+        )
+        intermediate.fill(value, targetOrigin, targetOrigin + width)
+        continue
+      }
+      const transformed =
+        rowUsesDct || rowUsesAdst
+          ? oneDimensional(dequantized, rowOrigin, width, rowUsesAdst)
+          : inverseIdentity(dequantized, rowOrigin, width)
+      for (let column = 0; column < width; column += 1) {
+        intermediate[targetOrigin + column] = Math.max(
+          columnClampMinimum,
+          Math.min(columnClampMaximum, roundedShift(transformed[column] ?? 0, rowShift)),
+        )
+      }
     }
   }
   transformClampMinimum = columnClampMinimum
   transformClampMaximum = columnClampMaximum
   const residual = residualScratch.subarray(0, width * height)
+  if (batchColumns) {
+    const bits = columnBits
+    const values = intermediate
+    runParallelStages(values, width, bits, columnUsesDct)
+    const flipY = ((flippedRowMask >>> transformType) & 1) !== 0
+    const flipX = ((flippedColumnMask >>> transformType) & 1) !== 0
+    for (let r = 0; r < height; r += 1) {
+      const gray = r ^ (r >> 1)
+      const origin = (columnUsesDct ? r : reversedBits(gray, bits)) * width
+      const row = flipY ? height - 1 - r : r
+      const sign = columnUsesDct || (r & 1) === 0 ? 1 : -1
+      if (target8) {
+        let index = offset + row * stride + (flipX ? width - 1 : 0)
+        const step = flipX ? -1 : 1
+        for (let x = 0; x < width; x += 1) {
+          target8[index] = (target8[index] ?? 0) + roundedShift(sign * (values[origin + x] ?? 0), 4)
+          index += step
+        }
+        continue
+      }
+      const target = row * width
+      for (let x = 0; x < width; x += 1) {
+        residual[target + (flipX ? width - 1 - x : x)] = roundedShift(
+          sign * (values[origin + x] ?? 0),
+          4,
+        )
+      }
+    }
+    return target8 ? undefined : residual
+  }
   const columnInput = columnInputScratch
+  columnInput.fill(0, activeRows, height)
   for (let column = 0; column < width; column += 1) {
-    let nonzero = false
-    for (let row = 0; row < height; row += 1) {
+    const dc = intermediate[column] ?? 0
+    columnInput[0] = dc
+    let ac = 0
+    for (let row = 1; row < activeRows; row += 1) {
       const sample = intermediate[row * width + column] ?? 0
       columnInput[row] = sample
-      if (sample !== 0) nonzero = true
+      ac |= sample
     }
-    if (!nonzero) {
+    if (ac === 0 && (dc === 0 || columnUsesDct)) {
+      const value = roundedShift(clampTransform(roundedShift(dc * 2896, 12)), 4)
       const targetColumn =
         ((flippedColumnMask >>> transformType) & 1) !== 0 ? width - column - 1 : column
-      for (let row = 0; row < height; row += 1) {
-        const targetRow = ((flippedRowMask >>> transformType) & 1) !== 0 ? height - row - 1 : row
-        residual[targetRow * width + targetColumn] = 0
-      }
+      for (let row = 0; row < height; row += 1) residual[row * width + targetColumn] = value
       continue
     }
     const transformed =

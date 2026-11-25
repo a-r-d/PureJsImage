@@ -102,4 +102,35 @@ describe('AVIF photographic decode', () => {
       '78f5c448c85d19567bf74ac4d62a7f1835082d11d08fde361150d4bfdc1bffc9',
     )
   })
+  it('keeps overlapping region readers independent across restoration stripes', async () => {
+    const input = await readFile(join(avifCorpusDirectory, 'fox.profile0.8bpc.yuv420.avif'))
+    const decoder = await avifCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('AVIF decoder is unavailable')
+    const full = new Uint8Array(decoder.width * decoder.height * 4)
+    const fullReader = decoder.decode()[Symbol.asyncIterator]()
+    const region = { x: 253, y: 55, width: 609, height: 713 }
+    const cropReader = decoder.decode(region)[Symbol.asyncIterator]()
+    const crop = new Uint8Array(region.width * region.height * 4)
+    let cropDone = false
+    for (;;) {
+      const block = await fullReader.next()
+      if (block.done) break
+      full.set(block.value.data, block.value.y * decoder.width * 4)
+      if (!cropDone) {
+        const part = await cropReader.next()
+        cropDone = part.done === true
+        if (!part.done) crop.set(part.value.data, part.value.y * region.width * 4)
+      }
+    }
+    expect(cropDone).toBe(true)
+    expect(createHash('sha256').update(full).digest('hex')).toBe(
+      'cd94cd9d459af6338f77cf401749656b647f88b9e357c737a0a88c34584a46ec',
+    )
+    const expected = createHash('sha256')
+    for (let y = region.y; y < region.y + region.height; y += 1) {
+      const start = (y * decoder.width + region.x) * 4
+      expected.update(full.subarray(start, start + region.width * 4))
+    }
+    expect(createHash('sha256').update(crop).digest('hex')).toBe(expected.digest('hex'))
+  })
 })

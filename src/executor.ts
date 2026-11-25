@@ -523,6 +523,7 @@ export const executePipeline = async (
           operation,
           colorSemantics,
           sampleBitDepths,
+          !output.window && operation === output.stages[0] && decoder.opaqueRgba8 === true,
         )
         width = resize.width
         height = resize.height

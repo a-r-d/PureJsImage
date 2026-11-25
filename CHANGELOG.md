@@ -20,12 +20,19 @@ All notable changes to PureJsImage are documented in this file.
   between neighboring pixels. Coefficients stay in compact Int16 storage and pixels are still
   rebuilt in bounded MCU rows. Output is unchanged.
 - AVIF decoding is faster with identical pixels. On the 1204 x 800 benchmark photo, full decode
-  to PNG takes 611 ms instead of 671 ms, resize to JPEG 465 ms instead of 505 ms, and crop and
-  resize 380 ms instead of 433 ms. The AV1 decoder reuses sums in the deblocking and
-  self-guided restoration filters, computes the radius-2 self-guided pass only on the rows it
-  uses, simplifies symbol renormalization and coefficient contexts, avoids typed-array views in
-  inverse transforms, shares chroma interpolation between neighboring pixels, and no longer
-  allocates palette context when screen content tools are off.
+  to PNG takes 495 ms instead of 674 ms, resize to JPEG 322 ms instead of 515 ms, and crop and
+  resize 239 ms instead of 437 ms, each measured in 21 alternating pairs. Peak RSS is up to 5%
+  lower. The AV1 decoder reuses sums and scratch rows in the deblocking, Wiener and self-guided
+  restoration filters, restores only the strips a crop needs, computes the radius-2 self-guided
+  pass only on rows it uses, simplifies symbol renormalization and coefficient contexts, batches
+  range-checked inverse transforms, shares chroma interpolation between neighboring pixels, and
+  no longer allocates palette context when screen content tools are off. When the decoder reports
+  that every pixel is opaque, the first resize filters RGB only and skips the alpha channel; its
+  output bytes match the RGBA path.
+- PNG encoding is faster with byte-identical files. Adaptive filtering keeps the Paeth residuals
+  it computes while scoring a row instead of filtering the row again when Paeth wins, uses a 4 KiB
+  Paeth lookup table, and writes all-zero rows without scoring. JPEG to PNG on the 2400 x 2400
+  benchmark photo takes 356 ms instead of 446 ms, and AVIF to PNG is 7% faster.
 - Registering the JPEG XL codec, for example through `allCodecs`, no longer loads its VarDCT,
   animation, native-sample and encoder code. That code loads on the first JPEG XL decode or encode
   that needs it. Since 0.17.0 the codec had grown to 1.7 MB of JavaScript that loaded with

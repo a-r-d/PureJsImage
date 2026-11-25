@@ -117,6 +117,37 @@ describe('streaming resize', () => {
     expect(releases).toBe(1)
   })
 
+  it('preserves Lanczos rounding and contain padding on decoder-guaranteed opaque RGBA', async () => {
+    const width = 41
+    const height = 27
+    const data = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
+      i % 4 === 3 ? 255 : (i * 97 + (i >>> 5) * 113) & 255,
+    )
+    async function* input(): AsyncGenerator<PixelBlock> {
+      yield { x: 0, y: 0, width, height, stride: width * 4, format: 'rgba8', data }
+    }
+    const resized = async (opaque: boolean): Promise<Uint8Array[]> => {
+      const transform = createResizeTransform(
+        width,
+        height,
+        'rgba8',
+        {
+          width: 22,
+          height: 19,
+          fit: 'contain',
+          background: '#20408070',
+        },
+        undefined,
+        undefined,
+        opaque,
+      )
+      const output: Uint8Array[] = []
+      for await (const block of transform.apply(input())) output.push(block.data)
+      return output
+    }
+    expect(await resized(true)).toEqual(await resized(false))
+  })
+
   it('interpolates alpha in premultiplied color space', async () => {
     const output = await execute(
       png(2, 1, (x) => (x === 0 ? [255, 0, 0, 0] : [0, 0, 255, 255])),

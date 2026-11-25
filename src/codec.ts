@@ -157,6 +157,8 @@ export interface DecoderExecutionDescription {
 }
 
 export interface ImageDecoder {
+  /** All emitted RGBA8 samples have alpha 255, including cropped requests. */
+  readonly opaqueRgba8?: boolean
   readonly execution?: DecoderExecutionDescription
   readonly width: number
   readonly height: number
