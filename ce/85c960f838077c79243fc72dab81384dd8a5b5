@@ -1,0 +1,25 @@
+benchmark/hillclimb/run.ts
+  s_fb44c3e6b9dfb0::t_f15abdf3a18e10 16-17,94-98,101,353,460,487,531-532,534,548,705
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_87e7d37354c3e9 146-147
+.agents/skills/benchmark-hillclimb/SKILL.md
+  s_fb44c3e6b9dfb0::t_f853712ab71efa 43-45,59
+benchmark/README.md
+  s_fb44c3e6b9dfb0::t_7b6c05e7c28ec8 250-256
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ce85c960f838077c79243fc72dab81384dd8a5b5",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
