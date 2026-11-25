@@ -1,0 +1,57 @@
+README.md
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 140-142,144,146,455
+docs-astro/public/assets/readme/web-codec-memory.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 20,50-51,53-54,56-57,59-60,62-63,65-66,68-69,71-72,76-77,79-80,82-83,85-86,88-89,91-92,94-95,97-98,102-103,105-106,108-109,111-112,114-115,117-118,120-121,123-124,128-129,131-132,134-135,137-138,140-141,143-144,146-147,149-150,154-155,157-158,162-163,165-166,170-171,173-174,178-179,181-182,186-187,189-190,194-195,197-198,202-203,205-206,210-211,213-214,218-219,221-222,226-227,229-230,232-233,235-236,238-239,241-242,244-245,251-252,254-255,259-260,262-263,267-268,270-271,275-276,278-279,283-284,286-287,291-292,294-295,299-300,302-303,307-308,310-311,315-316,322-323,325-326,330-331,333-334,338-339,341-342,344
+benchmark/results/public/web-codecs-2026-11-25T02-42-04-827Z.md
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-12
+benchmark/results/result-index-2026-11-25T02-42-30-045Z.json
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-4213
+docs-astro/public/assets/web-codecs-quality-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-147
+benchmark/results/public/index.md
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 3,8
+docs-astro/public/assets/web-codecs-memory-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-345
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 143,148,153,157,211-213,216-217
+benchmark/results/public/index.json
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 3-4,40-41,59-60,63-64,68-69
+docs-astro/public/assets/readme/web-codec-speed.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 20,52-53,55-56,58-59,61-62,64-65,67-68,70-71,73-74,78-79,81-82,84-85,87-88,90-91,93-94,96-97,99-100,104-105,107-108,110-111,113-114,116-117,119-120,122-123,125-126,130-131,133-134,136-137,139-140,142-143,145-146,148-149,151-152,156-157,159-160,164-165,167-168,172-173,175-176,180-181,183-184,188-189,191-192,196-197,199-200,204-205,207-208,212-213,215-216,220-221,223-224,228-229,231-232,234-235,237-238,240-241,243-244,246-247,253-254,256-257,261-262,264-265,269-270,272-273,277-278,280-281,285-286,288-289,293-294,296-297,301-302,304-305,309-310,312-313,317-318,324-325,327-328,332-333,335-336,340-341,343-344,346
+benchmark/results/web-codecs-quality-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-147
+docs-astro/public/assets/web-codecs-speed-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-347
+benchmark/results/web-codecs-speed-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-347
+benchmark/results/web-codecs-memory-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-345
+benchmark/results/result-index-2026-11-25T02-42-30-045Z.md
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-274
+benchmark/results/public/web-codecs-2026-11-25T02-42-04-827Z.json
+  s_fb44c3e6b9dfb0::t_b6d7a45a13b6a8 1-1421
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_65bbb52a040f92 101-107
+benchmark/results/2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.json
+  s_fb44c3e6b9dfb0::t_ad31953c594489 1-26600
+benchmark/results/2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.md
+  s_fb44c3e6b9dfb0::t_54c7377a3938f2 1-275
+benchmarks.md
+  s_fb44c3e6b9dfb0::t_79ed280f385507 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "33a8cd7082290d6a694692c23821f2b876ff0117",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
