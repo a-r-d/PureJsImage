@@ -18,6 +18,16 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- A resize now runs before a flip, flop, rotation by a multiple of 90 degrees, or EXIF
+  auto-orient that comes ahead of it in the pipeline, so the orientation step moves the smaller
+  image. This applies when the resize cannot crop or pad: a single dimension, or `fit` set to
+  `fill`, `inside` or `outside`, with any kernel except `nearest`. A JPEG rotated 90 degrees and
+  resized also gets the same reduced-resolution decode as a plain resize. On the 12-megapixel
+  benchmark JPEG, rotate 90 then resize to 1200 px wide takes 572 ms instead of 1013 ms, with
+  154 MiB peak RSS instead of 192 MiB. A 2.16-megapixel phone JPEG with EXIF orientation 6
+  auto-orients and resizes to 800 px in 90 ms instead of 153 ms. PNG and other inputs without
+  reduced-resolution decoding give identical pixels. JPEG output differs slightly because of the
+  reduced-resolution decode, as a plain JPEG resize already does.
 - Resizing RGBA images with transparent areas is faster with identical output. The Lanczos 3
   horizontal pass skips output pixels whose source taps are all transparent, and reuses a row's
   filtered values for 32-pixel groups whose source bytes match the previous row. PNG adaptive

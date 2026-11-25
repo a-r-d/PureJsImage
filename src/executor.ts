@@ -191,7 +191,70 @@ export const planOutput = (
     }
   }
 
+  moveResizesBeforeOrientation(stages, sourceOrientation)
   return { format, options, decoderRegion, stages, ...(window === undefined ? {} : { window }) }
+}
+
+type ResizeStage = Extract<PipelineOperation, { type: 'resize' }>
+
+// Returns whether an orientation stage swaps width and height, or undefined
+// for stages a resize cannot move across.
+const orientationSwapsAxes = (
+  operation: PipelineOperation,
+  sourceOrientation: ExifOrientation,
+): boolean | undefined => {
+  if (operation.type === 'flip' || operation.type === 'flop') return false
+  if (operation.type === 'autoOrient') return sourceOrientation >= 5
+  if (operation.type !== 'rotate') return undefined
+  const degrees = normalizedRotation(operation.degrees)
+  if (degrees === 90 || degrees === 270) return true
+  return degrees === 0 || degrees === 180 ? false : undefined
+}
+
+// A resize that never crops or pads, and whose kernel is symmetric, gives the
+// same image before or after a mirror or quarter turn. Centered cover crops and
+// contain padding round odd offsets toward one side, so they stay in place.
+const resizeCommutesWithOrientation = (resize: ResizeStage): boolean =>
+  resize.kernel !== 'nearest' &&
+  (resize.width === undefined ||
+    resize.height === undefined ||
+    resize.fit === 'fill' ||
+    resize.fit === 'inside' ||
+    resize.fit === 'outside')
+
+const transposedResize = (resize: ResizeStage): ResizeStage => {
+  const { width, height, ...rest } = resize
+  if (width !== undefined && height !== undefined) {
+    return Object.freeze({ ...rest, width: height, height: width })
+  }
+  if (height !== undefined) return Object.freeze({ ...rest, width: height })
+  if (width !== undefined) return Object.freeze({ ...rest, height: width })
+  throw invalidInput('Resize requires a width or height')
+}
+
+// Runs each eligible resize before the mirrors and quarter turns that precede
+// it, so the orientation stage moves the smaller image and the first resize can
+// use reduced-resolution decoding.
+const moveResizesBeforeOrientation = (
+  stages: PipelineOperation[],
+  sourceOrientation: ExifOrientation,
+): void => {
+  for (let index = 1; index < stages.length; index += 1) {
+    const stage = stages[index]
+    if (stage?.type !== 'resize' || !resizeCommutesWithOrientation(stage)) continue
+    let resize = stage
+    let position = index
+    while (position > 0) {
+      const previous = stages[position - 1]
+      if (previous === undefined) break
+      const swapsAxes = orientationSwapsAxes(previous, sourceOrientation)
+      if (swapsAxes === undefined) break
+      if (swapsAxes) resize = transposedResize(resize)
+      stages[position] = previous
+      position -= 1
+    }
+    stages[position] = resize
+  }
 }
 
 const validateCrop = (

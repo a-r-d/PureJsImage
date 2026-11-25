@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
-import { selectDecodeScaleDenominator } from '../src/executor.ts'
+import { planOutput, selectDecodeScaleDenominator } from '../src/executor.ts'
 import {
   createImageLibrary,
   type DecodeRequest,
@@ -79,6 +79,76 @@ describe('immutable image pipelines', () => {
     expect(within(sample(0, 0), [148, 173, 207], 8)).toBe(true)
     expect(within(sample(300, 225), [187, 190, 195], 8)).toBe(true)
     expect(within(sample(600, 450), [228, 225, 222], 8)).toBe(true)
+  })
+
+  it('moves a resize ahead of mirrors and quarter turns when no crop or padding is involved', () => {
+    const stages = (operations: Parameters<typeof planOutput>[3], orientation: 1 | 3 | 6 = 1) =>
+      planOutput(4000, 3000, 'jpeg', operations, orientation).stages
+    const rotate = (degrees: number) => ({ type: 'rotate', degrees, options: {} }) as const
+
+    expect(stages([rotate(90), { type: 'resize', width: 1200 }])).toEqual([
+      { type: 'resize', height: 1200 },
+      rotate(90),
+    ])
+    expect(stages([{ type: 'autoOrient' }, { type: 'resize', width: 800 }], 6)).toEqual([
+      { type: 'resize', height: 800 },
+      { type: 'autoOrient' },
+    ])
+    expect(stages([{ type: 'autoOrient' }, { type: 'resize', width: 800 }], 3)).toEqual([
+      { type: 'resize', width: 800 },
+      { type: 'autoOrient' },
+    ])
+    expect(
+      stages([
+        { type: 'flip' },
+        rotate(180),
+        rotate(270),
+        { type: 'resize', width: 300, height: 200, fit: 'inside' },
+      ]),
+    ).toEqual([
+      { type: 'resize', width: 200, height: 300, fit: 'inside' },
+      { type: 'flip' },
+      rotate(180),
+      rotate(270),
+    ])
+
+    const stays: readonly Parameters<typeof planOutput>[3][] = [
+      [rotate(90), { type: 'resize', width: 300, height: 200 }],
+      [rotate(90), { type: 'resize', width: 300, kernel: 'nearest' }],
+      [rotate(17), { type: 'resize', width: 300 }],
+      [
+        rotate(90),
+        { type: 'crop', x: 0, y: 0, width: 100, height: 100 },
+        { type: 'resize', width: 50 },
+      ],
+    ]
+    for (const operations of stays) expect(stages(operations)).toEqual(operations)
+  })
+
+  it('gives the same pixels when a resize runs ahead of a quarter turn', async () => {
+    const width = 61
+    const height = 37
+    const source = new PNG({ width, height })
+    for (let index = 0; index < width * height; index += 1) {
+      const x = index % width
+      const y = Math.floor(index / width)
+      source.data[index * 4] = (x * 7 + y * 3) & 255
+      source.data[index * 4 + 1] = (x * x + y * 11) & 255
+      source.data[index * 4 + 2] = (y * y * 5 + x) & 255
+      source.data[index * 4 + 3] = 255 - ((x * 2 + y) & 127)
+    }
+    const input = PNG.sync.write(source)
+    const rotated = await (await Image.open(input)).rotate(90).png().toBuffer()
+    const separate = await (await Image.open(rotated)).resize({ width: 23 }).png().toBuffer()
+    const combined = await (await Image.open(input))
+      .rotate(90)
+      .resize({ width: 23 })
+      .png()
+      .toBuffer()
+    const separatePixels = PNG.sync.read(Buffer.from(separate))
+    const combinedPixels = PNG.sync.read(Buffer.from(combined))
+    expect([combinedPixels.width, combinedPixels.height]).toEqual([23, 38])
+    expect(combinedPixels.data).toEqual(separatePixels.data)
   })
 
   it('plans orientation, crop, resize, and encoding without mutating the source image', async () => {
