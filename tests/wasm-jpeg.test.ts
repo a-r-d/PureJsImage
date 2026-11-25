@@ -8,11 +8,12 @@ import {
 } from '../src/accelerators/wasm/jpeg.ts'
 import type { DecodeRequest, DecoderOptions, ImageCodec, ImageDecoder } from '../src/codec.ts'
 import { accelerateJpegCodec, type JpegDecodeAcceleration, jpegCodec } from '../src/codecs/jpeg.ts'
-import { decodeBaselineJpeg } from '../src/codecs/jpeg-baseline.ts'
+import { decodeBaselineJpeg, parseBaselineJpegSource } from '../src/codecs/jpeg-baseline.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelFormat } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
+import { channelSwappingRgbProfile } from './icc-fixtures.ts'
 
 const artifactUrl = new URL('../src/accelerator-entries/jpeg-decoder.wasm', import.meta.url)
 const simdDecoderArtifactUrl = new URL(
@@ -106,6 +107,7 @@ const encodePixels = async (
   restartInterval: number,
   width = 35,
   height = 27,
+  icc?: Uint8Array,
 ): Promise<{ readonly input: Uint8Array; readonly output: Uint8Array }> => {
   const channels = format === 'gray8' ? 1 : format === 'rgb8' ? 3 : 4
   const input = new Uint8Array(width * height * channels)
@@ -125,6 +127,7 @@ const encodePixels = async (
     width,
     height,
     pixelFormat: format,
+    ...(icc ? { metadata: { icc } } : {}),
     options: { quality: 86, chromaSubsampling, restartInterval },
   })
   if (!encoder) throw new Error('JPEG encoder is unavailable')
@@ -396,7 +399,129 @@ describe('Rust/WASM JPEG accelerator', () => {
     await expect(decode(accelerated)).resolves.toEqual(expected)
   })
 
-  it('does not initialize WASM below the work threshold or for reduced IDCT', async () => {
+  it.each([
+    ['scalar', artifactUrl],
+    ['simd', simdDecoderArtifactUrl],
+  ] as const)('finishes reduced IDCT in the %s module with exact pixels', async (variant, url) => {
+    const inputs = [
+      await readFile(fixtureUrl),
+      await readFile(new URL('generated-yuv440.jpg', fixtureUrl)),
+      await readFile(new URL('generated-yuv411.jpg', fixtureUrl)),
+      (await encodePixels(jpegCodec, 'rgb8', '422', 3)).output,
+    ]
+    for (const scaleDenominator of [2, 4] as const) {
+      for (const input of inputs) {
+        const instance = await instantiateArtifact(url)
+        const loader = async (): Promise<WebAssembly.Instance> => instance
+        const codec = createWasmJpegAcceleratorWithLoaders(
+          variant === 'scalar' ? { decoder: loader } : { simdDecoder: loader },
+          { minimumPixels: 1 },
+        ).accelerate(jpegCodec)
+        const request = { scaleDenominator }
+        expect(await decodeInput(codec, input, request)).toEqual(
+          await decodeInput(jpegCodec, input, request),
+        )
+        expect(numberExport(instance, 'jpeg_decoder_next')()).toBe(1)
+      }
+    }
+  })
+
+  it('matches reduced RGB ICC crops across restart rows and partial MCU edges', async () => {
+    const width = 1537
+    const { output: input } = await encodePixels(
+      jpegCodec,
+      'rgb8',
+      '444',
+      Math.ceil(width / 8),
+      width,
+      799,
+      channelSwappingRgbProfile(),
+    )
+    const instance = await instantiateArtifact(simdDecoderArtifactUrl)
+    const codec = createWasmJpegAcceleratorWithLoaders(
+      { simdDecoder: async () => instance },
+      { minimumPixels: 1 },
+    ).accelerate(jpegCodec)
+    for (const request of [
+      { x: 333, y: 301, width: 121, height: 19, scaleDenominator: 2 },
+      { x: 365, y: 185, width: 20, height: 15, scaleDenominator: 4 },
+      { x: 0, y: 0, width: 1, height: 1, scaleDenominator: 4 },
+    ] as const) {
+      const observed = async (selected: ImageCodec) => {
+        const reads: [number, number][] = []
+        const source: ImageSource = {
+          size: input.byteLength,
+          async read(offset, length) {
+            reads.push([offset, length])
+            return input.subarray(offset, offset + length)
+          },
+        }
+        const decoder = await selected.createDecoder?.(source, defaultImageLimits)
+        if (!decoder) throw new Error('Missing JPEG decoder')
+        return { pixels: await decoderPixels(decoder, request), reads }
+      }
+      expect(await observed(codec)).toEqual(await observed(jpegCodec))
+      expect(numberExport(instance, 'jpeg_decoder_next')()).toBe(1)
+      expect(
+        numberExport(instance, 'jpeg_decoder_output_y')() +
+          numberExport(instance, 'jpeg_decoder_output_height')(),
+      ).toBe(request.height)
+    }
+  })
+
+  it('keeps the EOI prefix when the marker spans two input windows', async () => {
+    const input = await readFile(fixtureUrl)
+    const jpeg = await parseBaselineJpegSource(new MemorySource(input))
+    if (!jpeg) throw new Error('Missing baseline JPEG fixture')
+    const eoi = jpeg.scanOffset + 128 * 1024 - 1
+    const padded = new Uint8Array(eoi + 2)
+    padded.set(input.subarray(0, -2))
+    padded.set([0xff, 0xd9], eoi)
+    const instance = await instantiate()
+    const codec = createWasmJpegAcceleratorWithLoader(async () => instance, {
+      minimumPixels: 1,
+    }).accelerate(jpegCodec)
+    expect(await decodeInput(codec, padded)).toEqual(await decodeInput(jpegCodec, padded))
+    expect(numberExport(instance, 'jpeg_decoder_next')()).toBe(1)
+  })
+
+  it('decodes a multi-window scan with bounded reads and resumes after a failed refill', async () => {
+    const { output: input } = await encodePixels(jpegCodec, 'rgb8', '444', 0, 1001, 799)
+    const request = { scaleDenominator: 4 } as const
+    const expected = await decodeInput(jpegCodec, input, request)
+    for (const interrupt of [false, true]) {
+      const instance = await instantiate()
+      let windowReads = 0
+      let interrupted = false
+      const source: ImageSource = {
+        size: input.length,
+        async read(offset, length) {
+          expect(length).toBeLessThanOrEqual(128 * 1024)
+          if (length > 65_536) {
+            windowReads += 1
+            if (interrupt && windowReads === 3) {
+              interrupted = true
+              throw new Error('Injected refill failure')
+            }
+          }
+          return input.subarray(offset, offset + length)
+        },
+      }
+      const codec = createWasmJpegAcceleratorWithLoader(async () => instance, {
+        minimumPixels: 1,
+      }).accelerate(jpegCodec)
+      const decoder = await codec.createDecoder?.(source, defaultImageLimits)
+      if (!decoder) throw new Error('Missing JPEG decoder')
+      const actual = await decoderPixels(decoder, request)
+      expect(Buffer.compare(actual, expected)).toBe(0)
+      expect(windowReads).toBeGreaterThan(2)
+      expect(interrupted).toBe(interrupt)
+      expect(memoryExport(instance).buffer.byteLength).toBeLessThan(1024 * 1024)
+      if (!interrupt) expect(numberExport(instance, 'jpeg_decoder_next')()).toBe(1)
+    }
+  })
+
+  it('keeps small full-size and reduced decodes below the WASM threshold', async () => {
     let loads = 0
     const accelerator = createWasmJpegAcceleratorWithLoader(async () => {
       loads += 1
@@ -515,6 +640,41 @@ describe('Rust/WASM JPEG accelerator', () => {
       expect(hasRestartMarker).toBe(true)
     }
     expect(loads).toBe(1)
+  })
+
+  it('encodes padded, recycled input blocks across MCU boundaries', async () => {
+    const width = 35
+    const height = 27
+    const { input, output } = await encodePixels(jpegCodec, 'rgba8', '420', 2, width, height)
+    const instance = await instantiateArtifact(scalarEncoderArtifactUrl)
+    const codec = createWasmJpegAcceleratorWithLoaders(
+      { encoder: async () => instance },
+      { minimumEncodePixels: 1 },
+    ).accelerate(jpegCodec)
+    const sink = new Uint8ArraySink()
+    const encoder = await codec.createEncoder?.(sink, {
+      width,
+      height,
+      pixelFormat: 'rgba8',
+      options: { quality: 86, chromaSubsampling: '420', restartInterval: 2 },
+    })
+    if (!encoder) throw new Error('Missing JPEG encoder')
+    const rowBytes = width * 4
+    const stride = rowBytes + 7
+    let y = 0
+    for (const rows of [1, 14, 5, 7]) {
+      const data = new Uint8Array(rows * stride).fill(255)
+      for (let row = 0; row < rows; row++) {
+        const offset = (y + row) * rowBytes
+        data.set(input.subarray(offset, offset + rowBytes), row * stride)
+      }
+      await encoder.write({ data, x: 0, y, width, height: rows, format: 'rgba8', stride })
+      data.fill(0)
+      y += rows
+    }
+    await encoder.finish()
+    expect(sink.toUint8Array()).toEqual(output)
+    expect(numberExport(instance, 'jpeg_encoder_output_length')()).toBeGreaterThan(0)
   })
 
   it('matches JavaScript rounding immediately below a positive half-integer', async () => {

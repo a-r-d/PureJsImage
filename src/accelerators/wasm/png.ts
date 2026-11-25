@@ -13,6 +13,7 @@ import {
 const abiVersion = 1
 const wasmPageBytes = 65_536
 const batchRows = 32
+const targetDecodeBatchBytes = 32 * 1024
 const defaultMinimumPixels = 65_536
 const defaultMinimumEncodePixels = 65_536
 const defaultMaximumRowBytes = 16 * 1024 * 1024
@@ -47,7 +48,8 @@ interface MemoryLayout {
 }
 
 interface PngKernelLease {
-  unfilter(filtered: Uint8Array, rowBytes: number, bytesPerPixel: number, rows: number): Uint8Array
+  readonly input: Uint8Array
+  unfilter(bytesPerPixel: number, rows: number): Uint8Array
   filter(
     data: Uint8Array,
     stride: number,
@@ -59,7 +61,7 @@ interface PngKernelLease {
 }
 
 interface PngKernelPool {
-  prepare(rowBytes: number): PngKernelLease | undefined
+  prepare(rowBytes: number, decode: boolean): PngKernelLease | undefined
 }
 
 const numberFunction = (value: unknown, name: string): WasmNumberFunction => {
@@ -98,8 +100,11 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
   let inUse = false
 
   const layout = (rowBytes: number, decode: boolean): MemoryLayout => {
-    const inputBytes = (rowBytes + (decode ? 1 : 0)) * batchRows
-    const outputBytes = (rowBytes + (decode ? 0 : 1)) * batchRows
+    const rows = decode
+      ? Math.max(1, Math.min(batchRows, Math.floor(targetDecodeBatchBytes / (rowBytes + 1))))
+      : batchRows
+    const inputBytes = (rowBytes + (decode ? 1 : 0)) * rows
+    const outputBytes = (rowBytes + (decode ? 0 : 1)) * rows
     const input = base
     const output = aligned(input + inputBytes)
     const previous = aligned(output + outputBytes)
@@ -121,17 +126,16 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
   }
 
   return Object.freeze({
-    prepare(rowBytes: number): PngKernelLease | undefined {
+    prepare(rowBytes: number, decode: boolean): PngKernelLease | undefined {
       if (inUse) return undefined
       inUse = true
       let released = false
       try {
-        const decodeLayout = layout(rowBytes, true)
-        const encodeLayout = layout(rowBytes, false)
-        ensureMemory(
-          decodeLayout.requiredBytes >= encodeLayout.requiredBytes ? decodeLayout : encodeLayout,
-        )
-        new Uint8Array(memory.buffer, decodeLayout.previous, rowBytes).fill(0)
+        const target = layout(rowBytes, decode)
+        ensureMemory(target)
+        const input = new Uint8Array(memory.buffer, target.input, target.inputBytes)
+        const output = new Uint8Array(memory.buffer, target.output, target.outputBytes)
+        new Uint8Array(memory.buffer, target.previous, rowBytes).fill(0)
 
         const release = (): void => {
           if (released) return
@@ -140,33 +144,21 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
         }
 
         return Object.freeze({
-          unfilter(
-            filtered: Uint8Array,
-            requestedRowBytes: number,
-            bytesPerPixel: number,
-            rows: number,
-          ): Uint8Array {
-            if (
-              released ||
-              requestedRowBytes !== rowBytes ||
-              rows < 1 ||
-              rows > batchRows ||
-              filtered.byteLength !== (rowBytes + 1) * rows
-            ) {
+          input,
+          unfilter(bytesPerPixel: number, rows: number): Uint8Array {
+            const inputBytes = (rowBytes + 1) * rows
+            const outputBytes = rowBytes * rows
+            if (released || !decode || rows < 1 || inputBytes > input.length) {
               throw invalidInput('PNG WASM received invalid filtered scanline bounds')
             }
-            const inputBytes = filtered.byteLength
-            const outputBytes = rowBytes * rows
-            const memoryBytes = new Uint8Array(memory.buffer)
-            memoryBytes.set(filtered, decodeLayout.input)
             const status = unfilterRows(
-              decodeLayout.input,
+              target.input,
               inputBytes,
               rowBytes + 1,
-              decodeLayout.output,
+              target.output,
               outputBytes,
               rowBytes,
-              decodeLayout.previous,
+              target.previous,
               rowBytes,
               rowBytes,
               bytesPerPixel,
@@ -174,7 +166,7 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
             )
             if (status === 2) throw invalidInput('PNG filter is invalid')
             if (status !== 0) throw invalidInput('PNG WASM rejected the filtered scanline batch')
-            return Uint8Array.from(new Uint8Array(memory.buffer, decodeLayout.output, outputBytes))
+            return output.subarray(0, outputBytes)
           },
           filter(
             data: Uint8Array,
@@ -185,6 +177,7 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
           ): Uint8Array {
             if (
               released ||
+              decode ||
               requestedRowBytes !== rowBytes ||
               rows < 1 ||
               rows > batchRows ||
@@ -195,21 +188,21 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
             }
             const inputBytes = rowBytes * rows
             const outputBytes = (rowBytes + 1) * rows
-            const memoryBytes = new Uint8Array(memory.buffer)
-            for (let row = 0; row < rows; row += 1) {
-              memoryBytes.set(
-                data.subarray(row * stride, row * stride + rowBytes),
-                encodeLayout.input + row * rowBytes,
-              )
+            if (stride === rowBytes) {
+              input.set(data.subarray(0, inputBytes))
+            } else {
+              for (let row = 0; row < rows; row += 1) {
+                input.set(data.subarray(row * stride, row * stride + rowBytes), row * rowBytes)
+              }
             }
             const status = filterRows(
-              encodeLayout.input,
+              target.input,
               inputBytes,
               rowBytes,
-              encodeLayout.output,
+              target.output,
               outputBytes,
               rowBytes + 1,
-              encodeLayout.previous,
+              target.previous,
               rowBytes,
               rowBytes,
               bytesPerPixel,
@@ -217,7 +210,7 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
               1,
             )
             if (status !== 0) throw invalidInput('PNG WASM rejected the encoder row batch')
-            return Uint8Array.from(new Uint8Array(memory.buffer, encodeLayout.output, outputBytes))
+            return output.slice(0, outputBytes)
           },
           release,
         })
@@ -270,66 +263,68 @@ const createDecodedRows = (
     }
     const rowBytes = request.width * channels
     const scanlineBytes = rowBytes + 1
-    let filtered = new Uint8Array(scanlineBytes * batchRows)
+    const rowsPerCall = Math.floor(lease.input.byteLength / scanlineBytes)
     let filled = 0
     let bufferedRows = 0
     let outputY = 0
+    let blockRows = Math.min(batchRows, request.height)
     try {
+      let data = new Uint8Array(blockRows * rowBytes)
+      let finalPartialBlock: PixelBlock | undefined
       for await (const chunk of request.inflated) {
-        let chunkOffset = 0
-        while (chunkOffset < chunk.byteLength) {
-          if (outputY + bufferedRows >= request.height) {
+        let offset = 0
+        while (offset < chunk.length) {
+          if (outputY === request.height)
             throw invalidInput('PNG image data contains extra scanlines')
+          const available = chunk.length - offset
+          const rows = Math.min(
+            rowsPerCall,
+            blockRows - bufferedRows,
+            Math.floor((filled + available) / scanlineBytes),
+          )
+          // Process complete rows while inflate is producing the next chunk.
+          const length = rows === 0 ? available : rows * scanlineBytes - filled
+          lease.input.set(chunk.subarray(offset, offset + length), filled)
+          offset += length
+          if (rows === 0) {
+            filled += length
+            continue
           }
-          const rowOffset = bufferedRows * scanlineBytes
-          const length = Math.min(scanlineBytes - filled, chunk.byteLength - chunkOffset)
-          filtered.set(chunk.subarray(chunkOffset, chunkOffset + length), rowOffset + filled)
-          filled += length
-          chunkOffset += length
-          if (filled !== scanlineBytes) continue
-          const filter = filtered[rowOffset]
-          if (filter === undefined || filter > 4) {
-            throw invalidInput(`PNG filter ${filter ?? -1} is invalid`)
-          }
+          data.set(lease.unfilter(channels, rows), bufferedRows * rowBytes)
           filled = 0
-          bufferedRows += 1
-          if (bufferedRows !== batchRows) continue
-          const data = lease.unfilter(filtered, rowBytes, channels, bufferedRows)
-          yield {
+          bufferedRows += rows
+          if (bufferedRows !== blockRows) continue
+          let released = false
+          const block: PixelBlock = {
             x: 0,
             y: outputY,
             width: request.width,
-            height: bufferedRows,
+            height: blockRows,
             stride: rowBytes,
             format: request.pixelFormat,
             data,
+            release: () => {
+              released = true
+            },
           }
-          outputY += bufferedRows
+          if (blockRows === batchRows) yield block
+          else finalPartialBlock = block
+          outputY += blockRows
           bufferedRows = 0
-          const remainingRows = request.height - outputY
-          if (remainingRows > 0) {
-            filtered = new Uint8Array(scanlineBytes * Math.min(batchRows, remainingRows))
+          blockRows = Math.min(batchRows, request.height - outputY)
+          // Consumers can hold multiple blocks. Reuse this storage only if
+          // this particular block was released before requesting the next.
+          if (blockRows > 0 && (!released || data.byteLength !== blockRows * rowBytes)) {
+            data = new Uint8Array(blockRows * rowBytes)
           }
         }
       }
-      if (filled !== 0 || outputY + bufferedRows !== request.height) {
+      if (filled !== 0 || outputY !== request.height) {
         throw truncatedInput(
           `PNG ended after ${outputY + bufferedRows} of ${request.height} scanlines`,
         )
       }
-      if (bufferedRows > 0) {
-        const batch = filtered.subarray(0, scanlineBytes * bufferedRows)
-        const data = lease.unfilter(batch, rowBytes, channels, bufferedRows)
-        yield {
-          x: 0,
-          y: outputY,
-          width: request.width,
-          height: bufferedRows,
-          stride: rowBytes,
-          format: request.pixelFormat,
-          data,
-        }
-      }
+      if (finalPartialBlock) yield finalPartialBlock
     } finally {
       lease.release()
     }
@@ -406,7 +401,7 @@ export const createWasmPngAcceleratorWithLoaders = (
         return undefined
       }
       decoderPoolPromise ??= loadPool(loaders.decoder, loaders.simdDecoder)
-      const lease = (await decoderPoolPromise)?.prepare(request.width * channels)
+      const lease = (await decoderPoolPromise)?.prepare(request.width * channels, true)
       return lease ? createDecodedRows(lease, request) : undefined
     },
     async encode(request: PngEncodeAccelerationRequest): Promise<PngRowFilter | undefined> {
@@ -422,7 +417,7 @@ export const createWasmPngAcceleratorWithLoaders = (
         return undefined
       }
       encoderPoolPromise ??= loadPool(loaders.encoder, loaders.simdEncoder)
-      const lease = (await encoderPoolPromise)?.prepare(request.width * channels)
+      const lease = (await encoderPoolPromise)?.prepare(request.width * channels, false)
       return lease ? createAcceleratedFilter(lease, request) : undefined
     },
   }

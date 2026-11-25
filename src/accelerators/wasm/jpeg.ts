@@ -10,7 +10,7 @@ import {
   type JpegAcceleration,
 } from '../../codecs/jpeg.ts'
 
-const abiVersion = 4
+const abiVersion = 5
 const components = 3
 const blockValues = 64
 const huffmanLengths = 16
@@ -18,6 +18,7 @@ const huffmanSymbols = 256
 const wasmPageBytes = 65_536
 const defaultMinimumPixels = 65_536
 const defaultMinimumEncodePixels = 65_536
+const decoderInputWindowBytes = 128 * 1024
 const defaultMaximumInputBytes = 32 * 1024 * 1024
 const maximumPlaneBytes = 1_048_576
 const maximumOutputBytes = 1_048_576
@@ -27,11 +28,11 @@ const defaultMaximumEncoderRowBytes = 16 * 1024 * 1024
 export interface WasmJpegAcceleratorOptions {
   /** Minimum full-resolution pixel count needed to amortize loading and the input copy. */
   readonly minimumPixels?: number
-  /** Largest compressed JPEG copied into the cached WASM instance. */
+  /** Largest compressed JPEG eligible for accelerated decoding. */
   readonly maximumInputBytes?: number
   /** Minimum pixel count needed to amortize encoder module loading and row copies. */
   readonly minimumEncodePixels?: number
-  /** Largest bounded encoder input MCU row retained by JavaScript. */
+  /** Largest bounded encoder input MCU row stored in WASM. */
   readonly maximumEncoderRowBytes?: number
 }
 
@@ -48,6 +49,8 @@ type WasmNumberFunction = (...arguments_: readonly number[]) => number
 interface DecoderSession {
   readonly memory: WebAssembly.Memory
   readonly next: WasmNumberFunction
+  readonly colorCorrect?: (data: Uint8Array) => void
+  refill(): Promise<void>
   readonly outputHeight: WasmNumberFunction
   readonly outputOffset: number
   readonly outputStride: WasmNumberFunction
@@ -98,6 +101,10 @@ const createRows = (
     try {
       while (true) {
         const status = session.next()
+        if (status === 2) {
+          await session.refill()
+          continue
+        }
         if (status === 1) {
           if (expectedY !== imageHeight) throw invalidInput('JPEG WASM output ended early')
           return
@@ -121,8 +128,11 @@ const createRows = (
           throw invalidInput('JPEG WASM output metadata is invalid')
         }
         expectedY += height
-        const output = recycled.pop() ?? new Uint8Array(byteLength)
+        const previous = recycled.pop()
+        const output =
+          previous && previous.byteLength >= byteLength ? previous : new Uint8Array(byteLength)
         output.set(new Uint8Array(session.memory.buffer, session.outputOffset, byteLength), 0)
+        session.colorCorrect?.(output.subarray(0, byteLength))
         let released = false
         yield {
           x: 0,
@@ -201,7 +211,17 @@ const createDecoderPool = (
     'jpeg_decoder_output_capacity',
   )
   const start = numberFunction(instance.exports.jpeg_decoder_start, 'jpeg_decoder_start')
+  const needsXMap = numberFunction(
+    instance.exports.jpeg_decoder_needs_x_map,
+    'jpeg_decoder_needs_x_map',
+  )
+  const crop444 = numberFunction(instance.exports.jpeg_decoder_crop_444, 'jpeg_decoder_crop_444')
   const next = numberFunction(instance.exports.jpeg_decoder_next, 'jpeg_decoder_next')
+  const consumedBytes = numberFunction(
+    instance.exports.jpeg_decoder_consumed,
+    'jpeg_decoder_consumed',
+  )
+  const refill = numberFunction(instance.exports.jpeg_decoder_refill, 'jpeg_decoder_refill')
   const outputY = numberFunction(instance.exports.jpeg_decoder_output_y, 'jpeg_decoder_output_y')
   const outputHeight = numberFunction(
     instance.exports.jpeg_decoder_output_height,
@@ -226,30 +246,46 @@ const createDecoderPool = (
       let releaseNeeded = true
       try {
         const { jpeg } = request
-        let input: Uint8Array | undefined
-        try {
-          input =
-            jpeg.data ??
-            (jpeg.source ? await readExactly(jpeg.source, 0, jpeg.source.size) : undefined)
-        } catch (error) {
-          inUse = false
-          releaseNeeded = false
-          throw error
+        const inputLength = jpeg.data?.byteLength ?? jpeg.source?.size
+        if (
+          inputLength === undefined ||
+          inputLength > maximumInputBytes ||
+          jpeg.scanOffset >= inputLength
+        ) {
+          return undefined
         }
-        if (!input || input.byteLength > maximumInputBytes) return undefined
-        const xMapOffset = Math.ceil((inputOffset + input.byteLength) / 4) * 4
-        const xMapBytes = jpeg.width * components * 10
-        const planesOffset = xMapOffset + xMapBytes
-        const planeBufferBytes = estimatedPlaneBytes(jpeg)
-        const planesBytes = planeBufferBytes * 2
-        const outputOffset = planesOffset + planesBytes
-        const outputBytes = estimatedOutputBytes(jpeg)
-        const requiredBytes = outputOffset + outputBytes
-        if (requiredBytes > memoryExport.buffer.byteLength) {
-          const pages = Math.ceil((requiredBytes - memoryExport.buffer.byteLength) / wasmPageBytes)
-          memoryExport.grow(pages)
+        const { region, scaleDenominator } = request
+        const blockSize = 8 / scaleDenominator
+        const scaledWidth = Math.ceil(jpeg.width / scaleDenominator)
+        const scaledHeight = Math.ceil(jpeg.height / scaleDenominator)
+        const cropped = region.width !== scaledWidth || region.height !== scaledHeight
+        let readOffset = jpeg.scanOffset
+        let initialMcu = 0
+        let restartIndex = 0
+        if (cropped && jpeg.source) {
+          const { indexJpegEntropy } = await import('../../codecs/jpeg-source.ts')
+          const firstRow = Math.max(0, Math.floor(region.y / blockSize) - 1)
+          const firstColumn = Math.max(0, Math.floor(region.x / blockSize) - 1)
+          const { restart } = await indexJpegEntropy(
+            jpeg.source,
+            jpeg.scanOffset,
+            jpeg.restartInterval,
+            jpeg.restartInterval
+              ? Math.ceil((jpeg.mcusPerLine * jpeg.mcusPerColumn - 1) / jpeg.restartInterval)
+              : 0,
+            firstRow * jpeg.mcusPerLine + firstColumn,
+            request.tolerantDecoding,
+          )
+          if (restart) {
+            if (restart.mcu % jpeg.mcusPerLine !== 0) return undefined
+            initialMcu = restart.mcu
+            restartIndex = restart.marker - 0xd0 + 1
+            readOffset = restart.offset
+          }
         }
-
+        const transform = jpeg.iccTransform
+        const applyRgbIcc =
+          transform?.kind === 'rgb' ? (await import('../../codecs/icc.ts')).applyRgbIcc : undefined
         const quantizationOffset = pointer(
           quantizationPointer(),
           components * blockValues * Int32Array.BYTES_PER_ELEMENT,
@@ -340,31 +376,90 @@ const createDecoderPool = (
           wasmHorizontalSampling[componentIndex] = component.horizontalSampling
           wasmVerticalSampling[componentIndex] = component.verticalSampling
         }
-        new Uint8Array(memoryExport.buffer, inputOffset, input.byteLength).set(input)
+        // Match the reference reader's lookahead on crops, which can end before EOI.
+        const capacity = Math.min(
+          cropped ? 65_536 : decoderInputWindowBytes,
+          inputLength - readOffset,
+        )
+        const xMapOffset = Math.ceil((inputOffset + capacity) / 4) * 4
+        const xMapBytes = needsXMap() ? scaledWidth * components * 10 : 0
+        const planesOffset = xMapOffset + xMapBytes
+        const planeBufferBytes = estimatedPlaneBytes(jpeg, blockSize)
+        const planesBytes = planeBufferBytes * 2
+        const outputOffset = planesOffset + planesBytes
+        const outputBytes = scaledWidth * jpeg.maximumVerticalSampling * blockSize * 3
+        const requiredBytes = outputOffset + outputBytes
+        if (requiredBytes > memoryExport.buffer.byteLength) {
+          const pages = Math.ceil((requiredBytes - memoryExport.buffer.byteLength) / wasmPageBytes)
+          memoryExport.grow(pages)
+        }
+
+        const window = new Uint8Array(memoryExport.buffer, inputOffset, capacity)
+        // The established full-resolution path issues one source read. Keep its
+        // compressed view in JS and transfer only the current window to WASM.
+        const sourceStart = readOffset
+        const sourceBytes =
+          !jpeg.data && scaleDenominator === 1 && jpeg.source
+            ? await readExactly(jpeg.source, sourceStart, inputLength - sourceStart)
+            : undefined
+        let valid = 0
+        const fillWindow = async (consumed: number): Promise<void> => {
+          if (!Number.isSafeInteger(consumed) || consumed < 0 || consumed > valid) {
+            throw invalidInput('JPEG WASM input position is invalid')
+          }
+          const retained = valid - consumed
+          const count = Math.min(capacity - retained, inputLength - readOffset)
+          if (count < 1) throw invalidInput('JPEG WASM input window cannot advance')
+          const bytes =
+            jpeg.data?.subarray(readOffset, readOffset + count) ??
+            sourceBytes?.subarray(readOffset - sourceStart, readOffset - sourceStart + count) ??
+            (jpeg.source ? await readExactly(jpeg.source, readOffset, count) : undefined)
+          if (!bytes) throw invalidInput('JPEG entropy source is missing')
+          window.copyWithin(0, consumed, valid)
+          window.set(bytes, retained)
+          valid = retained + count
+          readOffset += count
+        }
+        await fillWindow(0)
         const status = start(
           inputOffset,
-          input.byteLength,
+          capacity,
           xMapOffset,
           xMapBytes,
           planesOffset,
           planesBytes,
           outputOffset,
           outputBytes,
-          jpeg.scanOffset,
-          jpeg.width,
-          jpeg.height,
+          readOffset === inputLength ? 1 : 0,
+          scaledWidth,
+          scaledHeight,
           jpeg.maximumHorizontalSampling,
           jpeg.maximumVerticalSampling,
           jpeg.mcusPerLine,
           jpeg.mcusPerColumn,
           jpeg.restartInterval,
           request.tolerantDecoding ? 1 : 0,
+          blockSize,
         )
         if (status !== 0) return undefined
+        if (
+          cropped &&
+          crop444(region.x, region.y, region.width, region.height, initialMcu, restartIndex) !== 0
+        )
+          return undefined
         releaseNeeded = false
         return Object.freeze({
           memory: memoryExport,
+          ...(applyRgbIcc && transform?.kind === 'rgb'
+            ? { colorCorrect: (data: Uint8Array) => applyRgbIcc(data, transform) }
+            : {}),
           next,
+          async refill(): Promise<void> {
+            await fillWindow(consumedBytes())
+            if (refill(valid, readOffset === inputLength ? 1 : 0) !== 0) {
+              throw invalidInput('JPEG WASM input refill failed')
+            }
+          },
           outputHeight,
           outputOffset,
           outputStride,
@@ -382,16 +477,16 @@ const createDecoderPool = (
   })
 }
 
-const estimatedPlaneBytes = (jpeg: JpegAccelerationRequest['jpeg']): number =>
+const estimatedPlaneBytes = (jpeg: JpegAccelerationRequest['jpeg'], blockSize: number): number =>
   jpeg.components.reduce(
     (total, component) =>
       total +
-      jpeg.mcusPerLine * component.horizontalSampling * 8 * (component.verticalSampling * 8 + 2),
+      jpeg.mcusPerLine *
+        component.horizontalSampling *
+        blockSize *
+        (component.verticalSampling * blockSize + 2),
     0,
   )
-
-const estimatedOutputBytes = (jpeg: JpegAccelerationRequest['jpeg']): number =>
-  jpeg.width * jpeg.maximumVerticalSampling * 8 * 3
 
 const shouldAccelerate = (
   request: JpegAccelerationRequest,
@@ -401,22 +496,26 @@ const shouldAccelerate = (
   const { jpeg, region, scaleDenominator } = request
   const inputBytes = jpeg.data?.byteLength ?? jpeg.source?.size
   if (
-    scaleDenominator !== 1 ||
-    region.x !== 0 ||
-    region.y !== 0 ||
-    region.width !== jpeg.width ||
-    region.height !== jpeg.height ||
+    scaleDenominator === 8 ||
+    ((region.width !== Math.ceil(jpeg.width / scaleDenominator) ||
+      region.height !== Math.ceil(jpeg.height / scaleDenominator)) &&
+      (scaleDenominator === 1 ||
+        jpeg.maximumHorizontalSampling !== 1 ||
+        jpeg.maximumVerticalSampling !== 1)) ||
     jpeg.width * jpeg.height < minimumPixels ||
     inputBytes === undefined ||
     inputBytes > maximumInputBytes ||
     jpeg.colorTransform !== 'ycbcr' ||
     jpeg.components.length !== components ||
-    jpeg.iccTransform !== undefined
+    (jpeg.iccTransform !== undefined &&
+      (scaleDenominator === 1 || jpeg.iccTransform.kind !== 'rgb'))
   ) {
     return false
   }
-  const planeBytes = estimatedPlaneBytes(jpeg)
-  const outputBytes = estimatedOutputBytes(jpeg)
+  const blockSize = 8 / scaleDenominator
+  const planeBytes = estimatedPlaneBytes(jpeg, blockSize)
+  const outputBytes =
+    Math.ceil(jpeg.width / scaleDenominator) * jpeg.maximumVerticalSampling * blockSize * 3
   return planeBytes <= maximumPlaneBytes && outputBytes <= maximumOutputBytes
 }
 interface EncoderConfiguration {
@@ -545,6 +644,8 @@ class WasmJpegEncoder implements ImageEncoder {
     this.#height = request.height
     this.#inputOffset = inputOffset
     this.#inputRows = new Uint8Array(
+      exports_.memory.buffer,
+      inputOffset,
       request.width * configuration.rowHeight * configuration.channels,
     )
     this.#outputCapacity = outputCapacity
@@ -591,9 +692,6 @@ class WasmJpegEncoder implements ImageEncoder {
   }
 
   async #encodeRows(): Promise<void> {
-    new Uint8Array(this.#exports.memory.buffer, this.#inputOffset, this.#inputRows.byteLength).set(
-      this.#inputRows,
-    )
     const status = this.#exports.write(
       this.#inputOffset,
       this.#inputRows.byteLength,
@@ -813,7 +911,7 @@ export const createWasmJpegAcceleratorWithLoaders = (
         }
       })()
       const session = await (await decoderPoolPromise)?.prepare(request)
-      return session ? createRows(session, request.jpeg.width, request.jpeg.height) : undefined
+      return session ? createRows(session, request.region.width, request.region.height) : undefined
     },
     async encode(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder | undefined> {
       const configuration = encoderConfiguration(request)

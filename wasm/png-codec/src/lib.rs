@@ -1,5 +1,8 @@
 #![no_std]
 
+#[cfg(feature = "simd")]
+use core::arch::wasm32::v128;
+
 const ABI_VERSION: u32 = 1;
 const STATUS_OK: u32 = 0;
 const ERROR_ARGUMENT: u32 = 1;
@@ -219,6 +222,47 @@ fn filter_up(source: &[u8], previous: &[u8], output: &mut [u8]) {
     }
 }
 
+// Paeth selects the nearer endpoint when the prediction is tied with the
+// corner. Scaling the two midpoint comparisons by two gives these thresholds:
+// 3*corner - left - above <= lo selects hi, >= hi selects lo.
+#[cfg(feature = "simd")]
+#[inline]
+fn paeth_lanes(left: v128, above: v128, corner: v128) -> v128 {
+    use core::arch::wasm32::*;
+    let lo = i16x8_min(left, above);
+    let hi = i16x8_max(left, above);
+    let t = i16x8_sub(i16x8_sub(i16x8_mul(corner, i16x8_splat(3)), above), left);
+    v128_bitselect(
+        hi,
+        v128_bitselect(lo, corner, i16x8_ge(t, hi)),
+        i16x8_le(t, lo),
+    )
+}
+
+#[cfg(feature = "simd")]
+fn paeth_rgba(filtered: &[u8], previous: &[u8], output: &mut [u8]) {
+    use core::arch::wasm32::*;
+    let mut left = i16x8_splat(0);
+    let mut corner = i16x8_splat(0);
+    for i in (0..filtered.len()).step_by(4) {
+        // SAFETY: dispatch requires equal row lengths divisible by four.
+        let (above, residual) = unsafe {
+            (
+                u16x8_extend_low_u8x16(v128_load32_zero(previous.as_ptr().add(i).cast())),
+                u16x8_extend_low_u8x16(v128_load32_zero(filtered.as_ptr().add(i).cast())),
+            )
+        };
+        let predicted = paeth_lanes(left, above, corner);
+        left = v128_and(i16x8_add(residual, predicted), i16x8_splat(255));
+        let packed = u8x16_narrow_i16x8(left, left);
+        // SAFETY: the four output bytes belong to the same validated pixel.
+        unsafe {
+            v128_store32_lane::<0>(packed, output.as_mut_ptr().add(i).cast());
+        }
+        corner = above;
+    }
+}
+
 fn unfilter_row(
     filter: u8,
     filtered: &[u8],
@@ -247,25 +291,44 @@ fn unfilter_row(
             }
         }
         4 => {
-            for index in 0..bytes_per_pixel {
-                output[index] = filtered[index].wrapping_add(previous[index]);
+            #[cfg(feature = "simd")]
+            if bytes_per_pixel == 4 && filtered.len() % 4 == 0 {
+                paeth_rgba(filtered, previous, output);
+                return;
             }
-            for index in bytes_per_pixel..filtered.len() {
-                let predictor = paeth(
-                    output[index - bytes_per_pixel],
-                    previous[index],
-                    previous[index - bytes_per_pixel],
-                );
-                output[index] = filtered[index].wrapping_add(predictor);
+            for lane in 0..bytes_per_pixel {
+                let mut left = 0_u8;
+                let mut corner = 0_u8;
+                let mut index = lane;
+                while index < filtered.len() {
+                    let above = previous[index];
+                    let predictor = if above == corner {
+                        left
+                    } else if left == corner {
+                        above
+                    } else {
+                        paeth(left, above, corner)
+                    };
+                    left = filtered[index].wrapping_add(predictor);
+                    output[index] = left;
+                    corner = above;
+                    index += bytes_per_pixel;
+                }
             }
         }
         _ => {}
     }
 }
 
-fn adaptive_filter(source: &[u8], previous: &[u8], bytes_per_pixel: usize) -> u8 {
-    let mut scores = [0_u64; 5];
-    for index in 0..source.len() {
+fn score_bytes(
+    source: &[u8],
+    previous: &[u8],
+    bytes_per_pixel: usize,
+    range: core::ops::Range<usize>,
+    residuals: &mut [u8],
+    scores: &mut [u64; 5],
+) {
+    for index in range {
         let value = source[index];
         let left = if index >= bytes_per_pixel {
             source[index - bytes_per_pixel]
@@ -284,9 +347,110 @@ fn adaptive_filter(source: &[u8], previous: &[u8], bytes_per_pixel: usize) -> u8
         scores[3] += filtered_magnitude(
             value.wrapping_sub(((u16::from(left) + u16::from(above)) >> 1) as u8),
         );
-        scores[4] += filtered_magnitude(value.wrapping_sub(paeth(left, above, upper_left)));
+        let residual = value.wrapping_sub(paeth(left, above, upper_left));
+        residuals[index] = residual;
+        scores[4] += filtered_magnitude(residual);
+    }
+}
+
+#[cfg(feature = "simd")]
+mod score_simd {
+    use core::arch::wasm32::*;
+
+    #[inline]
+    fn magnitude(value: v128) -> v128 {
+        u32x4_extadd_pairwise_u16x8(u16x8_extadd_pairwise_u8x16(i8x16_abs(value)))
     }
 
+    pub(super) fn scores(
+        source: &[u8],
+        previous: &[u8],
+        bpp: usize,
+        residuals: &mut [u8],
+        scores: &mut [u64; 5],
+    ) {
+        super::score_bytes(source, previous, bpp, 0..bpp, residuals, scores);
+        let mut i = bpp;
+        while source.len() - i >= 16 {
+            // Four bytes per accumulator lane, each contributing at most 128.
+            let vectors = ((source.len() - i) / 16).min(65536);
+            let mut sums = [u32x4_splat(0); 5];
+            for _ in 0..vectors {
+                // SAFETY: both rows have the validated row length. i >= bpp and at
+                // least 16 bytes remain in each row for all four unaligned loads.
+                let (value, left, above, corner) = unsafe {
+                    (
+                        v128_load(source.as_ptr().add(i).cast()),
+                        v128_load(source.as_ptr().add(i - bpp).cast()),
+                        v128_load(previous.as_ptr().add(i).cast()),
+                        v128_load(previous.as_ptr().add(i - bpp).cast()),
+                    )
+                };
+                let avg = u8x16_sub(
+                    u8x16_avgr(left, above),
+                    v128_and(v128_xor(left, above), u8x16_splat(1)),
+                );
+                let lo = super::paeth_lanes(
+                    u16x8_extend_low_u8x16(left),
+                    u16x8_extend_low_u8x16(above),
+                    u16x8_extend_low_u8x16(corner),
+                );
+                let hi = super::paeth_lanes(
+                    u16x8_extend_high_u8x16(left),
+                    u16x8_extend_high_u8x16(above),
+                    u16x8_extend_high_u8x16(corner),
+                );
+                let residual = u8x16_sub(value, u8x16_narrow_i16x8(lo, hi));
+                // SAFETY: the validated output row has a full vector at i.
+                unsafe { v128_store(residuals.as_mut_ptr().add(i).cast(), residual) };
+
+                for (sum, residual) in sums.iter_mut().zip([
+                    value,
+                    u8x16_sub(value, left),
+                    u8x16_sub(value, above),
+                    u8x16_sub(value, avg),
+                    residual,
+                ]) {
+                    *sum = u32x4_add(*sum, magnitude(residual));
+                }
+                i += 16;
+            }
+            for (score, sum) in scores.iter_mut().zip(sums) {
+                *score += u64::from(
+                    u32x4_extract_lane::<0>(sum)
+                        + u32x4_extract_lane::<1>(sum)
+                        + u32x4_extract_lane::<2>(sum)
+                        + u32x4_extract_lane::<3>(sum),
+                );
+            }
+        }
+        super::score_bytes(source, previous, bpp, i..source.len(), residuals, scores);
+    }
+}
+
+fn adaptive_filter(
+    source: &[u8],
+    previous: &[u8],
+    bytes_per_pixel: usize,
+    residuals: &mut [u8],
+) -> u8 {
+    // None has score zero and wins every tie on an all-zero row.
+    let (words, tail) = source.as_chunks::<8>();
+    if words.iter().all(|word| *word == [0; 8]) && tail.iter().all(|&byte| byte == 0) {
+        return 0;
+    }
+    let mut scores = [0_u64; 5];
+    #[cfg(feature = "simd")]
+    score_simd::scores(source, previous, bytes_per_pixel, residuals, &mut scores);
+    #[cfg(not(feature = "simd"))]
+    score_bytes(
+        source,
+        previous,
+        bytes_per_pixel,
+        0..source.len(),
+        residuals,
+        &mut scores,
+    );
     let mut selected = 0;
     let mut best = scores[0];
     for filter in 1..5 {
@@ -325,19 +489,7 @@ fn filter_row(
                 output[index] = source[index].wrapping_sub(predictor);
             }
         }
-        4 => {
-            for index in 0..bytes_per_pixel {
-                output[index] = source[index].wrapping_sub(previous[index]);
-            }
-            for index in bytes_per_pixel..source.len() {
-                let predictor = paeth(
-                    source[index - bytes_per_pixel],
-                    previous[index],
-                    previous[index - bytes_per_pixel],
-                );
-                output[index] = source[index].wrapping_sub(predictor);
-            }
-        }
+        // Adaptive scoring has already written the Paeth residuals.
         _ => {}
     }
 }
@@ -514,7 +666,12 @@ pub extern "C" fn png_filter_rows(
         let source = &input_bytes[input_offset..input_offset + row_bytes];
         let output_row = &mut output_bytes[output_offset..output_offset + row_bytes + 1];
         let filter = if adaptive == 1 {
-            adaptive_filter(source, &previous_bytes[..row_bytes], bytes_per_pixel)
+            adaptive_filter(
+                source,
+                &previous_bytes[..row_bytes],
+                bytes_per_pixel,
+                &mut output_row[1..],
+            )
         } else {
             0
         };

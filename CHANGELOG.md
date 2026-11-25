@@ -18,6 +18,21 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- The optional JPEG WASM decoder now handles half- and quarter-resolution decoding and reduced
+  4:4:4 crops, which used to fall back to TypeScript. It also uses a faster full-resolution inverse
+  DCT and exact integer color conversion, and refills compressed input between MCUs, so its WASM
+  memory for a 4000 x 3000 photo is 576 KiB instead of 5.1 MiB. With `wasmJpegAccelerator`
+  registered, the 1200-pixel JPEG resize benchmark takes 244 ms instead of 437 ms (TypeScript:
+  448 ms), JPEG crop and resize 273 ms instead of 464 ms, and the 24-megapixel photo pipeline 379 ms
+  instead of 660 ms. Decoded pixels are unchanged, and the decoder `.wasm` files are about 20%
+  smaller.
+- The optional PNG WASM accelerator is faster than the TypeScript path again. It rebuilds Paeth rows
+  with SIMD for four-byte pixels, scores adaptive filters with SIMD, reuses Paeth residuals, skips
+  all-zero rows, writes inflated data straight into WASM memory and reuses output blocks that the
+  pipeline releases. With `wasmPngAccelerator` registered, PNG resize takes 275 ms instead of 375 ms
+  (TypeScript: 300 ms), PNG crop and resize 225 ms instead of 309 ms, JPEG to PNG 123 ms instead of
+  231 ms, and the 100-megapixel downscale 1115 ms instead of 1252 ms with 194 MiB peak RSS instead of
+  208 MiB. Output bytes are unchanged.
 - Rotation by an arbitrary angle is faster with identical output. It samples from a bounded
   96 x 96 RGBA window, copies areas where all four source pixels match, skips transparent margins,
   and reads neighboring temporary tiles together, so the benchmark logo needs 903 tile reads instead

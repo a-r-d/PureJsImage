@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.18.0",
-    "unpackedPackageBytes": 9107556,
+    "unpackedPackageBytes": 9099638,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -2131,19 +2131,19 @@
   ],
   "wasmAssets": [
     {
-      "brotliBytes": 6643,
-      "gzipBytes": 7861,
+      "brotliBytes": 7629,
+      "gzipBytes": 9018,
       "id": "jpeg-decoder",
       "name": "JPEG decoder WASM",
-      "rawBytes": 31735,
+      "rawBytes": 25098,
       "sourceEntry": "src/accelerator-entries/jpeg-decoder.wasm"
     },
     {
-      "brotliBytes": 6807,
-      "gzipBytes": 7954,
+      "brotliBytes": 8006,
+      "gzipBytes": 9353,
       "id": "jpeg-decoder-simd",
       "name": "JPEG decoder SIMD WASM",
-      "rawBytes": 31585,
+      "rawBytes": 25589,
       "sourceEntry": "src/accelerator-entries/jpeg-decoder-simd.wasm"
     },
     {
@@ -2163,19 +2163,19 @@
       "sourceEntry": "src/accelerator-entries/jpeg-encoder-simd.wasm"
     },
     {
-      "brotliBytes": 1456,
-      "gzipBytes": 1658,
+      "brotliBytes": 1566,
+      "gzipBytes": 1802,
       "id": "png-codec",
       "name": "PNG codec WASM",
-      "rawBytes": 3879,
+      "rawBytes": 3819,
       "sourceEntry": "src/accelerator-entries/png-codec.wasm"
     },
     {
-      "brotliBytes": 2560,
-      "gzipBytes": 3020,
+      "brotliBytes": 2809,
+      "gzipBytes": 3184,
       "id": "png-codec-simd",
       "name": "PNG codec SIMD WASM",
-      "rawBytes": 7287,
+      "rawBytes": 6913,
       "sourceEntry": "src/accelerator-entries/png-codec-simd.wasm"
     },
     {

@@ -519,6 +519,63 @@ describe('Rust/WASM PNG accelerator', () => {
   )
 
   it.each(artifactCases)(
+    'keeps wide mixed-filter rows exact after a consumer edits a yielded $kind block',
+    async ({ kind, url }) => {
+      const width = 8191
+      const height = 35
+      const rows: Uint8Array[] = []
+      let previous: Uint8Array = new Uint8Array(width * 4)
+      for (let y = 0; y < height; y += 1) {
+        const row = sourceRow(width, y, rgbaFormat)
+        // Row 31 finishes a block with None. Row 32 uses its unmodified pixels.
+        const filter = y === 32 ? 4 : y % 2 === 0 ? 1 + ((y / 2) % 4) : 0
+        rows.push(filteredRow(row, previous, 4, filter))
+        previous = row
+      }
+      const input = pngFromScanlines(width, height, 8, 6, Buffer.concat(rows))
+      const expected = await decode(pngCodec, input)
+      let calls = 0
+      const codec = acceleratedWithArtifact(kind, url, 'decode', undefined, () => {
+        calls += 1
+      })
+      const decoder = await createDecoder(codec, input)
+      const heights: number[] = []
+      let previousCalls = 0
+      for await (const block of decoder.decode()) {
+        expect(calls).toBeGreaterThan(previousCalls)
+        previousCalls = calls
+        heights.push(block.height)
+        const start = block.y * block.stride
+        expect(
+          Buffer.from(block.data).equals(expected.data.subarray(start, start + block.data.length)),
+        ).toBe(true)
+        block.data.fill(0xa5)
+      }
+      expect(heights).toEqual([32, 3])
+    },
+  )
+
+  it.each(artifactCases)(
+    'preserves unreleased blocks across later releases in the $kind decoder',
+    async ({ kind, url }) => {
+      const codec = acceleratedWithArtifact(kind, url, 'decode')
+      const decoder = await createDecoder(codec, supportedFixture(rgbaFormat, 4, 67, 161))
+      const held: { data: Uint8Array; expected: Uint8Array }[] = []
+      let previousRelease: (() => void) | undefined
+      for await (const block of decoder.decode()) {
+        previousRelease?.()
+        if (block.y % 64 === 0) {
+          held.push({ data: block.data, expected: block.data.slice() })
+        } else {
+          block.release?.()
+          previousRelease = block.release
+        }
+      }
+      for (const { data, expected } of held) expect(data).toEqual(expected)
+    },
+  )
+
+  it.each(artifactCases)(
     'preserves trailing IEND, cICP, and ICC mAB fixes through the $kind artifact',
     async ({ kind, url }) => {
       const base = supportedFixture(rgbFormat, 4)
@@ -582,6 +639,38 @@ describe('Rust/WASM PNG accelerator', () => {
         expect(decoded.data).toEqual(expectedRgba(format.format, 47, 69))
       }
       expect(loads).toBe(1)
+    },
+  )
+
+  it.each(artifactCases)(
+    'matches adaptive ties, signed residuals and vector tails with the $kind encoder',
+    async ({ kind, url }) => {
+      const accelerated = acceleratedWithArtifact(kind, url, 'encode')
+      for (const width of [15, 16, 17, 31, 32, 33]) {
+        const data = new Uint8Array(width * 6)
+        for (let x = 0; x < width; x += 1) {
+          data[width + x] = x % 2 === 0 ? 128 : 255
+          data[width * 2 + x] = (x * 127 + 1) & 255
+          data[width * 3 + x] = data[width * 2 + x] ?? 0
+          data[width * 5 + x] = 128
+        }
+        const bytes = async (codec: ImageCodec): Promise<Uint8Array> => {
+          const sink = new Uint8ArraySink()
+          const encoder = await createEncoder(codec, sink, 'gray8', width, 6)
+          await encoder.write({
+            data,
+            width,
+            height: 6,
+            x: 0,
+            y: 0,
+            format: 'gray8',
+            stride: width,
+          })
+          await encoder.finish()
+          return sink.toUint8Array()
+        }
+        expect(await bytes(accelerated)).toEqual(await bytes(pngCodec))
+      }
     },
   )
 
@@ -840,6 +929,20 @@ describe('Rust/WASM PNG accelerator', () => {
     expect(invalidEncoderLoads).toBe(1)
   })
 
+  it('withholds the final partial block when the stream contains an extra scanline', async () => {
+    const width = 11
+    const height = 35
+    const scanlines = new Uint8Array((width * 4 + 1) * (height + 1))
+    const input = pngFromScanlines(width, height, 8, 6, scanlines)
+    const codec = acceleratedWithArtifact('simd', simdArtifactUrl, 'decode')
+    const decoder = await createDecoder(codec, input)
+    const rows = decoder.decode()[Symbol.asyncIterator]()
+    const first = await rows.next()
+    if (first.done) throw new Error('Missing first PNG block')
+    expect(first.value.height).toBe(32)
+    await expect(rows.next()).rejects.toMatchObject({ code: 'INVALID_INPUT' })
+  })
+
   it('falls back to TypeScript when decode acceleration fails before or during output', async () => {
     const input = supportedFixture(rgbaFormat, 4, 83, 97)
     const expected = await decode(pngCodec, input)
@@ -870,6 +973,30 @@ describe('Rust/WASM PNG accelerator', () => {
     await expect(decode(acceleratePngCodec(pngCodec, midstreamFailure), input)).resolves.toEqual(
       expected,
     )
+  })
+
+  it('resumes after a WASM kernel fails following a released output block', async () => {
+    const input = supportedFixture(rgbaFormat, 4)
+    const expected = await decode(pngCodec, input)
+    let emitted = false
+    let failed = false
+    const codec = acceleratedWithArtifact('simd', simdArtifactUrl, 'decode', undefined, () => {
+      if (emitted) {
+        failed = true
+        throw new Error('simulated PNG kernel failure after output')
+      }
+    })
+    const decoder = await createDecoder(codec, input)
+    const pixels = new Uint8Array(expected.data.length)
+    const starts: number[] = []
+    for await (const block of decoder.decode()) {
+      starts.push(block.y)
+      appendBlock(pixels, decoder.width, 4, block)
+      emitted = true
+    }
+    expect(failed).toBe(true)
+    expect(starts).toEqual([0, 32, 64])
+    expect(pixels).toEqual(expected.data)
   })
 
   it('falls back while instances are leased and releases decoder and encoder leases after completion', async () => {

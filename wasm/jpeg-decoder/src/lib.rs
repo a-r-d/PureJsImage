@@ -3,7 +3,7 @@
 use core::cell::UnsafeCell;
 
 // The ABI is intentionally scalar so it works in every modern WASM runtime.
-const ABI_VERSION: u32 = 4;
+const ABI_VERSION: u32 = 5;
 const BLOCK: usize = 8;
 const BLOCK_VALUES: usize = BLOCK * BLOCK;
 const COMPONENTS: usize = 3;
@@ -17,6 +17,7 @@ const STATUS_OK: u32 = 0;
 const HUFFMAN_LOOKAHEAD: usize = 8;
 const HUFFMAN_LOOKUP_SIZE: usize = 1 << HUFFMAN_LOOKAHEAD;
 const STATUS_DONE: u32 = 1;
+const STATUS_NEED_INPUT: u32 = 2;
 const ERROR_CONFIGURATION: u32 = 10;
 const ERROR_TRUNCATED: u32 = 11;
 const ERROR_ENTROPY: u32 = 12;
@@ -92,15 +93,29 @@ const IDCT_BASIS: [f64; BLOCK_VALUES] = [
 ];
 
 #[derive(Clone, Copy)]
+struct Crop444 {
+    x: usize,
+    y: usize,
+    end_y: usize,
+    first_column: usize,
+    last_column: usize,
+}
+
+#[derive(Clone, Copy)]
 struct DecoderState {
     input_pointer: usize,
     input_length: usize,
     input_offset: usize,
+    input_capacity: usize,
+    final_window: bool,
+    maximum_mcu_bytes: usize,
     bits: u32,
     bit_count: u8,
     width: usize,
     height: usize,
     maximum_vertical_sampling: usize,
+    block_size: usize,
+    crop: Option<Crop444>,
     mcus_per_line: usize,
     mcus_per_column: usize,
     restart_interval: usize,
@@ -134,16 +149,23 @@ struct DecoderState {
 }
 
 impl DecoderState {
+    // The module starts with zeroed linear memory. Keep the idle state in BSS;
+    // jpeg_decoder_start initializes the active buffers and geometry.
     const fn empty() -> Self {
         Self {
             input_pointer: 0,
             input_length: 0,
             input_offset: 0,
+            input_capacity: 0,
+            final_window: false,
+            maximum_mcu_bytes: 0,
             bits: 0,
             bit_count: 0,
             width: 0,
             height: 0,
             maximum_vertical_sampling: 0,
+            block_size: 0,
+            crop: None,
             mcus_per_line: 0,
             mcus_per_column: 0,
             restart_interval: 0,
@@ -158,7 +180,7 @@ impl DecoderState {
             plane_widths: [0; COMPONENTS],
             plane_core_heights: [0; COMPONENTS],
             pending_buffer: 0,
-            current_buffer: 1,
+            current_buffer: 0,
             pending_row: 0,
             next_row: 0,
             output_y: 0,
@@ -381,12 +403,9 @@ fn entropy_byte(scratch: &mut Scratch) -> Result<u8, u32> {
 #[inline(always)]
 fn fill_bits(scratch: &mut Scratch, length: u8) -> Result<(), u32> {
     while scratch.state.bit_count < length {
-        let retained = if scratch.state.bit_count == 0 {
-            0
-        } else {
-            scratch.state.bits & ((1u32 << scratch.state.bit_count) - 1)
-        };
-        scratch.state.bits = (retained << 8) | u32::from(entropy_byte(scratch)?);
+        // Consumers mask the low requested bits. Older consumed bits can
+        // shift out of this unsigned register without clearing them first.
+        scratch.state.bits = (scratch.state.bits << 8) | u32::from(entropy_byte(scratch)?);
         scratch.state.bit_count += 8;
     }
     Ok(())
@@ -496,6 +515,11 @@ fn restart(scratch: &mut Scratch) -> Result<u8, u32> {
         let mut marker = input_byte(scratch, scratch.state.input_offset)?;
         scratch.state.input_offset += 1;
         while marker == 0xff {
+            if scratch.state.input_offset == scratch.state.input_length
+                && !scratch.state.final_window
+            {
+                return Err(STATUS_NEED_INPUT);
+            }
             marker = input_byte(scratch, scratch.state.input_offset)?;
             scratch.state.input_offset += 1;
         }
@@ -556,7 +580,9 @@ fn finish_entropy(scratch: &mut Scratch) -> Result<(), u32> {
             scratch.state.input_offset += 1;
         }
         if scratch.state.input_offset >= scratch.state.input_length {
-            return Err(ERROR_TRUNCATED);
+            // Keep the marker prefix when its code lies in the next window.
+            scratch.state.input_offset -= 1;
+            break;
         }
         let marker = input_byte(scratch, scratch.state.input_offset)?;
         scratch.state.input_offset += 1;
@@ -568,7 +594,11 @@ fn finish_entropy(scratch: &mut Scratch) -> Result<(), u32> {
         }
         return Err(ERROR_ENTROPY);
     }
-    Err(ERROR_TRUNCATED)
+    Err(if scratch.state.final_window {
+        ERROR_TRUNCATED
+    } else {
+        STATUS_NEED_INPUT
+    })
 }
 
 fn decode_block(scratch: &mut Scratch, component: usize) -> Result<bool, u32> {
@@ -689,45 +719,77 @@ fn render_idct_row(
     y: usize,
     active_row_count: usize,
 ) {
-    #[cfg(all(target_arch = "wasm32", feature = "simd"))]
-    {
-        use core::arch::wasm32::*;
-        // Workspace pairs are contiguous and active_rows contains validated row indices.
-        unsafe {
-            for x in (0..BLOCK).step_by(2) {
-                let mut value = f64x2_splat(0.0);
-                for active_index in 0..active_row_count {
-                    let vertical = usize::from(scratch.active_rows[active_index]);
-                    let basis = f64x2_splat(IDCT_BASIS[vertical * BLOCK + y]);
-                    let workspace = v128_load(
-                        scratch.workspace.as_ptr().add(vertical * BLOCK + x) as *const v128
-                    );
-                    value = f64x2_add(value, f64x2_mul(basis, workspace));
-                }
-                set_plane_byte(
-                    scratch,
-                    buffer,
-                    target + x,
-                    idct_sample(f64x2_extract_lane::<0>(value)),
-                );
-                set_plane_byte(
-                    scratch,
-                    buffer,
-                    target + x + 1,
-                    idct_sample(f64x2_extract_lane::<1>(value)),
-                );
+    let mut samples = [0.0; BLOCK];
+    for &active in &scratch.active_rows[..active_row_count] {
+        let offset = usize::from(active) * BLOCK;
+        let basis = IDCT_BASIS[offset + y];
+        for (x, sample) in samples.iter_mut().enumerate() {
+            *sample += basis * scratch.workspace[offset + x];
+        }
+    }
+    for (x, value) in samples.into_iter().enumerate() {
+        set_plane_byte(scratch, buffer, target + x, idct_sample(value));
+    }
+}
+
+// Reduced IDCT bases from the reference codec. Preserve its f64 evaluation order.
+const BASIS_4: [[f64; 4]; 4] = [
+    [0.3535533905932738; 4],
+    [
+        0.46193976625564337,
+        0.19134171618254492,
+        -0.19134171618254486,
+        -0.46193976625564337,
+    ],
+    [
+        0.3535533905932738,
+        -0.35355339059327373,
+        -0.35355339059327384,
+        0.3535533905932737,
+    ],
+    [
+        0.19134171618254492,
+        -0.4619397662556434,
+        0.46193976625564326,
+        -0.19134171618254495,
+    ],
+];
+const BASIS_2: [[f64; 2]; 2] = [
+    [0.3535533905932738; 2],
+    [0.3535533905932738, -0.35355339059327373],
+];
+
+fn inverse_reduced<const N: usize>(
+    scratch: &Scratch,
+    component: usize,
+    buffer: usize,
+    block_x: usize,
+    block_y: usize,
+    basis: &[[f64; N]; N],
+) {
+    let mut rows = [[0.0; N]; N];
+    for v in 0..N {
+        for u in 0..N {
+            let index = v * BLOCK + u;
+            let coefficient = f64::from(scratch.coefficients[index])
+                * f64::from(scratch.quantization[component * BLOCK_VALUES + index]);
+            for x in 0..N {
+                rows[v][x] += coefficient * basis[u][x];
             }
         }
     }
-    #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
-    {
-        for x in 0..BLOCK {
-            let mut value = 0.0;
-            for active_index in 0..active_row_count {
-                let vertical = usize::from(scratch.active_rows[active_index]);
-                value += IDCT_BASIS[vertical * BLOCK + y] * scratch.workspace[vertical * BLOCK + x];
+    let stride = scratch.state.plane_widths[component];
+    let offset = scratch.state.plane_offsets[component] + (1 + block_y * N) * stride + block_x * N;
+    for y in 0..N {
+        for x in 0..N {
+            let mut sum = 0.0;
+            for v in 0..N {
+                sum += rows[v][x] * basis[v][y];
             }
-            set_plane_byte(scratch, buffer, target + x, idct_sample(value));
+            let shifted = sum + 128.0;
+            let integer = shifted as u8;
+            let sample = integer.saturating_add((shifted >= f64::from(integer) + 0.5) as u8);
+            set_plane_byte(scratch, buffer, offset + y * stride + x, sample);
         }
     }
 }
@@ -740,6 +802,11 @@ fn inverse_dct(
     block_y: usize,
     has_ac: bool,
 ) {
+    match scratch.state.block_size {
+        4 => return inverse_reduced(scratch, component, buffer, block_x, block_y, &BASIS_4),
+        2 => return inverse_reduced(scratch, component, buffer, block_x, block_y, &BASIS_2),
+        _ => {}
+    }
     let stride = scratch.state.plane_widths[component];
     let plane_offset = scratch.state.plane_offsets[component];
     if !has_ac {
@@ -798,7 +865,8 @@ fn inverse_dct(
 }
 
 fn decode_mcu_row(scratch: &mut Scratch, row: usize, buffer: usize) -> Result<(), u32> {
-    if scratch.state.tolerant_decoding {
+    let first_x = scratch.state.decoded_mcus % scratch.state.mcus_per_line;
+    if first_x == 0 && scratch.state.tolerant_decoding {
         // SAFETY: start validates both complete plane buffers against WASM memory.
         unsafe {
             core::ptr::write_bytes(
@@ -809,11 +877,25 @@ fn decode_mcu_row(scratch: &mut Scratch, row: usize, buffer: usize) -> Result<()
             );
         }
     }
-    for mcu_x in 0..scratch.state.mcus_per_line {
+    for mcu_x in first_x..scratch.state.mcus_per_line {
+        // Cropped output can stop mid-scan. Match the reference reader's
+        // pre-MCU refill point to avoid fetching bytes beyond its last window.
+        if scratch.state.crop.is_some()
+            && !scratch.state.final_window
+            && scratch.state.input_length - scratch.state.input_offset < 8192
+        {
+            return Err(STATUS_NEED_INPUT);
+        }
         if !scratch.state.entropy_ended
             && scratch.state.restart_interval > 0
             && scratch.state.decoded_mcus == scratch.state.next_restart_mcu
         {
+            if scratch.state.crop.is_none()
+                && !scratch.state.final_window
+                && scratch.state.input_length - scratch.state.input_offset < PAGE_BYTES
+            {
+                return Err(STATUS_NEED_INPUT);
+            }
             let marker = restart(scratch)?;
             if marker == 0xd9 {
                 scratch.state.entropy_ended = true;
@@ -827,6 +909,18 @@ fn decode_mcu_row(scratch: &mut Scratch, row: usize, buffer: usize) -> Result<()
             }
         }
         if !scratch.state.entropy_ended {
+            if !scratch.state.final_window
+                && scratch.state.input_length - scratch.state.input_offset
+                    < scratch.state.maximum_mcu_bytes
+            {
+                return Err(STATUS_NEED_INPUT);
+            }
+            let reconstruct = scratch.state.crop.is_none_or(|crop| {
+                mcu_x >= crop.first_column
+                    && mcu_x <= crop.last_column
+                    && row >= crop.y / scratch.state.block_size
+                    && row <= (crop.end_y - 1) / scratch.state.block_size
+            });
             let mut recovered_restart = false;
             'components: for component in 0..COMPONENTS {
                 let horizontal = usize::from(scratch.horizontal_sampling[component]);
@@ -834,6 +928,7 @@ fn decode_mcu_row(scratch: &mut Scratch, row: usize, buffer: usize) -> Result<()
                 for block_y in 0..vertical {
                     for block_x in 0..horizontal {
                         match decode_block(scratch, component) {
+                            Ok(_) if !reconstruct => {}
                             Ok(has_ac) => inverse_dct(
                                 scratch,
                                 component,
@@ -992,16 +1087,6 @@ fn component_sample(
     (top * (256 - y_weight) as i32 + bottom * y_weight as i32 + 32_768) >> 16
 }
 
-fn clamp_to_u8(value: f64) -> u8 {
-    if value <= 0.0 {
-        return 0;
-    }
-    if value >= 255.0 {
-        return 255;
-    }
-    value as u8
-}
-
 #[inline(always)]
 fn half_resolution_coordinates(output_x: usize, width: usize) -> (usize, usize, usize) {
     if output_x == 0 {
@@ -1122,67 +1207,14 @@ fn sample_420_pixel(
 
 #[inline(always)]
 fn write_rgb(scratch: &Scratch, target: usize, y: i32, cb: i32, cr: i32) {
-    set_output_byte(
-        scratch,
-        target,
-        clamp_to_u8(f64::from(y) + 1.402 * f64::from(cr)),
-    );
-    set_output_byte(
-        scratch,
-        target + 1,
-        clamp_to_u8(f64::from(y) - 0.3441363 * f64::from(cb) - 0.71413636 * f64::from(cr)),
-    );
-    set_output_byte(
-        scratch,
-        target + 2,
-        clamp_to_u8(f64::from(y) + 1.772 * f64::from(cb)),
-    );
-}
-
-#[cfg(all(target_arch = "wasm32", feature = "simd"))]
-#[target_feature(enable = "simd128")]
-unsafe fn write_rgb_pair(
-    scratch: &Scratch,
-    target: usize,
-    first: (i32, i32, i32),
-    second: (i32, i32, i32),
-) {
-    use core::arch::wasm32::*;
-    let y = f64x2(first.0 as f64, second.0 as f64);
-    let cb = f64x2(first.1 as f64, second.1 as f64);
-    let cr = f64x2(first.2 as f64, second.2 as f64);
-    let red = f64x2_add(y, f64x2_mul(cr, f64x2_splat(1.402)));
-    let green = f64x2_sub(
-        f64x2_sub(y, f64x2_mul(cb, f64x2_splat(0.3441363))),
-        f64x2_mul(cr, f64x2_splat(0.71413636)),
-    );
-    let blue = f64x2_add(y, f64x2_mul(cb, f64x2_splat(1.772)));
-    set_output_byte(scratch, target, clamp_to_u8(f64x2_extract_lane::<0>(red)));
-    set_output_byte(
-        scratch,
-        target + 1,
-        clamp_to_u8(f64x2_extract_lane::<0>(green)),
-    );
-    set_output_byte(
-        scratch,
-        target + 2,
-        clamp_to_u8(f64x2_extract_lane::<0>(blue)),
-    );
-    set_output_byte(
-        scratch,
-        target + 3,
-        clamp_to_u8(f64x2_extract_lane::<1>(red)),
-    );
-    set_output_byte(
-        scratch,
-        target + 4,
-        clamp_to_u8(f64x2_extract_lane::<1>(green)),
-    );
-    set_output_byte(
-        scratch,
-        target + 5,
-        clamp_to_u8(f64x2_extract_lane::<1>(blue)),
-    );
+    // The reference truncates each channel. At 22 fractional bits the
+    // integer offsets match all 256 x 256 chroma pairs for every luma byte.
+    let r = y + ((5_880_414 * cr) >> 22);
+    let g = y + ((-1_443_412 * cb - 2_995_305 * cr) >> 22);
+    let b = y + ((7_432_307 * cb) >> 22);
+    set_output_byte(scratch, target, r.clamp(0, 255) as u8);
+    set_output_byte(scratch, target + 1, g.clamp(0, 255) as u8);
+    set_output_byte(scratch, target + 2, b.clamp(0, 255) as u8);
 }
 
 fn render_420(scratch: &Scratch, height: usize, stride: usize) {
@@ -1215,21 +1247,9 @@ fn render_420(scratch: &Scratch, height: usize, stride: usize) {
                 sample_half_vertical(cb_top_second, cb_bottom_second, weight),
                 sample_half_vertical(cr_top_second, cr_bottom_second, weight),
             );
-            #[cfg(all(target_arch = "wasm32", feature = "simd"))]
-            unsafe {
-                write_rgb_pair(scratch, local_y * stride + x * 3, first, second);
-            }
-            #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
-            {
-                write_rgb(scratch, local_y * stride + x * 3, first.0, first.1, first.2);
-                write_rgb(
-                    scratch,
-                    local_y * stride + x * 3 + 3,
-                    second.0,
-                    second.1,
-                    second.2,
-                );
-            }
+            let target = local_y * stride + x * 3;
+            write_rgb(scratch, target, first.0, first.1, first.2);
+            write_rgb(scratch, target + 3, second.0, second.1, second.2);
             x += 2;
         }
         if x < scratch.state.width {
@@ -1280,21 +1300,9 @@ fn render_422(scratch: &Scratch, height: usize, stride: usize) {
                 ((cb_second + 128) >> 8) - 128,
                 ((cr_second + 128) >> 8) - 128,
             );
-            #[cfg(all(target_arch = "wasm32", feature = "simd"))]
-            unsafe {
-                write_rgb_pair(scratch, local_y * stride + x * 3, first, second);
-            }
-            #[cfg(not(all(target_arch = "wasm32", feature = "simd")))]
-            {
-                write_rgb(scratch, local_y * stride + x * 3, first.0, first.1, first.2);
-                write_rgb(
-                    scratch,
-                    local_y * stride + x * 3 + 3,
-                    second.0,
-                    second.1,
-                    second.2,
-                );
-            }
+            let target = local_y * stride + x * 3;
+            write_rgb(scratch, target, first.0, first.1, first.2);
+            write_rgb(scratch, target + 3, second.0, second.1, second.2);
             x += 2;
         }
         if x < scratch.state.width {
@@ -1304,45 +1312,53 @@ fn render_422(scratch: &Scratch, height: usize, stride: usize) {
     }
 }
 
-fn render_444(scratch: &Scratch, height: usize, stride: usize) {
+fn render_444(scratch: &Scratch, height: usize, stride: usize, x_start: usize, y_start: usize) {
     let buffer = scratch.state.pending_buffer;
     let widths = scratch.state.plane_widths;
     let offsets = scratch.state.plane_offsets;
     for local_y in 0..height {
-        let row = local_y + 1;
-        let mut x = 0;
-        while x < scratch.state.width {
-            let sample = |output_x: usize| {
-                (
-                    i32::from(plane_byte(
-                        scratch,
-                        buffer,
-                        offsets[0] + row * widths[0] + output_x,
-                    )),
-                    i32::from(plane_byte(
-                        scratch,
-                        buffer,
-                        offsets[1] + row * widths[1] + output_x,
-                    )) - 128,
-                    i32::from(plane_byte(
-                        scratch,
-                        buffer,
-                        offsets[2] + row * widths[2] + output_x,
-                    )) - 128,
-                )
-            };
-            let first = sample(x);
-            #[cfg(all(target_arch = "wasm32", feature = "simd"))]
-            if x + 1 < scratch.state.width {
-                let second = sample(x + 1);
-                unsafe { write_rgb_pair(scratch, local_y * stride + x * 3, first, second) };
-                x += 2;
-                continue;
-            }
-            write_rgb(scratch, local_y * stride + x * 3, first.0, first.1, first.2);
-            x += 1;
+        let row = y_start + local_y + 1;
+        for x in 0..stride / 3 {
+            let y = i32::from(plane_byte(
+                scratch,
+                buffer,
+                offsets[0] + row * widths[0] + x_start + x,
+            ));
+            let cb = i32::from(plane_byte(
+                scratch,
+                buffer,
+                offsets[1] + row * widths[1] + x_start + x,
+            )) - 128;
+            let cr = i32::from(plane_byte(
+                scratch,
+                buffer,
+                offsets[2] + row * widths[2] + x_start + x,
+            )) - 128;
+            write_rgb(scratch, local_y * stride + x * 3, y, cb, cr);
         }
     }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Sampling {
+    Yuv420,
+    Yuv422,
+    Yuv444,
+    Mapped,
+}
+
+fn sampling(scratch: &Scratch) -> Sampling {
+    match (scratch.horizontal_sampling, scratch.vertical_sampling) {
+        ([2, 1, 1], [2, 1, 1]) => Sampling::Yuv420,
+        ([2, 1, 1], [1, 1, 1]) => Sampling::Yuv422,
+        ([1, 1, 1], [1, 1, 1]) => Sampling::Yuv444,
+        _ => Sampling::Mapped,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn jpeg_decoder_needs_x_map() -> u32 {
+    (sampling(scratch()) == Sampling::Mapped) as u32
 }
 
 fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
@@ -1350,10 +1366,10 @@ fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
         .state
         .pending_row
         .checked_mul(scratch.state.maximum_vertical_sampling)
-        .and_then(|value| value.checked_mul(BLOCK))
+        .and_then(|value| value.checked_mul(scratch.state.block_size))
         .ok_or(ERROR_ARITHMETIC)?;
     let row_end = row_start
-        .checked_add(scratch.state.maximum_vertical_sampling * BLOCK)
+        .checked_add(scratch.state.maximum_vertical_sampling * scratch.state.block_size)
         .ok_or(ERROR_ARITHMETIC)?
         .min(scratch.state.height);
     if row_start >= row_end {
@@ -1365,20 +1381,33 @@ fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
     if required > scratch.state.output_capacity {
         return Err(ERROR_CAPACITY);
     }
-    if scratch.horizontal_sampling == [2, 1, 1] && scratch.vertical_sampling == [2, 1, 1] {
+    let sampling = sampling(scratch);
+    if sampling == Sampling::Yuv420 {
         render_420(scratch, height, stride);
         scratch.state.output_y = row_start;
         scratch.state.output_height = height;
         return Ok(());
     }
-    if scratch.horizontal_sampling == [2, 1, 1] && scratch.vertical_sampling == [1, 1, 1] {
+    if sampling == Sampling::Yuv422 {
         render_422(scratch, height, stride);
         scratch.state.output_y = row_start;
         scratch.state.output_height = height;
         return Ok(());
     }
-    if scratch.horizontal_sampling == [1, 1, 1] && scratch.vertical_sampling == [1, 1, 1] {
-        render_444(scratch, height, stride);
+    if sampling == Sampling::Yuv444 {
+        if let Some(crop) = scratch.state.crop {
+            let first = row_start.max(crop.y);
+            let last = row_end.min(crop.end_y);
+            let count = last.saturating_sub(first);
+            scratch.state.output_height = count;
+            if count > 0 {
+                render_444(scratch, count, stride, crop.x, first - row_start);
+                scratch.state.output_y = first - crop.y;
+                scratch.state.finished = last == crop.end_y;
+            }
+            return Ok(());
+        }
+        render_444(scratch, height, stride, 0, 0);
         scratch.state.output_y = row_start;
         scratch.state.output_height = height;
         return Ok(());
@@ -1428,21 +1457,7 @@ fn render_pending(scratch: &mut Scratch) -> Result<(), u32> {
                 y_weights[2],
             ) - 128;
             let target = local_y * stride + x * 3;
-            set_output_byte(
-                scratch,
-                target,
-                clamp_to_u8(f64::from(y) + 1.402 * f64::from(cr)),
-            );
-            set_output_byte(
-                scratch,
-                target + 1,
-                clamp_to_u8(f64::from(y) - 0.3441363 * f64::from(cb) - 0.71413636 * f64::from(cr)),
-            );
-            set_output_byte(
-                scratch,
-                target + 2,
-                clamp_to_u8(f64::from(y) + 1.772 * f64::from(cb)),
-            );
+            write_rgb(scratch, target, y, cb, cr);
         }
     }
     scratch.state.output_y = row_start;
@@ -1460,7 +1475,7 @@ pub extern "C" fn jpeg_decoder_start(
     planes_length: u32,
     output_pointer: u32,
     output_length: u32,
-    scan_offset: u32,
+    final_window: u32,
     width: u32,
     height: u32,
     maximum_horizontal_sampling: u32,
@@ -1469,6 +1484,7 @@ pub extern "C" fn jpeg_decoder_start(
     mcus_per_column: u32,
     restart_interval: u32,
     tolerant_decoding: u32,
+    block_size: u32,
 ) -> u32 {
     let scratch = scratch();
     let pointer = input_pointer as usize;
@@ -1486,7 +1502,12 @@ pub extern "C" fn jpeg_decoder_start(
     let Some(map_end) = map_pointer.checked_add(map_length) else {
         return ERROR_ARITHMETIC;
     };
-    let Some(map_entries) = (width as usize).checked_mul(COMPONENTS) else {
+    let map_width = if sampling(scratch) == Sampling::Mapped {
+        width as usize
+    } else {
+        0
+    };
+    let Some(map_entries) = map_width.checked_mul(COMPONENTS) else {
         return ERROR_ARITHMETIC;
     };
     let Some(left_bytes) = map_entries.checked_mul(4) else {
@@ -1528,7 +1549,7 @@ pub extern "C" fn jpeg_decoder_start(
         || planes_end > memory_bytes
         || output_pointer < planes_end
         || output_end > memory_bytes
-        || scan_offset as usize >= length
+        || final_window > 1
         || width == 0
         || height == 0
         || maximum_horizontal_sampling == 0
@@ -1542,6 +1563,17 @@ pub extern "C" fn jpeg_decoder_start(
         return ERROR_CONFIGURATION;
     }
 
+    if !matches!(block_size, 2 | 4 | 8)
+        || width.div_ceil(maximum_horizontal_sampling * block_size) != mcus_per_line
+        || height.div_ceil(maximum_vertical_sampling * block_size) != mcus_per_column
+        || u32::from(*scratch.horizontal_sampling.iter().max().unwrap_or(&0))
+            != maximum_horizontal_sampling
+        || u32::from(*scratch.vertical_sampling.iter().max().unwrap_or(&0))
+            != maximum_vertical_sampling
+    {
+        return ERROR_CONFIGURATION;
+    }
+    let block_size = block_size as usize;
     let mut plane_bytes = 0usize;
     let mut plane_offsets = [0usize; COMPONENTS];
     let mut plane_widths = [0usize; COMPONENTS];
@@ -1558,11 +1590,11 @@ pub extern "C" fn jpeg_decoder_start(
         }
         let Some(plane_width) = (mcus_per_line as usize)
             .checked_mul(horizontal)
-            .and_then(|value| value.checked_mul(BLOCK))
+            .and_then(|value| value.checked_mul(block_size))
         else {
             return ERROR_ARITHMETIC;
         };
-        let plane_core_height = vertical * BLOCK;
+        let plane_core_height = vertical * block_size;
         let Some(bytes) = plane_width.checked_mul(plane_core_height + 2) else {
             return ERROR_ARITHMETIC;
         };
@@ -1579,7 +1611,7 @@ pub extern "C" fn jpeg_decoder_start(
     };
     let Some(maximum_output) = output_stride
         .checked_mul(maximum_vertical_sampling as usize)
-        .and_then(|value| value.checked_mul(BLOCK))
+        .and_then(|value| value.checked_mul(block_size))
     else {
         return ERROR_ARITHMETIC;
     };
@@ -1596,7 +1628,7 @@ pub extern "C" fn jpeg_decoder_start(
     for component in 0..COMPONENTS {
         let horizontal = usize::from(scratch.horizontal_sampling[component]);
         let component_width = plane_widths[component];
-        for x in 0..width as usize {
+        for x in 0..map_width {
             let position =
                 ((x as f64 + 0.5) * horizontal as f64) / maximum_horizontal_sampling as f64 - 0.5;
             let left = if position < 0.0 {
@@ -1681,12 +1713,26 @@ pub extern "C" fn jpeg_decoder_start(
     scratch.state = DecoderState {
         input_pointer: pointer,
         input_length: length,
-        input_offset: scan_offset as usize,
+        input_offset: 0,
+        input_capacity: length,
+        final_window: final_window != 0,
+        // Each block has at most 64 symbols of 16 bits plus 16 amplitude
+        // bits each. Byte stuffing can double that length. Allow lookahead.
+        maximum_mcu_bytes: (0..COMPONENTS)
+            .map(|c| {
+                usize::from(scratch.horizontal_sampling[c])
+                    * usize::from(scratch.vertical_sampling[c])
+                    * 512
+            })
+            .sum::<usize>()
+            + 2,
         bits: 0,
         bit_count: 0,
         width: width as usize,
         height: height as usize,
         maximum_vertical_sampling: maximum_vertical_sampling as usize,
+        block_size,
+        crop: None,
         mcus_per_line: mcus_per_line as usize,
         mcus_per_column: mcus_per_column as usize,
         restart_interval: restart_interval as usize,
@@ -1718,6 +1764,56 @@ pub extern "C" fn jpeg_decoder_start(
         initialized: true,
         finished: false,
     };
+    STATUS_OK
+}
+
+// A 4:4:4 MCU is one block per component. Cropping it needs no
+// neighboring chroma samples. Start at a row-aligned restart if available.
+#[unsafe(no_mangle)]
+pub extern "C" fn jpeg_decoder_crop_444(
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+    initial_mcu: u32,
+    restart_index: u32,
+) -> u32 {
+    let scratch = scratch();
+    let state = &mut scratch.state;
+    let first_mcu = initial_mcu as usize;
+    let (Some(end_x), Some(end_y)) = (x.checked_add(width), y.checked_add(height)) else {
+        return ERROR_CONFIGURATION;
+    };
+    if !state.initialized
+        || state.next_row != 0
+        || state.decoded_mcus != 0
+        || state.block_size == BLOCK
+        || width == 0
+        || height == 0
+        || end_x as usize > state.width
+        || end_y as usize > state.height
+        || scratch.horizontal_sampling != [1, 1, 1]
+        || scratch.vertical_sampling != [1, 1, 1]
+        || !first_mcu.is_multiple_of(state.mcus_per_line)
+        || restart_index > 8
+        || (first_mcu != 0
+            && (state.restart_interval == 0 || !first_mcu.is_multiple_of(state.restart_interval)))
+        || first_mcu / state.mcus_per_line > y as usize / state.block_size
+    {
+        return ERROR_CONFIGURATION;
+    }
+    state.crop = Some(Crop444 {
+        x: x as usize,
+        y: y as usize,
+        end_y: end_y as usize,
+        first_column: x as usize / state.block_size,
+        last_column: (end_x as usize - 1) / state.block_size,
+    });
+    state.decoded_mcus = first_mcu;
+    state.next_row = first_mcu / state.mcus_per_line;
+    state.next_restart_mcu = first_mcu.saturating_add(state.restart_interval);
+    state.restart_index = restart_index as u8;
+    state.output_stride = width as usize * 3;
     STATUS_OK
 }
 
@@ -1753,6 +1849,9 @@ pub extern "C" fn jpeg_decoder_next() -> u32 {
             scratch.state.pending_buffer = scratch.state.current_buffer;
             scratch.state.current_buffer = previous_pending;
             scratch.state.pending_row = row;
+            if scratch.state.output_height == 0 {
+                continue;
+            }
             return STATUS_OK;
         }
         if scratch.state.pending {
@@ -1771,6 +1870,29 @@ pub extern "C" fn jpeg_decoder_next() -> u32 {
         scratch.state.finished = true;
         return STATUS_DONE;
     }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn jpeg_decoder_consumed() -> u32 {
+    scratch().state.input_offset as u32
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn jpeg_decoder_refill(length: u32, final_window: u32) -> u32 {
+    let state = &mut scratch().state;
+    let valid = length as usize;
+    if !state.initialized
+        || state.final_window
+        || final_window > 1
+        || valid > state.input_capacity
+        || valid <= state.input_length - state.input_offset
+    {
+        return ERROR_CONFIGURATION;
+    }
+    state.input_offset = 0;
+    state.input_length = valid;
+    state.final_window = final_window != 0;
+    STATUS_OK
 }
 
 #[unsafe(no_mangle)]

@@ -519,7 +519,7 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 | Core + scientific platform | `purejsimage/scientific` | 205.1 KiB | 59.2 KiB | 50.0 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1266.0 KiB | 368.3 KiB | 294.5 KiB |
 
-The 8 optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
+The 8 optional JPEG, PNG, and WebP accelerator assets total 163.0 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->
