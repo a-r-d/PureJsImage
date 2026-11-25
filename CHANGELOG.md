@@ -98,6 +98,13 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Testing, CI and docs
 
+- The published web codec benchmark is rerun at `b6ac46f9`, after the JPEG, AVIF, PNG and lossless
+  WebP speedups. The README table, website charts and public snapshot use the new run, with the
+  same 143 passing and 25 unsupported cases. PureJsImage's median wall time across workflows fell
+  10.9% from the previous snapshot; the other engines moved -4.8% to +0.1%. With default settings,
+  PureJsImage is faster than ImageScript 4.0.0 on 16 of 21 shared workflows and uses less peak RSS
+  on 17. ImageScript is still faster on AVIF to PNG, lossy and lossless WebP decoding, the small
+  transparent PNG resize and the 100 MP PNG downscale, where it uses 1268 MiB against 206 MiB.
 - `AGENTS.md` now allows parallel execution only behind the explicit, default-off `threads`
   option, with capability detection in the runtime adapters, bounded memory per thread, and a
   separate benchmark engine. The single-threaded path stays the default and the main target.

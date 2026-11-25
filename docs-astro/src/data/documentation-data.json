@@ -140,21 +140,21 @@
     "charts": {
       "speed": {
         "height": 3598,
-        "src": "assets/web-codecs-speed-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-speed-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
         "width": 2400
       },
       "quality": {
         "height": 1312,
-        "src": "assets/web-codecs-quality-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-quality-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
         "width": 2400
       },
       "memory": {
         "height": 3598,
-        "src": "assets/web-codecs-memory-2026-11-24T18-40-34-578Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-memory-2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
         "width": 2400
       }
     },
-    "createdAt": "2026-11-24T18:40:34.578Z",
+    "createdAt": "2026-11-25T02:42:04.827Z",
     "engineVersions": [
       {
         "id": "purejsimage",
@@ -208,13 +208,13 @@
     },
     "fixtureManifestHash": "698acba0f5eb837b1207afa570c2e8b9f720a7e1e00498c1a46f0bdbaba327d1",
     "headline": {
-      "jimpPeakRssBytes": 1256955904,
-      "memoryReductionPercent": 87.1308745608947,
-      "pureJsImagePeakRssBytes": 161759232,
+      "jimpPeakRssBytes": 1274044416,
+      "memoryReductionPercent": 87.02603473441228,
+      "pureJsImagePeakRssBytes": 165294080,
       "workflow": "24-megapixel northstar photo pipeline"
     },
-    "reportJson": "benchmark/results/public/web-codecs-2026-11-24T18-40-34-578Z.json",
-    "reportMarkdown": "benchmark/results/public/web-codecs-2026-11-24T18-40-34-578Z.md",
+    "reportJson": "benchmark/results/public/web-codecs-2026-11-25T02-42-04-827Z.json",
+    "reportMarkdown": "benchmark/results/public/web-codecs-2026-11-25T02-42-04-827Z.md",
     "statusCounts": {
       "pass": 143,
       "unsupported": 25

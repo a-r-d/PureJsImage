@@ -16,7 +16,7 @@ On November 23, 2026 the suite moved from Jimp 1.6.0 to 1.7.0 and from Sharp
 0.35.3 to 0.35.5. The results on this page were recorded with Jimp 1.6.0 and
 Sharp 0.35.3. Each result file records the engine versions it ran with. The
 current web codec snapshot in the README and on the website was recorded on
-November 24, 2026 with Jimp 1.7.0, Sharp 0.35.5, and ImageScript 4.0.0.
+November 25, 2026 with Jimp 1.7.0, Sharp 0.35.5, and ImageScript 4.0.0.
 
 ImageScript 4.0.0, a pure TypeScript library, joined the `web-codecs` and
 `competitors` profiles on November 24, 2026. The current web codec snapshot
