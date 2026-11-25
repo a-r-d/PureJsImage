@@ -1,0 +1,39 @@
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 179,616,619,622,871,874,877,901,904,907,1231,1234,1237,1261,1264,1267,1276,1279,1282,1336,1339,1342,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+src/codecs/png-encode.ts
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 194-198,200-201,213-220,240,242-247
+src/codecs/webp-lossless.ts
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 273-274,277,293-299,301,305-310
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 179,616,619,622,871,874,877,901,904,907,1231,1234,1237,1261,1264,1267,1276,1279,1282,1336,1339,1342,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_4ea78bec16c6f7 95-104
+README.md
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 517-518,520
+  s_fb44c3e6b9dfb0::t_fa5777891843a9 498-499,501,503
+src/codecs/png-decode.ts
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 260-270
+benchmark/optimization-log.md
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 7300-7362
+  s_fb44c3e6b9dfb0::t_4ea78bec16c6f7 7363-7364
+tests/png.test.ts
+  s_fb44c3e6b9dfb0::t_74d5ed66fb5241 803-816
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_6395a4f642fe57 99-101,104-106,109-111,114-116,129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1108c952a1f486703c4c7667f36c12b071d678dd",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
