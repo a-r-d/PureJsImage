@@ -257,6 +257,17 @@ const unfilter = (
   if (filterType === undefined || filterType > 4)
     throw invalidInput(`PNG filter ${filterType ?? -1} is invalid`)
   if (filterType === 0) return
+  if (filterType === 1 && filterBytesPerPixel === 4) {
+    // Add four independent byte lanes modulo 256 without carrying into the next lane.
+    const pixels = new DataView(scanline.buffer, scanline.byteOffset + 1, previous.byteLength)
+    let left = pixels.getUint32(0, true)
+    for (let offset = 4; offset < pixels.byteLength; offset += 4) {
+      const delta = pixels.getUint32(offset, true)
+      left = ((left & 0x7f7f7f7f) + (delta & 0x7f7f7f7f)) ^ ((left ^ delta) & 0x80808080)
+      pixels.setUint32(offset, left, true)
+    }
+    return
+  }
   if (filterType === 1) {
     for (let index = filterBytesPerPixel; index < previous.byteLength; index += 1) {
       scanline[index + 1] =

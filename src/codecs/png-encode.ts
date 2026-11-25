@@ -191,11 +191,14 @@ const applyFilterScanline = (
   }
 }
 
-const isZeroScanline = (source: Uint8Array): boolean => {
-  for (let index = 0; index < source.byteLength; index += 1) {
-    if (source[index] !== 0) return false
+// A nonzero word may include up to three zero bytes. Scoring those bytes is exact.
+const zeroPrefix = (row: DataView, limit: number): number => {
+  let index = 0
+  for (; index + 4 <= limit; index += 4) {
+    if (row.getUint32(index) !== 0) return index
   }
-  return true
+  while (index < limit && row.getUint8(index) === 0) index += 1
+  return index
 }
 
 const filterScanline = (
@@ -207,7 +210,14 @@ const filterScanline = (
 ): void => {
   let filter: 0 | 1 | 2 | 3 | 4 = 0
   // An all-zero row gives None the lowest possible score and it wins all ties.
-  if (adaptive && !isZeroScanline(source)) {
+  if (adaptive) {
+    const sourceView = new DataView(source.buffer, source.byteOffset, source.byteLength)
+    const prefix = zeroPrefix(sourceView, source.byteLength)
+    if (prefix === source.byteLength) {
+      output.fill(0)
+      return
+    }
+    const previousView = new DataView(previous.buffer, previous.byteOffset, previous.byteLength)
     let none = 0
     let sub = 0
     let up = 0
@@ -227,11 +237,14 @@ const filterScanline = (
     }
     // Beyond the last nonzero byte, Left and the Paeth corner can still
     // contribute for one more pixel.
-    let start = 0
-    while (start < length && source[start] === 0 && previous[start] === 0) start += 1
+    const start = Math.max(bytesPerPixel, zeroPrefix(previousView, prefix))
     let end = length
-    while (end > start && source[end - 1] === 0 && previous[end - 1] === 0) end -= 1
-    start = Math.max(bytesPerPixel, start)
+    while (
+      end - 4 >= start &&
+      (sourceView.getUint32(end - 4) | previousView.getUint32(end - 4)) === 0
+    ) {
+      end -= 4
+    }
     end = Math.min(length, end + bytesPerPixel)
     output.fill(0, bytesPerPixel + 1, start + 1)
     output.fill(0, end + 1)

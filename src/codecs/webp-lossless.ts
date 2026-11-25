@@ -270,10 +270,11 @@ class BitReader {
   readonly #data: Uint8Array
   readonly #end: number
   #offset: number
-  #bits = 0
-  #bitCount = 0
+  #bitOffset = 0
+  readonly #view: DataView
 
   constructor(data: Uint8Array, offset: number, length: number) {
+    this.#view = new DataView(data.buffer, data.byteOffset, data.byteLength)
     this.#data = data
     this.#offset = offset
     this.#end = Math.min(data.length, offset + length)
@@ -289,18 +290,24 @@ class BitReader {
   // Missing lookahead bits are zero. Only the selected code's actual length
   // must be present, including when a short code ends in the final byte.
   peekBits(length: number): number {
-    while (this.#bitCount < length && this.#offset < this.#end) {
-      this.#bits |= (this.#data[this.#offset] ?? 0) << this.#bitCount
-      this.#offset += 1
-      this.#bitCount += 8
+    let word = 0
+    if (this.#offset + 4 <= this.#end) {
+      word = this.#view.getUint32(this.#offset, true)
+    } else {
+      for (let byte = this.#offset; byte < this.#end; byte += 1) {
+        word |= (this.#data[byte] ?? 0) << ((byte - this.#offset) * 8)
+      }
     }
-    return this.#bits & ((1 << length) - 1)
+    return (word >>> this.#bitOffset) & ((1 << length) - 1)
   }
 
   dropBits(length: number): void {
-    if (length > this.#bitCount) throw truncatedInput('WebP lossless bitstream is truncated')
-    this.#bits >>>= length
-    this.#bitCount -= length
+    const bits = this.#bitOffset + length
+    if (bits > (this.#end - this.#offset) * 8) {
+      throw truncatedInput('WebP lossless bitstream is truncated')
+    }
+    this.#offset += bits >>> 3
+    this.#bitOffset = bits & 7
   }
 }
 

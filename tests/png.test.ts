@@ -800,6 +800,20 @@ describe('PNG pixel pipeline', () => {
     expect(PNG.sync.read(await readFile(path)).data).toEqual(PNG.sync.read(input).data)
   })
 
+  it('wraps each channel independently when reconstructing a four-byte Sub row', async () => {
+    const input = specializedPng(
+      3,
+      1,
+      8,
+      6,
+      Uint8Array.of(1, 255, 127, 128, 254, 1, 1, 255, 3, 129, 128, 1, 255),
+    )
+    const output = await (await Image.open(input)).png({ compressionLevel: 0 }).toBuffer()
+    expect(Array.from(uncompressedPngScanlines(output))).toEqual([
+      0, 255, 127, 128, 254, 0, 128, 127, 1, 129, 0, 128, 0,
+    ])
+  })
+
   it('preserves residual bytes as the adaptive filter changes between rows', async () => {
     const input = specializedPng(
       4,

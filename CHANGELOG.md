@@ -92,9 +92,16 @@ All notable changes to PureJsImage are documented in this file.
   lower, for example 145 MiB instead of 169 MiB on the 24-megapixel photo pipeline and 135 MiB
   instead of 159 MiB on the 1200-pixel JPEG resize. In Node, `fs/promises` loads only when
   temporary files are turned on. Output is unchanged. The first decode or encode of a format in a
-  process loads its module, which adds about 5 to 10 ms for JPEG and PNG. Small images are 1 to
-  2.5 ms slower per warm run: the 400 x 301 lossless WebP to PNG benchmark takes 43 ms instead of
-  41 ms. Large workflows are within 1%.
+  process loads its module, which adds about 5 to 10 ms for JPEG and PNG. On its own, the split
+  made small images 1 to 2.5 ms slower per warm run. The PNG and lossless WebP changes in the next
+  entry more than make up for it. Large workflows are within 1%.
+- PNG decoding, PNG adaptive filtering and lossless WebP decoding are faster with identical
+  output. PNG decoding adds the four bytes of a Sub-filtered RGBA pixel in one 32-bit operation,
+  adaptive filtering finds all-zero row margins four bytes at a time, and the lossless WebP bit
+  reader reads one 32-bit word per lookup instead of refilling a byte at a time. Compared with the
+  code before lazy codec loading, the 400 x 301 lossless WebP to PNG benchmark takes 38 ms instead
+  of 41 ms, the transparent logo resize and PNG to JPEG benchmarks are 1% faster, and all three
+  use 11% to 14% less peak RSS.
 - JPEG XL lossless effort 7 is 3.4 to 8.1 times faster on the eight 1-megapixel comparison images:
   182 s instead of 819 s in total, with files 0.29% larger in total. Effort 7 now trains predictor
   trees once on four times the default samples, and also on the default samples only when that
