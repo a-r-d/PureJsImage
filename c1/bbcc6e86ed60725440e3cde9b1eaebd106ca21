@@ -1,0 +1,43 @@
+src/codecs/webp-lossy-encode.ts
+  s_fb44c3e6b9dfb0::t_9329d59a64a0f4 911-923,930,962,965-966
+benchmark/workflows.ts
+  s_fb44c3e6b9dfb0::t_e55ab31e27f59d 189,297
+tests/webp-encode.test.ts
+  s_fb44c3e6b9dfb0::t_be8d5eec15d9dc 195-230
+  s_fb44c3e6b9dfb0::t_affcd99a2604ca 86-97
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_824334fa41cb9c 115-120,136-139
+src/codecs/webp-lossless-encode.ts
+  s_fb44c3e6b9dfb0::t_589aa2d2942dee 1407-1419,1423-1456,1461-1480
+  s_fb44c3e6b9dfb0::t_1742e68aec345d 1583,1586-1588
+  s_fb44c3e6b9dfb0::t_4b876f9e6bc73e 1457-1459
+  s_fb44c3e6b9dfb0::t_89764bd04bf890 1420-1422,1460
+benchmark/engines/purejsimage-shared.ts
+  s_fb44c3e6b9dfb0::t_e55ab31e27f59d 45-49,329-332
+benchmark/types.ts
+  s_fb44c3e6b9dfb0::t_e55ab31e27f59d 189-193
+README.md
+  s_fb44c3e6b9dfb0::t_546e4c68968f08 498-499,501,517-518,520
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_50cb97e7ebc5c0 179,901,904,907,1231,1234,1237,1276,1279,1282,1472,1475,1478,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_01b0e51d1930a0 104-106,109-111,114-116,129
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_76900a7381db52 179,901,904,907,1231,1234,1237,1276,1279,1282,1472,1475,1478,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c1bbcc6e86ed60725440e3cde9b1eaebd106ca21",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
