@@ -67,7 +67,12 @@ const spoolTiles = async (
   height: number,
   format: PixelFormat,
   channelCount: number,
-): Promise<{ readonly tilesAcross: number; readonly tileBytes: number }> => {
+  trimTransparent: boolean,
+): Promise<{ left: number; right: number; top: number; bottom: number }> => {
+  let left = trimTransparent ? width : 0
+  let right = trimTransparent ? -1 : width - 1
+  let top = trimTransparent ? height : 0
+  let bottom = trimTransparent ? -1 : height - 1
   const sourceStride = width * channelCount
   const tileStride = tileSize * channelCount
   const tileBytes = tileStride * tileSize
@@ -89,6 +94,20 @@ const spoolTiles = async (
       throw invalidInput('Rotate requires ordered, full-width pixel blocks')
     }
     for (let row = 0; row < block.height; row += 1) {
+      // The caller enables trimming only when source and canvas transparency agree.
+      if (trimTransparent) {
+        const rowStart = row * block.stride + 3
+        let first = 0
+        while (first < width && block.data[rowStart + first * 4] === 0) first += 1
+        if (first < width) {
+          let last = width - 1
+          while (last > right && block.data[rowStart + last * 4] === 0) last -= 1
+          left = Math.min(left, first)
+          right = Math.max(right, last)
+          top = Math.min(top, receivedRows)
+          bottom = receivedRows
+        }
+      }
       const tileRowY = receivedRows % tileSize
       for (let tileX = 0; tileX < tilesAcross; tileX += 1) {
         const sourceX = tileX * tileSize
@@ -112,7 +131,7 @@ const spoolTiles = async (
   if (receivedRows !== height)
     throw truncatedInput(`Rotate received ${receivedRows} of ${height} rows`)
   if (receivedRows % tileSize !== 0) await writeAll(store, tileRow, tileY * tileRow.byteLength)
-  return { tilesAcross, tileBytes }
+  return { left, right, top, bottom }
 }
 
 const backgroundRgba = (
@@ -163,28 +182,103 @@ const rotatedBlocks = async function* (
     } catch (error) {
       throw temporaryStorageError('setup', error)
     }
-    const spooled = await spoolTiles(
+    const visible = await spoolTiles(
       store,
       blocks,
       sourceWidth,
       sourceHeight,
       sourceFormat,
       sourceChannels,
+      sourceFormat === 'rgba8' && background[3] === 0,
     )
+    // A rotated 32 by 32 output tile plus its bilinear taps spans at most
+    // three source tiles on each axis, even when it straddles tile boundaries.
+    const windowWidth = 3 * tileSize
+    const windowStride = windowWidth * 4
+    const backgroundPixel = new Uint32Array(Uint8Array.from(background).buffer)[0] ?? 0
+    const window = new Uint8Array(3 * tileSize * windowStride)
+    const windowPixels = new Uint32Array(window.buffer)
+    const tileRowInput = new Uint8Array(3 * tileBytes)
+    const rgbaTiles =
+      sourceChannels === 4 ? tileRowInput : new Uint8Array(3 * tileSize * tileSize * 4)
+    const tileStride = tileSize * 4
+    const tileScanlines = Array.from({ length: 3 * tileSize }, (_, row) =>
+      rgbaTiles.subarray(row * tileStride, (row + 1) * tileStride),
+    )
+    const sampleTile = (
+      data: Uint8Array,
+      outputPixels: Uint32Array | undefined,
+      outputXStart: number,
+      outputXEnd: number,
+      outputY: number,
+      blockHeight: number,
+      originX: number,
+      originY: number,
+    ): void => {
+      for (let row = 0; row < blockHeight; row += 1) {
+        const outputYCentered = outputY + row + 0.5 - outputHeight / 2
+        for (let x = outputXStart; x < outputXEnd; x += 1) {
+          const outputX = x + 0.5 - outputWidth / 2
+          const sourceX = cosine * outputX + sine * outputYCentered + sourceWidth / 2 - 0.5
+          const sourceY = -sine * outputX + cosine * outputYCentered + sourceHeight / 2 - 0.5
+          const left = Math.floor(sourceX)
+          const top = Math.floor(sourceY)
+          const index = (top - originY) * windowWidth + left - originX
+          const first = windowPixels[index] ?? 0
+          const offset = index * 4
+          const target = row * outputStride + x * outputChannels
+          // Equal RGBA taps yield exactly this pixel for every set of weights.
+          if (
+            first === windowPixels[index + 1] &&
+            first === windowPixels[index + windowWidth] &&
+            first === windowPixels[index + windowWidth + 1]
+          ) {
+            // Fully transparent taps produce transparent black, even with hidden RGB.
+            if (window[offset + 3] === 0) continue
+            if (outputPixels) outputPixels[row * outputWidth + x] = first
+            else {
+              data[target] = window[offset] ?? 0
+              data[target + 1] = window[offset + 1] ?? 0
+              data[target + 2] = window[offset + 2] ?? 0
+            }
+            continue
+          }
+          const fractionX = sourceX - left
+          const fractionY = sourceY - top
+          const below = offset + windowStride
+          // Preserve the original tap order when weighting and rounding each channel.
+          const w00 = ((window[offset + 3] ?? 0) / 255) * ((1 - fractionY) * (1 - fractionX))
+          const w10 = ((window[offset + 7] ?? 0) / 255) * ((1 - fractionY) * fractionX)
+          const w01 = ((window[below + 3] ?? 0) / 255) * (fractionY * (1 - fractionX))
+          const w11 = ((window[below + 7] ?? 0) / 255) * (fractionY * fractionX)
+          const alpha = w00 + w10 + w01 + w11
+          if (alpha === 0) continue
+          for (let c = 0; c < 3; c += 1) {
+            const sum =
+              (window[offset + c] ?? 0) * w00 +
+              (window[offset + 4 + c] ?? 0) * w10 +
+              (window[below + c] ?? 0) * w01 +
+              (window[below + 4 + c] ?? 0) * w11
+            data[target + c] = byte(sum / alpha)
+          }
+          if (outputPixels) data[target + 3] = byte(alpha * 255)
+        }
+      }
+    }
     for (let outputY = 0; outputY < outputHeight; outputY += outputBlockRows) {
       const blockHeight = Math.min(outputBlockRows, outputHeight - outputY)
       const data = new Uint8Array(outputStride * blockHeight)
-      const cachedTiles = new Map<number, Uint8Array>()
+      const outputPixels = outputFormat === 'rgba8' ? new Uint32Array(data.buffer) : undefined
       for (let outputXStart = 0; outputXStart < outputWidth; outputXStart += tileSize) {
         const outputXEnd = Math.min(outputWidth, outputXStart + tileSize)
         const centeredLeft = outputXStart + 0.5 - outputWidth / 2
         const centeredRight = outputXEnd - 0.5 - outputWidth / 2
         const centeredTop = outputY + 0.5 - outputHeight / 2
         const centeredBottom = outputY + blockHeight - 0.5 - outputHeight / 2
-        let minimumSourceX = sourceWidth
-        let maximumSourceX = -1
-        let minimumSourceY = sourceHeight
-        let maximumSourceY = -1
+        let minimumSourceX = Infinity
+        let maximumSourceX = -Infinity
+        let minimumSourceY = Infinity
+        let maximumSourceY = -Infinity
         for (const centeredX of [centeredLeft, centeredRight]) {
           for (const centeredY of [centeredTop, centeredBottom]) {
             const sourceX = cosine * centeredX + sine * centeredY + sourceWidth / 2 - 0.5
@@ -199,80 +293,66 @@ const rotatedBlocks = async function* (
         const lastTileX = Math.floor(Math.min(sourceWidth - 1, maximumSourceX) / tileSize)
         const firstTileY = Math.floor(Math.max(0, minimumSourceY) / tileSize)
         const lastTileY = Math.floor(Math.min(sourceHeight - 1, maximumSourceY) / tileSize)
-        cachedTiles.clear()
-        if (firstTileX <= lastTileX && firstTileY <= lastTileY) {
-          for (let tileY = firstTileY; tileY <= lastTileY; tileY += 1) {
-            for (let tileX = firstTileX; tileX <= lastTileX; tileX += 1) {
-              const tileIndex = tileY * tilesAcross + tileX
-              const tile = new Uint8Array(spooled.tileBytes)
-              await readAll(store, tile, tileIndex * spooled.tileBytes)
-              cachedTiles.set(tileIndex, tile)
-            }
-          }
+        if (
+          background[3] === 0 &&
+          (maximumSourceX < visible.left ||
+            minimumSourceX > visible.right ||
+            maximumSourceY < visible.top ||
+            minimumSourceY > visible.bottom)
+        )
+          continue
+        const originX = Math.floor(minimumSourceX / tileSize) * tileSize
+        const originY = Math.floor(minimumSourceY / tileSize) * tileSize
+        if (
+          minimumSourceX < 0 ||
+          maximumSourceX >= sourceWidth ||
+          minimumSourceY < 0 ||
+          maximumSourceY >= sourceHeight
+        ) {
+          windowPixels.fill(backgroundPixel)
         }
-        for (let row = 0; row < blockHeight; row += 1) {
-          const y = outputY + row
-          for (let x = outputXStart; x < outputXEnd; x += 1) {
-            const outputX = x + 0.5 - outputWidth / 2
-            const outputYCentered = y + 0.5 - outputHeight / 2
-            const sourceX = cosine * outputX + sine * outputYCentered + sourceWidth / 2 - 0.5
-            const sourceY = -sine * outputX + cosine * outputYCentered + sourceHeight / 2 - 0.5
-            const left = Math.floor(sourceX)
-            const top = Math.floor(sourceY)
-            const fractionX = sourceX - left
-            const fractionY = sourceY - top
-            let alpha = 0
-            let red = 0
-            let green = 0
-            let blue = 0
-            for (let yOffset = 0; yOffset < 2; yOffset += 1) {
-              const sampleY = top + yOffset
-              const weightY = yOffset === 0 ? 1 - fractionY : fractionY
-              for (let xOffset = 0; xOffset < 2; xOffset += 1) {
-                const sampleX = left + xOffset
-                const weight = weightY * (xOffset === 0 ? 1 - fractionX : fractionX)
-                let sampleRed = background[0]
-                let sampleGreen = background[1]
-                let sampleBlue = background[2]
-                let sampleAlpha = background[3]
-                if (
-                  sampleX >= 0 &&
-                  sampleY >= 0 &&
-                  sampleX < sourceWidth &&
-                  sampleY < sourceHeight
-                ) {
-                  const tileIndex =
-                    Math.floor(sampleY / tileSize) * tilesAcross + Math.floor(sampleX / tileSize)
-                  const tile = cachedTiles.get(tileIndex)
-                  if (!tile) throw truncatedInput('Temporary rotation tile is missing')
-                  const offset =
-                    ((sampleY % tileSize) * tileSize + (sampleX % tileSize)) * sourceChannels
-                  sampleRed = tile[offset] ?? 0
-                  sampleGreen = sourceFormat === 'gray8' ? sampleRed : (tile[offset + 1] ?? 0)
-                  sampleBlue = sourceFormat === 'gray8' ? sampleRed : (tile[offset + 2] ?? 0)
-                  sampleAlpha = sourceFormat === 'rgba8' ? (tile[offset + 3] ?? 0) : 255
-                }
-                const weightedAlpha = (sampleAlpha / 255) * weight
-                alpha += weightedAlpha
-                red += sampleRed * weightedAlpha
-                green += sampleGreen * weightedAlpha
-                blue += sampleBlue * weightedAlpha
+        if (firstTileX <= lastTileX) {
+          const readBytes = (lastTileX - firstTileX + 1) * tileBytes
+          const input = tileRowInput.subarray(0, readBytes)
+          for (let tileY = firstTileY; tileY <= lastTileY; tileY += 1) {
+            await readAll(store, input, (tileY * tilesAcross + firstTileX) * tileBytes)
+            if (sourceChannels !== 4) {
+              const greenOffset = sourceChannels === 3 ? 1 : 0
+              const blueOffset = sourceChannels === 3 ? 2 : 0
+              for (let i = 0, dest = 0; i < input.length; i += sourceChannels, dest += 4) {
+                rgbaTiles[dest] = input[i] ?? 0
+                rgbaTiles[dest + 1] = input[i + greenOffset] ?? 0
+                rgbaTiles[dest + 2] = input[i + blueOffset] ?? 0
+                rgbaTiles[dest + 3] = 255
               }
             }
-            const target = row * outputStride + x * outputChannels
-            const outputRed = alpha === 0 ? 0 : byte(red / alpha)
-            const outputGreen = alpha === 0 ? 0 : byte(green / alpha)
-            const outputBlue = alpha === 0 ? 0 : byte(blue / alpha)
-            if (outputFormat === 'gray8') {
-              data[target] = outputRed
-            } else {
-              data[target] = outputRed
-              data[target + 1] = outputGreen
-              data[target + 2] = outputBlue
-              if (outputFormat === 'rgba8') data[target + 3] = byte(alpha * 255)
+            for (let tileX = firstTileX; tileX <= lastTileX; tileX += 1) {
+              const validWidth = Math.min(tileSize, sourceWidth - tileX * tileSize)
+              const validRows = Math.min(tileSize, sourceHeight - tileY * tileSize)
+              let target =
+                (tileY * tileSize - originY) * windowStride + (tileX * tileSize - originX) * 4
+              for (let row = 0; row < validRows; row += 1) {
+                const scanline = tileScanlines[(tileX - firstTileX) * tileSize + row]
+                if (!scanline) throw truncatedInput('Temporary rotation tile is missing')
+                window.set(
+                  validWidth === tileSize ? scanline : scanline.subarray(0, validWidth * 4),
+                  target,
+                )
+                target += windowStride
+              }
             }
           }
         }
+        sampleTile(
+          data,
+          outputPixels,
+          outputXStart,
+          outputXEnd,
+          outputY,
+          blockHeight,
+          originX,
+          originY,
+        )
       }
       yield {
         x: 0,

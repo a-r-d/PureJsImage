@@ -642,9 +642,11 @@ const entropyGroup = (map: EntropyMap, position: number, imageWidth: number): nu
   return map.groups[(y >>> map.bits) * map.width + (x >>> map.bits)] ?? 0
 }
 
+const maximumMatchLength = 4096
+
 const matchLength = (pixels: Uint32Array, position: number, distance: number): number => {
   if (position < distance) return 0
-  const maximum = Math.min(4096, pixels.length - position)
+  const maximum = Math.min(maximumMatchLength, pixels.length - position)
   let length = 0
   while (
     length < maximum &&
@@ -835,6 +837,20 @@ const addHistogramToken = (
   histograms.alpha[channel(value, 24)] = (histograms.alpha[channel(value, 24)] ?? 0) + 1
 }
 
+const maximumTokenCount = (pixels: Uint32Array): number => {
+  let count = 0
+  for (let start = 0; start < pixels.length; ) {
+    const color = pixels[start]
+    let end = start + 1
+    while (end < pixels.length && pixels[end] === color) end += 1
+    // After the first pixel, a distance-one match always covers the rest
+    // of the run up to the match length limit. Longer matches only save tokens.
+    count += 1 + Math.ceil((end - start - 1) / maximumMatchLength)
+    start = end
+  }
+  return count
+}
+
 const collectLz77 = (
   pixels: Uint32Array,
   width: number,
@@ -843,13 +859,14 @@ const collectLz77 = (
 ): { readonly histograms: PrefixHistograms; readonly stream: Lz77Stream } => {
   const cacheSize = cacheBits === 0 ? 0 : 1 << cacheBits
   const histograms = createPrefixHistograms(cacheSize)
+  const capacity = maximumTokenCount(pixels)
   const stream = {
     count: 0,
-    distances: new Int32Array(pixels.length),
-    kinds: new Uint8Array(pixels.length),
-    lengths: new Uint16Array(pixels.length),
-    positions: new Int32Array(pixels.length),
-    values: new Uint32Array(pixels.length),
+    distances: new Int32Array(capacity),
+    kinds: new Uint8Array(capacity),
+    lengths: new Uint16Array(capacity),
+    positions: new Int32Array(capacity),
+    values: new Uint32Array(capacity),
   }
   resetMatchTable(matches)
   const cache = cacheBits === 0 ? undefined : new Uint32Array(cacheSize)
@@ -1034,7 +1051,11 @@ const createPaletteEncoding = (
 ): PaletteEncoding | undefined => {
   const indices = new Map<number, number>()
   const palette: number[] = []
-  for (const color of pixels) {
+  let lastColor = -1
+  for (let position = 0; position < pixels.length; position += 1) {
+    const color = pixels[position] ?? 0
+    if (color === lastColor) continue
+    lastColor = color
     if (indices.has(color)) continue
     if (palette.length === 256) return undefined
     indices.set(color, palette.length)
@@ -1044,6 +1065,8 @@ const createPaletteEncoding = (
 
   const widthBits = palette.length <= 2 ? 3 : palette.length <= 4 ? 2 : palette.length <= 16 ? 1 : 0
   const packedWidth = Math.ceil(width / 2 ** widthBits)
+  lastColor = -1
+  let lastIndex = 0
   for (let y = 0; y < height; y += 1) {
     const inputStart = y * width
     const outputStart = y * packedWidth
@@ -1055,7 +1078,11 @@ const createPaletteEncoding = (
         const x = packedX * count + index
         if (x >= width) break
         const color = pixels[inputStart + x] ?? 0
-        packedIndex |= (indices.get(color) ?? 0) << (index * indexBits)
+        if (color !== lastColor) {
+          lastIndex = indices.get(color) ?? 0
+          lastColor = color
+        }
+        packedIndex |= lastIndex << (index * indexBits)
       }
       pixels[outputStart + packedX] = pack(255, 0, packedIndex, 0)
     }
@@ -1153,6 +1180,7 @@ const selectColorTransform = (
       for (let y = startY; y < endY; y += 1) {
         for (let x = startX; x < endX; x += 1) {
           const color = pixels[y * width + x] ?? 0
+          if (color === 0) continue
           const green = signedByte(channel(color, 8))
           const red = signedByte(channel(color, 16))
           const blue = signedByte(channel(color, 0))
@@ -1195,7 +1223,8 @@ const selectColorTransform = (
       elements[blockY * transformWidth + blockX] = element
       for (let y = startY; y < endY; y += 1) {
         for (let x = startX; x < endX; x += 1) {
-          transformedCost += residualCost(transformedColor(pixels[y * width + x] ?? 0, element))
+          const color = pixels[y * width + x] ?? 0
+          if (color !== 0) transformedCost += residualCost(transformedColor(color, element))
         }
       }
     }
@@ -1471,6 +1500,31 @@ export const encodeAlphaImageStream = (
   kernel?: WebpKernel,
 ): Uint8Array => {
   const pixels = new Uint32Array(width * height)
+  if (!kernel) {
+    // Gray minus its left predictor has equal RGB residuals. Subtract-green
+    // clears red and blue, and the constant opaque channel has zero residual.
+    let above = 0
+    for (let y = 0; y < height; y += 1) {
+      const start = y * width
+      let predicted = above
+      above = alpha[start] ?? 0
+      for (let index = start; index < start + width; index += 1) {
+        const value = alpha[index] ?? 0
+        pixels[index] = ((value - predicted) & 255) << 8
+        predicted = value
+      }
+    }
+    const predictor = leftPredictorModes(width, height)
+    return encodeImageBits(
+      pixels,
+      width,
+      predictor.modes,
+      predictor.width,
+      undefined,
+      false,
+      undefined,
+    )
+  }
   for (let index = 0; index < pixels.length; index += 1) {
     const value = alpha[index] ?? 0
     pixels[index] = pack(255, value, value, value)

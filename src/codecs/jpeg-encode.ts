@@ -421,10 +421,32 @@ const optimizedHuffmanTable = (sourceFrequencies: Uint32Array): OptimizedHuffman
   return { counts, symbols, ...huffmanCodes(counts, symbols) }
 }
 
+interface BaselineAcCodes extends HuffmanCodes {
+  readonly shortCoefficients: Uint32Array
+}
+
+const baselineAcCodes = (counts: Uint8Array, symbols: Uint8Array): BaselineAcCodes => {
+  const codes = huffmanCodes(counts, symbols)
+  const shortCoefficients = new Uint32Array(16 * 64)
+  for (let run = 0; run < 16; run += 1) {
+    for (let value = -31; value <= 31; value += 1) {
+      if (value === 0) continue
+      const category = 32 - Math.clz32(Math.abs(value))
+      const symbol = (run << 4) | category
+      const length = codes.lengths[symbol] ?? 0
+      if (length === 0) throw invalidInput('Incomplete baseline JPEG AC table')
+      const magnitude = value < 0 ? value + (1 << category) - 1 : value
+      const bits = ((codes.values[symbol] ?? 0) << category) | magnitude
+      shortCoefficients[(run << 6) + value + 31] = (bits << 5) | (length + category)
+    }
+  }
+  return { ...codes, shortCoefficients }
+}
+
 const luminanceDcCodes = huffmanCodes(luminanceDcCounts, luminanceDcValues)
-const luminanceAcCodes = huffmanCodes(luminanceAcCounts, luminanceAcValues)
+const luminanceAcCodes = baselineAcCodes(luminanceAcCounts, luminanceAcValues)
 const chrominanceDcCodes = huffmanCodes(chrominanceDcCounts, chrominanceDcValues)
-const chrominanceAcCodes = huffmanCodes(chrominanceAcCounts, chrominanceAcValues)
+const chrominanceAcCodes = baselineAcCodes(chrominanceAcCounts, chrominanceAcValues)
 
 class ByteWriter {
   #bytes = new Uint8Array(8_192)
@@ -600,14 +622,8 @@ const jpegHeader = (
   writer.word(height)
   writer.word(width)
   writer.byte(grayscale ? 1 : 3)
-  const components = grayscale
-    ? ([[1, 0]] as const)
-    : ([
-        [1, 0],
-        [2, 1],
-        [3, 1],
-      ] as const)
-  for (const [id, table] of components) {
+  const components = grayscale ? grayscaleScanComponents : colorScanComponents
+  for (const { id, table } of components) {
     writer.byte(id)
     writer.byte(id === 1 ? luminanceSampling : 0x11)
     writer.byte(table)
@@ -630,22 +646,7 @@ const jpegHeader = (
     writer.word(restartInterval)
   }
 
-  if (!progressive) {
-    writer.word(0xffda)
-    writer.word(grayscale ? 8 : 12)
-    writer.byte(grayscale ? 1 : 3)
-    writer.byte(1)
-    writer.byte(0x00)
-    if (!grayscale) {
-      writer.byte(2)
-      writer.byte(0x11)
-      writer.byte(3)
-      writer.byte(0x11)
-    }
-    writer.byte(0)
-    writer.byte(63)
-    writer.byte(0)
-  }
+  if (!progressive) writeScanHeader(writer, components, 0, 63, 0, 0)
   return writer.take()
 }
 
@@ -731,7 +732,10 @@ const quantizedCoefficient = (
   const coefficient = intermediate[64 + i] ?? 0
   if (Math.abs(coefficient) < divisor * safeRoundingDistance) return 0
   const value = coefficient / divisor
-  const rounded = Math.round(value)
+  // An orthonormal 8x8 DCT on centered 8-bit samples has magnitude <= 1024.
+  // After this positive offset, truncation rounds to nearest. The direct
+  // calculation below handles every near-half tie, including negative ties.
+  const rounded = ((value + 2048.5) | 0) - 2048
   // Preserve the direct evaluation order near a rounding boundary.
   return Math.abs(value - rounded) > safeRoundingDistance
     ? Math.round(directDctCoefficient(samples, i) / divisor)
@@ -758,7 +762,7 @@ const encodeBlock = (
   intermediate: Float64Array,
   previousDc: number,
   dcCodes: HuffmanCodes,
-  acCodes: HuffmanCodes,
+  acCodes: BaselineAcCodes,
 ): number => {
   forwardDctPass(samples, intermediate, 0)
   forwardDctPass(intermediate, intermediate, 64)
@@ -781,6 +785,13 @@ const encodeBlock = (
       writer.code(acCodes, 0xf0)
       zeroes -= 16
     }
+    if (coefficient >= -31 && coefficient <= 31) {
+      // Up to five magnitude bits and a 16-bit prefix fit in one writer call.
+      const packed = acCodes.shortCoefficients[(zeroes << 6) + coefficient + 31] ?? 0
+      writer.bits(packed >>> 5, packed & 31)
+      zeroes = 0
+      continue
+    }
     const category = 32 - Math.clz32(Math.abs(coefficient))
     writer.code(acCodes, (zeroes << 4) | category)
     writer.bits(coefficient < 0 ? coefficient + (1 << category) - 1 : coefficient, category)
@@ -802,7 +813,7 @@ interface ProgressiveDcTables {
   readonly chrominance?: OptimizedHuffmanTable
 }
 
-interface ProgressiveScanComponent {
+interface ScanComponent {
   readonly id: 1 | 2 | 3
   readonly table: 0 | 1
 }
@@ -819,7 +830,7 @@ const colorScanComponents = Object.freeze([
 
 const writeScanHeader = (
   writer: ByteWriter,
-  components: readonly ProgressiveScanComponent[],
+  components: readonly ScanComponent[],
   spectralStart: number,
   spectralEnd: number,
   successiveHigh: number,
@@ -1062,7 +1073,7 @@ const storeQuantizedBlock = (
 }
 
 interface SamplingGeometry {
-  readonly chromaSubsampling: '420' | '422' | '444'
+  readonly fillChroma: typeof fillChroma420
   readonly luminanceHorizontal: 1 | 2
   readonly luminanceVertical: 1 | 2
   readonly mcuWidth: 8 | 16
@@ -1070,30 +1081,14 @@ interface SamplingGeometry {
 }
 
 const samplingGeometry = (chromaSubsampling: '420' | '422' | '444'): SamplingGeometry => {
-  if (chromaSubsampling === '420') {
-    return {
-      chromaSubsampling,
-      luminanceHorizontal: 2,
-      luminanceVertical: 2,
-      mcuWidth: 16,
-      rowHeight: 16,
-    }
-  }
-  if (chromaSubsampling === '422') {
-    return {
-      chromaSubsampling,
-      luminanceHorizontal: 2,
-      luminanceVertical: 1,
-      mcuWidth: 16,
-      rowHeight: 8,
-    }
-  }
+  const horizontal = chromaSubsampling === '444' ? 1 : 2
+  const vertical = chromaSubsampling === '420' ? 2 : 1
   return {
-    chromaSubsampling,
-    luminanceHorizontal: 1,
-    luminanceVertical: 1,
-    mcuWidth: 8,
-    rowHeight: 8,
+    luminanceHorizontal: horizontal,
+    luminanceVertical: vertical,
+    mcuWidth: horizontal === 1 ? 8 : 16,
+    rowHeight: vertical === 1 ? 8 : 16,
+    fillChroma: vertical === 2 ? fillChroma420 : horizontal === 2 ? fillChroma422 : fillChroma444,
   }
 }
 
@@ -1416,20 +1411,21 @@ class JpegEncoder implements ImageEncoder {
       const rowBytes = this.#width * this.#sourceChannels
       this.#rows.set(source.subarray(sourceOffset, sourceOffset + rowBytes), targetOffset)
     } else {
-      for (let x = 0; x < this.#width; x += 1) {
-        const input = sourceOffset + x * 4
-        const output = targetOffset + x * 3
-        const alpha = source[input + 3] ?? 0
+      const pixels = new DataView(source.buffer, source.byteOffset + sourceOffset, this.#width * 4)
+      const [red, green, blue] = this.#background
+      const rows = this.#rows
+      for (
+        let input = 0, output = targetOffset;
+        input < pixels.byteLength;
+        input += 4, output += 3
+      ) {
+        const pixel = pixels.getUint32(input, true)
+        const alpha = pixel >>> 24
         const inverse = 255 - alpha
-        this.#rows[output] = Math.round(
-          ((source[input] ?? 0) * alpha + this.#background[0] * inverse) / 255,
-        )
-        this.#rows[output + 1] = Math.round(
-          ((source[input + 1] ?? 0) * alpha + this.#background[1] * inverse) / 255,
-        )
-        this.#rows[output + 2] = Math.round(
-          ((source[input + 2] ?? 0) * alpha + this.#background[2] * inverse) / 255,
-        )
+        // An integer numerator divided by 255 rounds up from remainder 128.
+        rows[output] = (((pixel & 255) * alpha + red * inverse + 127) / 255) | 0
+        rows[output + 1] = ((((pixel >>> 8) & 255) * alpha + green * inverse + 127) / 255) | 0
+        rows[output + 2] = ((((pixel >>> 16) & 255) * alpha + blue * inverse + 127) / 255) | 0
       }
     }
     this.#bufferedRows += 1
@@ -1437,12 +1433,7 @@ class JpegEncoder implements ImageEncoder {
 
   #captureProgressiveRows(planes: ProgressivePlanes): void {
     const mcus = Math.ceil(this.#width / this.#sampling.mcuWidth)
-    const fillChroma =
-      this.#sampling.chromaSubsampling === '420'
-        ? fillChroma420
-        : this.#sampling.chromaSubsampling === '422'
-          ? fillChroma422
-          : fillChroma444
+    const { fillChroma } = this.#sampling
     for (let mcuX = 0; mcuX < mcus; mcuX += 1) {
       if (this.#grayscale) {
         fillGray8(this.#rows, this.#width, mcuX * 8, this.#luminanceSamples)
@@ -1521,12 +1512,7 @@ class JpegEncoder implements ImageEncoder {
       return
     }
     const mcus = Math.ceil(this.#width / this.#sampling.mcuWidth)
-    const fillChroma =
-      this.#sampling.chromaSubsampling === '420'
-        ? fillChroma420
-        : this.#sampling.chromaSubsampling === '422'
-          ? fillChroma422
-          : fillChroma444
+    const { fillChroma } = this.#sampling
     for (let mcuX = 0; mcuX < mcus; mcuX += 1) {
       if (this.#restartInterval > 0 && this.#mcu > 0 && this.#mcu % this.#restartInterval === 0) {
         this.#writer.flushBits()
@@ -1752,7 +1738,7 @@ class JpegEncoder implements ImageEncoder {
 
   async #writeProgressiveAcScan(
     plane: ProgressivePlane,
-    component: ProgressiveScanComponent,
+    component: ScanComponent,
     refinement: boolean,
   ): Promise<void> {
     const successiveLow = refinement ? 0 : component.id === 1 ? 1 : 0

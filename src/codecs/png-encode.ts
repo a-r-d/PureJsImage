@@ -6,7 +6,7 @@ import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { DeflateEncoder, DeflateOptions } from '../runtime.ts'
 import type { ImageSink } from '../sink.ts'
 import { crc32 } from './crc32.ts'
-import { signature, scanlineBlockRows, bytesPerPixel, paeth } from './png-common.ts'
+import { signature, scanlineBlockRows, bytesPerPixel } from './png-common.ts'
 import type { PngAcceleration, PngRowFilter } from './png.ts'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -139,21 +139,26 @@ const chooseAdaptiveFilter = (
   return filter
 }
 
-// Paeth is invariant to adding the same value to all three neighbors.
-// Store its offset from the corner for common differences in [-32, 31].
-const paethOffsets = new Int8Array(64 * 64)
-for (let left = -32; left < 32; left += 1) {
-  for (let above = -32; above < 32; above += 1) {
-    paethOffsets[(left + 32) * 64 + above + 32] = paeth(left, above, 0)
-  }
+// The residual is reduced modulo 256, so one byte holds any Paeth offset.
+// Index by the two neighbor differences, each in [-255, 255].
+const paethOffsets = new Uint8Array(512 * 511)
+const aboveOffsets = Uint8Array.from({ length: 511 }, (_, index) => index - 255)
+for (let left = -255; left <= 255; left += 1) {
+  const origin = (left + 255) * 512 + 255
+  paethOffsets.set(aboveOffsets, origin - 255)
+  // Relative to a zero corner, Paeth compares |above|, |left| and |left + above|.
+  // Corner wins strictly between -2*left and -left/2. Left wins from -left/2
+  // through left, including ties. Elsewhere the predictor is above.
+  const middle = Math.trunc(-left / 2)
+  const other = -2 * left
+  const cornerStart = Math.max(-255, Math.min(other, middle) + 1)
+  const cornerEnd = Math.min(256, Math.max(other, middle))
+  paethOffsets.fill(0, origin + cornerStart, origin + cornerEnd)
+  paethOffsets.fill(left, origin + Math.min(middle, left), origin + Math.max(middle, left) + 1)
 }
 
-const encodePaeth = (left: number, above: number, corner: number): number => {
-  const x = left - corner + 32
-  const y = above - corner + 32
-  if ((x | y) >>> 0 < 64) return corner + (paethOffsets[x * 64 + y] ?? 0)
-  return paeth(left, above, corner)
-}
+const encodePaeth = (left: number, above: number, corner: number): number =>
+  corner + (paethOffsets[(left - corner + 255) * 512 + above - corner + 255] ?? 0)
 
 const applyFilterScanline = (
   source: Uint8Array,
@@ -249,10 +254,10 @@ const filterScanline = (
     output.fill(0, bytesPerPixel + 1, start + 1)
     output.fill(0, end + 1)
     for (let index = start; index < end; index += 1) {
-      const value = source[index] ?? 0
-      const left = source[index - bytesPerPixel] ?? 0
-      const above = previous[index] ?? 0
-      const upperLeft = previous[index - bytesPerPixel] ?? 0
+      const value = sourceView.getUint8(index)
+      const left = sourceView.getUint8(index - bytesPerPixel)
+      const above = previousView.getUint8(index)
+      const upperLeft = previousView.getUint8(index - bytesPerPixel)
       none += filteredMagnitude(value)
       sub += filteredMagnitude((value - left) & 0xff)
       up += filteredMagnitude((value - above) & 0xff)

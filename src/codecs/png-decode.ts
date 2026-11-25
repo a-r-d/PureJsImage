@@ -294,11 +294,22 @@ const unfilter = (
     }
     return
   }
-  for (let index = filterBytesPerPixel; index < previous.byteLength; index += 1) {
-    const left = scanline[index + 1 - filterBytesPerPixel] ?? 0
-    const up = previous[index] ?? 0
-    const upperLeft = previous[index - filterBytesPerPixel] ?? 0
-    scanline[index + 1] = ((scanline[index + 1] ?? 0) + paeth(left, up, upperLeft)) & 0xff
+  // Within a byte lane the previous iteration already has both left neighbors.
+  for (let lane = 0; lane < filterBytesPerPixel; lane += 1) {
+    let left = scanline[lane + 1] ?? 0
+    let upperLeft = previous[lane] ?? 0
+    for (
+      let index = lane + filterBytesPerPixel;
+      index < previous.length;
+      index += filterBytesPerPixel
+    ) {
+      const up = previous[index] ?? 0
+      const predictor =
+        up === upperLeft ? left : left === upperLeft ? up : paeth(left, up, upperLeft)
+      left = ((scanline[index + 1] ?? 0) + predictor) & 255
+      scanline[index + 1] = left
+      upperLeft = up
+    }
   }
 }
 
@@ -660,8 +671,12 @@ class PngDecoder implements ImageDecoder {
     }
     const rowBytes = Math.ceil((this.width * bitsPerPixel) / 8)
     const filterBytesPerPixel = Math.max(1, Math.ceil(bitsPerPixel / 8))
-    const scanline = new Uint8Array(rowBytes + 1)
-    const previous = new Uint8Array(rowBytes)
+    const createRow = () => {
+      const scanline = new Uint8Array(rowBytes + 1)
+      return { scanline, pixels: scanline.subarray(1) }
+    }
+    let current = createRow()
+    let previous = createRow()
     const outputChannels = bytesPerPixel(this.pixelFormat)
     const outputStride = region.width * outputChannels
     const rowsPerBlock = Math.min(scanlineBlockRows, region.height)
@@ -679,16 +694,17 @@ class PngDecoder implements ImageDecoder {
       let chunkOffset = 0
       while (chunkOffset < chunk.byteLength) {
         if (row >= this.height) throw invalidInput('PNG image data contains extra scanlines')
+        const scanline = current.scanline
         const length = Math.min(scanline.byteLength - filled, chunk.byteLength - chunkOffset)
         scanline.set(chunk.subarray(chunkOffset, chunkOffset + length), filled)
         filled += length
         chunkOffset += length
         if (filled !== scanline.byteLength) continue
 
-        unfilter(scanline, previous, filterBytesPerPixel)
+        unfilter(scanline, previous.pixels, filterBytesPerPixel)
         if (row >= region.y && row < region.y + region.height) {
           convertRow(
-            scanline.subarray(1),
+            current.pixels,
             this.#description,
             region.x,
             region.width,
@@ -713,7 +729,9 @@ class PngDecoder implements ImageDecoder {
               block = new Uint8Array(outputStride * Math.min(rowsPerBlock, remainingRows))
           }
         }
-        previous.set(scanline.subarray(1))
+        const finished = current
+        current = previous
+        previous = finished
         filled = 0
         row += 1
       }

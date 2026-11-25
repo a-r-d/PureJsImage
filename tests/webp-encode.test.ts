@@ -210,6 +210,40 @@ describe('WebP encode baselines', { timeout: 30_000 }, () => {
     }
   })
 
+  it('losslessly encodes repeated pixels across the VP8L match length limit', async () => {
+    for (const width of [4096, 4097, 4098, 8195]) {
+      const source = writeRgbaPng(width, 2, (x, y) =>
+        x === width - 1 ? [31, 179, 240, 255] : [70, 40 + y, 25, 255],
+      )
+      const expected = PNG.sync.read(Buffer.from(source)).data
+      const encoded = await (await Image.open(source))
+        .webp({ lossless: true, effort: 0 })
+        .toBuffer()
+      expect(sha256(await sharpRgba(encoded))).toBe(sha256(expected))
+    }
+  })
+
+  it('encodes row boundaries in compressed alpha like an effort-zero gray VP8L stream', async () => {
+    for (const [width, height] of [
+      [1, 161],
+      [35, 21],
+    ] as const) {
+      const alpha = (x: number, y: number): number => ((x >>> 2) * 51 + y * 13 + 71) & 255
+      const source = writeRgbaPng(width, height, (x, y) => [90, 120, 150, alpha(x, y)])
+      const gray = writeRgbaPng(width, height, (x, y) => {
+        const value = alpha(x, y)
+        return [value, value, value, 255]
+      })
+      const lossy = await (await Image.open(source)).webp({ quality: 80 }).toBuffer()
+      const reference = await (await Image.open(gray))
+        .webp({ lossless: true, effort: 0 })
+        .toBuffer()
+      const chunk = webpChunk(lossy, 'ALPH')
+      expect(chunk[0]).toBe(1)
+      expect(chunk.subarray(1)).toEqual(webpChunk(reference, 'VP8L').subarray(5))
+    }
+  })
+
   it('keeps raw lossy alpha when compression would not shrink it', async () => {
     let state = 0x12345678
     const noise = (): number => {

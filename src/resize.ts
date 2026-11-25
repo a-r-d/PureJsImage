@@ -46,7 +46,8 @@ const channels = (format: PixelFormat): number => {
 const clamp = (value: number, minimum: number, maximum: number): number =>
   Math.max(minimum, Math.min(maximum, value))
 
-const byte = (value: number): number => clamp(Math.round(value), 0, 255)
+// At this range binary64 addition by one half preserves every byte boundary.
+const byte = (value: number): number => (value < 0.5 ? 0 : value >= 254.5 ? 255 : (value + 0.5) | 0)
 
 const sinc = (value: number): number => {
   if (Math.abs(value) < 1e-12) return 1
@@ -1353,6 +1354,7 @@ interface FilteredRow {
   end: number
 }
 
+const alphaScales = Float64Array.from({ length: 256 }, (_, alpha) => alpha / 255)
 const rgbaGroupWidth = 32
 
 interface RgbaRowCache {
@@ -1537,6 +1539,7 @@ const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, row, cache
   while (end > start && (axis.indices[axis.offsets[end - 1] ?? 0] ?? 0) * 4 > right) {
     end -= 1
   }
+  const pixels = new DataView(source.buffer, source.byteOffset, source.byteLength)
   row.start = start * 4
   row.end = end * 4
   for (let x = start; x < end; ) {
@@ -1567,11 +1570,12 @@ const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, row, cache
       for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
         const sourceOffset = (axis.indices[sampleIndex] ?? 0) * 4
         const weight = axis.weights[sampleIndex] ?? 0
-        const sourceAlpha = source[sourceOffset + 3] ?? 0
-        const alphaScale = sourceAlpha / 255
-        red += (source[sourceOffset] ?? 0) * alphaScale * weight
-        green += (source[sourceOffset + 1] ?? 0) * alphaScale * weight
-        blue += (source[sourceOffset + 2] ?? 0) * alphaScale * weight
+        const pixel = pixels.getUint32(sourceOffset, true)
+        const sourceAlpha = pixel >>> 24
+        const alphaScale = alphaScales[sourceAlpha] ?? 0
+        red += (pixel & 255) * alphaScale * weight
+        green += ((pixel >>> 8) & 255) * alphaScale * weight
+        blue += ((pixel >>> 16) & 255) * alphaScale * weight
         alpha += sourceAlpha * weight
       }
       const outputOffset = x * 4
@@ -1653,7 +1657,7 @@ const writeContent = (
       if (outputChannels === 4) output[target + 3] = 255
     } else {
       const alphaValue = clamp(source[sourceOffset + 3] ?? 0, 0, 255)
-      const alpha = Math.round(alphaValue)
+      const alpha = byte(alphaValue)
       const unpremultiply = alphaValue > 0 ? 255 / alphaValue : 0
       output[target] = byte((source[sourceOffset] ?? 0) * unpremultiply)
       output[target + 1] = byte((source[sourceOffset + 1] ?? 0) * unpremultiply)
@@ -1662,10 +1666,6 @@ const writeContent = (
     }
   }
 }
-
-// At this range binary64 addition by one half preserves every byte boundary.
-const roundedOpaqueByte = (value: number): number =>
-  value < 0.5 ? 0 : value >= 254.5 ? 255 : (value + 0.5) | 0
 
 const writeOpaqueContent = (
   accumulated: Float32Array,
@@ -1687,9 +1687,9 @@ const writeOpaqueContent = (
   let source = 0
   let target = blockOffset
   for (let x = 0; x < width; x += 1) {
-    block[target] = roundedOpaqueByte((accumulated[source] ?? 0) * scale)
-    block[target + 1] = roundedOpaqueByte((accumulated[source + 1] ?? 0) * scale)
-    block[target + 2] = roundedOpaqueByte((accumulated[source + 2] ?? 0) * scale)
+    block[target] = byte((accumulated[source] ?? 0) * scale)
+    block[target + 1] = byte((accumulated[source + 1] ?? 0) * scale)
+    block[target + 2] = byte((accumulated[source + 2] ?? 0) * scale)
     block[target + 3] = opacity
     source += 3
     target += 4
@@ -1744,6 +1744,15 @@ const resizedBlocks = async function* (
   const blockCapacity = Math.min(outputBlockRows, plan.canvasHeight)
   let block = new Uint8Array(outputStride * blockCapacity)
   const accumulated = new Float32Array(plan.contentWidth * sourceChannels)
+  const fullRow = (tap: number): Float32Array | undefined => {
+    const y = vertical.indices[tap]
+    if (y === undefined) return undefined
+    const slot = y % ringCapacity
+    const row = retainedRows[slot]
+    return retainedSourceRows[slot] === y && row?.start === 0 && row.end === accumulated.length
+      ? row.data
+      : undefined
+  }
   let loadedRows = 0
   let blockHeight = 0
   let blockY = 0
@@ -1781,7 +1790,30 @@ const resizedBlocks = async function* (
         let contentStart = accumulated.length
         let contentEnd = 0
         accumulated.fill(0)
-        for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+        let sampleIndex = first
+        if (sourceFormat === 'rgba8' && !contiguousOpaque) {
+          for (; sampleIndex + 3 < last; sampleIndex += 4) {
+            const a = fullRow(sampleIndex)
+            const b = fullRow(sampleIndex + 1)
+            const c = fullRow(sampleIndex + 2)
+            const d = fullRow(sampleIndex + 3)
+            if (!a || !b || !c || !d) break
+            const wa = vertical.weights[sampleIndex] ?? 0
+            const wb = vertical.weights[sampleIndex + 1] ?? 0
+            const wc = vertical.weights[sampleIndex + 2] ?? 0
+            const wd = vertical.weights[sampleIndex + 3] ?? 0
+            // Match the Float32 store after each tap while keeping the sum in a register.
+            for (let i = 0; i < accumulated.length; i += 1) {
+              let sum = Math.fround((accumulated[i] ?? 0) + (a[i] ?? 0) * wa)
+              sum = Math.fround(sum + (b[i] ?? 0) * wb)
+              sum = Math.fround(sum + (c[i] ?? 0) * wc)
+              accumulated[i] = sum + (d[i] ?? 0) * wd
+            }
+            contentStart = 0
+            contentEnd = accumulated.length
+          }
+        }
+        for (; sampleIndex < last; sampleIndex += 1) {
           const sourceY = vertical.indices[sampleIndex]
           const weight = vertical.weights[sampleIndex]
           const slot = sourceY === undefined ? -1 : sourceY % ringCapacity

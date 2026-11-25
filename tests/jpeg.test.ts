@@ -980,6 +980,30 @@ describe('JPEG pixel pipeline', () => {
     },
   )
 
+  it('preserves baseline AC codes across qualities and restart boundaries', async () => {
+    const width = 33
+    const height = 17
+    const pixels = Buffer.alloc(width * height * 3)
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const i = (y * width + x) * 3
+        pixels[i] = (x % 8 === 0 ? 255 : x * 19 + y * 43) & 255
+        pixels[i + 1] = (y % 8 === 0 ? 0 : x * 11 - y * 71) & 255
+        pixels[i + 2] = ((x >> 2) + (y >> 1)) % 2 === 0 ? 240 : 23
+      }
+    }
+    const image = await Image.open(Buffer.concat([Buffer.from('P6\n33 17\n255\n'), pixels]))
+    for (const [quality, digest] of [
+      [30, '2e85b158971d1b7c5f0dcea0e558ffe7457f18dd470822fc6840692972b3a316'],
+      [100, 'b6d8363b7fd3972e466129bb878a3e53fae37e716892759065cbbe3e825fc4fe'],
+    ] as const) {
+      const encoded = await image
+        .jpeg({ quality, chromaSubsampling: '444', restartInterval: 2 })
+        .toBuffer()
+      expect(createHash('sha256').update(encoded).digest('hex')).toBe(digest)
+    }
+  })
+
   it('encodes gray8 input as a native one-component JPEG', async () => {
     const image = new PNG({ width: 17, height: 9 })
     for (let y = 0; y < image.height; y += 1) {
@@ -1152,6 +1176,28 @@ describe('JPEG pixel pipeline', () => {
       { width: 35, height: 19 },
       { width: 35, height: 19 },
     ])
+  })
+
+  it('matches precomposited RGB at every 8-bit alpha on a colored JPEG background', async () => {
+    const width = 17
+    const height = 16
+    const rgba = new PNG({ width, height })
+    const rgb = Buffer.alloc(width * height * 3)
+    const background = [37, 130, 241]
+    for (let i = 0; i < width * height; i += 1) {
+      const alpha = i & 255
+      rgba.data[i * 4 + 3] = alpha
+      for (const [channel, matte] of background.entries()) {
+        const value = (i * 59 + channel * 77) & 255
+        rgba.data[i * 4 + channel] = value
+        rgb[i * 3 + channel] = Math.round((value * alpha + matte * (255 - alpha)) / 255)
+      }
+    }
+    const reference = await Image.open(Buffer.concat([Buffer.from('P6\n17 16\n255\n'), rgb]))
+    const image = await Image.open(PNG.sync.write(rgba))
+    expect(await image.jpeg({ quality: 97, background: '#2582f1' }).toBuffer()).toEqual(
+      await reference.jpeg({ quality: 97 }).toBuffer(),
+    )
   })
 
   it('flattens transparent PNG input onto the requested JPEG background', async () => {

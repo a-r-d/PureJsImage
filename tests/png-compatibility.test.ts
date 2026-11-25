@@ -330,6 +330,22 @@ describe('PNG compatibility matrix', () => {
     )
   })
 
+  it('keeps previous-row predictors across a cropped block boundary', async () => {
+    const format: PngFormat = { label: 'RGBA crop', colorType: 6, bitDepth: 8 }
+    const input = pngFixture(format, { width: 19, height: 46, splitIdat: true })
+    const reference = PNG.sync.read(input)
+    const crop = { x: 3, y: 4, width: 13, height: 38 }
+    const encoded = await (await Image.open(input)).crop(crop).png().toBuffer()
+    const actual = PNG.sync.read(encoded)
+    for (let y = 0; y < crop.height; y += 1) {
+      const start = ((y + crop.y) * reference.width + crop.x) * 4
+      const offset = y * crop.width * 4
+      expect(actual.data.subarray(offset, offset + crop.width * 4)).toEqual(
+        reference.data.subarray(start, start + crop.width * 4),
+      )
+    }
+  })
+
   it('decodes every tRNS form', async () => {
     const gray: PngFormat = { label: 'transparent grayscale', colorType: 0, bitDepth: 8 }
     const rgb: PngFormat = { label: 'transparent truecolor', colorType: 2, bitDepth: 8 }

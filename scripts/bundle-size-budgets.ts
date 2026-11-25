@@ -17,7 +17,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // parallel PNG deflate encoder that Node loads only when `threads` is above 1.
   // 2026-11-25: raised from 76 KiB to 78 KiB, owner approved, for the transparent-span and
   // row-reuse paths in the RGBA resize, with headroom for the next small core change.
-  'core-execution': { maxMinifiedBytes: 78 * 1024 },
+  // 2026-11-25: raised from 78 KiB to 80 KiB, owner approved, for the bounded-window rotation
+  // sampler and the four-tap RGBA resize path.
+  'core-execution': { maxMinifiedBytes: 80 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // Owner approved campaign ceiling increases on 2026-10-10. Report sizes; they are not promotion gates.
   // 2026-11-20: raised to fit the libjxl-derived effort-7 encoder (about 25.5 KB), owner approved.
@@ -35,7 +37,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // the core execution code this entry bundles.
   // 2026-11-24: raised by 3,000 bytes, owner approved, for the same inlined parallel PNG encoder.
   // 2026-11-25: raised to 660,000 bytes, owner approved, for the same RGBA resize paths.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 660_000 },
+  // 2026-11-25: raised to 662,000 bytes, owner approved, for the same rotation and resize paths.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 662_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.

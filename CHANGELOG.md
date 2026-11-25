@@ -18,6 +18,26 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Rotation by an arbitrary angle is faster with identical output. It samples from a bounded
+  96 x 96 RGBA window, copies areas where all four source pixels match, skips transparent margins,
+  and reads neighboring temporary tiles together, so the benchmark logo needs 903 tile reads instead
+  of 2,920. Rotating the 1200 x 480 transparent logo by 17 degrees to JPEG takes 65 ms instead of
+  168 ms, with 12% lower peak RSS.
+- PNG decoding, RGBA resizing and JPEG encoding are faster with identical output. PNG Paeth rows
+  are rebuilt one byte lane at a time and swapped instead of copied. The RGBA resize reads each
+  pixel as one 32-bit word, takes alpha scales from a table and adds four vertical taps per pass.
+  The JPEG encoder blends alpha in integer math, rounds quantized coefficients faster and writes
+  common AC codes with their magnitude bits from one 8 KiB table. A 4000 x 3000 transparent PNG
+  resized to 2048 px wide and saved as JPEG takes 872 ms instead of 1106 ms, a 2048 x 2048 noise PNG
+  converts to JPEG in 332 ms instead of 373 ms, PNG crop and resize is 15% faster, and JPEG resize
+  is 3 to 5% faster.
+- PNG adaptive filtering and lossless WebP encoding and decoding are faster with identical output.
+  PNG Paeth scoring uses a 256 KiB lookup table that loads with the PNG encoder. Lossless WebP
+  decoding skips channels whose Huffman code has one symbol. The lossless encoder sizes its LZ77
+  token storage from runs of equal pixels, skips zero pixels when it chooses color transforms,
+  reuses palette indices, and predicts and packs the lossy alpha plane in one pass. PNG to lossless
+  WebP takes 100 ms instead of 127 ms, lossy WebP to PNG 146 ms instead of 162 ms, and the
+  transparent logo's lossy WebP encode 72 ms instead of 89 ms with the same 16,264-byte file.
 - A resize now runs before a flip, flop, rotation by a multiple of 90 degrees, or EXIF
   auto-orient that comes ahead of it in the pipeline, so the orientation step moves the smaller
   image. This applies when the resize cannot crop or pad: a single dimension, or `fit` set to

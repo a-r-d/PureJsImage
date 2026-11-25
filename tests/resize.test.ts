@@ -182,6 +182,32 @@ describe('streaming resize', () => {
     expect(await resize(4)).toEqual(await resize(height))
   })
 
+  it('preserves Lanczos tap rounding on densely colored RGBA rows with unaligned stride', async () => {
+    const width = 21
+    const height = 27
+    const stride = width * 4 + 1
+    const data = new Uint8Array(1 + height * stride).subarray(1)
+    for (let y = 0; y < height; y += 1) {
+      for (let channel = 0; channel < width * 4; channel += 1) {
+        const i = y * width * 4 + channel
+        data[y * stride + channel] = 1 + ((i * 53 + Math.floor(i / 7) * 13 + 221) % 255)
+      }
+    }
+    async function* input(): AsyncGenerator<PixelBlock> {
+      yield { x: 0, y: 0, width, height, stride, format: 'rgba8', data }
+    }
+    const resize = createResizeTransform(width, height, 'rgba8', {
+      width: 11,
+      height: 14,
+      fit: 'fill',
+    })
+    const pixels: number[] = []
+    for await (const block of resize.apply(input())) pixels.push(...block.data)
+    // Rounding the four vertical taps only once gives red 226 at (10, 5).
+    const offset = (5 * 11 + 10) * 4
+    expect(pixels.slice(offset, offset + 4)).toEqual([227, 83, 59, 115])
+  })
+
   it('interpolates alpha in premultiplied color space', async () => {
     const output = await execute(
       png(2, 1, (x) => (x === 0 ? [255, 0, 0, 0] : [0, 0, 255, 255])),

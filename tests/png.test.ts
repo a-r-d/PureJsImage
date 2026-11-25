@@ -850,6 +850,16 @@ describe('PNG pixel pipeline', () => {
     ])
   })
 
+  it('scores Paeth exactly at both ends of the byte difference range', async () => {
+    const previous = [0, 255, 255, 0, 0, 255, 0, 255, 1, 254, 97, 43, 120, 240, 30, 58]
+    const current = [255, 0, 0, 255, 255, 0, 255, 0, 2, 255, 95, 42, 120, 239, 31, 56]
+    const input = specializedPng(16, 2, 8, 0, Uint8Array.of(0, ...previous, 0, ...current))
+    const output = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()
+    expect(Array.from(uncompressedPngScanlines(output).subarray(17))).toEqual([
+      4, 255, 1, 0, 255, 0, 1, 255, 1, 2, 1, 254, 255, 0, 255, 1, 254,
+    ])
+  })
+
   it('keeps the final predictor residual beside a zero suffix', async () => {
     const input = specializedPng(
       10,

@@ -323,6 +323,7 @@ type HuffmanCode =
     }
 
 interface PrefixGroup {
+  readonly literalChannels: number | undefined
   readonly green: HuffmanCode
   readonly red: HuffmanCode
   readonly blue: HuffmanCode
@@ -553,13 +554,17 @@ function* decodeImageRows(
   const groups: PrefixGroup[] = []
   const cacheSize = cache?.length ?? 0
   for (let index = 0; index < groupCount; index += 1) {
-    groups.push({
-      green: readHuffmanCode(reader, 256 + 24 + cacheSize),
-      red: readHuffmanCode(reader, 256),
-      blue: readHuffmanCode(reader, 256),
-      alpha: readHuffmanCode(reader, 256),
-      distance: readHuffmanCode(reader, 40),
-    })
+    const green = readHuffmanCode(reader, 256 + 24 + cacheSize)
+    const red = readHuffmanCode(reader, 256)
+    const blue = readHuffmanCode(reader, 256)
+    const alpha = readHuffmanCode(reader, 256)
+    const literalChannels =
+      red.singleSymbol !== undefined &&
+      blue.singleSymbol !== undefined &&
+      alpha.singleSymbol !== undefined
+        ? (alpha.singleSymbol << 24) | (red.singleSymbol << 16) | blue.singleSymbol
+        : undefined
+    groups.push({ green, red, blue, alpha, literalChannels, distance: readHuffmanCode(reader, 40) })
   }
 
   const pixelCount = width * height
@@ -594,11 +599,14 @@ function* decodeImageRows(
     if (!group) throw invalidInput('WebP meta prefix code is invalid')
     const symbol = readHuffmanSymbol(reader, group.green)
     if (symbol < 256) {
-      const red = readHuffmanSymbol(reader, group.red)
-      const blue = readHuffmanSymbol(reader, group.blue)
-      const alpha = readHuffmanSymbol(reader, group.alpha)
-      const color = ((alpha << 24) | (red << 16) | (symbol << 8) | blue) >>> 0
-      const completed = write(color)
+      let channels = group.literalChannels
+      if (channels === undefined) {
+        const red = readHuffmanSymbol(reader, group.red)
+        const blue = readHuffmanSymbol(reader, group.blue)
+        const alpha = readHuffmanSymbol(reader, group.alpha)
+        channels = (alpha << 24) | (red << 16) | blue
+      }
+      const completed = write((channels | (symbol << 8)) >>> 0)
       if (completed) yield completed
       continue
     }

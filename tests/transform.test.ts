@@ -1,4 +1,5 @@
 import { PNG } from 'pngjs'
+import { createHash } from 'node:crypto'
 import { deflateSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 
@@ -130,6 +131,38 @@ describe('explicit geometric transforms', () => {
       expect(pixel(output, Math.floor(output.width / 2), Math.floor(output.height / 2))).toEqual(
         expected,
       )
+    },
+  )
+
+  it.each([
+    [17, 'transparent', '3e70ba2e1e8c092391ce618f0d4f16a692f28c60a38ff7ad79a08847d8a487d2'],
+    [-38, '#edb93180', '53ab551a6e3826b90e998c135a623d7599c6239ef1629a897dc8a87def0bf6e6'],
+    [133, '#33112200', 'f75c1a790304cdd78f741e60ad65c79eca1e1abd1a44dc947e2c0d2af49f916d'],
+    [269.999, '#ffc203', '14de8bb2331a8e1cdac5d2f46c600b40889971fbff37377cb649a6fce5904e40'],
+  ] as const)(
+    'preserves all RGBA samples across tiles at %d degrees on %s',
+    async (angle, background, digest) => {
+      const input = png(97, 51, (x, y) => {
+        const alpha = x < 8 || x > 80 || y < 7 ? 0 : x < 40 ? 224 : (x * y) % 256
+        return x < 40 ? [63, 174, 225, alpha] : [x * 3, y * 5, x + y, alpha]
+      })
+      const output = PNG.sync.read(
+        await (await Image.open(input)).rotate(angle, { background }).png().toBuffer(),
+      )
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(digest)
+    },
+  )
+
+  it.each([
+    [0, [65], 'e1f11e0c444ad2ef420f8bb87aacc3d4c9a135a8f5c56631308f5daa1dcbcaa2'],
+    [2, [17, 54, 99], '368f50f7d10ed715088ae208185fa5d73ba8fbca67357fa85704e2f8ec7e000b'],
+  ] as const)(
+    'preserves opaque PNG color type %d on a colored canvas',
+    async (colorType, color, digest) => {
+      const input = rawPng(37, 69, colorType, color)
+      const image = (await Image.open(input)).rotate(-73, { background: '#edb931' })
+      const output = PNG.sync.read(await image.png().toBuffer())
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(digest)
     },
   )
 
