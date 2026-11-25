@@ -9,7 +9,7 @@ import type { WebpKernel } from './webp-acceleration.ts'
 export interface DecodedVp8Rows {
   readonly y: number
   readonly height: number
-  readonly pixels: Uint32Array
+  readonly pixels: Uint32Array | Uint8Array
 }
 
 export interface DecodedVp8 {
@@ -123,44 +123,68 @@ export const vp8AcQuantizers = new Uint16Array([
 ])
 
 class BooleanDecoder {
-  readonly #data: Uint8Array
-  readonly #end: number
-  #offset: number
+  protected readonly data: Uint8Array
+  protected readonly end: number
+  protected offset: number
   #range = 255
-  #value: number
-  #bitCount = 0
+  protected value: number
+  // Number of buffered bits below the arithmetic range.
+  #bufferedBits = 8
 
   constructor(data: Uint8Array, offset: number, length: number) {
     if (length < 0 || offset < 0 || offset + length > data.byteLength) {
       throw truncatedInput('VP8 boolean partition is truncated')
     }
-    this.#data = data
-    this.#offset = offset + 2
-    this.#end = offset + length
-    this.#value = ((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0)
+    this.data = data
+    this.offset = offset + 2
+    this.end = offset + length
+    this.value = ((data[offset] ?? 0) << 8) | (data[offset + 1] ?? 0)
   }
 
   bit(probability = 128): number {
-    const split = 1 + (((this.#range - 1) * probability) >> 8)
-    const boundary = split << 8
+    let range = this.#range
+    const split = 1 + (((range - 1) * probability) >> 8)
+    const boundary = split << this.#bufferedBits
     let result = 0
-    if (this.#value >= boundary) {
+    if (this.value >= boundary) {
       result = 1
-      this.#range -= split
-      this.#value -= boundary
-    } else this.#range = split
+      range -= split
+      this.value -= boundary
+    } else range = split
 
-    while (this.#range < 128) {
-      this.#value <<= 1
-      this.#range <<= 1
-      this.#bitCount += 1
-      if (this.#bitCount === 8) {
-        this.#bitCount = 0
-        this.#value |= this.#offset < this.#end ? (this.#data[this.#offset] ?? 0) : 0
-        this.#offset += 1
-      }
-    }
+    // Normalize the range to [128, 255] while consuming buffered value bits.
+    const shift = Math.clz32(range) - 24
+    this.#range = range << shift
+    this.consume(shift)
     return result
+  }
+
+  coefficientSign(magnitude: number): number {
+    const range = this.#range
+    const boundary = ((range + 1) >> 1) << this.#bufferedBits
+    // The buffered value is nonnegative and fits in 24 bits.
+    const mask = (boundary - this.value - 1) >> 31
+    this.value -= boundary & mask
+    const half = (range + 1 + mask) >> 1
+    // At probability 128 each half needs at most one normalization shift.
+    const shift = half < 128 ? 1 : 0
+    this.#range = half << shift
+    this.consume(shift)
+    return (magnitude ^ mask) - mask
+  }
+
+  protected consume(shift: number): void {
+    this.#bufferedBits -= shift
+    if (this.#bufferedBits < 0) this.#refill()
+  }
+
+  #refill(): void {
+    const offset = this.offset
+    const high = offset < this.end ? (this.data[offset] ?? 0) : 0
+    const low = offset + 1 < this.end ? (this.data[offset + 1] ?? 0) : 0
+    this.value = (this.value << 16) | (high << 8) | low
+    this.#bufferedBits += 16
+    this.offset += 2
   }
 
   uint(bits: number): number {
@@ -174,6 +198,32 @@ class BooleanDecoder {
     return this.bit() === 1 ? -value : value
   }
 }
+
+// A leading 255 is outside the initial arithmetic range [0, 255).
+// Preserve the signed, byte-at-a-time accumulator for these noncanonical partitions.
+class BytewiseBooleanDecoder extends BooleanDecoder {
+  #bitCount = 0
+
+  override coefficientSign(magnitude: number): number {
+    return this.bit() === 1 ? -magnitude : magnitude
+  }
+
+  protected override consume(shift: number): void {
+    this.value <<= shift
+    this.#bitCount += shift
+    if (this.#bitCount >= 8) {
+      this.#bitCount -= 8
+      const next = this.offset < this.end ? (this.data[this.offset] ?? 0) : 0
+      this.value |= next << this.#bitCount
+      this.offset += 1
+    }
+  }
+}
+
+const booleanDecoder = (data: Uint8Array, offset: number, length: number): BooleanDecoder =>
+  data[offset] === 255
+    ? new BytewiseBooleanDecoder(data, offset, length)
+    : new BooleanDecoder(data, offset, length)
 
 const readTree = (
   decoder: BooleanDecoder,
@@ -331,16 +381,19 @@ const macroToBlockMode = (block: Macroblock, position: number): number => {
 
 const decodeModeRow = (
   decoder: BooleanDecoder,
-  columns: number,
-  above: Macroblock[],
+  above: readonly Macroblock[],
+  currentRow: readonly Macroblock[],
+  leftBorder: Macroblock,
   segmentation: Segmentation,
   skipEnabled: boolean,
   skipProbability: number,
-): Macroblock[] => {
-  const currentRow: Macroblock[] = []
-  let left = macroblock()
-  for (let column = 0; column < columns; column += 1) {
-    const current = macroblock()
+): void => {
+  let left = leftBorder
+  for (let column = 0; column < currentRow.length; column += 1) {
+    const current = currentRow[column]
+    const aboveMacroblock = above[column]
+    if (!current || !aboveMacroblock) throw invalidInput('VP8 macroblock state is missing')
+    current.hasCoefficients = false
     if (segmentation.updateMap) {
       current.segment =
         decoder.bit(segmentation.treeProbabilities[0]) === 1
@@ -349,7 +402,6 @@ const decodeModeRow = (
     }
     if (skipEnabled) current.skip = decoder.bit(skipProbability) === 1
     current.yMode = readTree(decoder, keyframeYModeTree, keyframeYModeProbabilities)
-    const aboveMacroblock = above[column] ?? macroblock()
     if (current.yMode === BLOCK) {
       for (let block = 0; block < 16; block += 1) {
         const aboveMode =
@@ -367,11 +419,8 @@ const decodeModeRow = (
       }
     }
     current.uvMode = readTree(decoder, uvModeTree, keyframeUvModeProbabilities)
-    currentRow.push(current)
-    above[column] = current
     left = current
   }
-  return currentRow
 }
 
 const probabilityIndex = (type: number, coefficient: number, context: number): number =>
@@ -418,11 +467,11 @@ const decodeCoefficientBlock = (
   factors: readonly [number, number],
   output: Int32Array,
   outputOffset: number,
-): boolean => {
+): number => {
   const first = type === 0 ? 1 : 0
   let coefficient = first
   let nextContext = context
-  let nonzero = false
+  let end = 0
   let checkEnd = true
   while (coefficient < 16) {
     const offset = probabilityIndex(type, coefficient, nextContext)
@@ -437,14 +486,14 @@ const decodeCoefficientBlock = (
       decoder.bit(probabilities[offset + 2]) === 0
         ? 1
         : readMagnitude(decoder, probabilities, offset)
-    const signed = decoder.bit() === 1 ? -magnitude : magnitude
+    const signed = decoder.coefficientSign(magnitude)
     output[outputOffset + (zigzag[coefficient] ?? 0)] = signed * factors[coefficient === 0 ? 0 : 1]
-    nonzero = true
+    end = coefficient + 1
     nextContext = magnitude === 1 ? 1 : 2
     checkEnd = true
     coefficient += 1
   }
-  return nonzero
+  return end
 }
 
 const decodeMacroblockCoefficients = (
@@ -455,6 +504,7 @@ const decodeMacroblockCoefficients = (
   left: Int8Array,
   above: Int8Array,
   coefficients: Int32Array,
+  residualEnds: Uint8Array,
 ): void => {
   coefficients.fill(0)
   const blockMode = block.yMode === BLOCK
@@ -465,7 +515,7 @@ const decodeMacroblockCoefficients = (
     const factor = type === 1 ? factors.y2 : type === 2 ? factors.uv : factors.y1
     const leftIndex = leftContextIndex[index] ?? 0
     const aboveIndex = aboveContextIndex[index] ?? 0
-    const nonzero = decodeCoefficientBlock(
+    const end = decodeCoefficientBlock(
       decoder,
       probabilities,
       type,
@@ -474,6 +524,8 @@ const decodeMacroblockCoefficients = (
       coefficients,
       index * 16,
     )
+    residualEnds[index] = end
+    const nonzero = end !== 0
     left[leftIndex] = nonzero ? 1 : 0
     above[aboveIndex] = nonzero ? 1 : 0
     block.hasCoefficients ||= nonzero
@@ -822,6 +874,32 @@ export const addInverseVp8Block = (
   temporary = new Int32Array(16),
 ): void => inverseDctAdd({ data, stride, origin: 0 }, offset, coefficients, 0, temporary)
 
+const addResidual = (
+  plane: Plane,
+  offset: number,
+  coefficients: Int32Array,
+  block: number,
+  residualEnds: Uint8Array,
+  temporary: Int32Array,
+): void => {
+  const base = block * 16
+  if ((residualEnds[block] ?? 0) > 1) {
+    inverseDctAdd(plane, offset, coefficients, base, temporary)
+    return
+  }
+  // A DC-only transform adds the same rounded residual to all sixteen pixels.
+  const delta = ((coefficients[base] ?? 0) + 4) >> 3
+  if (delta === 0) return
+  const data = plane.data
+  for (let y = 0; y < 4; y += 1) {
+    const pixel = offset + y * plane.stride
+    data[pixel] = clampByte((data[pixel] ?? 0) + delta)
+    data[pixel + 1] = clampByte((data[pixel + 1] ?? 0) + delta)
+    data[pixel + 2] = clampByte((data[pixel + 2] ?? 0) + delta)
+    data[pixel + 3] = clampByte((data[pixel + 3] ?? 0) + delta)
+  }
+}
+
 const reconstruct = (
   yPlane: Plane,
   uPlane: Plane,
@@ -830,6 +908,7 @@ const reconstruct = (
   column: number,
   block: Macroblock,
   coefficients: Int32Array,
+  residualEnds: Uint8Array,
   rightEdge: boolean,
   inverseDctTemporary: Int32Array,
   walshTemporary: Int32Array,
@@ -860,18 +939,19 @@ const reconstruct = (
     for (let index = 0; index < 16; index += 1) {
       const offset = yOffset + (index >> 2) * 4 * yPlane.stride + (index & 3) * 4
       predictBlock(yPlane, offset, block.modes[index] ?? 0)
-      inverseDctAdd(yPlane, offset, coefficients, index * 16, inverseDctTemporary)
+      addResidual(yPlane, offset, coefficients, index, residualEnds, inverseDctTemporary)
     }
   } else {
     walsh(coefficients, 24 * 16, walshTemporary, walshOutput)
     predictSquare(yPlane, yOffset, 16, block.yMode)
     for (let index = 0; index < 16; index += 1) {
       coefficients[index * 16] = walshOutput[index] ?? 0
-      inverseDctAdd(
+      addResidual(
         yPlane,
         yOffset + (index >> 2) * 4 * yPlane.stride + (index & 3) * 4,
         coefficients,
-        index * 16,
+        index,
+        residualEnds,
         inverseDctTemporary,
       )
     }
@@ -880,8 +960,22 @@ const reconstruct = (
   predictSquare(vPlane, vOffset, 8, block.uvMode)
   for (let index = 0; index < 4; index += 1) {
     const local = (index >> 1) * 4 * uPlane.stride + (index & 1) * 4
-    inverseDctAdd(uPlane, uOffset + local, coefficients, (16 + index) * 16, inverseDctTemporary)
-    inverseDctAdd(vPlane, vOffset + local, coefficients, (20 + index) * 16, inverseDctTemporary)
+    addResidual(
+      uPlane,
+      uOffset + local,
+      coefficients,
+      16 + index,
+      residualEnds,
+      inverseDctTemporary,
+    )
+    addResidual(
+      vPlane,
+      vOffset + local,
+      coefficients,
+      20 + index,
+      residualEnds,
+      inverseDctTemporary,
+    )
   }
 }
 
@@ -938,15 +1032,16 @@ const filterNormalEdge = (
   const simpleLimit = edgeLimit * 2 + interiorLimit
   for (let index = 0; index < length; index += 1) {
     const pixel = offset + index * advance
-    const p3 = data[pixel - 4 * step] ?? 0
-    const p2 = data[pixel - 3 * step] ?? 0
     const p1 = data[pixel - 2 * step] ?? 0
     const p0 = data[pixel - step] ?? 0
     const q0 = data[pixel] ?? 0
     const q1 = data[pixel + step] ?? 0
+    if (p0 === q0 && p1 === q1) continue
+    if (Math.abs(p0 - q0) * 2 + (Math.abs(p1 - q1) >> 1) > simpleLimit) continue
+    const p3 = data[pixel - 4 * step] ?? 0
+    const p2 = data[pixel - 3 * step] ?? 0
     const q2 = data[pixel + 2 * step] ?? 0
     const q3 = data[pixel + 3 * step] ?? 0
-    if (Math.abs(p0 - q0) * 2 + (Math.abs(p1 - q1) >> 1) > simpleLimit) continue
     if (
       Math.abs(p3 - p2) > interiorLimit ||
       Math.abs(p2 - p1) > interiorLimit ||
@@ -1122,12 +1217,15 @@ const applyLoopFilterRow = (
   }
 }
 
-const yuvToArgb = (y: number, u: number, v: number): number => {
+const writeRgba = (pixels: Uint8Array, offset: number, y: number, u: number, v: number): void => {
   const luminance = 76283 * Math.max(0, y - 16)
   const blue = clampByte((luminance + 132252 * (u - 128) + 32768) >> 16)
   const green = clampByte((luminance - 25624 * (u - 128) - 53281 * (v - 128) + 32768) >> 16)
   const red = clampByte((luminance + 104595 * (v - 128) + 32768) >> 16)
-  return (0xff000000 | (red << 16) | (green << 8) | blue) >>> 0
+  pixels[offset] = red
+  pixels[offset + 1] = green
+  pixels[offset + 2] = blue
+  pixels[offset + 3] = 255
 }
 
 const uint24 = (data: Uint8Array, offset: number): number =>
@@ -1158,7 +1256,7 @@ const convertVp8Rows = (
   width: number,
   height: number,
   kernel?: WebpKernel,
-): Uint32Array => {
+): Uint8Array | Uint32Array => {
   const chromaWidth = Math.ceil(width / 2)
   const chromaHeight = Math.ceil(height / 2)
   const accelerated = kernel?.vp8ToArgb(
@@ -1178,7 +1276,7 @@ const convertVp8Rows = (
     height,
   )
   if (accelerated) return accelerated
-  const pixels = new Uint32Array(width * height)
+  const pixels = new Uint8Array(width * height * 4)
   const yData = yPlane.data
   const uData = uPlane.data
   const vData = vPlane.data
@@ -1192,18 +1290,20 @@ const convertVp8Rows = (
       const chromaOffset = x >> 1
       const u = uData[uvOffset + chromaOffset] ?? 0
       const v = vData[vvOffset + chromaOffset] ?? 0
-      pixels[pixelOffset + x] = yuvToArgb(yData[yOffset + x] ?? 0, u, v)
-      pixels[pixelOffset + x + 1] = yuvToArgb(yData[yOffset + x + 1] ?? 0, u, v)
+      writeRgba(pixels, pixelOffset + x * 4, yData[yOffset + x] ?? 0, u, v)
+      writeRgba(pixels, pixelOffset + x * 4 + 4, yData[yOffset + x + 1] ?? 0, u, v)
     }
     if (x < width) {
       const chromaOffset = x >> 1
-      pixels[pixelOffset + x] = yuvToArgb(
+      writeRgba(
+        pixels,
+        pixelOffset + x * 4,
         yData[yOffset + x] ?? 0,
         uData[uvOffset + chromaOffset] ?? 0,
         vData[vvOffset + chromaOffset] ?? 0,
       )
     }
-    pixelOffset += width
+    pixelOffset += width * 4
   }
   return pixels
 }
@@ -1234,7 +1334,7 @@ export const decodeVp8 = (
     width,
     height,
     *rows(): IterableIterator<DecodedVp8Rows> {
-      const header = new BooleanDecoder(data, firstPartitionOffset, firstPartitionLength)
+      const header = booleanDecoder(data, firstPartitionOffset, firstPartitionLength)
       if (header.uint(2) !== 0)
         throw unsupportedOperation('VP8 reserved color-space bits are unsupported')
       const segmentation = parseSegmentation(header)
@@ -1251,7 +1351,9 @@ export const decodeVp8 = (
       const skipProbability = skipEnabled ? header.uint(8) : 0
       const macroblockRows = Math.ceil(height / 16)
       const columns = Math.ceil(width / 16)
-      const modeAbove = Array.from({ length: columns }, macroblock)
+      let modeAbove = Array.from({ length: columns }, macroblock)
+      let blocks = Array.from({ length: columns }, macroblock)
+      const leftBorder = macroblock()
 
       const sizeTableOffset = firstPartitionOffset + firstPartitionLength
       const tokenOffset = sizeTableOffset + 3 * (partitionCount - 1)
@@ -1267,7 +1369,7 @@ export const decodeVp8 = (
         if (currentOffset + partitionLength > offset + length) {
           throw truncatedInput('VP8 token partition is truncated')
         }
-        tokenDecoders.push(new BooleanDecoder(data, currentOffset, partitionLength))
+        tokenDecoders.push(booleanDecoder(data, currentOffset, partitionLength))
         currentOffset += partitionLength
       }
 
@@ -1278,6 +1380,7 @@ export const decodeVp8 = (
       const inverseDctTemporary = new Int32Array(16)
       const walshTemporary = new Int32Array(16)
       const walshOutput = new Int32Array(16)
+      const residualEnds = new Uint8Array(25)
       const coefficients = new Int32Array(25 * 16)
       const factors = Array.from({ length: 4 }, (_, segment) =>
         factorSet(segment, segmentation, quantization),
@@ -1303,10 +1406,11 @@ export const decodeVp8 = (
           restorePlaneRow(vPlane, 7, unfilteredVAbove)
         }
 
-        const blocks = decodeModeRow(
+        decodeModeRow(
           header,
-          columns,
           modeAbove,
+          blocks,
+          leftBorder,
           segmentation,
           skipEnabled,
           skipProbability,
@@ -1319,6 +1423,7 @@ export const decodeVp8 = (
           const aboveContext = aboveContexts[column]
           if (!block || !aboveContext) throw invalidInput('VP8 macroblock state is missing')
           if (block.skip) {
+            residualEnds.fill(0)
             coefficients.fill(0)
             leftContext.fill(0, 0, 8)
             aboveContext.fill(0, 0, 8)
@@ -1335,6 +1440,7 @@ export const decodeVp8 = (
               leftContext,
               aboveContext,
               coefficients,
+              residualEnds,
             )
           }
           reconstruct(
@@ -1345,6 +1451,7 @@ export const decodeVp8 = (
             column,
             block,
             coefficients,
+            residualEnds,
             column + 1 === columns,
             inverseDctTemporary,
             walshTemporary,
@@ -1364,6 +1471,10 @@ export const decodeVp8 = (
           restorePlaneRow(vPlane, 7, filteredVAbove)
         }
         applyLoopFilterRow(yPlane, uPlane, vPlane, blocks, planeRow, row, segmentation, loopFilter)
+
+        const previous = modeAbove
+        modeAbove = blocks
+        blocks = previous
 
         if (row > 0) {
           const outputY = (row - 1) * 16

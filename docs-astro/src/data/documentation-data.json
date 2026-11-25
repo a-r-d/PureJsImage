@@ -96,28 +96,28 @@
   },
   "sizes": {
     "allGeoReaders": {
-      "brotliBytes": 159601,
-      "gzipBytes": 197042,
-      "minifiedBytes": 649674
+      "brotliBytes": 159651,
+      "gzipBytes": 197124,
+      "minifiedBytes": 649830
     },
     "allReaders": {
-      "brotliBytes": 296620,
-      "gzipBytes": 371806,
-      "minifiedBytes": 1282888
+      "brotliBytes": 297177,
+      "gzipBytes": 372514,
+      "minifiedBytes": 1284441
     },
     "allStableCodecs": {
-      "brotliBytes": 408989,
-      "gzipBytes": 506808,
-      "minifiedBytes": 1454577
+      "brotliBytes": 410036,
+      "gzipBytes": 507983,
+      "minifiedBytes": 1457446
     },
     "commonWebCodecs": {
-      "brotliBytes": 209989,
-      "gzipBytes": 252188,
-      "minifiedBytes": 688056
+      "brotliBytes": 210786,
+      "gzipBytes": 253477,
+      "minifiedBytes": 690883
     },
     "core": {
-      "brotliBytes": 6282,
-      "gzipBytes": 7009,
+      "brotliBytes": 6288,
+      "gzipBytes": 7008,
       "minifiedBytes": 20544
     },
     "geoPlatform": {
@@ -126,14 +126,14 @@
       "minifiedBytes": 141415
     },
     "installedPackage": {
-      "bytes": 9038327,
+      "bytes": 9047180,
       "productionPackageCount": 1
     },
     "packageVersion": "0.18.0",
     "scientificPlatform": {
-      "brotliBytes": 49765,
-      "gzipBytes": 59057,
-      "minifiedBytes": 206321
+      "brotliBytes": 50370,
+      "gzipBytes": 59617,
+      "minifiedBytes": 207632
     }
   },
   "ordinary": {

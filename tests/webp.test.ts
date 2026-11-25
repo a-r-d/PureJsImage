@@ -479,6 +479,44 @@ describe('WebP codec', () => {
     expectPixelClose(output, 31, 23, [75, 77, 62])
   })
 
+  it('preserves decoded pixels for a noncanonical VP8 token partition', async () => {
+    const input = Buffer.from(lossy)
+    const payload = webpChunkOffset(input, 'VP8 ') + 8
+    const headerLength = input.readUIntLE(payload, 3) >>> 5
+    input[payload + 10 + headerLength] = 255
+    const decoder = await webpCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('WebP decoder is unavailable')
+    const hash = createHash('sha256')
+    for await (const block of decoder.decode()) hash.update(block.data)
+    expect(hash.digest('hex')).toBe(
+      '178fb175d34baf68188569a2da8d11faaa547f723db87b938a3b941d10ab965b',
+    )
+  })
+
+  it.each([
+    { input: lossy, region: { x: 0, y: 14, width: 32, height: 7 } },
+    { input: lossy, region: { x: 5, y: 14, width: 19, height: 7 } },
+    { input: lossyRawAlpha, region: { x: 1, y: 1, width: 2, height: 1 } },
+    { input: lossyCompressedAlpha, region: { x: 3, y: 15, width: 11, height: 3 } },
+  ])('emits exact RGBA rows for a lossy region %#', async ({ input, region }) => {
+    const full = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+    const decoder = await webpCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('WebP decoder is unavailable')
+    let rows = 0
+    for await (const block of decoder.decode(region)) {
+      expect(block.y).toBe(rows)
+      expect(block.stride).toBe(region.width * 4)
+      for (let row = 0; row < block.height; row += 1) {
+        const start = ((region.y + rows + row) * full.width + region.x) * 4
+        expect(
+          Array.from(block.data.subarray(row * block.stride, (row + 1) * block.stride)),
+        ).toEqual(Array.from(full.data.subarray(start, start + block.stride)))
+      }
+      rows += block.height
+    }
+    expect(rows).toBe(region.height)
+  })
+
   it('decodes raw and VP8L-compressed extended WebP alpha exactly', async () => {
     const raw = PNG.sync.read(await (await Image.open(lossyRawAlpha)).png().toBuffer())
     expect(raw.width).toBe(3)

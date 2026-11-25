@@ -15,7 +15,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // that filters RGB only when the decoder reports every pixel is opaque.
   // 2026-11-24: raised from 74 KiB to 76 KiB, owner approved. A single-file bundle inlines the
   // parallel PNG deflate encoder that Node loads only when `threads` is above 1.
-  'core-execution': { maxMinifiedBytes: 76 * 1024 },
+  // 2026-11-25: raised from 76 KiB to 78 KiB, owner approved, for the transparent-span and
+  // row-reuse paths in the RGBA resize, with headroom for the next small core change.
+  'core-execution': { maxMinifiedBytes: 78 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // Owner approved campaign ceiling increases on 2026-10-10. Report sizes; they are not promotion gates.
   // 2026-11-20: raised to fit the libjxl-derived effort-7 encoder (about 25.5 KB), owner approved.
@@ -32,7 +34,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-24: raised by 1,000 bytes, owner approved, for the same opaque RGBA resize path in
   // the core execution code this entry bundles.
   // 2026-11-24: raised by 3,000 bytes, owner approved, for the same inlined parallel PNG encoder.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 657_000 },
+  // 2026-11-25: raised to 660,000 bytes, owner approved, for the same RGBA resize paths.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 660_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.
@@ -42,7 +45,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // prefix lookup, a 4:2:0 color fast path and a factored forward DCT.
   'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 730_000 },
   // 2026-11-24: raised by 3,000 bytes, owner approved, for the same inlined parallel PNG encoder.
-  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 207_000 },
+  // 2026-11-25: raised to 210,000 bytes, owner approved, for the same RGBA resize paths.
+  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 210_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
   'scientific-reader-gsf': { baselineMinifiedBytes: 37_864, maxMinifiedBytes: 50_000 },

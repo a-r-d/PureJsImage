@@ -1031,6 +1031,7 @@ const rows = async function* (
   width: number,
   height: number,
   format: PixelFormat,
+  cache?: RgbaRowCache,
 ): AsyncGenerator<Uint8Array> {
   const rowBytes = width * channels(format)
   let expectedY = 0
@@ -1052,6 +1053,8 @@ const rows = async function* (
         expectedY += 1
       }
     } finally {
+      // Input views are valid only while the decoder lends us this block.
+      if (cache) cache.source = undefined
       block.release?.()
     }
   }
@@ -1343,14 +1346,56 @@ const boxShrinkBlocks = async function* (
   }
 }
 
+interface FilteredRow {
+  readonly data: Float32Array
+  // Channel offsets [start, end). Values outside this interval are implicitly zero.
+  start: number
+  end: number
+}
+
+const rgbaGroupWidth = 32
+
+interface RgbaRowCache {
+  readonly sourceBounds: Uint32Array
+  source: Uint8Array | undefined
+  filtered: FilteredRow | undefined
+}
+
+// Interior Lanczos samples can have wider support than either endpoint.
+const rgbaGroupSourceBounds = (axis: AxisCoefficients, width: number): Uint32Array => {
+  const bounds = new Uint32Array(Math.ceil(width / rgbaGroupWidth) * 2)
+  for (let x = 0, group = 0; x < width; x += rgbaGroupWidth, group += 2) {
+    const first = axis.offsets[x] ?? 0
+    const last = axis.offsets[Math.min(width, x + rgbaGroupWidth)] ?? first
+    let left = Infinity
+    let right = 0
+    for (let tap = first; tap < last; tap += 1) {
+      const sample = axis.indices[tap] ?? 0
+      left = Math.min(left, sample)
+      right = Math.max(right, sample)
+    }
+    bounds[group] = left
+    bounds[group + 1] = right
+  }
+  return bounds
+}
+
+const equalSourceRange = (a: Uint8Array, b: Uint8Array, start: number, end: number): boolean => {
+  for (let i = start; i < end; i += 1) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
 type HorizontalKernel = (
   source: Uint8Array,
   outputWidth: number,
   axis: AxisCoefficients,
-  output: Float32Array,
+  row: FilteredRow,
+  cache?: RgbaRowCache,
 ) => void
 
-const horizontalGray8: HorizontalKernel = (source, outputWidth, axis, output): void => {
+const horizontalGray8: HorizontalKernel = (source, outputWidth, axis, { data: output }): void => {
   for (let x = 0; x < outputWidth; x += 1) {
     const first = axis.offsets[x] ?? 0
     const last = axis.offsets[x + 1] ?? first
@@ -1363,7 +1408,7 @@ const horizontalGray8: HorizontalKernel = (source, outputWidth, axis, output): v
   }
 }
 
-const horizontalRgb8: HorizontalKernel = (source, outputWidth, axis, output): void => {
+const horizontalRgb8: HorizontalKernel = (source, outputWidth, axis, { data: output }): void => {
   for (let x = 0; x < outputWidth; x += 1) {
     const first = axis.offsets[x] ?? 0
     const last = axis.offsets[x + 1] ?? first
@@ -1426,7 +1471,7 @@ const horizontalOpaqueRgb: HorizontalKernel = (
   source: Uint8Array,
   outputWidth: number,
   axis: AxisCoefficients,
-  output: Float32Array,
+  { data: output }: FilteredRow,
 ): void => {
   for (let x = 0; x < outputWidth; x += 1) {
     const first = axis.offsets[x] ?? 0
@@ -1457,7 +1502,10 @@ const horizontalOpaqueRgb: HorizontalKernel = (
   }
 }
 
-const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, output): void => {
+const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, row, cache): void => {
+  const output = row.data
+  const previous = cache?.filtered
+  if (cache) cache.filtered = undefined
   let opaque = true
   for (let offset = 3; offset < source.length; offset += 4) {
     if (source[offset] !== 255) {
@@ -1466,31 +1514,76 @@ const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, output): v
     }
   }
   if (opaque) {
+    row.start = 0
+    row.end = output.length
     horizontalRgbaOpaque(source, outputWidth, axis, output)
     return
   }
-  for (let x = 0; x < outputWidth; x += 1) {
-    const first = axis.offsets[x] ?? 0
-    const last = axis.offsets[x + 1] ?? first
-    let red = 0
-    let green = 0
-    let blue = 0
-    let alpha = 0
-    for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
-      const sourceOffset = (axis.indices[sampleIndex] ?? 0) * 4
-      const weight = axis.weights[sampleIndex] ?? 0
-      const sourceAlpha = source[sourceOffset + 3] ?? 0
-      const alphaScale = sourceAlpha / 255
-      red += (source[sourceOffset] ?? 0) * alphaScale * weight
-      green += (source[sourceOffset + 1] ?? 0) * alphaScale * weight
-      blue += (source[sourceOffset + 2] ?? 0) * alphaScale * weight
-      alpha += sourceAlpha * weight
+  // A transparent source sample contributes zero to every premultiplied channel.
+  let left = 0
+  while (left < source.length && source[left + 3] === 0) left += 4
+  if (left === source.length) {
+    row.start = 0
+    row.end = 0
+    return
+  }
+  let right = source.length - 4
+  while (source[right + 3] === 0) right -= 4
+  let start = 0
+  let end = outputWidth
+  while (start < end && (axis.indices[(axis.offsets[start + 1] ?? 0) - 1] ?? 0) * 4 < left) {
+    start += 1
+  }
+  while (end > start && (axis.indices[axis.offsets[end - 1] ?? 0] ?? 0) * 4 > right) {
+    end -= 1
+  }
+  row.start = start * 4
+  row.end = end * 4
+  for (let x = start; x < end; ) {
+    const group = Math.floor(x / rgbaGroupWidth)
+    const stop = Math.min(end, (group + 1) * rgbaGroupWidth)
+    if (
+      cache?.source &&
+      previous &&
+      previous !== row &&
+      x * 4 >= previous.start &&
+      stop * 4 <= previous.end
+    ) {
+      const first = (cache.sourceBounds[group * 2] ?? 0) * 4
+      const limit = ((cache.sourceBounds[group * 2 + 1] ?? 0) + 1) * 4
+      if (equalSourceRange(source, cache.source, first, limit)) {
+        output.set(previous.data.subarray(x * 4, stop * 4), x * 4)
+        x = stop
+        continue
+      }
     }
-    const outputOffset = x * 4
-    output[outputOffset] = red
-    output[outputOffset + 1] = green
-    output[outputOffset + 2] = blue
-    output[outputOffset + 3] = alpha
+    for (; x < stop; x += 1) {
+      const first = axis.offsets[x] ?? 0
+      const last = axis.offsets[x + 1] ?? first
+      let red = 0
+      let green = 0
+      let blue = 0
+      let alpha = 0
+      for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
+        const sourceOffset = (axis.indices[sampleIndex] ?? 0) * 4
+        const weight = axis.weights[sampleIndex] ?? 0
+        const sourceAlpha = source[sourceOffset + 3] ?? 0
+        const alphaScale = sourceAlpha / 255
+        red += (source[sourceOffset] ?? 0) * alphaScale * weight
+        green += (source[sourceOffset + 1] ?? 0) * alphaScale * weight
+        blue += (source[sourceOffset + 2] ?? 0) * alphaScale * weight
+        alpha += sourceAlpha * weight
+      }
+      const outputOffset = x * 4
+      output[outputOffset] = red
+      output[outputOffset + 1] = green
+      output[outputOffset + 2] = blue
+      output[outputOffset + 3] = alpha
+    }
+  }
+  if (cache) {
+    cache.source = source
+    cache.filtered = row
   }
 }
 
@@ -1536,12 +1629,13 @@ const writeContent = (
   sourceFormat: PixelFormat,
   output: Uint8Array,
   outputOffset: number,
-  width: number,
+  startX: number,
+  endX: number,
   outputFormat: PixelFormat,
 ): void => {
   const sourceChannels = channels(sourceFormat)
   const outputChannels = channels(outputFormat)
-  for (let x = 0; x < width; x += 1) {
+  for (let x = startX; x < endX; x += 1) {
     const sourceOffset = x * sourceChannels
     const target = outputOffset + x * outputChannels
     if (sourceFormat === 'gray8') {
@@ -1625,7 +1719,6 @@ const resizedBlocks = async function* (
     plan.contentHeight,
     plan.kernel,
   )
-  const sourceRows = rows(input, sourceWidth, sourceHeight, sourceFormat)[Symbol.asyncIterator]()
   const contiguousOpaque = opaqueRgba8 && hasContiguousSamples(horizontal)
   const sourceChannels = contiguousOpaque ? 3 : channels(sourceFormat)
   const requiredSourceRows = new Uint8Array(sourceHeight)
@@ -1633,7 +1726,18 @@ const resizedBlocks = async function* (
   const ringCapacity = verticalRingCapacity(vertical, plan.contentHeight)
   const retainedSourceRows = new Int32Array(ringCapacity)
   retainedSourceRows.fill(-1)
-  const retainedRows: (Float32Array | undefined)[] = new Array(ringCapacity)
+  const retainedRows: (FilteredRow | undefined)[] = new Array(ringCapacity)
+  const rowCache: RgbaRowCache | undefined =
+    sourceFormat === 'rgba8' && !opaqueRgba8 && plan.kernel === 'lanczos3' && ringCapacity > 1
+      ? {
+          sourceBounds: rgbaGroupSourceBounds(horizontal, plan.contentWidth),
+          source: undefined,
+          filtered: undefined,
+        }
+      : undefined
+  const sourceRows = rows(input, sourceWidth, sourceHeight, sourceFormat, rowCache)[
+    Symbol.asyncIterator
+  ]()
   const resizeHorizontal = contiguousOpaque ? horizontalOpaqueRgb : horizontalKernel(sourceFormat)
   const outputChannels = channels(outputFormat)
   const outputStride = plan.canvasWidth * outputChannels
@@ -1662,15 +1766,20 @@ const resizedBlocks = async function* (
           if (next.done) throw truncatedInput(`Resize input ended before row ${loadedRows}`)
           if (requiredSourceRows[loadedRows] !== 0) {
             const slot = loadedRows % ringCapacity
-            const resizedRow =
-              retainedRows[slot] ?? new Float32Array(plan.contentWidth * sourceChannels)
-            resizeHorizontal(next.value, plan.contentWidth, horizontal, resizedRow)
+            const resizedRow = retainedRows[slot] ?? {
+              data: new Float32Array(plan.contentWidth * sourceChannels),
+              start: 0,
+              end: plan.contentWidth * sourceChannels,
+            }
+            resizeHorizontal(next.value, plan.contentWidth, horizontal, resizedRow, rowCache)
             retainedRows[slot] = resizedRow
             retainedSourceRows[slot] = loadedRows
           }
           loadedRows += 1
         }
 
+        let contentStart = accumulated.length
+        let contentEnd = 0
         accumulated.fill(0)
         for (let sampleIndex = first; sampleIndex < last; sampleIndex += 1) {
           const sourceY = vertical.indices[sampleIndex]
@@ -1679,8 +1788,13 @@ const resizedBlocks = async function* (
           const row =
             slot >= 0 && retainedSourceRows[slot] === sourceY ? retainedRows[slot] : undefined
           if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
-          for (let index = 0; index < accumulated.length; index += 1) {
-            accumulated[index] = (accumulated[index] ?? 0) + (row[index] ?? 0) * weight
+          if (row.start < row.end) {
+            contentStart = Math.min(contentStart, row.start)
+            contentEnd = Math.max(contentEnd, row.end)
+          }
+          const data = row.data
+          for (let index = row.start; index < row.end; index += 1) {
+            accumulated[index] = (accumulated[index] ?? 0) + (data[index] ?? 0) * weight
           }
         }
         if (contiguousOpaque) {
@@ -1699,7 +1813,8 @@ const resizedBlocks = async function* (
             sourceFormat,
             block,
             blockOffset + plan.padX * outputChannels,
-            plan.contentWidth,
+            plan.background ? 0 : contentStart / sourceChannels,
+            plan.background ? plan.contentWidth : contentEnd / sourceChannels,
             outputFormat,
           )
       }

@@ -18,6 +18,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Resizing RGBA images with transparent areas is faster with identical output. The Lanczos 3
+  horizontal pass skips output pixels whose source taps are all transparent, and reuses a row's
+  filtered values for 32-pixel groups whose source bytes match the previous row. PNG adaptive
+  filtering also skips scoring over all-zero margins. The 1200 x 480 transparent logo resizes to
+  800 px PNG in 37 ms instead of 65 ms, and peak RSS is 4% lower.
+- Lossy WebP (VP8) decoding is faster with identical pixels. The boolean decoder refills 16 bits
+  at a time and reads coefficient signs without a branch, empty and DC-only blocks skip the full
+  inverse transform, loop-filter work with zero adjustment is skipped, and full-width RGBA bands go
+  to the pipeline without another copy. The 1600 x 2000 benchmark photo resizes to JPEG in 239 ms
+  instead of 288 ms, with 6% lower peak RSS. Partitions that start with 0xFF keep the previous
+  byte-at-a-time decoder.
 - Baseline JPEG decoding is faster with identical pixels. Short AC Huffman codes decode together
   with their signed value from one lookup, sparse IDCT rows accumulate in locals, 4:2:0 color
   conversion shares chroma interpolation between neighboring pixels, and the encoder quantizes

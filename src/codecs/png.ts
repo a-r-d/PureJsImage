@@ -1651,7 +1651,17 @@ const filterScanline = (
       output[index + 1] = residual
       paethScore += filteredMagnitude(residual)
     }
-    for (let index = bytesPerPixel; index < length; index += 1) {
+    // Beyond the last nonzero byte, Left and the Paeth corner can still
+    // contribute for one more pixel.
+    let start = 0
+    while (start < length && source[start] === 0 && previous[start] === 0) start += 1
+    let end = length
+    while (end > start && source[end - 1] === 0 && previous[end - 1] === 0) end -= 1
+    start = Math.max(bytesPerPixel, start)
+    end = Math.min(length, end + bytesPerPixel)
+    output.fill(0, bytesPerPixel + 1, start + 1)
+    output.fill(0, end + 1)
+    for (let index = start; index < end; index += 1) {
       const value = source[index] ?? 0
       const left = source[index - bytesPerPixel] ?? 0
       const above = previous[index] ?? 0

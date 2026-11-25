@@ -314,7 +314,8 @@ const decodeRegion = (
 interface WebpPixelRows {
   readonly y: number
   readonly height: number
-  readonly pixels: Uint32Array
+  // VP8 produces RGBA bytes. Lossless and accelerated output uses packed ARGB words.
+  readonly pixels: Uint32Array | Uint8Array
 }
 
 interface WebpPixelSource {
@@ -361,9 +362,30 @@ class WebpPixelDecoder implements ImageDecoder {
       if (sourceStart >= sourceEnd) continue
       const blockHeight = sourceEnd - sourceStart
       const stride = region.width * 4
-      const data = new Uint8Array(stride * blockHeight)
       const pixels = block.pixels
-      if (!alphaRows) {
+      let data: Uint8Array
+      if (pixels instanceof Uint8Array) {
+        const firstRow = sourceStart - block.y
+        if (region.width === this.width) {
+          data = pixels.subarray(firstRow * stride, (firstRow + blockHeight) * stride)
+        } else {
+          data = new Uint8Array(stride * blockHeight)
+          for (let row = 0; row < blockHeight; row += 1) {
+            const start = ((firstRow + row) * this.width + region.x) * 4
+            data.set(pixels.subarray(start, start + stride), row * stride)
+          }
+        }
+        if (alphaRows) {
+          for (let row = 0; row < blockHeight; row += 1) {
+            const alpha = alphaBlock[firstRow + row]
+            if (!alpha) throw truncatedInput('WebP alpha rows are truncated')
+            for (let x = 0; x < region.width; x += 1) {
+              data[row * stride + x * 4 + 3] = alpha[region.x + x] ?? 0
+            }
+          }
+        }
+      } else if (!alphaRows) {
+        data = new Uint8Array(stride * blockHeight)
         for (let row = 0; row < blockHeight; row += 1) {
           let sourceIndex = (sourceStart + row - block.y) * this.width + region.x
           let target = row * stride
@@ -378,6 +400,7 @@ class WebpPixelDecoder implements ImageDecoder {
           }
         }
       } else {
+        data = new Uint8Array(stride * blockHeight)
         for (let row = 0; row < blockHeight; row += 1) {
           const sourceY = sourceStart + row
           const blockRow = sourceY - block.y

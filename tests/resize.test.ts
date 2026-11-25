@@ -148,6 +148,40 @@ describe('streaming resize', () => {
     expect(await resized(true)).toEqual(await resized(false))
   })
 
+  it('includes the wide Lanczos footprints beside an exact sample', async () => {
+    const output = await execute(
+      png(80, 12, (x, y) => [x === 23 && y % 2 === 1 ? 250 : 10, 0, 0, 180]),
+      { width: 112, height: 10, fit: 'fill', kernel: 'lanczos3' },
+    )
+    // Output column 31 samples source column 22 exactly. Both preceding
+    // columns also need column 23, which changes on alternate source rows.
+    expect([29, 30, 31].map((x) => pixelAt(output, x, 0)[0])).toEqual([12, 5, 10])
+    expect([29, 30, 31].map((x) => pixelAt(output, x, 1)[0])).toEqual([14, 0, 10])
+  })
+
+  it('handles a decoder recycling the same RGBA buffer for successive blocks', async () => {
+    const width = 96
+    const height = 24
+    const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) => {
+      const band = Math.floor(i / (width * 4 * 4))
+      return i % 4 === 3 ? 153 : (band * 41 + (i % 4)) & 255
+    })
+    const resize = async (blockHeight: number) => {
+      const data = new Uint8Array(width * 4 * blockHeight)
+      async function* blocks(): AsyncGenerator<PixelBlock> {
+        for (let y = 0; y < height; y += blockHeight) {
+          data.set(pixels.subarray(y * width * 4, (y + blockHeight) * width * 4))
+          yield { x: 0, y, width, height: blockHeight, format: 'rgba8', stride: width * 4, data }
+        }
+      }
+      const transform = createResizeTransform(width, height, 'rgba8', { width: 64 })
+      const output: Uint8Array[] = []
+      for await (const block of transform.apply(blocks())) output.push(block.data)
+      return output
+    }
+    expect(await resize(4)).toEqual(await resize(height))
+  })
+
   it('interpolates alpha in premultiplied color space', async () => {
     const output = await execute(
       png(2, 1, (x) => (x === 0 ? [255, 0, 0, 0] : [0, 0, 255, 255])),

@@ -836,6 +836,20 @@ describe('PNG pixel pipeline', () => {
     ])
   })
 
+  it('keeps the final predictor residual beside a zero suffix', async () => {
+    const input = specializedPng(
+      10,
+      2,
+      8,
+      0,
+      Uint8Array.of(0, 0, 0, 28, 51, 33, 15, 30, 0, 0, 0, 0, 0, 0, 30, 2, 26, 95, 87, 0, 0, 0),
+    )
+    const output = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()
+    expect(Array.from(uncompressedPngScanlines(output))).toEqual([
+      3, 0, 0, 28, 37, 8, 255, 23, 241, 0, 0, 4, 0, 0, 2, 207, 24, 80, 248, 226, 0, 0,
+    ])
+  })
+
   it('uses adaptive row filters to reduce smooth-image output size', async () => {
     const input = rgbaPng(256, 128)
     const decoded = PNG.sync.read(input)
