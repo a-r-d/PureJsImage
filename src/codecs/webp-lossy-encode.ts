@@ -908,13 +908,26 @@ export class LossyWebpEncoder implements ImageEncoder {
     if (!u || !v) throw invalidInput('WebP encoder is missing chroma planes')
     const vp8 = encodeVp8(this.#width, this.#height, this.#y, u, v, this.#quality)
     const alpha = this.#hasAlpha ? this.#alpha : undefined
+    // ALPH header 1 selects VP8L compression with no filtering or level
+    // reduction, so alpha stays exact. Raw alpha (header 0) is kept when
+    // compression does not make it smaller.
+    let alphaHeader = 0
+    let alphaPayload = alpha
+    if (alpha) {
+      const { encodeAlphaImageStream } = await import('./webp-lossless-encode.ts')
+      const stream = encodeAlphaImageStream(alpha, this.#width, this.#height, this.#kernel)
+      if (stream.byteLength < alpha.byteLength) {
+        alphaHeader = 1
+        alphaPayload = stream
+      }
+    }
     const icc = this.#metadata?.icc
     const exif = this.#metadata?.exif
     if (icc && iccColorSpace(icc) !== 'rgb')
       throw invalidInput('Preserved ICC profile does not match WebP RGB output pixels')
     const extended = alpha !== undefined || icc !== undefined || exif !== undefined
     const vp8Padding = vp8.length & 1
-    const alphaLength = alpha ? 1 + alpha.length : 0
+    const alphaLength = alphaPayload ? 1 + alphaPayload.byteLength : 0
     const alphaPadding = alphaLength & 1
     const iccBytes = icc ? 8 + icc.byteLength + (icc.byteLength & 1) : 0
     const exifBytes = exif ? 8 + exif.byteLength + (exif.byteLength & 1) : 0
@@ -946,11 +959,11 @@ export class LossyWebpEncoder implements ImageEncoder {
         output.set(icc, offset + 8)
         offset += iccBytes
       }
-      if (alpha) {
+      if (alphaPayload) {
         output.set([65, 76, 80, 72], offset)
         uint32(output, offset + 4, alphaLength)
-        output[offset + 8] = 0
-        output.set(alpha, offset + 9)
+        output[offset + 8] = alphaHeader
+        output.set(alphaPayload, offset + 9)
         offset += 8 + alphaLength + alphaPadding
       }
     }

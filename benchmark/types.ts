@@ -186,6 +186,11 @@ interface WorkflowBase {
 
 export interface PipelineWorkflow extends WorkflowBase {
   input: string
+  /**
+   * Source frame to decode. Set it when an animated input is benchmarked on one frame, so
+   * engines that refuse implicit first-frame decoding receive the same request.
+   */
+  frame?: number
   operations: readonly Operation[]
   inputs?: never
   batch?: never

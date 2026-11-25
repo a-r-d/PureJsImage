@@ -112,6 +112,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Fixed
 
+- Lossy WebP output with transparency now compresses its alpha channel. The encoder wrote alpha
+  as raw bytes, one byte per pixel, so the 1200 x 480 transparent benchmark logo at quality 80 was
+  590,616 bytes. It now writes the alpha plane as a lossless VP8L stream, the method libwebp uses
+  by default, and the same logo is 16,264 bytes. Alpha values stay exact. When compression would
+  not make the alpha plane smaller, the encoder keeps raw alpha. Encoding the logo takes 87 ms
+  instead of 58 ms and peak RSS is about 6 MiB higher.
 - JPEG XL lossy effort 7 on screenshots and text no longer takes several minutes per megapixel.
   Its exact palette check runs the lossless effort-7 search, which took over 400 s on a
   1-megapixel RGBA text image and now takes 65 s.
@@ -127,6 +133,10 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Testing, CI and docs
 
+- The PureJsImage benchmark engine now opens frame 0 on the two workflows that benchmark the first
+  frame of an animated GIF, `gif-first-frame-png` and `lambda-logo-gif`. Both failed for
+  PureJsImage after animated GIF decoding started to require an explicit frame. Pipeline
+  workflows can set a `frame` field for this.
 - The published web codec benchmark is rerun at `b6ac46f9`, after the JPEG, AVIF, PNG and lossless
   WebP speedups. The README table, website charts and public snapshot use the new run, with the
   same 143 passing and 25 unsupported cases. PureJsImage's median wall time across workflows fell

@@ -83,6 +83,18 @@ const sharpRgba = async (input: Uint8Array): Promise<Uint8Array> => {
   return data
 }
 
+const webpChunk = (webp: Uint8Array, type: string): Uint8Array => {
+  const view = new DataView(webp.buffer, webp.byteOffset, webp.byteLength)
+  let offset = 12
+  while (offset + 8 <= webp.byteLength) {
+    const id = String.fromCharCode(...webp.subarray(offset, offset + 4))
+    const size = view.getUint32(offset + 4, true)
+    if (id === type) return webp.subarray(offset + 8, offset + 8 + size)
+    offset += 8 + size + (size & 1)
+  }
+  throw new Error(`WebP has no ${type} chunk`)
+}
+
 const sample = (
   pixels: Uint8Array,
   width: number,
@@ -178,6 +190,42 @@ describe('WebP encode baselines', { timeout: 30_000 }, () => {
     expect(Math.abs(center[1] - 125)).toBeLessThanOrEqual(18)
     expect(Math.abs(center[2] - 210)).toBeLessThanOrEqual(18)
     expect(center[3]).toBe(220)
+  })
+
+  it('compresses lossy alpha losslessly with VP8L', async () => {
+    const source = logoRgba(1200, 480)
+    const encoded = await (await Image.open(source)).webp({ quality: 80 }).toBuffer()
+    const alpha = webpChunk(encoded, 'ALPH')
+    expect(alpha[0]).toBe(1)
+    expect(alpha.byteLength).toBeLessThan(4096)
+    const expected = PNG.sync.read(Buffer.from(source)).data
+    const fromLibwebp = await sharpRgba(encoded)
+    const fromPureJsImage = PNG.sync.read(
+      Buffer.from(await (await Image.open(encoded)).png().toBuffer()),
+    ).data
+    for (let pixel = 0; pixel < 1200 * 480; pixel += 1) {
+      const offset = pixel * 4 + 3
+      if (fromLibwebp[offset] !== expected[offset] || fromPureJsImage[offset] !== expected[offset])
+        throw new Error(`alpha differs at pixel ${pixel}`)
+    }
+  })
+
+  it('keeps raw lossy alpha when compression would not shrink it', async () => {
+    let state = 0x12345678
+    const noise = (): number => {
+      state = (Math.imul(state, 1_103_515_245) + 12_345) >>> 0
+      return state >>> 24
+    }
+    const source = writeRgbaPng(64, 64, () => [90, 120, 150, noise()])
+    const encoded = await (await Image.open(source)).webp({ quality: 80 }).toBuffer()
+    const alpha = webpChunk(encoded, 'ALPH')
+    expect(alpha[0]).toBe(0)
+    expect(alpha.byteLength).toBe(1 + 64 * 64)
+    const expected = PNG.sync.read(Buffer.from(source)).data
+    const decoded = await sharpRgba(encoded)
+    for (let pixel = 0; pixel < 64 * 64; pixel += 1) {
+      expect(decoded[pixel * 4 + 3]).toBe(expected[pixel * 4 + 3])
+    }
   })
 
   it('encodes a resized photograph with stable samples', async () => {

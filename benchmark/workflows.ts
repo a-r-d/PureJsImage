@@ -186,6 +186,7 @@ export const workflows: readonly Workflow[] = [
     title: 'Decode first composited frame of a 70-frame GIF to PNG',
     tier: 'smoke',
     input: 'animated-gif-cc0',
+    frame: 0,
     operations: [png(6)],
     expected: { format: 'png', width: 200, height: 200 },
   },
@@ -293,6 +294,7 @@ export const workflows: readonly Workflow[] = [
     title: 'Lambda logo normalization: GIF first frame in centered transparent 256 canvas',
     tier: 'standard',
     input: 'animated-gif-cc0',
+    frame: 0,
     operations: [
       {
         type: 'contain',

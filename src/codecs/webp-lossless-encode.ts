@@ -1404,6 +1404,80 @@ const encodePaletteImageBits = (
   return writer.finish()
 }
 
+// Encodes packed ARGB pixels as a VP8L image stream without the 5-byte VP8L
+// header. The transforms run in place, so `pixels` is consumed.
+const encodeImageStream = (
+  pixels: Uint32Array,
+  width: number,
+  height: number,
+  effort: number,
+  nearLossless: number,
+  kernel: WebpKernel | undefined,
+): Uint8Array => {
+  applyNearLossless(pixels, nearLossless)
+  const spatialBits = effort >= 4 ? (effort === 6 ? 4 : 5) : undefined
+  const palette = effort >= 1 ? createPaletteEncoding(pixels, width, height) : undefined
+  const paletteBits = palette
+    ? encodePaletteImageBits(palette, effort >= 3, spatialBits)
+    : undefined
+  if (palette) restorePaletteEncoding(pixels, palette)
+
+  const simpleEncoding =
+    effort < 2 || (nearLossless === 100 && prefersSimpleEncoding(pixels, width))
+  const predictor = simpleEncoding
+    ? leftPredictorModes(width, height)
+    : selectPredictorModes(pixels, width, height)
+  applyPredictorTransform(
+    pixels,
+    width,
+    predictor.modes,
+    predictor.width,
+    new Uint32Array(width),
+    new Uint32Array(width),
+    kernel,
+  )
+  const colorTransform = effort >= 3 ? selectColorTransform(pixels, width, height) : undefined
+  const deepSearch = effort >= 2 && !simpleEncoding
+  if (colorTransform) applyColorTransform(pixels, width, colorTransform, kernel)
+  else applySubtractGreen(pixels, kernel)
+  const predictiveBits = encodeImageBits(
+    pixels,
+    width,
+    predictor.modes,
+    predictor.width,
+    colorTransform,
+    deepSearch,
+    spatialBits,
+  )
+  return paletteBits && paletteBits.byteLength < predictiveBits.byteLength
+    ? paletteBits
+    : predictiveBits
+}
+
+// Effort 0 (left prediction, no palette search) measured within 6% of effort 4 on
+// alpha planes at about a third of the time, and smaller on small images.
+const alphaEffort = 0
+
+/**
+ * Encodes an 8-bit alpha plane as the VP8L image stream of a compressed WebP
+ * ALPH chunk (compression method 1). Decoders read alpha from green. Packing
+ * each value as gray keeps red and blue at zero after the subtract-green
+ * transform, so they cost almost nothing to code.
+ */
+export const encodeAlphaImageStream = (
+  alpha: Uint8Array,
+  width: number,
+  height: number,
+  kernel?: WebpKernel,
+): Uint8Array => {
+  const pixels = new Uint32Array(width * height)
+  for (let index = 0; index < pixels.length; index += 1) {
+    const value = alpha[index] ?? 0
+    pixels[index] = pack(255, value, value, value)
+  }
+  return encodeImageStream(pixels, width, height, alphaEffort, 100, kernel)
+}
+
 const uint32 = (data: Uint8Array, offset: number, value: number): void => {
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
   view.setUint32(offset, value, true)
@@ -1442,8 +1516,6 @@ class LosslessWebpEncoder implements ImageEncoder {
   readonly #nearLossless: number
   readonly #kernel: WebpKernel | undefined
   #pixels: Uint32Array | undefined
-  #previousRow: Uint32Array
-  #currentRow: Uint32Array
   #expectedY = 0
   #finished = false
 
@@ -1465,8 +1537,6 @@ class LosslessWebpEncoder implements ImageEncoder {
     this.#nearLossless = nearLossless
     this.#kernel = kernel
     this.#pixels = new Uint32Array(request.width * request.height)
-    this.#previousRow = new Uint32Array(request.width)
-    this.#currentRow = new Uint32Array(request.width)
   }
 
   async write(block: PixelBlock): Promise<void> {
@@ -1510,50 +1580,15 @@ class LosslessWebpEncoder implements ImageEncoder {
     }
     const pixels = this.#pixels
     if (!pixels) throw new Error('WebP encoder pixel storage was released')
-    applyNearLossless(pixels, this.#nearLossless)
-    const spatialBits = this.#effort >= 4 ? (this.#effort === 6 ? 4 : 5) : undefined
-    const palette =
-      this.#effort >= 1 ? createPaletteEncoding(pixels, this.#width, this.#height) : undefined
-    const paletteBits = palette
-      ? encodePaletteImageBits(palette, this.#effort >= 3, spatialBits)
-      : undefined
-    if (palette) restorePaletteEncoding(pixels, palette)
-
-    const simpleEncoding =
-      this.#effort < 2 || (this.#nearLossless === 100 && prefersSimpleEncoding(pixels, this.#width))
-    const predictor = simpleEncoding
-      ? leftPredictorModes(this.#width, this.#height)
-      : selectPredictorModes(pixels, this.#width, this.#height)
-    applyPredictorTransform(
+    const bits = encodeImageStream(
       pixels,
       this.#width,
-      predictor.modes,
-      predictor.width,
-      this.#previousRow,
-      this.#currentRow,
+      this.#height,
+      this.#effort,
+      this.#nearLossless,
       this.#kernel,
     )
-    const colorTransform =
-      this.#effort >= 3 ? selectColorTransform(pixels, this.#width, this.#height) : undefined
-    const deepSearch = this.#effort >= 2 && !simpleEncoding
-    if (colorTransform) applyColorTransform(pixels, this.#width, colorTransform, this.#kernel)
-    else applySubtractGreen(pixels, this.#kernel)
-    const predictiveBits = encodeImageBits(
-      pixels,
-      this.#width,
-      predictor.modes,
-      predictor.width,
-      colorTransform,
-      deepSearch,
-      spatialBits,
-    )
-    const bits =
-      paletteBits && paletteBits.byteLength < predictiveBits.byteLength
-        ? paletteBits
-        : predictiveBits
     this.#pixels = undefined
-    this.#previousRow = new Uint32Array(0)
-    this.#currentRow = new Uint32Array(0)
 
     const payload = new Uint8Array(5 + bits.byteLength)
     payload[0] = 0x2f
@@ -1595,8 +1630,6 @@ class LosslessWebpEncoder implements ImageEncoder {
   async abort(): Promise<void> {
     this.#finished = true
     this.#pixels = undefined
-    this.#previousRow = new Uint32Array(0)
-    this.#currentRow = new Uint32Array(0)
   }
 }
 

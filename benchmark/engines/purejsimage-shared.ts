@@ -42,7 +42,11 @@ interface PureImage {
 interface PureImageLibrary {
   open(
     input: Uint8Array,
-    options?: { readonly tolerantDecoding?: boolean; readonly threads?: number },
+    options?: {
+      readonly tolerantDecoding?: boolean
+      readonly threads?: number
+      readonly frame?: number
+    },
   ): Promise<PureImage>
 }
 
@@ -322,7 +326,10 @@ const applyOperations = async ({
     return rawDecode(input, rawOperation, workflow.expected.format)
   }
 
-  let image = await Image.open(input)
+  let image = await Image.open(
+    input,
+    workflow.frame === undefined ? undefined : { frame: workflow.frame },
+  )
   let output: Uint8Array | undefined
 
   for (const operation of workflow.operations) {
