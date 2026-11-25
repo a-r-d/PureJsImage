@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import jpeg from 'jpeg-js'
 import { describe, expect, it } from 'vitest'
 import { inspectJpegCodestream, jpegCodec } from '../src/codecs/jpeg.ts'
-import { decodeJpeg2000NativeGrayFrame } from '../src/codecs/jpeg2000.ts'
+import { decodeJpeg2000NativeGrayFrame } from '../src/codecs/jpeg2000-native.ts'
 import { rasterSampleBytes } from '../src/raster.ts'
 import type { ScientificDataset } from '../src/scientific/dataset.ts'
 import {

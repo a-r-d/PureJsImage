@@ -18,7 +18,7 @@ import {
   inspectJpegExactTranscodeDisplaySemantics,
   type JpegExactTranscodeDisplaySemantics,
 } from './jpeg-display-semantics.ts'
-import { jpegxlCodec } from './jpegxl.ts'
+import { createJpegXlEncoder } from './jpegxl-codec-operations.ts'
 import { parseJpegReconstructionData } from './jpegxl-jpeg-data.ts'
 import { encodeJpegCoefficientImageAsJpegXl } from './jpegxl-jpeg-encode.ts'
 import {
@@ -306,7 +306,7 @@ const encodePixelLossless = async (
         : ('assumed-default' as const),
     renderingIntent: 'relative' as const,
   })
-  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+  const encoder = await createJpegXlEncoder(sink, {
     width: decoder.width,
     height: decoder.height,
     pixelFormat: decoder.pixelFormat,
@@ -315,7 +315,6 @@ const encodePixelLossless = async (
     ...(options.signal ? { signal: options.signal } : {}),
     limits,
   })
-  if (!encoder) throw unsupportedOperation('JPEG XL pixel encoder is unavailable')
   await pipeDecoderToJpegXlEncoder(decoder, encoder, options.signal)
   const components = decoder.pixelFormat === 'gray8' ? 1 : decoder.pixelFormat === 'rgb8' ? 3 : 4
   return Object.freeze({

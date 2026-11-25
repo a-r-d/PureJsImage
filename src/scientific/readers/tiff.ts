@@ -1,6 +1,6 @@
 import type { AbortOptions } from '../../abort.ts'
 import { throwIfAborted } from '../../abort.ts'
-import { openTiffDocument, TiffEncodedCacheSource } from '../../codecs/tiff.ts'
+import { readTiffDocument, TiffEncodedCacheSource } from '../../codecs/tiff-read.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../../errors.ts'
 import { openGeoTiffDirectory, type GeoTiffKey, type GeoTiffProfile } from '../../geotiff.ts'
 import {
@@ -1227,7 +1227,7 @@ const createDocument = async (
     context.primary.source instanceof TiffEncodedCacheSource
       ? context.primary.source
       : new TiffEncodedCacheSource(context.primary.source)
-  const document = await openTiffDocument(source, {
+  const document = await readTiffDocument(source, {
     ...(options.limits ?? {}),
     ...(context.signal === undefined ? {} : { signal: context.signal }),
   })

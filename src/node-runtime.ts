@@ -1,5 +1,5 @@
 import { once } from 'node:events'
-import { type FileHandle, mkdtemp, open, rm } from 'node:fs/promises'
+import type { FileHandle } from 'node:fs/promises'
 import { availableParallelism, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { constants, createDeflate, type Deflate, deflateSync, type ZlibOptions } from 'node:zlib'
@@ -88,6 +88,7 @@ export class NodeTemporaryStore implements TemporaryStore {
       cleanupError = error
     }
     try {
+      const { rm } = await import('node:fs/promises')
       await rm(this.#directory, { recursive: true, force: true })
     } catch (error) {
       cleanupError ??= error
@@ -175,6 +176,7 @@ export type NodeRuntimeOptions = NodeImageLibraryOptions
 const createFileTemporaryStore = async (
   options: TemporaryStoreOptions,
 ): Promise<TemporaryStore> => {
+  const { mkdtemp, open, rm } = await import('node:fs/promises')
   const directory = await mkdtemp(join(tmpdir(), options.prefix))
   let file: FileHandle | undefined
   try {

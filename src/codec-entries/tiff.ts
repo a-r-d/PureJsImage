@@ -1,5 +1,9 @@
-export { createTiffCodec, tiffCodec, type TiffCodecOptions } from '../codecs/tiff.ts'
-export { openTiffDocument } from '../codecs/tiff.ts'
+export {
+  createTiffCodec,
+  openTiffDocument,
+  tiffCodec,
+  type TiffCodecOptions,
+} from '../codecs/tiff.ts'
 export type {
   TiffByteReadOptions,
   TiffDirectory,

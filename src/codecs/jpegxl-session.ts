@@ -7,7 +7,7 @@ import { type ImageLimitOptions, type ImageLimits, resolveLimits } from '../limi
 import { type PixelBlock, pixelBytesPerPixel } from '../pixel.ts'
 import { createImageSource, type ImageInput, type ImageSource, readExactly } from '../source.ts'
 import { inheritImageSourceIdentity } from '../source-identity-contract.ts'
-import { jpegxlCodec } from './jpegxl.ts'
+import { createJpegXlDecoder } from './jpegxl-codec-operations.ts'
 import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.ts'
 import {
   decodeJpegXlFrameSource,
@@ -636,7 +636,7 @@ export class JpegXlSession {
         throw limitExceeded('JPEG XL static fallback has no remaining working-memory budget')
       const previouslyUnmeasured = this.#unmeasuredFallback
       this.#unmeasuredFallback = true
-      const decoder = await jpegxlCodec.createDecoder?.(
+      const decoder = await createJpegXlDecoder(
         this.#source,
         { ...this.#limits, maxDecodedBytes: remaining },
         {
@@ -645,9 +645,9 @@ export class JpegXlSession {
           ...(this.#evidence ? { evidence: this.#evidence } : {}),
         },
       )
-      if (decoder && 'managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number')
+      if ('managedPeakBytes' in decoder && typeof decoder.managedPeakBytes === 'number')
         this.#unmeasuredFallback = previouslyUnmeasured
-      if (!decoder || decoder.pixelFormat !== format)
+      if (decoder.pixelFormat !== format)
         throw unsupportedOperation(
           'JPEG XL static fallback sample format differs from its native frame contract',
         )

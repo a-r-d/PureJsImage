@@ -1,4 +1,4 @@
-import type { TiffEncodedCacheSource } from '../../codecs/tiff.ts'
+import type { TiffEncodedCacheSource } from '../../codecs/tiff-read.ts'
 import type { GeoTiffProfile } from '../../geotiff.ts'
 import type { ImageSource } from '../../source.ts'
 import type { TiffDirectory, TiffDocument } from '../../tiff/types.ts'

@@ -1,0 +1,1 @@
+export const MAX_ICC_PROFILE_BYTES = 16 * 1024 * 1024

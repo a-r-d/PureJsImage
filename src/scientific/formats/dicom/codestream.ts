@@ -1,6 +1,6 @@
 import { jpegCodec, inspectJpegCodestream } from '../../../codecs/jpeg.ts'
 import { decodeJpegLosslessFrame } from '../../../codecs/jpeg-lossless.ts'
-import { decodeJpeg2000NativeGrayFrame } from '../../../codecs/jpeg2000.ts'
+import { decodeJpeg2000NativeGrayFrame } from '../../../codecs/jpeg2000-native.ts'
 import { invalidInput, unsupportedOperation } from '../../../errors.ts'
 import { resolveLimits } from '../../../limits.ts'
 import { MemorySource } from '../../../source.ts'

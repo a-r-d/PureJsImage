@@ -32,7 +32,7 @@ export type {
   TiffCompressionDecodeSupport,
   TiffCompressionTestStatus,
 } from './compressions.ts'
-export { encodeTiffDocument } from '../codecs/tiff-encode.ts'
+export { encodeTiffDocument } from '../codecs/tiff.ts'
 export type {
   TiffDocumentEncodeRequest,
   TiffEncodeOptions,

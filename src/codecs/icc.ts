@@ -7,9 +7,11 @@ import type {
 } from '../color.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
+import { MAX_ICC_PROFILE_BYTES } from './icc-limits.ts'
+
+export { MAX_ICC_PROFILE_BYTES } from './icc-limits.ts'
 
 const ICC_HEADER_BYTES = 128
-export const MAX_ICC_PROFILE_BYTES = 16 * 1024 * 1024
 const SRGB_ENCODE_STEPS = 4095
 
 interface IccTag {

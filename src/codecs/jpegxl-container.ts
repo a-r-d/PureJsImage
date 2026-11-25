@@ -1,31 +1,24 @@
-import type { AbortOptions } from '../abort.ts'
-import { throwIfAborted } from '../abort.ts'
+import { type AbortOptions, throwIfAborted } from '../abort.ts'
 import type { MetadataPreservationOptions, PreservedMetadata } from '../codec.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { resolveLimits } from '../limits.ts'
 import { normalizeExifOrientation } from '../metadata.ts'
-import type { ImageSource, ImageSourceReadOptions } from '../source.ts'
-import { readExactly } from '../source.ts'
+import {
+  type ImageSource,
+  type ImageSourceReadOptions,
+  createImageSource,
+  type ImageInput,
+  readExactly,
+} from '../source.ts'
 import { decodeBrotli } from './brotli.ts'
 import { ascii, uint32BigEndian } from './helpers.ts'
 import { createIsobmffReader, type IsobmffBox } from './isobmff.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
-import type { JpegXlLimits } from './jpegxl-limits.ts'
+import { resolveJpegXlLimits, type JpegXlLimits } from './jpegxl-limits.ts'
+import { jpegXlRawSignature, jpegXlContainerSignature } from './jpegxl-signature.ts'
+import type { InspectJpegXlStructureOptions } from './jpegxl.ts'
 
-export const jpegXlRawSignature = Uint8Array.of(0xff, 0x0a)
-export const jpegXlContainerSignature = Uint8Array.of(
-  0x00,
-  0x00,
-  0x00,
-  0x0c,
-  0x4a,
-  0x58,
-  0x4c,
-  0x20,
-  0x0d,
-  0x0a,
-  0x87,
-  0x0a,
-)
+export { jpegXlRawSignature, jpegXlContainerSignature } from './jpegxl-signature.ts'
 
 export interface JpegXlCodestreamSegment {
   readonly offset: number
@@ -446,4 +439,12 @@ export class JpegXlCodestreamSource implements ImageSource {
     if (written !== available) throw invalidJpegXlInput('logical codestream has a gap')
     return output
   }
+}
+
+export const inspectJpegXlInput = async (
+  input: ImageInput,
+  options: Readonly<InspectJpegXlStructureOptions>,
+): Promise<JpegXlStructure> => {
+  const source = await createImageSource(input, resolveLimits(options), options)
+  return inspectJpegXlSource(source, resolveJpegXlLimits(options.jpegXlLimits), options)
 }

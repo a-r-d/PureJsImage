@@ -84,6 +84,17 @@ All notable changes to PureJsImage are documented in this file.
   matrices on the first decode that uses them. Importing `allWebCodecs` takes 14.2 MiB instead of
   16.8 MiB of extra RSS, and `allCodecs` 20.1 MiB instead of 23.6 MiB. Peak RSS on JPEG, PNG and
   WebP benchmark workflows is about 3 to 10 MiB lower.
+- Registering codecs now loads only their format detection and header code. Pixel decoding,
+  encoding and metadata parsing for JPEG, PNG, WebP, AVIF, TIFF, JPEG 2000, JPEG XL, BMP, GIF,
+  HDR, ICO, Netpbm, QOI and TGA load on first use. Importing the library with `allCodecs` adds
+  8.2 MiB of RSS and takes 19 ms instead of 28.2 MiB and 80 ms, and `allWebCodecs` adds 4.5 MiB in
+  8 ms instead of 13.5 MiB in 43 ms. Peak RSS on the web codec benchmark workflows is 7% to 15%
+  lower, for example 145 MiB instead of 169 MiB on the 24-megapixel photo pipeline and 135 MiB
+  instead of 159 MiB on the 1200-pixel JPEG resize. In Node, `fs/promises` loads only when
+  temporary files are turned on. Output is unchanged. The first decode or encode of a format in a
+  process loads its module, which adds about 5 to 10 ms for JPEG and PNG. Small images are 1 to
+  2.5 ms slower per warm run: the 400 x 301 lossless WebP to PNG benchmark takes 43 ms instead of
+  41 ms. Large workflows are within 1%.
 - JPEG XL lossless effort 7 is 3.4 to 8.1 times faster on the eight 1-megapixel comparison images:
   182 s instead of 819 s in total, with files 0.29% larger in total. Effort 7 now trains predictor
   trees once on four times the default samples, and also on the default samples only when that

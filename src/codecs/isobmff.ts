@@ -1,8 +1,6 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
-import type { ImageSource } from '../source.ts'
-import { readExactly } from '../source.ts'
+import { type ImageSource, readExactly } from '../source.ts'
 import { ascii, uint16BigEndian, uint32BigEndian } from './helpers.ts'
-
 const MAX_BOXES = 100_000
 const MAX_METADATA_BOX_BYTES = 16 * 1024 * 1024
 const MAX_ITEM_EXTENTS = 4096
@@ -430,30 +428,7 @@ export const parseBrands = (data: Uint8Array, context: string): readonly string[
   return brands
 }
 
-export const detectIsobmffBrands = (data: Uint8Array): readonly string[] => {
-  if (data.byteLength < 16 || ascii(data, 4, 4) !== 'ftyp') return []
-  const size32 = uint32BigEndian(data, 0)
-  let contentStart = 8
-  let declaredSize = size32
-  if (size32 === 0) declaredSize = data.byteLength
-  else if (size32 === 1) {
-    if (data.byteLength < 24) return []
-    const high = uint32BigEndian(data, 8)
-    const low = uint32BigEndian(data, 12)
-    const extended = BigInt(high) * 0x1_0000_0000n + BigInt(low)
-    if (extended > BigInt(Number.MAX_SAFE_INTEGER)) return []
-    declaredSize = Number(extended)
-    contentStart = 16
-  }
-
-  const end = Math.min(declaredSize, data.byteLength)
-  if (end - contentStart < 8) return []
-  const brands = [ascii(data, contentStart, 4)]
-  for (let offset = contentStart + 8; offset + 4 <= end; offset += 4) {
-    brands.push(ascii(data, offset, 4))
-  }
-  return brands
-}
+export { detectIsobmffBrands } from './isobmff-brands.ts'
 
 const parseItemInfo = async <Property>(
   reader: IsobmffReader,

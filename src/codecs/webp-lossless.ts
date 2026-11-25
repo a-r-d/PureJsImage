@@ -906,6 +906,7 @@ export interface LosslessWebpImage {
 }
 
 export interface LosslessWebpRows {
+  readonly height: 1
   readonly y: number
   readonly pixels: Uint32Array
 }
@@ -1032,7 +1033,7 @@ function* decodeLosslessImageRows(
     if (currentWidth !== width || row.length !== width) {
       throw invalidInput('WebP lossless transforms produced invalid dimensions')
     }
-    yield { y, pixels: row }
+    yield { y, height: 1, pixels: row }
     y += 1
   }
 }

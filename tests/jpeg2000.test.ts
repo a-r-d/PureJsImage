@@ -4,7 +4,7 @@ import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
 import { jpegCodec } from '../src/codecs/jpeg.ts'
-import { createJpeg2000CodestreamDecoder, jpeg2000Codec } from '../src/codecs/jpeg2000.ts'
+import { createJpeg2000CodestreamDecoder, jpeg2000Codec } from '../src/codec-entries/jpeg2000.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createNodeImageLibrary } from '../src/node-image.ts'
 import { defaultImageLimits } from '../src/limits.ts'

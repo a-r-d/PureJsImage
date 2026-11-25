@@ -898,6 +898,53 @@ describe('package contract', () => {
     ).toEqual([])
   })
 
+  it('can decode baseline JPEG without loading its encoder', () => {
+    expect(staticRuntimeModules('src/codecs/jpeg-decode.ts')).not.toContain('codecs/jpeg-encode.ts')
+  })
+
+  it('loads standalone JPEG 2000 pixel reconstruction only when the codestream is decoded', () => {
+    const modules = staticRuntimeModules('src/codec-entries/jpeg2000.ts')
+    expect(modules).toContain('codecs/jpeg2000-packets.ts')
+    for (const name of ['jpeg2000-decode', 'jpeg2000-tier1', 'jpeg2000-wavelet', 'icc']) {
+      expect(modules).not.toContain(`codecs/${name}.ts`)
+    }
+  })
+
+  it('registers codecs without loading their pixel implementations', () => {
+    const runtimeModules = staticRuntimeModules('src/codec-entries/all.ts')
+    for (const implementation of [
+      'av1-frame',
+      'av1-intra',
+      'av1-qmatrix',
+      'avif-metadata',
+      'avif-decode',
+      'bmp-pixels',
+      'gif-pixels',
+      'hdr-pixels',
+      'ico-pixels',
+      'jpeg-baseline',
+      'jpeg-decode',
+      'jpeg-encode',
+      'jpeg2000-decode',
+      'jpeg2000-tier1',
+      'jpegxl-decode',
+      'netpbm-pixels',
+      'png-metadata',
+      'png-decode',
+      'png-encode',
+      'qoi-pixels',
+      'tga-pixels',
+      'tiff-read',
+      'tiff-encode',
+      'vp8',
+      'webp-lossless',
+      'webp-lossless-encode',
+      'webp-lossy-encode',
+    ]) {
+      expect(runtimeModules).not.toContain(`codecs/${implementation}.ts`)
+    }
+  })
+
   it('publishes browser and codec capabilities through explicit package subpaths', () => {
     expect(Object.keys(packageJson.exports)).toEqual([
       '.',
