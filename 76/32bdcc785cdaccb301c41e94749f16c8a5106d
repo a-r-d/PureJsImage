@@ -1,0 +1,165 @@
+src/accelerators/wasm/resize.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-199
+src/index.ts
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 60,62,93
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 7
+src/image-core.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 3-7,108,144,192,624-625,629
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 19,21,46,48
+wasm/jpeg-decoder/src/progressive.rs
+  s_fb44c3e6b9dfb0::t_a60ba6850e9c8a 1-325
+src/executor.ts
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 3,5
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 39,393
+capabilities/manifest.json
+  s_fb44c3e6b9dfb0::t_dd1a7bc47ea6b1 569,789-792,1001,1232-1235
+docs-astro/public/llms.txt
+  s_fb44c3e6b9dfb0::t_12d0b2b4a5914b 719,721,728,733
+wasm/webp-codec/src/vp8l_entropy.rs
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-223
+src/accelerators/wasm/png.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 10-11,13,137-143,160-166,171,174,182-183
+scripts/copy-wasm-artifacts.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 25-27
+src/accelerators/wasm/webp.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 9-13,15,40-42,44-45,83-165,177-190,228,231,318-574,583-585,599,617
+tests/wasm-webp.test.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 13,64,82,88-90,189-274
+  s_fb44c3e6b9dfb0::t_3eba915d0ac43b 275-277
+tests/crc32.test.ts
+  s_fb44c3e6b9dfb0::t_9a255d2c201d1a 30-47
+benchmark/engines/purejsimage-shared.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 72-81,271-278
+wasm/webp-codec/src/lib.rs
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 2-5,7,359,432-433
+webp-codec-support.md
+  s_fb44c3e6b9dfb0::t_f20828b5e7119d 205-208
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_34b4d7e966882f 99-101,104-106,109-111,114-116,119-121,129,134-136
+browser-tests/types.ts
+  s_fb44c3e6b9dfb0::t_f03c921404d629 80
+src/accelerator-entries/wasm-resize-node.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-26
+tests/package-metrics.test.ts
+  s_fb44c3e6b9dfb0::t_c84ae4139de4bc 126,276
+src/codecs/jpeg.ts
+  s_fb44c3e6b9dfb0::t_a60ba6850e9c8a 17,141-146,148-156
+src/accelerator.ts
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 2
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 20-32,35,44,46-48,57-63,79
+src/codecs/jpeg-decode.ts
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 1,6
+  s_fb44c3e6b9dfb0::t_a60ba6850e9c8a 11,50-75,120-124,135-137,139-143,147,152,159-174,190-201,212
+scripts/build-wasm-resize.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-42
+src/codecs/webp-acceleration.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-70,74-85,94
+src/accelerators/wasm/jpeg.ts
+  s_fb44c3e6b9dfb0::t_a60ba6850e9c8a 2-3,7-8,18,66-67,69-70,166-660,744,747-758,764-767,774,777,782-788,790-791,794,886-891,896-898,917-918,929,931,938-939,949,956-957,959,971-973,977-992,1015,1424-1441,1443-1469,1478
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 10-16
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_e9b8da7ab6d044 179,526,529,532,541,544,547,556,559,562,566,571,574,577,586,589,592,616,619,622,796,799,802,866,871,874,877,886,889,892,901,904,907,946,949,952,961,964,967,976,979,982,991,994,997,1156,1159,1162,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554,2134-2135,2138,2142-2143,2146,2166-2167,2170,2174-2175,2178,2182-2183,2186,2190-2191,2194,2196-2211
+scripts/render-package-metrics.ts
+  s_fb44c3e6b9dfb0::t_2d04f9f8b83eab 89
+src/codecs/crc32.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 11-25,40,53-54,58,70
+  s_fb44c3e6b9dfb0::t_cd856484d21e80 26,35-39,41-52,56,60-69
+  s_fb44c3e6b9dfb0::t_d4c6f5b89bd88e 71
+  s_fb44c3e6b9dfb0::t_978504e5e0e8b2 55,57,59
+scripts/serve-browser-tests.ts
+  s_fb44c3e6b9dfb0::t_2d04f9f8b83eab 423-424
+wasm/png-codec/src/lib.rs
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 6,561,581-589,668-673,675,680,682-686
+src/browser.ts
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 50,63,65
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 28
+wasm/webp-codec/src/vp8_predict.rs
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-356
+benchmark/optimization-log.md
+  s_fb44c3e6b9dfb0::t_9e65b157e5f4a0 14-15,8382-8564
+  s_fb44c3e6b9dfb0::t_ecf79383331c6d 12-13,8300-8381
+  s_fb44c3e6b9dfb0::t_fa0c83a669a668 16-17,8565-8616
+  s_fb44c3e6b9dfb0::t_89246d193a9163 10-11,8617-8646
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_ac938b9ac62980 24-31,62-75
+  s_fb44c3e6b9dfb0::t_c221fcf9369200 32
+scripts/build-wasm-jpeg.ts
+  s_fb44c3e6b9dfb0::t_a60ba6850e9c8a 49-72
+jpeg-codec-support.md
+  s_fb44c3e6b9dfb0::t_f20828b5e7119d 182-185
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_e9b8da7ab6d044 179,526,529,532,541,544,547,556,559,562,566,571,574,577,586,589,592,616,619,622,796,799,802,866,871,874,877,886,889,892,901,904,907,946,949,952,961,964,967,976,979,982,991,994,997,1156,1159,1162,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554,2134-2135,2138,2142-2143,2146,2166-2167,2170,2174-2175,2178,2182-2183,2186,2190-2191,2194,2196-2211
+browser-tests/compatibility.pw.ts
+  s_fb44c3e6b9dfb0::t_f03c921404d629 196-203
+src/codecs/webp.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 3,343
+wasm/resize/src/lib.rs
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-378
+README.md
+  s_fb44c3e6b9dfb0::t_34b4d7e966882f 541-545,547,549
+  s_fb44c3e6b9dfb0::t_2d04f9f8b83eab 56
+  s_fb44c3e6b9dfb0::t_e9b8da7ab6d044 560-564,566
+  s_fb44c3e6b9dfb0::t_f20828b5e7119d 83,85,106
+src/codecs/vp8.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 7-12,17,195-201,349-353,507,920,936-950,1155-1156,1159-1169,1292,1295,1396,1407-1410,1422,1458-1460,1466,1477-1480,1484-1503,1518,1533-1544
+wasm/webp-codec/src/vp8_coefficients.rs
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-207
+scripts/render-capabilities.ts
+  s_fb44c3e6b9dfb0::t_2d04f9f8b83eab 86
+src/resize.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1,8,15-49,1274,1287-1295,1304-1316,1318-1319,1321-1324,1326-1401,1404-1405,1408-1409,1411-1423,1870,1894-1913,1964,1968-1976,1983-1987,1990-2015,2017-2031,2033-2052,2090,2123,2182,2192
+package.json
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 435-441,562
+scripts/bundle-size-config.ts
+  s_fb44c3e6b9dfb0::t_2d04f9f8b83eab 96-105
+src/codecs/webp-lossless.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 2-7,288-302,531,573-594,633,674,683,998
+browser-tests/compatibility-harness.ts
+  s_fb44c3e6b9dfb0::t_f03c921404d629 25,29,1423-1501,5614
+  s_fb44c3e6b9dfb0::t_d2d90bce1e656e 1175-1230,1232-1233
+docs-astro/public/capabilities.json
+  s_fb44c3e6b9dfb0::t_f20828b5e7119d 399-402,1284-1287
+tests/wasm-resize.test.ts
+  s_fb44c3e6b9dfb0::t_b2d1296dd89855 3
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-2,4-519
+docs-astro/src/pages/api.astro
+  s_fb44c3e6b9dfb0::t_6eec4d13dc42a4 232,236,242-247,273-279,284-285
+  s_fb44c3e6b9dfb0::t_53d50d0250b044 282
+wasm/webp-codec/src/vp8_filter.rs
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-184
+benchmark/engines/purejsimage-wasm.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 8
+src/accelerator-entries/wasm-resize-browser.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-26
+wasm/jpeg-decoder/src/lib.rs
+  s_fb44c3e6b9dfb0::t_a60ba6850e9c8a 4-9,12,118,169,232,261,363-403,498,512,657-732,746-749,764,1617,1691-1692,1797-1802,1806,1810-1811,1928-1933,1958-1961
+scripts/bundle-size-budgets.ts
+  s_fb44c3e6b9dfb0::t_5a19431d58764d 52-54,82-84
+tests/wasm-jpeg.test.ts
+  s_fb44c3e6b9dfb0::t_a60ba6850e9c8a 12,112,133,282-457,717,743-746
+wasm/resize/Cargo.toml
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 1-20
+tests/project-contract.test.ts
+  s_fb44c3e6b9dfb0::t_93d11ee5c8d3a0 1019
+tests/wasm-png.test.ts
+  s_fb44c3e6b9dfb0::t_304568e7c07f02 2,19,32-40
+  s_fb44c3e6b9dfb0::t_8c354589d24083 41
+wasm/resize/Cargo.lock
+  s_fb44c3e6b9dfb0::t_8232f157b07b37 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7632bdcc785cdaccb301c41e94749f16c8a5106d",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
