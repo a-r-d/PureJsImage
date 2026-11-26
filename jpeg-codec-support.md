@@ -179,3 +179,7 @@ supported until its output is independently validated.
   scan-progression regressions with strict allocation and source-cleanup checks
 - [x] Keep opt-in Rust/WASM baseline decoding at pixel parity, including tolerant
   restart recovery and bounded TypeScript fallback after setup or midstream failures
+- [x] Keep opt-in scalar and SIMD Rust/WASM progressive decoding at pixel parity:
+  DC and AC first and refinement scans, end-of-band runs, restarts, compact
+  coefficient planes, bounded row reconstruction, and 1/2 and 1/4 scaled output,
+  with TypeScript resuming reconstruction without duplicate rows after a failure

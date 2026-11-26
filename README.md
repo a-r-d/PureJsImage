@@ -53,7 +53,7 @@ source-sized RGBA buffers make a JavaScript pipeline too expensive in AWS Lambda
   operations need a full image or saved coefficients; those limits are documented.
 - **Clear errors:** unsupported files and options fail with an explanation. Benchmarks check
   that the output is correct before reporting speed.
-- **Optional acceleration:** add JPEG, PNG or WebP WASM accelerators when they help your application.
+- **Optional acceleration:** add JPEG, PNG, WebP or resize WASM accelerators when they help your application.
   You import and register them yourself; the default TypeScript path never loads them.
 
 | API | Use it for | What to know |
@@ -80,9 +80,9 @@ All formats below have a TypeScript implementation. WASM is optional and covers 
 
 | Format | Read | Write | Optional WASM | What’s supported |
 | --- | --- | --- | --- | --- |
-| [JPEG](jpeg-codec-support.md) | Yes | Yes | [Baseline read/write](https://purejsimage.com/api/#wasm-acceleration) | 8-bit baseline and progressive; grayscale, RGB and CMYK. Gain maps use the HDR API. |
+| [JPEG](jpeg-codec-support.md) | Yes | Yes | [Baseline and progressive read; baseline write](https://purejsimage.com/api/#wasm-acceleration) | 8-bit baseline and progressive; grayscale, RGB and CMYK. Gain maps use the HDR API. |
 | [PNG](png-codec-support.md) | Yes | Yes | [8-bit read/write](https://purejsimage.com/api/#wasm-acceleration) | 1–16-bit decode; 8/16-bit grayscale, RGB and RGBA output, plus exact indexed output. No APNG frame decode. |
-| [WebP](webp-codec-support.md) | Yes | Yes | [Pixel/transform steps](https://purejsimage.com/api/#wasm-acceleration) | Static and animated lossy, lossless and near-lossless output; alpha supported. |
+| [WebP](webp-codec-support.md) | Yes | Yes | [Lossy decode; lossless steps](https://purejsimage.com/api/#wasm-acceleration) | Static and animated lossy, lossless and near-lossless output; alpha supported. |
 | [BMP](bmp-codec-support.md) | Yes | Yes | No | Common Windows/OS2 and palette/RLE inputs; 24-bit RGB or 32-bit RGBA output. |
 | [TIFF](tiff-codec-support.md) | Yes | Yes | No | Classic TIFF/BigTIFF, strips, tiles and pages. Scientific, OME and whole-slide APIs are separate. |
 | [GIF](gif-codec-support.md) | Yes | Yes | No | Any frame or every animated frame; static and animated output with 256-color palettes. |
@@ -103,7 +103,7 @@ All formats below have a TypeScript implementation. WASM is optional and covers 
 
 “Limited” means only the documented subset is supported. Experimental codecs need a separate import and are excluded from `allCodecs`.
 
-WASM does not cover every file the TypeScript codec can read. JPEG acceleration handles common baseline images; PNG handles common non-interlaced 8-bit images; WebP accelerates selected color and transform steps. [Setup, supported cases and fallback behavior](https://purejsimage.com/api/#wasm-acceleration).
+WASM does not cover every file the TypeScript codec can read. JPEG acceleration handles common baseline and progressive images; PNG handles common non-interlaced 8-bit images; WebP handles lossy decode and selected lossless steps. A separate resize accelerator runs Lanczos 3 and box downscaling for 8-bit RGB and RGBA. [Setup, supported cases and fallback behavior](https://purejsimage.com/api/#wasm-acceleration).
 
 [See the exact codec support matrix →](https://purejsimage.com/codecs/)
 
@@ -538,15 +538,15 @@ Generated from the repository manifests and recorded package metrics (package ve
 
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 20.7 KiB | 7.0 KiB | 6.3 KiB |
-| Common web codecs | 705.9 KiB | 260.3 KiB | 215.2 KiB |
-| All stable codecs | 1498.0 KiB | 522.8 KiB | 420.0 KiB |
-| Scientific platform | 209.7 KiB | 60.6 KiB | 51.1 KiB |
-| All scientific readers | 1281.8 KiB | 373.9 KiB | 298.6 KiB |
+| Core API | 21.0 KiB | 7.1 KiB | 6.4 KiB |
+| Common web codecs | 709.0 KiB | 261.5 KiB | 216.1 KiB |
+| All stable codecs | 1501.1 KiB | 523.9 KiB | 421.0 KiB |
+| Scientific platform | 210.6 KiB | 61.0 KiB | 51.4 KiB |
+| All scientific readers | 1283.9 KiB | 374.7 KiB | 299.2 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 641.9 KiB | 195.1 KiB | 158.8 KiB |
+| All Geo readers | 642.9 KiB | 195.5 KiB | 158.9 KiB |
 
-The extracted npm package is 8.8 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 9.0 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 <!-- package-metrics:bundle:start -->
@@ -557,13 +557,13 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| Core API initial chunk | `purejsimage` | 20.7 KiB | 7.0 KiB | 6.3 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 705.9 KiB | 260.3 KiB | 215.2 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1498.0 KiB | 522.8 KiB | 420.0 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 209.7 KiB | 60.6 KiB | 51.1 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1281.8 KiB | 373.9 KiB | 298.6 KiB |
+| Core API initial chunk | `purejsimage` | 21.0 KiB | 7.1 KiB | 6.4 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 709.0 KiB | 261.5 KiB | 216.1 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1501.1 KiB | 523.9 KiB | 421.0 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 210.6 KiB | 61.0 KiB | 51.4 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1283.9 KiB | 374.7 KiB | 299.2 KiB |
 
-The 8 optional JPEG, PNG, and WebP accelerator assets total 163.0 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
+The 10 optional JPEG, PNG, WebP, and resize accelerator assets total 281.1 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
 
 [Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)
 <!-- package-metrics:bundle:end -->

@@ -1016,6 +1016,7 @@ describe('package contract', () => {
       './compression/zstd',
       './accelerators/wasm/jpeg',
       './accelerators/wasm/png',
+      './accelerators/wasm/resize',
       './accelerators/wasm/webp',
       './codecs/all',
       './codecs/web',

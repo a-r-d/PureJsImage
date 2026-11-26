@@ -49,7 +49,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-24: raised by 2,000 bytes, owner approved. The entry bundles the JPEG decoder and
   // encoder for JPEG transcoding, which gained batched progressive AC scans, an 8-bit Huffman
   // prefix lookup, a 4:2:0 color fast path and a factored forward DCT.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 730_000 },
+  // 2026-11-26: raised from 730,000 to 731,000 bytes, owner approved. The JPEG decoder it bundles
+  // now offers progressive input to a registered WASM accelerator and resumes rows in TypeScript.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 731_000 },
   // 2026-11-24: raised by 3,000 bytes, owner approved, for the same inlined parallel PNG encoder.
   // 2026-11-25: raised to 210,000 bytes, owner approved, for the same RGBA resize paths.
   // 2026-11-26: raised to 212,000 bytes, owner approved, for the shared-read RGBA Lanczos resize.
@@ -77,7 +79,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   'scientific-reader-aperio-svs': { baselineMinifiedBytes: 259_477, maxMinifiedBytes: 338_000 },
   // 2026-11-26: raised from 87,601 to 91,000 bytes, owner approved. The reader bundles the PNG
   // codec, whose encoder now also builds an indexed file for output with 256 or fewer colors.
-  'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 91_000 },
+  // 2026-11-26: raised from 91,000 to 92,000 bytes, owner approved, for the PNG CRC that switches
+  // to an eight-byte table after 256 KiB.
+  'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 92_000 },
   'scientific-reader-jpeg': { baselineMinifiedBytes: 104_815, maxMinifiedBytes: 136_260 },
   'scientific-reader-webp': { baselineMinifiedBytes: 106_317, maxMinifiedBytes: 138_213 },
   'scientific-reader-bmp': { baselineMinifiedBytes: 44_120, maxMinifiedBytes: 57_356 },

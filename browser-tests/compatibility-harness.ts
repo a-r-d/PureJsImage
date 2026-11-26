@@ -22,9 +22,11 @@ import { createGeneratedVeloxEmdFixture } from '../benchmark/velox-emd/generated
 import { createGeneratedVeloxSpectrumFixture } from '../benchmark/velox-emd/generated-spectrum-fixture.ts'
 import { createWasmJpegAccelerator } from '../src/accelerator-entries/wasm-jpeg-browser.ts'
 import { createWasmPngAccelerator } from '../src/accelerator-entries/wasm-png-browser.ts'
+import { createWasmResizeAccelerator } from '../src/accelerator-entries/wasm-resize-browser.ts'
 import { createWasmWebpAccelerator } from '../src/accelerator-entries/wasm-webp-browser.ts'
 import { createWasmJpegAcceleratorWithLoaders } from '../src/accelerators/wasm/jpeg.ts'
 import { createWasmPngAcceleratorWithLoaders } from '../src/accelerators/wasm/png.ts'
+import { createWasmResizeAcceleratorWithLoader } from '../src/accelerators/wasm/resize.ts'
 import { createWasmWebpAcceleratorWithLoaders } from '../src/accelerators/wasm/webp.ts'
 import * as browserPublicApi from '../src/browser.ts'
 import { createImageLibrary, ImageError } from '../src/browser.ts'
@@ -1170,8 +1172,65 @@ const wasmJpeg = async (): Promise<BrowserWorkflowResult> => {
       throw new Error(`WASM JPEG output differs at byte ${offset}`)
     }
   }
+  const progressive = await (await images.open(await fetchBytes('/fixtures/benchmark-input.png')))
+    .jpeg({ quality: 86, chromaSubsampling: '420', progressive: true })
+    .toUint8Array()
+  const decoderLoads = { scalar: 0, simd: 0 }
+  const progressiveImages = (variant: 'scalar' | 'simd') =>
+    createImageLibrary({
+      codecs: [jpegCodec, pngCodec],
+      accelerators: [
+        createWasmJpegAcceleratorWithLoaders(
+          variant === 'simd'
+            ? {
+                simdDecoder: async () => {
+                  decoderLoads.simd += 1
+                  return instantiateWasm('/jpeg-decoder-simd.wasm')
+                },
+              }
+            : {
+                decoder: async () => {
+                  decoderLoads.scalar += 1
+                  return instantiateWasm('/jpeg-decoder.wasm')
+                },
+              },
+          { minimumPixels: 1 },
+        ),
+      ],
+    })
+  for (const scale of [1, 2] as const) {
+    const decode = async (library: typeof images): Promise<Uint8Array> => {
+      const image = await library.open(progressive)
+      const { width } = await image.metadata()
+      return (scale === 1 ? image : image.resize({ width: Math.ceil(width / 2) }))
+        .png()
+        .toUint8Array()
+    }
+    const [progressiveReference, scalar, simd] = await Promise.all([
+      decode(images),
+      decode(progressiveImages('scalar')),
+      decode(progressiveImages('simd')),
+    ])
+    for (const [label, actual] of [
+      ['Scalar', scalar],
+      ['SIMD', simd],
+    ] as const) {
+      if (
+        actual.byteLength !== progressiveReference.byteLength ||
+        actual.some((value, offset) => value !== progressiveReference[offset])
+      ) {
+        throw new Error(`${label} WASM progressive JPEG output differs at scale ${scale}`)
+      }
+    }
+  }
+  if (decoderLoads.scalar < 1 || decoderLoads.simd < 1) {
+    throw new Error(
+      `WASM progressive JPEG decoder loads: scalar=${decoderLoads.scalar}, SIMD=${decoderLoads.simd}`,
+    )
+  }
   return {
-    detail: 'Rust/WASM baseline JPEG decode matched the TypeScript reference in the browser',
+    detail:
+      'Rust/WASM baseline and scalar/SIMD progressive JPEG decode matched the TypeScript reference in the browser',
     outputBytes: accelerated.byteLength,
   }
 }
@@ -1358,6 +1417,85 @@ const wasmPng = async (): Promise<BrowserWorkflowResult> => {
     detail:
       'SIMD selection plus scalar and TypeScript PNG decode fallback matched exact public output',
     outputBytes: simd.byteLength,
+  }
+}
+
+const wasmResize = async (): Promise<BrowserWorkflowResult> => {
+  const inputs = await Promise.all([
+    fetchBytes('/fixtures/benchmark-input.jpg'),
+    fetchBytes('/fixtures/alpha.png'),
+    fetchBytes('/fixtures/benchmark-input.png'),
+  ])
+  const loads = { scalar: 0, simd: 0, unavailable: 0 }
+  const compileWasm = async (path: string): Promise<WebAssembly.Module> => {
+    const response = await fetch(path)
+    if (!response.ok) throw new Error(`WASM request failed: ${response.status} ${path}`)
+    return WebAssembly.compile(await response.arrayBuffer())
+  }
+  const library = (accelerator: ReturnType<typeof createWasmResizeAccelerator>) =>
+    createImageLibrary({ codecs: [jpegCodec, pngCodec], accelerators: [accelerator] })
+  const forced = (variant: 'scalar' | 'simd') =>
+    library(
+      createWasmResizeAcceleratorWithLoader(
+        async (selected) => {
+          loads[selected] += 1
+          return compileWasm(selected === 'simd' ? '/resize-simd.wasm' : '/resize.wasm')
+        },
+        { variant },
+      ),
+    )
+  const libraries = [
+    ['Public', library(createWasmResizeAccelerator())],
+    ['Scalar', forced('scalar')],
+    ['SIMD', forced('simd')],
+    [
+      'Unavailable',
+      library(
+        createWasmResizeAcceleratorWithLoader(async () => {
+          loads.unavailable += 1
+          throw new Error('simulated unavailable resize WASM')
+        }),
+      ),
+    ],
+  ] as const
+  let checks = 0
+  let outputBytes = 0
+  for (const input of inputs) {
+    const { width } = await (await images.open(input)).metadata()
+    // A fifth uses the box pre-shrink when the width is even; the others run Lanczos 3 only.
+    for (const target of [
+      Math.max(1, Math.floor(width / 5)),
+      Math.floor(width / 2) + 1,
+      width + 7,
+    ]) {
+      const reference = await (await images.open(input))
+        .resize({ width: target })
+        .png()
+        .toUint8Array()
+      for (const [label, accelerated] of libraries) {
+        const actual = await (await accelerated.open(input))
+          .resize({ width: target })
+          .png()
+          .toUint8Array()
+        if (
+          actual.byteLength !== reference.byteLength ||
+          actual.some((value, offset) => value !== reference[offset])
+        ) {
+          throw new Error(`${label} resize WASM output differs from TypeScript at width ${target}`)
+        }
+        checks += 1
+      }
+      outputBytes += reference.byteLength
+    }
+  }
+  if (loads.scalar !== 1 || loads.simd !== 1 || loads.unavailable < 1) {
+    throw new Error(
+      `Resize WASM loads: scalar=${loads.scalar}, SIMD=${loads.simd}, unavailable=${loads.unavailable}`,
+    )
+  }
+  return {
+    detail: `Public, scalar, SIMD and unavailable resize WASM matched TypeScript in ${checks} resizes`,
+    outputBytes,
   }
 }
 
@@ -5473,6 +5611,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   wasmJpeg,
   wasmJpegEncode,
   wasmPng,
+  wasmResize,
   wasmWebp,
   webpLossless,
   webpLossyDecode,

@@ -202,3 +202,7 @@ source because lossless WebP can be larger than PNG on photographic content.
 - [x] Keep opt-in scalar and SIMD Rust/WASM VP8 row conversion and VP8L decode
   and encode transforms at exact TypeScript parity, with bounded row or block
   copies and transparent TypeScript fallback after setup or kernel failures
+- [x] Keep opt-in Rust/WASM VP8 coefficient decoding, prediction, inverse
+  transforms and loop filtering, and cache-free VP8L entropy decoding, at exact
+  TypeScript parity per macroblock, row or band, resuming in TypeScript without
+  duplicate rows after a failure

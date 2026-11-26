@@ -46,25 +46,27 @@ await build(
   'simd',
   simdRustflags,
 )
-await build(
-  'wasm/jpeg-encoder/Cargo.toml',
-  'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
-  'src/accelerator-entries/jpeg-encoder.wasm',
-  undefined,
-  stackRustflags,
-)
-await mkdir('benchmark/.tmp/wasm', { recursive: true })
-await build(
-  'wasm/jpeg-encoder/Cargo.toml',
-  'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
-  'benchmark/.tmp/wasm/jpeg-encoder-aan.wasm',
-  'aan',
-  stackRustflags,
-)
-await build(
-  'wasm/jpeg-encoder/Cargo.toml',
-  'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
-  'src/accelerator-entries/jpeg-encoder-simd.wasm',
-  'simd',
-  simdRustflags,
-)
+if (!process.argv.includes('--decoder-only')) {
+  await build(
+    'wasm/jpeg-encoder/Cargo.toml',
+    'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
+    'src/accelerator-entries/jpeg-encoder.wasm',
+    undefined,
+    stackRustflags,
+  )
+  await mkdir('benchmark/.tmp/wasm', { recursive: true })
+  await build(
+    'wasm/jpeg-encoder/Cargo.toml',
+    'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
+    'benchmark/.tmp/wasm/jpeg-encoder-aan.wasm',
+    'aan',
+    stackRustflags,
+  )
+  await build(
+    'wasm/jpeg-encoder/Cargo.toml',
+    'wasm/jpeg-encoder/target/wasm32-unknown-unknown/release/purejsimage_jpeg_encoder.wasm',
+    'src/accelerator-entries/jpeg-encoder-simd.wasm',
+    'simd',
+    simdRustflags,
+  )
+}

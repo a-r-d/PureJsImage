@@ -1,6 +1,8 @@
 import type { AbortOptions } from './abort.ts'
 import { throwIfAborted } from './abort.ts'
+import type { ImageResizeAccelerator } from './accelerator.ts'
 import type { CodecRegistry, ImageAnimationEncoder, ImageCodec, ImageEncoder } from './codec.ts'
+import type { PixelColorSemantics } from './color.ts'
 import { convertedPixelColorSemantics, convertPixelBlocks } from './convert.ts'
 import { cropPixelBlocks } from './crop.ts'
 import { ImageError, invalidInput, unsupportedOperation } from './errors.ts'
@@ -22,7 +24,6 @@ import {
   type PixelFormat,
   pixelStorage,
 } from './pixel.ts'
-import type { PixelColorSemantics } from './color.ts'
 import {
   describePrecisionExecution,
   negotiateEncoderOptions,
@@ -35,6 +36,7 @@ import type { ImageSink } from './sink.ts'
 import { drainSourceEvidenceDependencies, type ImageSource } from './source.ts'
 
 export interface ExecutionContext {
+  readonly resizeAccelerator?: ImageResizeAccelerator
   readonly threads?: number
   readonly source: ImageSource
   readonly codec: ImageCodec
@@ -388,6 +390,7 @@ const applyStages = (
         colorSemantics,
         sampleBitDepths,
         opaqueFirstResize && operation === stages[0],
+        context.resizeAccelerator,
       )
       width = resize.width
       height = resize.height

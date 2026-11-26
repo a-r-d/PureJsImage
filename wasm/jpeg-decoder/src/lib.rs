@@ -1,9 +1,15 @@
 #![no_std]
 
 use core::cell::UnsafeCell;
+mod progressive;
+const ZIG_ZAG: [usize; BLOCK_VALUES] = [
+    0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
+    13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59,
+    52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63,
+];
 
 // The ABI is intentionally scalar so it works in every modern WASM runtime.
-const ABI_VERSION: u32 = 5;
+const ABI_VERSION: u32 = 6;
 const BLOCK: usize = 8;
 const BLOCK_VALUES: usize = BLOCK * BLOCK;
 const COMPONENTS: usize = 3;
@@ -109,6 +115,7 @@ struct DecoderState {
     input_capacity: usize,
     final_window: bool,
     maximum_mcu_bytes: usize,
+    coefficient_rows: bool,
     bits: u32,
     bit_count: u8,
     width: usize,
@@ -159,6 +166,7 @@ impl DecoderState {
             input_capacity: 0,
             final_window: false,
             maximum_mcu_bytes: 0,
+            coefficient_rows: false,
             bits: 0,
             bit_count: 0,
             width: 0,
@@ -221,6 +229,7 @@ struct Scratch {
     workspace: [f64; BLOCK_VALUES],
     active_rows: [u8; BLOCK],
     state: DecoderState,
+    scan: progressive::Scan,
 }
 
 struct SharedScratch(UnsafeCell<Scratch>);
@@ -249,6 +258,7 @@ static SCRATCH: SharedScratch = SharedScratch(UnsafeCell::new(Scratch {
     workspace: [0.0; BLOCK_VALUES],
     active_rows: [0; BLOCK],
     state: DecoderState::empty(),
+    scan: progressive::Scan::empty(),
 }));
 
 #[panic_handler]
@@ -350,6 +360,47 @@ fn configure_huffman_lookup(
     }
 }
 
+fn prepare_table(s: &mut Scratch, c: usize, ac: bool) -> Result<(), u32> {
+    let (counts, symbols, codes, indices, lengths, fast_symbols) = if ac {
+        (
+            &s.ac_counts,
+            &s.ac_symbols,
+            &mut s.ac_first_codes,
+            &mut s.ac_first_symbols,
+            &mut s.ac_lookup_lengths,
+            &mut s.ac_lookup_symbols,
+        )
+    } else {
+        (
+            &s.dc_counts,
+            &s.dc_symbols,
+            &mut s.dc_first_codes,
+            &mut s.dc_first_symbols,
+            &mut s.dc_lookup_lengths,
+            &mut s.dc_lookup_symbols,
+        )
+    };
+    let small = c * HUFFMAN_LENGTHS..(c + 1) * HUFFMAN_LENGTHS;
+    let count = &counts[small.clone()];
+    let n: usize = count.iter().map(|&v| usize::from(v)).sum();
+    if n > HUFFMAN_SYMBOLS {
+        return Err(ERROR_CONFIGURATION);
+    }
+    let symbols = &symbols[c * HUFFMAN_SYMBOLS..c * HUFFMAN_SYMBOLS + n];
+    if !ac && symbols.iter().any(|&v| v > 16) {
+        return Err(ERROR_CONFIGURATION);
+    }
+    configure_huffman(count, &mut codes[small.clone()], &mut indices[small])?;
+    let fast = c * HUFFMAN_LOOKUP_SIZE..(c + 1) * HUFFMAN_LOOKUP_SIZE;
+    configure_huffman_lookup(
+        count,
+        symbols,
+        &mut lengths[fast.clone()],
+        &mut fast_symbols[fast],
+    );
+    Ok(())
+}
+
 fn input_byte(scratch: &Scratch, offset: usize) -> Result<u8, u32> {
     if offset >= scratch.state.input_length {
         return Err(ERROR_TRUNCATED);
@@ -444,6 +495,7 @@ fn huffman_lookahead(scratch: &mut Scratch) -> Option<usize> {
     )
 }
 
+#[inline(always)]
 fn receive_and_extend(scratch: &mut Scratch, length: u8) -> Result<i32, u32> {
     if length == 0 {
         return Ok(0);
@@ -457,6 +509,7 @@ fn receive_and_extend(scratch: &mut Scratch, length: u8) -> Result<i32, u32> {
     })
 }
 
+#[inline(always)]
 fn decode_huffman(scratch: &mut Scratch, component: usize, ac: bool) -> Result<u8, u32> {
     if let Some(lookup) = huffman_lookahead(scratch) {
         let lookup_offset = component * HUFFMAN_LOOKUP_SIZE + lookup;
@@ -601,6 +654,82 @@ fn finish_entropy(scratch: &mut Scratch) -> Result<(), u32> {
     })
 }
 
+// Consume a run of short AC codes from ordinary (unstuffed) entropy bytes.
+// Keep the reservoir in locals across symbols. On an escape, marker or long
+// code, return at the exact bit position for the canonical reader.
+#[inline(always)]
+fn short_ac_run(
+    s: &mut Scratch,
+    component: usize,
+    mut k: usize,
+    has_ac: &mut bool,
+) -> Result<usize, u32> {
+    let first = s.state.input_offset;
+    let mut offset = first;
+    let mut bits = u64::from(s.state.bits);
+    let mut count = s.state.bit_count;
+    let table = component * HUFFMAN_LOOKUP_SIZE;
+    while k < BLOCK_VALUES {
+        if count < 16 {
+            if s.state.input_length - offset < 4 {
+                break;
+            }
+            // SAFETY: start validated the input extent; four bytes fit in the window.
+            let word = unsafe { ((s.state.input_pointer + offset) as *const u32).read_unaligned() };
+            // Detect an 0xff byte before crossing a stuffed byte or marker.
+            if (!word).wrapping_sub(0x0101_0101) & word & 0x8080_8080 != 0 {
+                break;
+            }
+            bits = (bits << 32) | u64::from(word.swap_bytes());
+            count += 32;
+            offset += 4;
+        }
+        let prefix = table + ((bits >> (count - 8)) & 255) as usize;
+        let code_bits = s.ac_lookup_lengths[prefix];
+        let symbol = s.ac_lookup_symbols[prefix];
+        let size = symbol & 15;
+        let used = code_bits + size;
+        if code_bits == 0 || used > count {
+            break;
+        }
+        let zeros = usize::from(symbol >> 4);
+        // At cropped block boundaries the exact read offset is observable.
+        // Leave the final symbol to the canonical eight-bit lookahead, which
+        // can retain a whole unused byte across the end of the block.
+        if s.state.crop.is_some()
+            && ((size == 0 && (zeros < 15 || k + 16 >= BLOCK_VALUES))
+                || (size != 0 && k + zeros + 1 >= BLOCK_VALUES))
+        {
+            break;
+        }
+        count -= used;
+        if size == 0 {
+            if zeros < 15 {
+                k = BLOCK_VALUES;
+                break;
+            }
+            k += 16;
+        } else {
+            k += zeros;
+            if k >= BLOCK_VALUES {
+                return Err(ERROR_ENTROPY);
+            }
+            let mask = (1i32 << size) - 1;
+            let raw = (bits >> count) as i32 & mask;
+            s.coefficients[ZIG_ZAG[k]] = if raw <= mask / 2 { raw - mask } else { raw };
+            k += 1;
+            *has_ac = true;
+        }
+    }
+    // Only unstuffed bytes have been fetched. Leave whole unused bytes in the
+    // input window so a restart, refill or slow decode sees the original position.
+    let unread = (offset - first).min(usize::from(count / 8));
+    s.state.input_offset = offset - unread;
+    s.state.bits = (bits >> (unread * 8)) as u32;
+    s.state.bit_count = count - (unread * 8) as u8;
+    Ok(k)
+}
+
 fn decode_block(scratch: &mut Scratch, component: usize) -> Result<bool, u32> {
     scratch.coefficients.fill(0);
     let dc_length = decode_huffman(scratch, component, false)?;
@@ -614,6 +743,10 @@ fn decode_block(scratch: &mut Scratch, component: usize) -> Result<bool, u32> {
     let mut index = 1usize;
     let mut has_ac = false;
     while index < BLOCK_VALUES {
+        index = short_ac_run(scratch, component, index, &mut has_ac)?;
+        if index >= BLOCK_VALUES {
+            break;
+        }
         let symbol = decode_huffman(scratch, component, true)?;
         let zeroes = usize::from(symbol >> 4);
         let length = symbol & 15;
@@ -628,11 +761,7 @@ fn decode_block(scratch: &mut Scratch, component: usize) -> Result<bool, u32> {
         if index >= BLOCK_VALUES {
             return Err(ERROR_ENTROPY);
         }
-        const ZIG_ZAG: [usize; BLOCK_VALUES] = [
-            0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34,
-            27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37,
-            44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63,
-        ];
+
         scratch.coefficients[ZIG_ZAG[index]] = receive_and_extend(scratch, length)?;
         has_ac = true;
         index += 1;
@@ -1485,6 +1614,7 @@ pub extern "C" fn jpeg_decoder_start(
     restart_interval: u32,
     tolerant_decoding: u32,
     block_size: u32,
+    coefficient_rows: u32,
 ) -> u32 {
     let scratch = scratch();
     let pointer = input_pointer as usize;
@@ -1558,6 +1688,8 @@ pub extern "C" fn jpeg_decoder_start(
         || maximum_vertical_sampling > 4
         || mcus_per_line == 0
         || mcus_per_column == 0
+        || coefficient_rows > 1
+        || (coefficient_rows != 0 && (pointer & 1 != 0 || length > isize::MAX as usize))
         || tolerant_decoding > 1
     {
         return ERROR_CONFIGURATION;
@@ -1662,58 +1794,21 @@ pub extern "C" fn jpeg_decoder_start(
         }
     }
 
-    for component in 0..COMPONENTS {
-        let table_offset = component * HUFFMAN_LENGTHS;
-        let symbol_offset = component * HUFFMAN_SYMBOLS;
-        let dc_count = scratch.dc_counts[table_offset..table_offset + HUFFMAN_LENGTHS]
-            .iter()
-            .map(|value| usize::from(*value))
-            .sum::<usize>();
-        let ac_count = scratch.ac_counts[table_offset..table_offset + HUFFMAN_LENGTHS]
-            .iter()
-            .map(|value| usize::from(*value))
-            .sum::<usize>();
-        if dc_count > HUFFMAN_SYMBOLS || ac_count > HUFFMAN_SYMBOLS {
-            return ERROR_CONFIGURATION;
-        }
-        for symbol in &scratch.dc_symbols[symbol_offset..symbol_offset + dc_count] {
-            if *symbol > 16 {
-                return ERROR_CONFIGURATION;
+    if coefficient_rows == 0 {
+        for c in 0..COMPONENTS {
+            if let Err(status) =
+                prepare_table(scratch, c, false).and_then(|()| prepare_table(scratch, c, true))
+            {
+                return status;
             }
         }
-        if let Err(status) = configure_huffman(
-            &scratch.dc_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
-            &mut scratch.dc_first_codes[table_offset..table_offset + HUFFMAN_LENGTHS],
-            &mut scratch.dc_first_symbols[table_offset..table_offset + HUFFMAN_LENGTHS],
-        ) {
-            return status;
-        }
-        let lookup_offset = component * HUFFMAN_LOOKUP_SIZE;
-        configure_huffman_lookup(
-            &scratch.dc_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
-            &scratch.dc_symbols[symbol_offset..symbol_offset + dc_count],
-            &mut scratch.dc_lookup_lengths[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
-            &mut scratch.dc_lookup_symbols[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
-        );
-        if let Err(status) = configure_huffman(
-            &scratch.ac_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
-            &mut scratch.ac_first_codes[table_offset..table_offset + HUFFMAN_LENGTHS],
-            &mut scratch.ac_first_symbols[table_offset..table_offset + HUFFMAN_LENGTHS],
-        ) {
-            return status;
-        }
-        configure_huffman_lookup(
-            &scratch.ac_counts[table_offset..table_offset + HUFFMAN_LENGTHS],
-            &scratch.ac_symbols[symbol_offset..symbol_offset + ac_count],
-            &mut scratch.ac_lookup_lengths[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
-            &mut scratch.ac_lookup_symbols[lookup_offset..lookup_offset + HUFFMAN_LOOKUP_SIZE],
-        );
     }
-
+    scratch.scan = progressive::Scan::empty();
     scratch.state = DecoderState {
         input_pointer: pointer,
         input_length: length,
-        input_offset: 0,
+        input_offset: if coefficient_rows != 0 { length } else { 0 },
+        coefficient_rows: coefficient_rows != 0,
         input_capacity: length,
         final_window: final_window != 0,
         // Each block has at most 64 symbols of 16 bits plus 16 amplitude
@@ -1830,7 +1925,12 @@ pub extern "C" fn jpeg_decoder_next() -> u32 {
         if scratch.state.next_row < scratch.state.mcus_per_column {
             let row = scratch.state.next_row;
             let current = scratch.state.current_buffer;
-            if let Err(status) = decode_mcu_row(scratch, row, current) {
+            let result = if scratch.state.coefficient_rows {
+                progressive::reconstruct(scratch, current)
+            } else {
+                decode_mcu_row(scratch, row, current)
+            };
+            if let Err(status) = result {
                 return status;
             }
             if !scratch.state.pending {
@@ -1855,8 +1955,10 @@ pub extern "C" fn jpeg_decoder_next() -> u32 {
             return STATUS_OK;
         }
         if scratch.state.pending {
-            if let Err(status) = finish_entropy(scratch) {
-                return status;
+            if !scratch.state.coefficient_rows {
+                if let Err(status) = finish_entropy(scratch) {
+                    return status;
+                }
             }
             let pending = scratch.state.pending_buffer;
             replicate_bottom(scratch, pending);

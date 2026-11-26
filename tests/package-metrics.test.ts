@@ -123,7 +123,7 @@ describe('generated package metrics contract', () => {
     expect(metrics.targets.every(({ packageVersions }) => packageVersions.length > 0)).toBe(true)
     expect(metrics.targets.every(({ unpackedPackageBytes }) => unpackedPackageBytes > 0)).toBe(true)
     expect(serialized).not.toContain('installedPackageFootprintBytes')
-    expect(metrics.wasmAssets).toHaveLength(8)
+    expect(metrics.wasmAssets).toHaveLength(10)
     expect(
       metrics.wasmAssets.every(
         ({ rawBytes, gzipBytes, brotliBytes }) => rawBytes > 0 && gzipBytes > 0 && brotliBytes > 0,
@@ -273,7 +273,7 @@ describe('generated package metrics contract', () => {
     }
     expect(readme).toContain(`**${metrics.scientificReaders.length} scientific readers**`)
     expect(readme).toContain(
-      `${metrics.wasmAssets.length} optional JPEG, PNG, and WebP accelerator assets`,
+      `${metrics.wasmAssets.length} optional JPEG, PNG, WebP, and resize accelerator assets`,
     )
     expect(readme).toContain('Complete size and footprint tables')
     expect(packageJson.scripts['package-metrics:check']).toBe(

@@ -193,6 +193,14 @@ test('selects SIMD and preserves scalar PNG decode and encode fallback in a real
   expect(result.outputBytes).toBeGreaterThan(100)
   expect(result.detail).toContain('matched exact public output')
 })
+test('runs scalar and SIMD resize WASM at TypeScript parity in a real browser', async ({
+  page,
+}) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.wasmResize())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('matched TypeScript in 36 resizes')
+})
 test('selects SIMD and preserves scalar WebP decode and encode fallback in a real browser', async ({
   page,
 }) => {

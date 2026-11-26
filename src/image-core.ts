@@ -1,6 +1,10 @@
 import type { AbortOptions } from './abort.ts'
 import { throwIfAborted } from './abort.ts'
-import { type ImageLibraryRegistration, resolveCodecRegistration } from './accelerator.ts'
+import {
+  type ImageLibraryRegistration,
+  type ImageResizeAccelerator,
+  resolveLibraryRegistration,
+} from './accelerator.ts'
 import { CodecRegistry, type ImageCodec, type ImageMetadata } from './codec.ts'
 import { invalidInput, unsupportedOperation } from './errors.ts'
 import type { EvidenceContext } from './evidence.ts'
@@ -10,11 +14,11 @@ import { resolveLimits } from './limits.ts'
 import type {
   AvifEncodeOptions,
   BmpEncodeOptions,
-  GifEncodeOptions,
-  IcoEncodeOptions,
   ConvertPixelFormatOptions,
   CropOptions,
+  GifEncodeOptions,
   HdrEncodeOptions,
+  IcoEncodeOptions,
   JpegEncodeOptions,
   JpegXlEncodeOptions,
   LutOptions,
@@ -37,11 +41,11 @@ import type {
 import {
   createAvifEncodeOperation,
   createBmpEncodeOperation,
-  createGifEncodeOperation,
-  createIcoEncodeOperation,
   createConvertPixelFormatOperation,
   createCropOperation,
+  createGifEncodeOperation,
   createHdrEncodeOperation,
+  createIcoEncodeOperation,
   createJpegEncodeOperation,
   createJpegXlEncodeOperation,
   createLutOperation,
@@ -101,6 +105,7 @@ export interface ImageLibrary<Input, Output extends Uint8Array> {
 }
 
 interface ImageContext<Input, Output extends Uint8Array> {
+  readonly resizeAccelerator?: ImageResizeAccelerator
   readonly threads?: number
   readonly source: ImageSource
   readonly codec: ImageCodec
@@ -136,6 +141,7 @@ export class Image<Input, Output extends Uint8Array> {
     registry: CodecRegistry,
     platform: ImagePlatform<Input, Output>,
     options: ImageOpenOptions = {},
+    resizeAccelerator?: ImageResizeAccelerator,
   ): Promise<Image<Input, Output>> {
     if (
       options.frame !== undefined &&
@@ -183,6 +189,7 @@ export class Image<Input, Output extends Uint8Array> {
       throw unsupportedOperation(`${codec.format} does not support reduced-resolution selection`)
     }
     return new Image({
+      ...(resizeAccelerator && { resizeAccelerator }),
       source,
       codec,
       ...(threads > 1 ? { threads } : {}),
@@ -614,10 +621,11 @@ export const createImageLibraryForPlatform = <Input, Output extends Uint8Array>(
   registration: ImageLibraryRegistration,
   platform: ImagePlatform<Input, Output>,
 ): ImageLibrary<Input, Output> => {
-  const registry = new CodecRegistry(resolveCodecRegistration(registration))
+  const { codecs, resize } = resolveLibraryRegistration(registration)
+  const registry = new CodecRegistry(codecs)
   return Object.freeze({
     formats: (): readonly string[] => registry.formats(),
     open: (input: Input, options?: ImageOpenOptions): Promise<Image<Input, Output>> =>
-      Image.open(input, registry, platform, options),
+      Image.open(input, registry, platform, options, resize),
   })
 }

@@ -1,7 +1,5 @@
 import type { ImageCodecAccelerator } from '../../accelerator.ts'
 import type { ImageCodec } from '../../codec.ts'
-import { invalidInput, truncatedInput } from '../../errors.ts'
-import type { PixelBlock, PixelFormat } from '../../pixel.ts'
 import {
   acceleratePngCodec,
   type PngAcceleration,
@@ -9,8 +7,10 @@ import {
   type PngEncodeAccelerationRequest,
   type PngRowFilter,
 } from '../../codecs/png.ts'
+import { invalidInput, truncatedInput } from '../../errors.ts'
+import type { PixelBlock, PixelFormat } from '../../pixel.ts'
 
-const abiVersion = 1
+const abiVersion = 2
 const wasmPageBytes = 65_536
 const batchRows = 32
 const targetDecodeBatchBytes = 32 * 1024
@@ -134,7 +134,13 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
         const target = layout(rowBytes, decode)
         ensureMemory(target)
         const input = new Uint8Array(memory.buffer, target.input, target.inputBytes)
-        const output = new Uint8Array(memory.buffer, target.output, target.outputBytes)
+        const historyOffset = target.previous - target.output
+        let previousOffset = historyOffset
+        const output = new Uint8Array(
+          memory.buffer,
+          target.output,
+          decode ? historyOffset + rowBytes : target.outputBytes,
+        )
         new Uint8Array(memory.buffer, target.previous, rowBytes).fill(0)
 
         const release = (): void => {
@@ -151,14 +157,21 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
             if (released || !decode || rows < 1 || inputBytes > input.length) {
               throw invalidInput('PNG WASM received invalid filtered scanline bounds')
             }
+            // A single reconstructed row can serve directly as the next row's history.
+            // Relocate history only if a larger contiguous batch needs the same bytes.
+            if (rows > 1 && previousOffset < outputBytes) {
+              output.copyWithin(historyOffset, previousOffset, previousOffset + rowBytes)
+              previousOffset = historyOffset
+            }
+            const offset = previousOffset === 0 ? historyOffset : 0
             const status = unfilterRows(
               target.input,
               inputBytes,
               rowBytes + 1,
-              target.output,
+              target.output + offset,
               outputBytes,
               rowBytes,
-              target.previous,
+              target.output + previousOffset,
               rowBytes,
               rowBytes,
               bytesPerPixel,
@@ -166,7 +179,8 @@ const createKernelPool = (instance: WebAssembly.Instance, expectSimd: boolean): 
             )
             if (status === 2) throw invalidInput('PNG filter is invalid')
             if (status !== 0) throw invalidInput('PNG WASM rejected the filtered scanline batch')
-            return output.subarray(0, outputBytes)
+            previousOffset = offset + outputBytes - rowBytes
+            return output.subarray(offset, offset + outputBytes)
           },
           filter(
             data: Uint8Array,

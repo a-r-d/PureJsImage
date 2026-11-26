@@ -22,3 +22,6 @@ await copyFile(
   'src/accelerator-entries/webp-codec-simd.wasm',
   `${outputDirectory}/webp-codec-simd.wasm`,
 )
+for (const name of ['resize.wasm', 'resize-simd.wasm']) {
+  await copyFile(`src/accelerator-entries/${name}`, `${outputDirectory}/${name}`)
+}

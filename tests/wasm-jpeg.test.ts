@@ -9,6 +9,7 @@ import {
 import type { DecodeRequest, DecoderOptions, ImageCodec, ImageDecoder } from '../src/codec.ts'
 import { accelerateJpegCodec, type JpegDecodeAcceleration, jpegCodec } from '../src/codecs/jpeg.ts'
 import { decodeBaselineJpeg, parseBaselineJpegSource } from '../src/codecs/jpeg-baseline.ts'
+import { ImageError } from '../src/errors.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelFormat } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -108,6 +109,7 @@ const encodePixels = async (
   width = 35,
   height = 27,
   icc?: Uint8Array,
+  progressive = false,
 ): Promise<{ readonly input: Uint8Array; readonly output: Uint8Array }> => {
   const channels = format === 'gray8' ? 1 : format === 'rgb8' ? 3 : 4
   const input = new Uint8Array(width * height * channels)
@@ -128,7 +130,7 @@ const encodePixels = async (
     height,
     pixelFormat: format,
     ...(icc ? { metadata: { icc } } : {}),
-    options: { quality: 86, chromaSubsampling, restartInterval },
+    options: { quality: 86, chromaSubsampling, restartInterval, progressive },
   })
   if (!encoder) throw new Error('JPEG encoder is unavailable')
   await encoder.write({
@@ -276,6 +278,182 @@ describe('Rust/WASM JPEG accelerator', () => {
       await decodeFile(jpegCodec, progressiveUrl),
     )
   })
+
+  it.each(['scalar', 'simd'] as const)(
+    'decodes complete progressive scans in %s WASM',
+    async (variant) => {
+      const instance = await instantiateArtifact(
+        variant === 'simd' ? simdDecoderArtifactUrl : artifactUrl,
+      )
+      const batch = numberExport(instance, 'jpeg_progressive_batch')
+      let calls = 0
+      const loader = async () => ({
+        exports: {
+          ...instance.exports,
+          jpeg_progressive_batch: (...args: number[]) => {
+            calls++
+            return batch(...args)
+          },
+        },
+      })
+      const codec = createWasmJpegAcceleratorWithLoaders(
+        variant === 'simd' ? { simdDecoder: loader } : { decoder: loader },
+        { minimumPixels: 1 },
+      ).accelerate(jpegCodec)
+      const files = await Promise.all(
+        ['generated-progressive.jpg', 'generated-progressive-zrl.jpg'].map((name) =>
+          readFile(new URL(`../benchmark/corpus/files/jpeg-reference/${name}`, import.meta.url)),
+        ),
+      )
+      const encoded = await Promise.all(
+        (
+          [
+            ['rgb8', '420', undefined],
+            ['rgb8', '444', channelSwappingRgbProfile()],
+            ['gray8', '444', undefined],
+          ] as const
+        ).map(
+          async ([format, sampling, icc]) =>
+            (await encodePixels(jpegCodec, format, sampling, 3, 77, 49, icc, true)).output,
+        ),
+      )
+      for (const input of [...files, ...encoded]) {
+        // A third source read would be the reference retry after the accelerator
+        // has already read this entire small fixture (baseline probe + scan input).
+        let reads = 0
+        const decoder = await codec.createDecoder?.(
+          {
+            size: input.length,
+            async read(offset, length) {
+              if (++reads > 2) throw new Error('Progressive WASM unexpectedly fell back')
+              return input.subarray(offset, offset + length)
+            },
+          },
+          defaultImageLimits,
+        )
+        const reference = await jpegCodec.createDecoder?.(
+          new MemorySource(input),
+          defaultImageLimits,
+        )
+        if (!decoder || !reference) throw new Error('Missing progressive decoder')
+        expect(decoder.capabilities.progressive).toBe(true)
+        expect(calls).toBeGreaterThan(0)
+        calls = 0
+        for (const request of [
+          {},
+          { scaleDenominator: 2 },
+          { scaleDenominator: 4 },
+          { x: 1, y: 2, width: 5, height: 4, scaleDenominator: 4 },
+        ] as const) {
+          expect(await decoderPixels(decoder, request)).toEqual(
+            await decoderPixels(reference, request),
+          )
+        }
+      }
+    },
+  )
+
+  it('enforces progressive coefficient limits before loading WASM', async () => {
+    const { output } = await encodePixels(jpegCodec, 'rgb8', '444', 0, 97, 65, undefined, true)
+    let loads = 0
+    const codec = createWasmJpegAcceleratorWithLoader(
+      async () => {
+        loads += 1
+        return instantiate()
+      },
+      { minimumPixels: 1 },
+    ).accelerate(jpegCodec)
+    const limits = { ...defaultImageLimits, maxDecodedBytes: 97 * 65 * 4 }
+    for (const c of [jpegCodec, codec]) {
+      await expect(c.createDecoder?.(new MemorySource(output), limits)).rejects.toMatchObject({
+        code: 'LIMIT_EXCEEDED',
+      })
+    }
+    expect(loads).toBe(0)
+  })
+
+  it('resumes progressive reconstruction at the first missing row after a WASM failure', async () => {
+    const { output } = await encodePixels(jpegCodec, 'rgb8', '420', 0, 95, 99, undefined, true)
+    const instance = await instantiate()
+    const next = numberExport(instance, 'jpeg_decoder_next')
+    let emitted = false
+    let failed = false
+    const codec = createWasmJpegAcceleratorWithLoader(
+      async () => ({
+        exports: {
+          ...instance.exports,
+          jpeg_decoder_next() {
+            if (emitted) {
+              failed = true
+              throw new Error('Injected reconstruction failure')
+            }
+            const status = next()
+            emitted = status === 0
+            return status
+          },
+        },
+      }),
+      { minimumPixels: 1 },
+    ).accelerate(jpegCodec)
+    const decoder = await codec.createDecoder?.(new MemorySource(output), defaultImageLimits)
+    if (!decoder) throw new Error('Missing progressive JPEG decoder')
+    let expectedY = 0
+    const rgb = new Uint8Array(95 * 99 * 3)
+    for await (const block of decoder.decode()) {
+      expect(block.y).toBe(expectedY)
+      rgb.set(block.data.subarray(0, block.height * block.stride), expectedY * block.stride)
+      expectedY += block.height
+      block.release?.()
+    }
+    expect(expectedY).toBe(99)
+    expect(failed).toBe(true)
+    expect(rgb).toEqual(await decodeInput(jpegCodec, output))
+  })
+
+  it.each(['scalar', 'simd'] as const)(
+    'preserves reference errors and tolerant recovery for incomplete progressive scans in %s WASM',
+    async (variant) => {
+      const original = await readFile(
+        new URL(
+          '../benchmark/corpus/files/jpeg-reference/generated-progressive.jpg',
+          import.meta.url,
+        ),
+      )
+      const codec = createWasmJpegAcceleratorWithLoaders(
+        variant === 'simd'
+          ? { simdDecoder: () => instantiateArtifact(simdDecoderArtifactUrl) }
+          : { decoder: instantiate },
+        { minimumPixels: 1 },
+      ).accelerate(jpegCodec)
+      const sos = original.indexOf(Buffer.from([0xff, 0xda]))
+      const invalidProfile = Buffer.concat([
+        original.subarray(0, sos),
+        Buffer.from([0xff, 0xe2, 0, 16]),
+        Buffer.from('ICC_PROFILE\0'),
+        Buffer.from([0, 1]),
+        original.subarray(sos),
+      ])
+      for (const selected of [jpegCodec, codec]) {
+        await expect(
+          decodeInput(selected, invalidProfile, {}, { preserveIcc: true }),
+        ).rejects.toThrow('JPEG ICC chunk numbering is invalid')
+      }
+      const damaged = Uint8Array.from(original)
+      damaged[sos + 4] = 0
+      const earlyEnd = Uint8Array.from(original.subarray(0, -12))
+      earlyEnd.set([0xff, 0xd9], earlyEnd.length - 2)
+      for (const input of [damaged, original.subarray(0, -1), earlyEnd]) {
+        for (const tolerantDecoding of [false, true]) {
+          const outcome = (c: ImageCodec) =>
+            decodeInput(c, input, {}, { tolerantDecoding }).catch((error: unknown) => {
+              if (!(error instanceof ImageError)) throw error
+              return { code: error.code, message: error.message }
+            })
+          expect(await outcome(codec)).toEqual(await outcome(jpegCodec))
+        }
+      }
+    },
+  )
 
   it('keeps tolerant restart decoding on the Rust/WASM path with strict opt-out', async () => {
     const { output } = await encodePixels(jpegCodec, 'rgb8', '420', 3, 128, 64)
@@ -536,7 +714,7 @@ describe('Rust/WASM JPEG accelerator', () => {
     expect(loads).toBe(0)
   })
 
-  it('does not initialize WASM for crops, progressive JPEG, or RGB JPEG', async () => {
+  it('uses WASM for progressive JPEG and skips unsupported baseline crops and RGB JPEG', async () => {
     let loads = 0
     const accelerator = createWasmJpegAcceleratorWithLoader(
       async () => {
@@ -558,13 +736,14 @@ describe('Rust/WASM JPEG accelerator', () => {
     await expect(decode(accelerated, { x: 3, y: 2, width: 29, height: 17 })).resolves.toEqual(
       await decode(jpegCodec, { x: 3, y: 2, width: 29, height: 17 }),
     )
-    await expect(decodeFile(accelerated, progressiveUrl)).resolves.toEqual(
-      await decodeFile(jpegCodec, progressiveUrl),
-    )
     await expect(decodeFile(accelerated, rgbUrl)).resolves.toEqual(
       await decodeFile(jpegCodec, rgbUrl),
     )
     expect(loads).toBe(0)
+    await expect(decodeFile(accelerated, progressiveUrl)).resolves.toEqual(
+      await decodeFile(jpegCodec, progressiveUrl),
+    )
+    expect(loads).toBe(1)
   })
 
   it('falls back to the TypeScript codec when the optional module cannot load', async () => {

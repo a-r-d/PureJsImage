@@ -1,5 +1,10 @@
 import { invalidInput, truncatedInput } from '../errors.ts'
-import type { WebpKernel } from './webp-acceleration.ts'
+import type {
+  HuffmanCode,
+  PrefixGroup,
+  Vp8lEntropyRequest,
+  WebpKernel,
+} from './webp-acceleration.ts'
 
 const codeLengthOrder = Uint8Array.of(
   17,
@@ -280,6 +285,21 @@ class BitReader {
     this.#end = Math.min(data.length, offset + length)
   }
 
+  entropyInput(): Pick<Vp8lEntropyRequest, 'input' | 'bitOffset' | 'consumeBits'> {
+    return {
+      input: this.#data.subarray(this.#offset, this.#end),
+      bitOffset: this.#bitOffset,
+      consumeBits: (bits) => {
+        // dropBits handles individual symbols; a whole stream can exceed 2^32 bits.
+        const wholeBytes = Math.floor(bits / 8)
+        if (wholeBytes > this.#end - this.#offset)
+          throw truncatedInput('WebP lossless bitstream is truncated')
+        this.#offset += wholeBytes
+        this.dropBits(bits % 8)
+      },
+    }
+  }
+
   readBits(length: number): number {
     if (length < 0 || length > 24) throw invalidInput('WebP bit length is invalid')
     const value = this.peekBits(length)
@@ -309,26 +329,6 @@ class BitReader {
     this.#offset += bits >>> 3
     this.#bitOffset = bits & 7
   }
-}
-
-type HuffmanCode =
-  | { readonly singleSymbol: number; readonly maximumSymbol: number }
-  | {
-      readonly singleSymbol?: undefined
-      readonly maximumSymbol: number
-      readonly lookup: Uint16Array
-      readonly lookupBits: number
-      readonly symbols: ReadonlyMap<number, number>
-      readonly maximumLength: number
-    }
-
-interface PrefixGroup {
-  readonly literalChannels: number | undefined
-  readonly green: HuffmanCode
-  readonly red: HuffmanCode
-  readonly blue: HuffmanCode
-  readonly alpha: HuffmanCode
-  readonly distance: HuffmanCode
 }
 
 const reverseBits = (value: number, length: number): number => {
@@ -528,6 +528,7 @@ function* decodeImageRows(
   width: number,
   height: number,
   spatial: boolean,
+  kernel?: WebpKernel,
 ): IterableIterator<Uint32Array> {
   let cacheBits = 0
   let cache: Uint32Array | undefined
@@ -569,6 +570,28 @@ function* decodeImageRows(
 
   const pixelCount = width * height
   const historyLength = historyCapacity(groups, width, pixelCount)
+  let delivered = 0
+  if (kernel && !cache && pixelCount >= 16384) {
+    const distances = Uint32Array.from({ length: 120 }, (_, index) =>
+      distanceValue(index + 1, width),
+    )
+    for (const row of kernel.vp8lEntropy({
+      ...reader.entropyInput(),
+      width,
+      height,
+      historyLength,
+      groups,
+      distances,
+      metaCodes,
+      prefixBits,
+    })) {
+      delivered += 1
+      yield row
+    }
+    if (delivered === height) return
+    // The kernel commits the bit cursor only on completion. On failure, replay
+    // the original entropy stream and emit only rows following the last success.
+  }
   const history = new Uint32Array(historyLength)
   const historyMask = historyLength - 1
   const historyPowerOfTwo = (historyLength & historyMask) === 0
@@ -607,7 +630,7 @@ function* decodeImageRows(
         channels = (alpha << 24) | (red << 16) | blue
       }
       const completed = write((channels | (symbol << 8)) >>> 0)
-      if (completed) yield completed
+      if (completed && y > delivered) yield completed
       continue
     }
     if (symbol < 280) {
@@ -648,7 +671,7 @@ function* decodeImageRows(
           row = completed === firstRow ? secondRow : firstRow
           x = 0
           y += 1
-          yield completed
+          if (y > delivered) yield completed
         }
       }
       continue
@@ -657,7 +680,7 @@ function* decodeImageRows(
     if (!cache || cacheEntry >= cache.length) throw invalidInput('WebP color cache code is invalid')
     const color = cache[cacheEntry] ?? 0
     const completed = write(color)
-    if (completed) yield completed
+    if (completed && y > delivered) yield completed
   }
 }
 
@@ -972,7 +995,7 @@ function* decodeLosslessImageRows(
 
   let predictorPrevious: Uint32Array | undefined
   let y = 0
-  for (const encodedRow of decodeImageRows(reader, encodedWidth, height, true)) {
+  for (const encodedRow of decodeImageRows(reader, encodedWidth, height, true, kernel)) {
     let row = encodedRow
     let currentWidth = encodedWidth
     const fusedPredictorOutput =

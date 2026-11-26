@@ -6,11 +6,11 @@ import {
   createWasmWebpAccelerator,
   wasmWebpAccelerator,
 } from '../src/accelerator-entries/wasm-webp-node.ts'
-import { createWasmWebpAcceleratorWithLoaders } from '../src/accelerators/wasm/webp.ts'
 import type {
   WasmWebpAcceleratorDiagnostics,
   WasmWebpKernelOperation,
 } from '../src/accelerators/wasm/webp.ts'
+import { createWasmWebpAcceleratorWithLoaders } from '../src/accelerators/wasm/webp.ts'
 import type { ImageCodec, ImageDecoder } from '../src/codec.ts'
 import { webpCodec } from '../src/codecs/webp.ts'
 import { defaultImageLimits } from '../src/limits.ts'
@@ -61,9 +61,7 @@ interface RgbaFixture {
   width: number
 }
 
-const createRgbaFixture = (): RgbaFixture => {
-  const width = 17
-  const height = 13
+const createRgbaFixture = (width = 17, height = 13): RgbaFixture => {
   const data = new Uint8Array(width * height * 4)
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
@@ -81,12 +79,15 @@ const encode = async (
   codec: ImageCodec,
   input: RgbaFixture,
   lossless: boolean,
+  effort?: number,
 ): Promise<Uint8Array> => {
   const sink = new Uint8ArraySink()
   const encoder = await codec.createEncoder?.(sink, {
     height: input.height,
     metadata: {},
-    options: lossless ? { lossless: true } : { quality: 80 },
+    options: lossless
+      ? { lossless: true, ...(effort === undefined ? {} : { effort }) }
+      : { quality: 80 },
     pixelFormat: 'rgba8',
     width: input.width,
   })
@@ -182,6 +183,95 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
       expect(operations).not.toContain('vp8l-inverse-color')
       expect(operations).not.toContain('vp8l-inverse-predictor')
       expect(operations).not.toContain('vp8l-inverse-subtract-green')
+    },
+  )
+
+  for (const operation of [
+    'webp_vp8_coefficients',
+    'webp_predict_tile',
+    'webp_vp8_filter_plane',
+    'webp_vp8_yuv_to_rgba',
+    'webp_vp8l_entropy_band',
+  ] as const) {
+    it.each(artifacts)(
+      `resumes $kind decoding after a failed ${operation} call`,
+      async ({ kind, url }) => {
+        // Four VP8 bands with separate compressed alpha and the normal loop filter.
+        const input =
+          operation === 'webp_vp8l_entropy_band'
+            ? await encode(webpCodec, createRgbaFixture(130, 129), true, 0)
+            : Buffer.from(
+                'UklGRsgAAABXRUJQVlA4WAoAAAAQAAAAPwAAPwAAQUxQSBAAAAABB1DAiAgACeH/ey2i/6kfVlA4IJIAAAAwBgCdASpAAEAAPm00l0ikIqIhIgmYgA2JZAE6ArzN5/IPxu4acwC//QDp+1KOZWVPach092wtfongAP7xWZpw6//0J3nye3//EY/EY+4pvnvKojdAwTZYvEo/+gJaGj8ZSA79NGRrSRc/PGbnlE04a9o8+uYPyDCV3HzloG7n+Ow52b6e/ubSnudgAKe9fAAAAA==',
+                'base64',
+              )
+        const instance = await instantiateArtifact(url)
+        const original = instance.exports[operation]
+        if (typeof original !== 'function') throw new Error('Missing WebP kernel')
+        let successful = 0
+        let failed = 0
+        let rows = 0
+        let callsAfterOutput = 0
+        const load = async (): Promise<WebAssembly.Instance> => ({
+          exports: {
+            ...instance.exports,
+            [operation]: (...args: readonly number[]) => {
+              // For the filter, fail on chroma after luma has been processed.
+              if (
+                rows > 0 &&
+                ++callsAfterOutput === (operation === 'webp_vp8_filter_plane' ? 2 : 1)
+              ) {
+                failed += 1
+                const memory = instance.exports.memory
+                if (operation === 'webp_predict_tile' && memory instanceof WebAssembly.Memory)
+                  memory.grow(1)
+                throw new Error('simulated kernel failure after output')
+              }
+              successful += 1
+              return Reflect.apply(original, undefined, args)
+            },
+          },
+        })
+        const codec = createWasmWebpAcceleratorWithLoaders(
+          kind === 'simd' ? { simdDecoder: load } : { decoder: load },
+          { minimumPixels: 1 },
+        ).accelerate(webpCodec)
+        const decoder = await codec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+        if (!decoder) throw new Error('Missing WebP decoder')
+        const pixels = new Uint8Array(decoder.width * decoder.height * 4)
+        for await (const block of decoder.decode()) {
+          expect(block.y).toBe(rows)
+          pixels.set(block.data, rows * block.stride)
+          rows += block.height
+          block.release?.()
+        }
+        expect(rows).toBe(decoder.height)
+        expect(successful).toBeGreaterThan(0)
+        expect(failed).toBe(1)
+        expect(pixels).toEqual(await decode(webpCodec, input))
+      },
+    )
+  }
+
+  it.each(artifacts)(
+    'shares the $kind scratch space between active decoders',
+    async ({ kind, url }) => {
+      const operations = new Set<WasmWebpKernelOperation>()
+      const accelerated = codecWithArtifact(kind, url, {
+        kernelOperation(operation, succeeded) {
+          expect(succeeded).toBe(true)
+          operations.add(operation)
+        },
+      })
+      const fixtures = await Promise.all([
+        encode(webpCodec, createRgbaFixture(65, 127), false),
+        encode(webpCodec, createRgbaFixture(130, 129), true, 0),
+      ])
+      const reference = await Promise.all(fixtures.map((input) => decode(webpCodec, input)))
+      const actual = await Promise.all(fixtures.map((input) => decode(accelerated, input)))
+      expect(actual).toEqual(reference)
+      expect(operations.has('vp8-coefficients')).toBe(true)
+      expect(operations.has('vp8-predict')).toBe(true)
+      expect(operations.has('vp8l-entropy')).toBe(true)
     },
   )
 

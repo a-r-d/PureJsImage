@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { deflateSync } from 'node:zlib'
+import { deflateSync, crc32 as nodeCrc32 } from 'node:zlib'
 
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
@@ -15,8 +15,8 @@ import {
 } from '../src/accelerators/wasm/png.ts'
 import type { DecodeRequest, ImageCodec, ImageDecoder, ImageEncoder } from '../src/codec.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
-import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
+import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock, PixelFormat } from '../src/pixel.ts'
@@ -28,6 +28,16 @@ import { rgbLutOnlyProfile } from './icc-fixtures.ts'
 const scalarArtifactUrl = new URL('../src/accelerator-entries/png-codec.wasm', import.meta.url)
 const simdArtifactUrl = new URL('../src/accelerator-entries/png-codec-simd.wasm', import.meta.url)
 const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+
+it('checks CRC across unaligned chunks and every eight-byte tail', () => {
+  const bytes = Uint8Array.from({ length: 193 }, (_, index) => index * 37)
+  for (let offset = 0; offset < 8; offset += 1) {
+    const data = bytes.subarray(offset)
+    for (let split = 60; split < 76; split += 1) {
+      expect(crc32(data.subarray(0, split), data.subarray(split))).toBe(nodeCrc32(data))
+    }
+  }
+})
 
 interface SupportedFormat {
   readonly colorType: 0 | 2 | 6

@@ -21,6 +21,15 @@ All notable changes to PureJsImage are documented in this file.
   `purejsimage/codecs/gif` read and write frames directly. A 36-frame 480x270 photographic GIF
   resized to 240 px takes 296 ms against 371 ms for ImageScript and 3,765 ms for Sharp; the
   70-frame CC0 GIF resized to 100 px takes 58 ms against 72 and 85 ms.
+- Optional WASM resize accelerator at `purejsimage/accelerators/wasm/resize`. Register
+  `wasmResizeAccelerator` in the `accelerators` list to run Lanczos 3 resizing and the box
+  pre-shrink for `rgb8` and `rgba8` images in Rust/WASM, including premultiplied alpha and opaque
+  RGBA. Output is byte-identical to the TypeScript resize in the scalar and SIMD builds. It works
+  on the same bounded rows as the TypeScript kernel and falls back to TypeScript for other kernels
+  and formats, or if WASM fails during a resize, without repeating rows. Applications that do not
+  register it are unchanged. Each build is about 32 KB (11 KB gzipped). With the JPEG, PNG and WebP
+  accelerators also registered, resizing a 12 MP JPEG to 1200 px takes 173 ms instead of 246 ms,
+  and the 1024 px MMS JPEG workflow 169 ms instead of 250 ms.
 - Animated WebP: `open(input, { animated: true })` decodes every frame of an animated WebP,
   applying alpha blending and disposal, and `webp()` writes animated WebP. Each output frame encodes
   the rectangle that changed, at even offsets; when every changed pixel is opaque the frame blends
@@ -50,6 +59,20 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- The optional JPEG WASM accelerator now decodes progressive JPEG: DC and AC first and
+  refinement scans, end-of-band runs, and restart intervals, at full, 1/2 and 1/4 scale. It keeps
+  compact coefficient planes and reconstructs rows in bounded bands, like the TypeScript decoder,
+  and the pixels are identical. If WASM fails, TypeScript finishes the rows that remain. Resizing
+  the progressive 12 MP test JPEG to 1200 px on the WASM engine takes 264 ms instead of 554 ms.
+  Progressive crops and 1/8-scale decodes still use TypeScript.
+- The optional WebP WASM accelerator now runs VP8 coefficient decoding, prediction, inverse
+  transforms and loop filtering, and VP8L entropy decoding for streams without a color cache.
+  Decoded pixels are unchanged. Resizing the 12 MP lossy WebP portrait to a JPEG takes 152 ms
+  instead of 227 ms with 14% lower peak memory, and the lossy photo to PNG 110 ms instead of 133 ms.
+  The scalar module grew from 9 KB to 27 KB (4 KB to 11 KB gzipped).
+- PNG CRC checks switch to an eight-bytes-at-a-time table once 256 KiB has been checked. Small
+  PNGs keep the byte loop, which is faster before V8 optimizes the larger loop. The optional PNG
+  WASM decoder also reads the previous row in place instead of copying it for each row.
 - GIF decoding reads every frame descriptor up front and composites frames on one canvas, with
   disposal methods 0 to 3. LZW data is gathered from its sub-blocks before decoding, codes are
   read with one 16-bit refill, and opaque pixels are written as 32-bit values. Selecting a frame

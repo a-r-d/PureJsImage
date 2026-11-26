@@ -5,6 +5,7 @@ export const engine = await createPureJsImageEngine({
   kind: 'webassembly',
   versionSuffix: ' WASM',
   accelerators: [
+    { path: './accelerator-entries/wasm-resize-node.js', exportName: 'wasmResizeAccelerator' },
     {
       path: './accelerator-entries/wasm-jpeg-node.js',
       exportName: 'wasmJpegAccelerator',

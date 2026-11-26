@@ -420,6 +420,8 @@ const wasmFiles: readonly (readonly [string, string])[] = [
   ['src/accelerator-entries/png-codec-simd.wasm', 'png-codec-simd.wasm'],
   ['src/accelerator-entries/webp-codec.wasm', 'webp-codec.wasm'],
   ['src/accelerator-entries/webp-codec-simd.wasm', 'webp-codec-simd.wasm'],
+  ['src/accelerator-entries/resize.wasm', 'resize.wasm'],
+  ['src/accelerator-entries/resize-simd.wasm', 'resize-simd.wasm'],
   ['node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm', 'mozjpeg_dec.wasm'],
   ['node_modules/@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm', 'mozjpeg_enc.wasm'],
   ['node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm', 'squoosh_png_bg.wasm'],

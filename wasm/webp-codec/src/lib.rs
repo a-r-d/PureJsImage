@@ -1,6 +1,10 @@
 #![no_std]
+mod vp8_coefficients;
+mod vp8_filter;
+mod vp8_predict;
+mod vp8l_entropy;
 
-const ABI_VERSION: u32 = 1;
+const ABI_VERSION: u32 = 2;
 const STATUS_OK: u32 = 0;
 const ERROR_ARGUMENT: u32 = 1;
 const ERROR_MODE: u32 = 2;
@@ -352,7 +356,7 @@ pub extern "C" fn webp_codec_simd() -> u32 {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn webp_vp8_yuv_to_argb(
+pub extern "C" fn webp_vp8_yuv_to_rgba(
     y_pointer: u32,
     y_length: u32,
     y_stride: u32,
@@ -425,7 +429,8 @@ pub extern "C" fn webp_vp8_yuv_to_argb(
                 let blue = clamp_byte((luminance + 132_252 * u + 32_768) >> 16);
                 let green = clamp_byte((luminance - 25_624 * u - 53_281 * v + 32_768) >> 16);
                 let red = clamp_byte((luminance + 104_595 * v + 32_768) >> 16);
-                output[row * width + x] = pack(255, red, green, blue);
+                output[row * width + x] =
+                    u32::from_le_bytes([red as u8, green as u8, blue as u8, 255]);
             }
         }
         Ok(())

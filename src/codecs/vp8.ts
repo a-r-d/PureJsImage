@@ -4,12 +4,17 @@ import {
   defaultCoefficientProbabilities,
   keyframeBlockModeProbabilities,
 } from './vp8-tables.ts'
-import type { WebpKernel } from './webp-acceleration.ts'
+import type {
+  Vp8Plane as Plane,
+  Vp8CoefficientReader,
+  Vp8Factors,
+  WebpKernel,
+} from './webp-acceleration.ts'
 
 export interface DecodedVp8Rows {
   readonly y: number
   readonly height: number
-  readonly pixels: Uint32Array | Uint8Array
+  readonly pixels: Uint8Array
 }
 
 export interface DecodedVp8 {
@@ -187,6 +192,13 @@ class BooleanDecoder {
     this.offset += 2
   }
 
+  resume(reader: Vp8CoefficientReader): void {
+    this.#range = reader.range
+    this.value = reader.value
+    this.#bufferedBits = reader.bufferedBits
+    this.offset = reader.offset
+  }
+
   uint(bits: number): number {
     let value = 0
     for (let bit = bits - 1; bit >= 0; bit -= 1) value |= this.bit() << bit
@@ -267,12 +279,6 @@ interface Quantization {
   readonly uvAc: number
 }
 
-interface Factors {
-  readonly y1: readonly [number, number]
-  readonly y2: readonly [number, number]
-  readonly uv: readonly [number, number]
-}
-
 interface Macroblock {
   yMode: number
   uvMode: number
@@ -280,12 +286,6 @@ interface Macroblock {
   segment: number
   skip: boolean
   hasCoefficients: boolean
-}
-
-interface Plane {
-  readonly data: Uint8Array
-  readonly stride: number
-  readonly origin: number
 }
 
 const maybeSigned = (decoder: BooleanDecoder, bits: number): number =>
@@ -346,7 +346,11 @@ const parseQuantization = (decoder: BooleanDecoder): Quantization => ({
 })
 
 const clampQuantizer = (value: number): number => Math.max(0, Math.min(127, value))
-const factorSet = (segment: number, segmentation: Segmentation, quant: Quantization): Factors => {
+const factorSet = (
+  segment: number,
+  segmentation: Segmentation,
+  quant: Quantization,
+): Vp8Factors => {
   const segmentValue = segmentation.quantizers[segment] ?? 0
   const index = segmentation.enabled
     ? segmentation.absolute
@@ -500,7 +504,7 @@ const decodeMacroblockCoefficients = (
   decoder: BooleanDecoder,
   probabilities: Uint8Array,
   block: Macroblock,
-  factors: Factors,
+  factors: Vp8Factors,
   left: Int8Array,
   above: Int8Array,
   coefficients: Int32Array,
@@ -913,6 +917,7 @@ const reconstruct = (
   inverseDctTemporary: Int32Array,
   walshTemporary: Int32Array,
   walshOutput: Int32Array,
+  reader: Vp8CoefficientReader | undefined,
 ): void => {
   const yOffset = yPlane.origin + row * 16 * yPlane.stride + column * 16
   const uOffset = uPlane.origin + row * 8 * uPlane.stride + column * 8
@@ -928,6 +933,21 @@ const reconstruct = (
     fixAbove(vPlane, vOffset, 8, column, block.uvMode)
   }
 
+  if (
+    reader?.predict(
+      yPlane,
+      uPlane,
+      vPlane,
+      yOffset,
+      uOffset,
+      vOffset,
+      block,
+      rightEdge,
+      coefficients,
+      residualEnds,
+    )
+  )
+    return
   if (block.yMode === BLOCK) {
     const aboveRight = yOffset - yPlane.stride + 16
     if (rightEdge) {
@@ -1132,8 +1152,21 @@ const applyLoopFilterRow = (
   imageRow: number,
   segmentation: Segmentation,
   filter: LoopFilter,
+  kernel: WebpKernel | undefined,
+  params: Uint8Array | undefined,
 ): void => {
   if (filter.level === 0 && !segmentation.enabled) return
+  if (kernel && params) {
+    for (let column = 0; column < blocks.length; column += 1) {
+      const block = blocks[column]
+      if (!block) continue
+      const [level, interior] = loopFilterParameters(block, segmentation, filter)
+      params[column * 3] = level
+      params[column * 3 + 1] = interior
+      params[column * 3 + 2] = Number(block.hasCoefficients || block.yMode === BLOCK)
+    }
+    if (kernel.vp8FilterRow(yPlane, uPlane, vPlane, imageRow > 0, params)) return
+  }
   for (let column = 0; column < blocks.length; column += 1) {
     const block = blocks[column]
     if (!block) continue
@@ -1256,10 +1289,10 @@ const convertVp8Rows = (
   width: number,
   height: number,
   kernel?: WebpKernel,
-): Uint8Array | Uint32Array => {
+): Uint8Array => {
   const chromaWidth = Math.ceil(width / 2)
   const chromaHeight = Math.ceil(height / 2)
-  const accelerated = kernel?.vp8ToArgb(
+  const accelerated = kernel?.vp8ToRgba(
     yPlane.data.subarray(yPlane.origin, yPlane.origin + (height - 1) * yPlane.stride + width),
     yPlane.stride,
     uPlane.data.subarray(
@@ -1360,6 +1393,7 @@ export const decodeVp8 = (
       if (tokenOffset > offset + length)
         throw truncatedInput('VP8 token partition table is truncated')
       const tokenDecoders: BooleanDecoder[] = []
+      const coefficientReaders: (Vp8CoefficientReader | undefined)[] = []
       let currentOffset = tokenOffset
       for (let index = 0; index < partitionCount; index += 1) {
         const partitionLength =
@@ -1370,6 +1404,10 @@ export const decodeVp8 = (
           throw truncatedInput('VP8 token partition is truncated')
         }
         tokenDecoders.push(booleanDecoder(data, currentOffset, partitionLength))
+        if (kernel)
+          coefficientReaders.push(
+            kernel.prepareVp8Coefficients(data, currentOffset, partitionLength, probabilities),
+          )
         currentOffset += partitionLength
       }
 
@@ -1381,6 +1419,7 @@ export const decodeVp8 = (
       const walshTemporary = new Int32Array(16)
       const walshOutput = new Int32Array(16)
       const residualEnds = new Uint8Array(25)
+      const filterParams = kernel && !loopFilter.simple ? new Uint8Array(columns * 3) : undefined
       const coefficients = new Int32Array(25 * 16)
       const factors = Array.from({ length: 4 }, (_, segment) =>
         factorSet(segment, segmentation, quantization),
@@ -1416,12 +1455,15 @@ export const decodeVp8 = (
           skipProbability,
         )
         const leftContext = new Int8Array(9)
-        const tokenDecoder = tokenDecoders[row % partitionCount]
+        const partitionIndex = row % partitionCount
+        let reader = coefficientReaders[partitionIndex]
+        const tokenDecoder = tokenDecoders[partitionIndex]
         if (!tokenDecoder) throw invalidInput('VP8 token partition is missing')
         for (let column = 0; column < columns; column += 1) {
           const block = blocks[column]
           const aboveContext = aboveContexts[column]
           if (!block || !aboveContext) throw invalidInput('VP8 macroblock state is missing')
+          let prediction: Vp8CoefficientReader | undefined
           if (block.skip) {
             residualEnds.fill(0)
             coefficients.fill(0)
@@ -1432,16 +1474,33 @@ export const decodeVp8 = (
               aboveContext[8] = 0
             }
           } else {
-            decodeMacroblockCoefficients(
-              tokenDecoder,
-              probabilities,
-              block,
-              factors[block.segment] ?? factorSet(0, segmentation, quantization),
+            const quantizers = factors[block.segment] ?? factorSet(0, segmentation, quantization)
+            const nonzero = reader?.decode(
+              block.yMode === BLOCK,
+              quantizers,
               leftContext,
               aboveContext,
-              coefficients,
-              residualEnds,
             )
+            if (nonzero !== undefined) {
+              prediction = reader
+              block.hasCoefficients = nonzero
+            } else {
+              if (reader) {
+                tokenDecoder.resume(reader)
+                reader = undefined
+                coefficientReaders[partitionIndex] = undefined
+              }
+              decodeMacroblockCoefficients(
+                tokenDecoder,
+                probabilities,
+                block,
+                quantizers,
+                leftContext,
+                aboveContext,
+                coefficients,
+                residualEnds,
+              )
+            }
           }
           reconstruct(
             yPlane,
@@ -1456,6 +1515,7 @@ export const decodeVp8 = (
             inverseDctTemporary,
             walshTemporary,
             walshOutput,
+            prediction,
           )
         }
 
@@ -1470,7 +1530,18 @@ export const decodeVp8 = (
           restorePlaneRow(uPlane, 7, filteredUAbove)
           restorePlaneRow(vPlane, 7, filteredVAbove)
         }
-        applyLoopFilterRow(yPlane, uPlane, vPlane, blocks, planeRow, row, segmentation, loopFilter)
+        applyLoopFilterRow(
+          yPlane,
+          uPlane,
+          vPlane,
+          blocks,
+          planeRow,
+          row,
+          segmentation,
+          loopFilter,
+          kernel,
+          filterParams,
+        )
 
         const previous = modeAbove
         modeAbove = blocks

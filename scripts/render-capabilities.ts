@@ -83,7 +83,7 @@ const readmeBlock = (
     '',
     '“Limited” means only the documented subset is supported. Experimental codecs need a separate import and are excluded from `allCodecs`.',
     '',
-    'WASM does not cover every file the TypeScript codec can read. JPEG acceleration handles common baseline images; PNG handles common non-interlaced 8-bit images; WebP accelerates selected color and transform steps. [Setup, supported cases and fallback behavior](https://purejsimage.com/api/#wasm-acceleration).',
+    'WASM does not cover every file the TypeScript codec can read. JPEG acceleration handles common baseline and progressive images; PNG handles common non-interlaced 8-bit images; WebP handles lossy decode and selected lossless steps. A separate resize accelerator runs Lanczos 3 and box downscaling for 8-bit RGB and RGBA. [Setup, supported cases and fallback behavior](https://purejsimage.com/api/#wasm-acceleration).',
     '',
     '[See the exact codec support matrix →](https://purejsimage.com/codecs/)',
     '',

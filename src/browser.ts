@@ -25,6 +25,7 @@ export type {
   ImageCodecAccelerator,
   ImageLibraryConfiguration,
   ImageLibraryRegistration,
+  ImageResizeAccelerator,
 } from './accelerator.ts'
 export type {
   BuiltInFormat,
@@ -46,6 +47,7 @@ export { CodecRegistry } from './codec.ts'
 export type { ImageErrorCode } from './errors.ts'
 export { ImageError } from './errors.ts'
 export type { ImageExecutionOptions, ImageOpenOptions } from './image-core.ts'
+export type { ResizeBoxSession, ResizeFilterRequest, ResizeFilterSession } from './resize.ts'
 export type Image = RuntimeImage<ImageInput, Uint8Array>
 export type ImageLibrary = RuntimeImageLibrary<ImageInput, Uint8Array>
 export type { ImageLimitOptions, ImageLimits } from './limits.ts'
@@ -55,12 +57,12 @@ export type {
   AvifEncodeOptions,
   Background,
   BmpEncodeOptions,
-  GifEncodeOptions,
-  IcoEncodeOptions,
   ConvertiblePixelFormat,
   ConvertPixelFormatOptions,
   CropOptions,
+  GifEncodeOptions,
   HdrEncodeOptions,
+  IcoEncodeOptions,
   JpegEncodeOptions,
   JpegXlEncodeOptions,
   LutOptions,

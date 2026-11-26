@@ -14,7 +14,7 @@ import type { PixelBlock } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import { type ImageSource, readExactly, SourceReader } from '../source.ts'
 import { uint16BigEndian } from './helpers.ts'
-import type { BaselineJpeg, JpegRegion } from './jpeg-baseline.ts'
+import type { BaselineJpeg, JpegCoefficientRenderImage, JpegRegion } from './jpeg-baseline.ts'
 import { parseJpegExifOrientation } from './jpeg-metadata.ts'
 
 const startOfFrameMarkers = new Set([
@@ -138,7 +138,22 @@ export interface JpegAccelerationRequest {
   readonly tolerantDecoding: boolean
 }
 
+export interface JpegCoefficientAccelerationRequest {
+  readonly jpeg: JpegCoefficientRenderImage
+  readonly region: JpegRegion
+  readonly scaleDenominator: 1 | 2 | 4 | 8
+}
+
 export interface JpegAcceleration {
+  renderCoefficients?(
+    request: JpegCoefficientAccelerationRequest,
+  ): Promise<AsyncIterable<PixelBlock> | undefined>
+  /** Decode progressive scans into compact planes before row reconstruction. */
+  progressiveCoefficients?(
+    source: ImageSource,
+    limits: ImageLimits,
+    options: Readonly<DecoderOptions>,
+  ): Promise<JpegCoefficientRenderImage | undefined>
   decode?(request: JpegAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined>
   encode?(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder | undefined>
 }

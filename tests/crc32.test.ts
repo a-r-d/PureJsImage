@@ -27,4 +27,22 @@ describe('CRC-32', () => {
     ).toBe(whole)
     expect(zlibCrc32(third, zlibCrc32(second, zlibCrc32(first))) >>> 0).toBe(whole)
   })
+
+  it('matches zlib across the switch to the sliced loop with unaligned chunks', () => {
+    const data = new Uint8Array(1_200_001)
+    let state = 7
+    for (let index = 0; index < data.byteLength; index += 1) {
+      state = (Math.imul(state, 1_664_525) + 1_013_904_223) >>> 0
+      data[index] = state >>> 24
+    }
+    // Odd sizes and offsets cover partial 8-byte groups, short calls and unaligned views.
+    let crc = 0xff_ff_ff_ff
+    let offset = 0
+    for (let step = 0; offset < data.byteLength; step += 1) {
+      const size = [1, 63, 64, 65, 8_191, 40_003][step % 6] ?? 1
+      crc = updateCrc32(crc, data.subarray(offset, offset + size))
+      offset += size
+    }
+    expect((crc ^ 0xff_ff_ff_ff) >>> 0).toBe(zlibCrc32(data) >>> 0)
+  })
 })

@@ -4,6 +4,7 @@ export type {
   ImageCodecAccelerator,
   ImageLibraryConfiguration,
   ImageLibraryRegistration,
+  ImageResizeAccelerator,
 } from './accelerator.ts'
 export type {
   BuiltInFormat,
@@ -53,12 +54,12 @@ export type {
   AvifEncodeOptions,
   Background,
   BmpEncodeOptions,
-  GifEncodeOptions,
-  IcoEncodeOptions,
   ConvertiblePixelFormat,
   ConvertPixelFormatOptions,
   CropOptions,
+  GifEncodeOptions,
   HdrEncodeOptions,
+  IcoEncodeOptions,
   JpegEncodeOptions,
   JpegXlEncodeOptions,
   LutOptions,
@@ -89,6 +90,7 @@ export type {
   PixelStorageDescriptor,
 } from './pixel.ts'
 export { BufferPool, pixelBytesPerPixel, pixelStorage } from './pixel.ts'
+export type { ResizeBoxSession, ResizeFilterRequest, ResizeFilterSession } from './resize.ts'
 export type { ImageSink } from './sink.ts'
 export { Uint8ArraySink } from './sink.ts'
 export type { ImageSource, ImageSourceReadOptions } from './source.ts'

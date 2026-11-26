@@ -566,7 +566,7 @@
       "supportFile": "jpeg-codec-support.md",
       "packageFormat": "jpeg",
       "readmeSummary": "8-bit baseline and progressive; grayscale, RGB and CMYK. Gain maps use the HDR API.",
-      "wasmSummary": "Baseline read/write",
+      "wasmSummary": "Baseline and progressive read; baseline write",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -786,6 +786,10 @@
         "  scan-progression regressions with strict allocation and source-cleanup checks",
         "- [x] Keep opt-in Rust/WASM baseline decoding at pixel parity, including tolerant",
         "  restart recovery and bounded TypeScript fallback after setup or midstream failures",
+        "- [x] Keep opt-in scalar and SIMD Rust/WASM progressive decoding at pixel parity:",
+        "  DC and AC first and refinement scans, end-of-band runs, restarts, compact",
+        "  coefficient planes, bounded row reconstruction, and 1/2 and 1/4 scaled output,",
+        "  with TypeScript resuming reconstruction without duplicate rows after a failure",
         ""
       ]
     },
@@ -994,7 +998,7 @@
       "supportFile": "webp-codec-support.md",
       "packageFormat": "webp",
       "readmeSummary": "Static and animated lossy, lossless and near-lossless output; alpha supported.",
-      "wasmSummary": "Pixel/transform steps",
+      "wasmSummary": "Lossy decode; lossless steps",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -1225,6 +1229,10 @@
         "- [x] Keep opt-in scalar and SIMD Rust/WASM VP8 row conversion and VP8L decode",
         "  and encode transforms at exact TypeScript parity, with bounded row or block",
         "  copies and transparent TypeScript fallback after setup or kernel failures",
+        "- [x] Keep opt-in Rust/WASM VP8 coefficient decoding, prediction, inverse",
+        "  transforms and loop filtering, and cache-free VP8L entropy decoding, at exact",
+        "  TypeScript parity per macroblock, row or band, resuming in TypeScript without",
+        "  duplicate rows after a failure",
         ""
       ]
     },

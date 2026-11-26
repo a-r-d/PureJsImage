@@ -1,6 +1,6 @@
 import type {
-  DecoderOptions,
   DecodeRequest,
+  DecoderOptions,
   EncodeRequest,
   ImageCodec,
   ImageDecoder,
@@ -340,7 +340,7 @@ const decodeRegion = (
 interface WebpPixelRows {
   readonly y: number
   readonly height: number
-  // VP8 produces RGBA bytes. Lossless and accelerated output uses packed ARGB words.
+  // VP8 produces RGBA bytes. VP8L produces packed ARGB words.
   readonly pixels: Uint32Array | Uint8Array
 }
 

@@ -1,18 +1,18 @@
-import type { DecoderOptions, DecodeRequest, ImageDecoder } from '../codec.ts'
+import type { DecodeRequest, DecoderOptions, ImageDecoder } from '../codec.ts'
 import { invalidInput } from '../errors.ts'
 import { type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { type PixelBlock, resumePixelBlocks } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
+import type { JpegAcceleration } from './jpeg.ts'
 import {
   type BaselineJpeg,
   decodeBaselineJpeg,
   decodeProgressiveJpeg,
+  type JpegCoefficientRenderImage,
   type JpegRegion,
-  type ProgressiveJpeg,
   parseBaselineJpegSource,
   parseCoefficientJpegSource,
 } from './jpeg-baseline.ts'
-import type { JpegAcceleration } from './jpeg.ts'
 
 const region = (width: number, height: number, request: DecodeRequest = {}): JpegRegion => {
   const x = request.x ?? 0
@@ -45,6 +45,32 @@ const scaleDenominator = (request: DecodeRequest): 1 | 2 | 4 | 8 => {
     throw invalidInput('JPEG decode scale denominator must be 1, 2, 4, or 8')
   }
   return scale
+}
+
+async function* acceleratedRows(
+  accelerated: AsyncIterable<PixelBlock>,
+  reference: AsyncIterable<PixelBlock>,
+): AsyncGenerator<PixelBlock> {
+  const iterator = accelerated[Symbol.asyncIterator]()
+  let emitted = 0
+  try {
+    while (true) {
+      let result: IteratorResult<PixelBlock>
+      try {
+        result = await iterator.next()
+      } catch {
+        break
+      }
+      if (result.done) return
+      emitted = Math.max(emitted, result.value.y + result.value.height)
+      yield result.value
+    }
+  } finally {
+    try {
+      await iterator.return?.()
+    } catch {}
+  }
+  yield* resumePixelBlocks(reference, emitted)
 }
 
 class JpegDecoder implements ImageDecoder {
@@ -91,27 +117,11 @@ class JpegDecoder implements ImageDecoder {
       }
       if (!accelerated) continue
 
-      const iterator = accelerated[Symbol.asyncIterator]()
-      let firstOutputRow = 0
-      while (true) {
-        let result: IteratorResult<PixelBlock>
-        try {
-          result = await iterator.next()
-        } catch {
-          try {
-            await iterator.return?.()
-          } catch {}
-          yield* resumePixelBlocks(
-            decodeBaselineJpeg(this.#jpeg, output, scale, undefined, this.#tolerantDecoding),
-            firstOutputRow,
-          )
-          return
-        }
-        if (result.done) return
-        const block = result.value
-        firstOutputRow = Math.max(firstOutputRow, block.y + block.height)
-        yield block
-      }
+      yield* acceleratedRows(
+        accelerated,
+        decodeBaselineJpeg(this.#jpeg, output, scale, undefined, this.#tolerantDecoding),
+      )
+      return
     }
     yield* decodeBaselineJpeg(this.#jpeg, output, scale, undefined, this.#tolerantDecoding)
   }
@@ -122,24 +132,46 @@ class ProgressiveJpegDecoder implements ImageDecoder {
   readonly height: number
   readonly pixelFormat = 'rgb8' as const
   readonly capabilities: ImageDecoder['capabilities']
-  readonly #jpeg: ProgressiveJpeg
+  readonly #jpeg: JpegCoefficientRenderImage
 
-  constructor(jpeg: ProgressiveJpeg) {
+  readonly #acceleration: JpegAcceleration | undefined
+
+  constructor(
+    jpeg: JpegCoefficientRenderImage,
+    progressive: boolean,
+    acceleration?: JpegAcceleration,
+  ) {
     this.width = jpeg.width
     this.height = jpeg.height
     this.#jpeg = jpeg
+    this.#acceleration = acceleration
     this.capabilities = Object.freeze({
       sequential: true,
       regionDecode: false,
       scaledDecode: true,
-      progressive: jpeg.progressive,
+      progressive,
     })
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const scale = scaleDenominator(request)
     const output = region(Math.ceil(this.width / scale), Math.ceil(this.height / scale), request)
-    yield* decodeProgressiveJpeg(this.#jpeg, output, scale)
+    const reference = decodeProgressiveJpeg(this.#jpeg, output, scale)
+    if (this.#acceleration?.renderCoefficients) {
+      let blocks: AsyncIterable<PixelBlock> | undefined
+      try {
+        blocks = await this.#acceleration.renderCoefficients({
+          jpeg: this.#jpeg,
+          region: output,
+          scaleDenominator: scale,
+        })
+      } catch {}
+      if (blocks) {
+        yield* acceleratedRows(blocks, reference)
+        return
+      }
+    }
+    yield* reference
   }
 }
 
@@ -155,6 +187,18 @@ export const createJpegDecoder = async (
     validateImageDimensions(baseline.width, baseline.height, 1, limits)
     return new JpegDecoder(baseline, accelerations, options.tolerantDecoding === true)
   }
+  for (const acceleration of accelerations) {
+    if (!acceleration.progressiveCoefficients) continue
+    try {
+      const image = await acceleration.progressiveCoefficients(source, limits, options)
+      if (image) {
+        validateImageDimensions(image.width, image.height, 1, limits)
+        return new ProgressiveJpegDecoder(image, true, acceleration)
+      }
+    } catch {
+      // No rows have been emitted. The reference parser owns error reporting.
+    }
+  }
   const progressive = await parseCoefficientJpegSource(
     source,
     (width, height) => {
@@ -165,5 +209,5 @@ export const createJpegDecoder = async (
     options.tolerantDecoding === true,
   )
   if (!progressive) throw invalidInput('JPEG coding process is unsupported')
-  return new ProgressiveJpegDecoder(progressive)
+  return new ProgressiveJpegDecoder(progressive, progressive.progressive)
 }

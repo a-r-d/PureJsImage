@@ -1,13 +1,50 @@
+import type { ImageResizeAccelerator } from './accelerator.ts'
 import type { PixelColorSemantics } from './color.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from './errors.ts'
 import type { ResizeKernel, ResizeOptions } from './pipeline.ts'
 import { calculateResizeDimensions } from './pipeline.ts'
 import { type PixelBlock, type PixelFormat, pixelBytesPerPixel, pixelStorage } from './pixel.ts'
 
+/** Samples for output x occupy [offsets[x], offsets[x + 1]) in both tables. */
 interface AxisCoefficients {
   readonly offsets: Uint32Array
   readonly indices: Uint32Array
   readonly weights: Float64Array
+}
+
+export interface ResizeFilterRequest {
+  readonly sourceWidth: number
+  readonly format: 'rgb8' | 'rgba8'
+  readonly outputChannels: 3 | 4
+  /** Decoder guarantees alpha 255 and the reference uses a three-channel ring. */
+  readonly opaque: boolean
+  readonly horizontal: AxisCoefficients
+  readonly capacity: number
+}
+
+export interface ResizeFilterSession {
+  /** Return scratch to the accelerator after the last output row or early cancellation. */
+  release?(): void
+  /** One Float32 row per slot. Source row y uses slot y % capacity. Completed rows
+   * remain readable after failure so the reference can finish without replaying input. */
+  readonly rows: readonly Float32Array[]
+  /** Write every filtered channel, including zeroes in transparent spans. */
+  horizontal(source: Uint8Array, slot: number): void
+  vertical(
+    axis: AxisCoefficients,
+    first: number,
+    last: number,
+    output: Uint8Array,
+    offset: number,
+  ): void
+}
+
+export interface ResizeBoxSession {
+  release?(): void
+  /** Last committed group prefix. A failed add must leave these sums intact for recovery. */
+  readonly sums: Float64Array
+  add(source: Uint8Array, first: boolean): void
+  write(rows: number, output: Uint8Array, offset: number): void
 }
 
 interface ResizePlan {
@@ -1234,6 +1271,7 @@ const boxShrinkBlocks = async function* (
   format: PixelFormat,
   factorX: number,
   factorY: number,
+  accelerator?: ImageResizeAccelerator,
 ): AsyncGenerator<PixelBlock> {
   const outputWidth = Math.ceil(sourceWidth / factorX)
   const outputHeight = Math.ceil(sourceHeight / factorY)
@@ -1246,6 +1284,15 @@ const boxShrinkBlocks = async function* (
   const rgb8x4 = format === 'rgb8' && factorX === 4 && factorY <= 65_536
   const integerSums = rgb8x4 ? new Uint32Array(outputStride) : undefined
   const sums = rgb8x4 ? undefined : new Float64Array(outputStride)
+  let box: ResizeBoxSession | undefined
+  if (accelerator?.createBox && (format === 'rgb8' || format === 'rgba8')) {
+    try {
+      box = await accelerator.createBox(sourceWidth, format, factorX)
+    } catch {
+      // Initialization failed before reading input.
+    }
+  }
+  const boxLease = box
   let block = new Uint8Array(outputStride * blockCapacity)
   let sourceY = 0
   let rowsInGroup = 0
@@ -1254,96 +1301,126 @@ const boxShrinkBlocks = async function* (
 
   // Iterating input blocks directly keeps the per-row work synchronous; an
   // async row iterator costs one microtask hop per source row.
-  for await (const inputBlock of input) {
-    try {
-      if (
-        inputBlock.x !== 0 ||
-        inputBlock.y !== sourceY ||
-        inputBlock.width !== sourceWidth ||
-        inputBlock.height < 1 ||
-        inputBlock.format !== format ||
-        inputBlock.stride < rowBytes ||
-        inputBlock.data.byteLength < inputBlock.stride * (inputBlock.height - 1) + rowBytes
-      ) {
-        throw invalidInput('Resize requires ordered, full-width pixel blocks')
-      }
-      if (sourceY + inputBlock.height > sourceHeight) {
-        throw invalidInput('Resize requires ordered, full-width pixel blocks')
-      }
-      for (let row = 0; row < inputBlock.height; row += 1) {
-        const source = inputBlock.data.subarray(
-          row * inputBlock.stride,
-          row * inputBlock.stride + rowBytes,
-        )
-        if (rowsInGroup === 0) {
-          integerSums?.fill(0)
-          sums?.fill(0)
+  try {
+    for await (const inputBlock of input) {
+      try {
+        if (
+          inputBlock.x !== 0 ||
+          inputBlock.y !== sourceY ||
+          inputBlock.width !== sourceWidth ||
+          inputBlock.height < 1 ||
+          inputBlock.format !== format ||
+          inputBlock.stride < rowBytes ||
+          inputBlock.data.byteLength < inputBlock.stride * (inputBlock.height - 1) + rowBytes
+        ) {
+          throw invalidInput('Resize requires ordered, full-width pixel blocks')
         }
-        if (integerSums !== undefined) {
-          accumulateBoxRowRgb8x4(source, outputWidth, integerSums)
-        } else if (sums !== undefined) {
-          accumulateBoxRow(source, format, sourceWidth, factorX, sums)
+        if (sourceY + inputBlock.height > sourceHeight) {
+          throw invalidInput('Resize requires ordered, full-width pixel blocks')
         }
-        sourceY += 1
-        rowsInGroup += 1
-        if (rowsInGroup < factorY && sourceY < sourceHeight) continue
-
-        if (integerSums !== undefined) {
-          writeBoxRowRgb8x4(
-            integerSums,
-            outputWidth,
-            rowsInGroup,
-            block,
-            blockHeight * outputStride,
+        for (let row = 0; row < inputBlock.height; row += 1) {
+          const source = inputBlock.data.subarray(
+            row * inputBlock.stride,
+            row * inputBlock.stride + rowBytes,
           )
-        } else if (sums !== undefined) {
-          writeBoxRow(
-            sums,
-            format,
-            sourceWidth,
-            factorX,
-            rowsInGroup,
-            block,
-            blockHeight * outputStride,
-          )
-        }
-        rowsInGroup = 0
-        blockHeight += 1
-
-        if (blockHeight === blockCapacity) {
-          yield {
-            x: 0,
-            y: blockY,
-            width: outputWidth,
-            height: blockHeight,
-            stride: outputStride,
-            format,
-            data: block,
+          if (box) {
+            try {
+              box.add(source, rowsInGroup === 0)
+            } catch {
+              if (rowsInGroup > 0) (integerSums ?? sums)?.set(box.sums)
+              box = undefined
+            }
           }
-          blockY += blockHeight
-          blockHeight = 0
-          const remaining = outputHeight - blockY
-          if (remaining > 0)
-            block = new Uint8Array(outputStride * Math.min(blockCapacity, remaining))
+          if (!box) {
+            if (rowsInGroup === 0) {
+              integerSums?.fill(0)
+              sums?.fill(0)
+            }
+            if (integerSums !== undefined) {
+              accumulateBoxRowRgb8x4(source, outputWidth, integerSums)
+            } else if (sums !== undefined) {
+              accumulateBoxRow(source, format, sourceWidth, factorX, sums)
+            }
+          }
+          sourceY += 1
+          rowsInGroup += 1
+          if (rowsInGroup < factorY && sourceY < sourceHeight) continue
+
+          if (box) {
+            try {
+              box.write(rowsInGroup, block, blockHeight * outputStride)
+            } catch {
+              ;(integerSums ?? sums)?.set(box.sums)
+              box = undefined
+            }
+          }
+          if (!box && integerSums !== undefined) {
+            writeBoxRowRgb8x4(
+              integerSums,
+              outputWidth,
+              rowsInGroup,
+              block,
+              blockHeight * outputStride,
+            )
+          } else if (!box && sums !== undefined) {
+            writeBoxRow(
+              sums,
+              format,
+              sourceWidth,
+              factorX,
+              rowsInGroup,
+              block,
+              blockHeight * outputStride,
+            )
+          }
+          rowsInGroup = 0
+          blockHeight += 1
+
+          if (blockHeight === blockCapacity) {
+            let released = false
+            yield {
+              x: 0,
+              y: blockY,
+              width: outputWidth,
+              height: blockHeight,
+              stride: outputStride,
+              format,
+              data: block,
+              ...(box && {
+                release: () => {
+                  released = true
+                },
+              }),
+            }
+            blockY += blockHeight
+            blockHeight = 0
+            const remaining = outputHeight - blockY
+            const nextSize = outputStride * Math.min(blockCapacity, remaining)
+            // A consumer may retain several blocks. Refill this buffer only after release.
+            if (remaining > 0 && (!released || block.length !== nextSize))
+              block = new Uint8Array(nextSize)
+          }
         }
+      } finally {
+        inputBlock.release?.()
       }
-    } finally {
-      inputBlock.release?.()
     }
-  }
-  if (sourceY !== sourceHeight) {
-    throw truncatedInput(`Resize received ${sourceY} of ${sourceHeight} rows`)
-  }
-  if (blockHeight > 0) {
-    yield {
-      x: 0,
-      y: blockY,
-      width: outputWidth,
-      height: blockHeight,
-      stride: outputStride,
-      format,
-      data: block.subarray(0, outputStride * blockHeight),
+    if (sourceY !== sourceHeight) {
+      throw truncatedInput(`Resize received ${sourceY} of ${sourceHeight} rows`)
     }
+    if (blockHeight > 0) {
+      yield {
+        x: 0,
+        y: blockY,
+        width: outputWidth,
+        height: blockHeight,
+        stride: outputStride,
+        format,
+        data: block.subarray(0, outputStride * blockHeight),
+      }
+    }
+  } finally {
+    boxLease?.release?.()
   }
 }
 
@@ -1790,6 +1867,7 @@ const resizedBlocks = async function* (
   plan: ResizePlan,
   outputFormat: PixelFormat,
   opaqueRgba8: boolean,
+  accelerator?: ImageResizeAccelerator,
 ): AsyncGenerator<PixelBlock> {
   const horizontal = coefficients(
     sourceWidth,
@@ -1813,6 +1891,26 @@ const resizedBlocks = async function* (
   const retainedSourceRows = new Int32Array(ringCapacity)
   retainedSourceRows.fill(-1)
   const retainedRows: (FilteredRow | undefined)[] = new Array(ringCapacity)
+  let session: ResizeFilterSession | undefined
+  if (
+    accelerator &&
+    (sourceFormat === 'rgb8' || sourceFormat === 'rgba8') &&
+    plan.kernel === 'lanczos3'
+  ) {
+    try {
+      session = await accelerator.createFilter({
+        sourceWidth,
+        format: sourceFormat,
+        outputChannels: outputFormat === 'rgba8' ? 4 : 3,
+        opaque: contiguousOpaque,
+        horizontal,
+        capacity: ringCapacity,
+      })
+    } catch {
+      // Initialization failed before any source row was consumed.
+    }
+  }
+  const filterLease = session
   const rowCache: RgbaRowCache | undefined =
     sourceFormat === 'rgba8' && !opaqueRgba8 && plan.kernel === 'lanczos3' && ringCapacity > 1
       ? {
@@ -1863,79 +1961,96 @@ const resizedBlocks = async function* (
           if (requiredSourceRows[loadedRows] !== 0) {
             const slot = loadedRows % ringCapacity
             const resizedRow = retainedRows[slot] ?? {
-              data: new Float32Array(plan.contentWidth * sourceChannels),
+              data: session?.rows[slot] ?? new Float32Array(plan.contentWidth * sourceChannels),
               start: 0,
               end: plan.contentWidth * sourceChannels,
             }
-            resizeHorizontal(next.value, plan.contentWidth, horizontal, resizedRow, rowCache)
+            if (session) {
+              try {
+                session.horizontal(next.value, slot)
+              } catch {
+                session = undefined
+              }
+            }
+            if (!session)
+              resizeHorizontal(next.value, plan.contentWidth, horizontal, resizedRow, rowCache)
             retainedRows[slot] = resizedRow
             retainedSourceRows[slot] = loadedRows
           }
           loadedRows += 1
         }
 
-        let contentStart = accumulated.length
-        let contentEnd = 0
-        accumulated.fill(0)
-        let sampleIndex = first
-        if (sourceFormat === 'rgba8' && !contiguousOpaque) {
-          for (; sampleIndex + 3 < last; sampleIndex += 4) {
-            const a = fullRow(sampleIndex)
-            const b = fullRow(sampleIndex + 1)
-            const c = fullRow(sampleIndex + 2)
-            const d = fullRow(sampleIndex + 3)
-            if (!a || !b || !c || !d) break
-            const wa = vertical.weights[sampleIndex] ?? 0
-            const wb = vertical.weights[sampleIndex + 1] ?? 0
-            const wc = vertical.weights[sampleIndex + 2] ?? 0
-            const wd = vertical.weights[sampleIndex + 3] ?? 0
-            // Match the Float32 store after each tap while keeping the sum in a register.
-            for (let i = 0; i < accumulated.length; i += 1) {
-              let sum = Math.fround((accumulated[i] ?? 0) + (a[i] ?? 0) * wa)
-              sum = Math.fround(sum + (b[i] ?? 0) * wb)
-              sum = Math.fround(sum + (c[i] ?? 0) * wc)
-              accumulated[i] = sum + (d[i] ?? 0) * wd
+        if (session) {
+          try {
+            session.vertical(vertical, first, last, block, blockOffset + plan.padX * outputChannels)
+          } catch {
+            session = undefined
+          }
+        }
+        if (!session) {
+          let contentStart = accumulated.length
+          let contentEnd = 0
+          accumulated.fill(0)
+          let sampleIndex = first
+          if (sourceFormat === 'rgba8' && !contiguousOpaque) {
+            for (; sampleIndex + 3 < last; sampleIndex += 4) {
+              const a = fullRow(sampleIndex)
+              const b = fullRow(sampleIndex + 1)
+              const c = fullRow(sampleIndex + 2)
+              const d = fullRow(sampleIndex + 3)
+              if (!a || !b || !c || !d) break
+              const wa = vertical.weights[sampleIndex] ?? 0
+              const wb = vertical.weights[sampleIndex + 1] ?? 0
+              const wc = vertical.weights[sampleIndex + 2] ?? 0
+              const wd = vertical.weights[sampleIndex + 3] ?? 0
+              // Match the Float32 store after each tap while keeping the sum in a register.
+              for (let i = 0; i < accumulated.length; i += 1) {
+                let sum = Math.fround((accumulated[i] ?? 0) + (a[i] ?? 0) * wa)
+                sum = Math.fround(sum + (b[i] ?? 0) * wb)
+                sum = Math.fround(sum + (c[i] ?? 0) * wc)
+                accumulated[i] = sum + (d[i] ?? 0) * wd
+              }
+              contentStart = 0
+              contentEnd = accumulated.length
             }
-            contentStart = 0
-            contentEnd = accumulated.length
           }
+          for (; sampleIndex < last; sampleIndex += 1) {
+            const sourceY = vertical.indices[sampleIndex]
+            const weight = vertical.weights[sampleIndex]
+            const slot = sourceY === undefined ? -1 : sourceY % ringCapacity
+            const row =
+              slot >= 0 && retainedSourceRows[slot] === sourceY ? retainedRows[slot] : undefined
+            if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
+            if (row.start < row.end) {
+              contentStart = Math.min(contentStart, row.start)
+              contentEnd = Math.max(contentEnd, row.end)
+            }
+            const data = row.data
+            for (let index = row.start; index < row.end; index += 1) {
+              accumulated[index] = (accumulated[index] ?? 0) + (data[index] ?? 0) * weight
+            }
+          }
+          if (contiguousOpaque) {
+            writeOpaqueContent(
+              accumulated,
+              block,
+              blockOffset + plan.padX * outputChannels,
+              plan.contentWidth,
+              vertical,
+              first,
+              last,
+            )
+          } else
+            writeContent(
+              accumulated,
+              sourceFormat,
+              block,
+              blockOffset + plan.padX * outputChannels,
+              plan.background ? 0 : contentStart / sourceChannels,
+              plan.background ? plan.contentWidth : contentEnd / sourceChannels,
+              outputFormat,
+            )
         }
-        for (; sampleIndex < last; sampleIndex += 1) {
-          const sourceY = vertical.indices[sampleIndex]
-          const weight = vertical.weights[sampleIndex]
-          const slot = sourceY === undefined ? -1 : sourceY % ringCapacity
-          const row =
-            slot >= 0 && retainedSourceRows[slot] === sourceY ? retainedRows[slot] : undefined
-          if (!row || weight === undefined) throw invalidInput('Resize source row is unavailable')
-          if (row.start < row.end) {
-            contentStart = Math.min(contentStart, row.start)
-            contentEnd = Math.max(contentEnd, row.end)
-          }
-          const data = row.data
-          for (let index = row.start; index < row.end; index += 1) {
-            accumulated[index] = (accumulated[index] ?? 0) + (data[index] ?? 0) * weight
-          }
-        }
-        if (contiguousOpaque) {
-          writeOpaqueContent(
-            accumulated,
-            block,
-            blockOffset + plan.padX * outputChannels,
-            plan.contentWidth,
-            vertical,
-            first,
-            last,
-          )
-        } else
-          writeContent(
-            accumulated,
-            sourceFormat,
-            block,
-            blockOffset + plan.padX * outputChannels,
-            plan.background ? 0 : contentStart / sourceChannels,
-            plan.background ? plan.contentWidth : contentEnd / sourceChannels,
-            outputFormat,
-          )
       }
 
       blockHeight += 1
@@ -1972,6 +2087,7 @@ const resizedBlocks = async function* (
       }
     }
   } finally {
+    filterLease?.release?.()
     await sourceRows.return?.(undefined)
   }
 }
@@ -2004,6 +2120,7 @@ export const createResizeTransform = (
   colorSemantics?: PixelColorSemantics,
   sampleBitDepths?: readonly number[],
   opaqueRgba8 = false,
+  accelerator?: ImageResizeAccelerator,
 ): ResizeTransform => {
   const plan = resizePlan(width, height, options)
   const format = resultFormat(pixelFormat, plan.background)
@@ -2062,7 +2179,7 @@ export const createResizeTransform = (
       const shrunk =
         factorX === 1 && factorY === 1
           ? blocks
-          : boxShrinkBlocks(blocks, width, height, pixelFormat, factorX, factorY)
+          : boxShrinkBlocks(blocks, width, height, pixelFormat, factorX, factorY, accelerator)
       if (shrinkCompletesPlan) return shrunk
       return resizedBlocks(
         shrunk,
@@ -2072,6 +2189,7 @@ export const createResizeTransform = (
         plan,
         format,
         opaqueRgba8 && pixelFormat === 'rgba8',
+        accelerator,
       )
     },
   }

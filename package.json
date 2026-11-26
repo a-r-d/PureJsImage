@@ -432,6 +432,13 @@
       "import": "./dist/accelerator-entries/wasm-png-node.js",
       "default": "./dist/accelerator-entries/wasm-png-node.js"
     },
+    "./accelerators/wasm/resize": {
+      "browser": "./dist/accelerator-entries/wasm-resize-browser.js",
+      "types": "./dist/accelerator-entries/wasm-resize-node.d.ts",
+      "node": "./dist/accelerator-entries/wasm-resize-node.js",
+      "import": "./dist/accelerator-entries/wasm-resize-node.js",
+      "default": "./dist/accelerator-entries/wasm-resize-node.js"
+    },
     "./accelerators/wasm/webp": {
       "browser": "./dist/accelerator-entries/wasm-webp-browser.js",
       "types": "./dist/accelerator-entries/wasm-webp-node.d.ts",
@@ -552,6 +559,7 @@
     "bench:geo:write": "node benchmark/geo/run.ts --write && biome format --write benchmark/generated/geo-benchmark.json",
     "bench:4d-stem": "node benchmark/four-d-stem/run.ts",
     "wasm:build:jpeg": "node scripts/build-wasm-jpeg.ts",
+    "wasm:build:resize": "node scripts/build-wasm-resize.ts",
     "wasm:build:png": "node scripts/build-wasm-png.ts",
     "wasm:build:webp": "node scripts/build-wasm-webp.ts",
     "typecheck": "tsc --noEmit",

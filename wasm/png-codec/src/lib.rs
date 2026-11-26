@@ -3,7 +3,7 @@
 #[cfg(feature = "simd")]
 use core::arch::wasm32::v128;
 
-const ABI_VERSION: u32 = 1;
+const ABI_VERSION: u32 = 2;
 const STATUS_OK: u32 = 0;
 const ERROR_ARGUMENT: u32 = 1;
 const ERROR_FILTER: u32 = 2;
@@ -558,7 +558,7 @@ pub extern "C" fn png_unfilter_rows(
         (
             shared_bytes(input),
             exclusive_bytes(output),
-            exclusive_bytes(previous),
+            shared_bytes(previous),
         )
     };
     let input_stride = input_stride as usize;
@@ -578,15 +578,15 @@ pub extern "C" fn png_unfilter_rows(
         let output_offset = row * output_stride;
         let filter = input_bytes[input_offset];
         let filtered = &input_bytes[input_offset + 1..input_offset + 1 + row_bytes];
-        let output_row = &mut output_bytes[output_offset..output_offset + row_bytes];
-        unfilter_row(
-            filter,
-            filtered,
-            &previous_bytes[..row_bytes],
-            bytes_per_pixel,
-            output_row,
-        );
-        copy_bytes(output_row, &mut previous_bytes[..row_bytes]);
+        let (finished, remaining) = output_bytes.split_at_mut(output_offset);
+        let above = if row == 0 {
+            &previous_bytes[..row_bytes]
+        } else {
+            let start = output_offset - output_stride;
+            &finished[start..start + row_bytes]
+        };
+        let output_row = &mut remaining[..row_bytes];
+        unfilter_row(filter, filtered, above, bytes_per_pixel, output_row);
     }
     STATUS_OK
 }
@@ -665,25 +665,24 @@ pub extern "C" fn png_filter_rows(
         let output_offset = row * output_stride;
         let source = &input_bytes[input_offset..input_offset + row_bytes];
         let output_row = &mut output_bytes[output_offset..output_offset + row_bytes + 1];
+        let above = if row == 0 {
+            &previous_bytes[..row_bytes]
+        } else {
+            let start = input_offset - input_stride;
+            &input_bytes[start..start + row_bytes]
+        };
         let filter = if adaptive == 1 {
-            adaptive_filter(
-                source,
-                &previous_bytes[..row_bytes],
-                bytes_per_pixel,
-                &mut output_row[1..],
-            )
+            adaptive_filter(source, above, bytes_per_pixel, &mut output_row[1..])
         } else {
             0
         };
         output_row[0] = filter;
-        filter_row(
-            filter,
-            source,
-            &previous_bytes[..row_bytes],
-            bytes_per_pixel,
-            &mut output_row[1..],
-        );
-        copy_bytes(source, &mut previous_bytes[..row_bytes]);
+        filter_row(filter, source, above, bytes_per_pixel, &mut output_row[1..]);
     }
+    let last = (row_count - 1) * input_stride;
+    copy_bytes(
+        &input_bytes[last..last + row_bytes],
+        &mut previous_bytes[..row_bytes],
+    );
     STATUS_OK
 }

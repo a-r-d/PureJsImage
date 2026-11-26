@@ -69,7 +69,16 @@ interface PureImageLibraryConfiguration {
   readonly accelerators: readonly PureImageAccelerator[]
 }
 
-interface PureImageAccelerator {
+type PureImageAccelerator =
+  | {
+      readonly transform: 'resize'
+      readonly id: string
+      readonly kind: string
+      createFilter(request: unknown): unknown
+    }
+  | PureCodecAccelerator
+
+interface PureCodecAccelerator {
   readonly format: string
   readonly id: string
   readonly kind: string
@@ -255,14 +264,18 @@ const isImageModule = (value: unknown): value is PureImageModule =>
 const isAccelerator = (value: unknown): value is PureImageAccelerator =>
   typeof value === 'object' &&
   value !== null &&
-  'format' in value &&
-  typeof value.format === 'string' &&
   'id' in value &&
   typeof value.id === 'string' &&
   'kind' in value &&
   typeof value.kind === 'string' &&
-  'accelerate' in value &&
-  typeof value.accelerate === 'function'
+  (('format' in value &&
+    typeof value.format === 'string' &&
+    'accelerate' in value &&
+    typeof value.accelerate === 'function') ||
+    ('transform' in value &&
+      value.transform === 'resize' &&
+      'createFilter' in value &&
+      typeof value.createFilter === 'function'))
 
 const isImageCodec = (value: unknown): boolean =>
   typeof value === 'object' &&

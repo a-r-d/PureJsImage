@@ -93,6 +93,16 @@ export const wasmAssetTargets: readonly WasmAssetTarget[] = [
     name: 'WebP codec SIMD WASM',
     sourceEntry: 'src/accelerator-entries/webp-codec-simd.wasm',
   },
+  {
+    id: 'resize',
+    name: 'Resize WASM',
+    sourceEntry: 'src/accelerator-entries/resize.wasm',
+  },
+  {
+    id: 'resize-simd',
+    name: 'Resize SIMD WASM',
+    sourceEntry: 'src/accelerator-entries/resize-simd.wasm',
+  },
 ]
 
 const exportsFrom = (entries: readonly string[]): string =>
