@@ -145,6 +145,12 @@ export type JpegXlEncodeOptions = JpegXlEncodeBaseOptions &
 
 export interface PngEncodeOptions {
   compressionLevel?: number
+  /**
+   * Write an indexed PNG when 8-bit RGB or RGBA output has 256 or fewer colors and the indexed
+   * file is smaller. The pixels are unchanged. Defaults to true. Set false to always write
+   * grayscale, RGB, or RGBA.
+   */
+  palette?: boolean
 }
 
 export interface WebpEncodeOptions {

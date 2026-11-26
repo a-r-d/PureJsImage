@@ -18,6 +18,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- PNG output from 8-bit RGB or RGBA pixels is now an indexed PNG when the image has 256 or fewer
+  colors and the indexed file is smaller. The pixels are the same. The encoder compresses the RGB
+  or RGBA stream and an 8-bit palette-index stream side by side, stops the index stream when a
+  257th color appears, and writes the smaller complete file. The logo crop benchmark now writes
+  3,611 bytes instead of 5,645, the 200 x 200 GIF frame 472 bytes instead of 1,173, and the
+  256-color TIFF 20,668 bytes instead of 46,502. Compressing twice adds about 1 ms to those
+  conversions. Photos usually need a 257th color in their first rows; Earthrise, whose top half
+  is almost all black, converts in 224 ms instead of 217 ms. Until the encoder knows the color
+  count, it holds compressed output in memory instead of writing it to the sink. Opaque indexed
+  files decode as `rgb8`. Grayscale and 16-bit output are unchanged. Pass
+  `png({ palette: false })` to always write grayscale, RGB or RGBA.
 - Resizing RGBA images with Lanczos 3 is faster with identical output. Each pair of neighboring
   output pixels now shares one read and premultiplication of every source pixel they both use,
   from a coefficient table capped at 512 KiB. A 4000 x 3000 transparent PNG resized to 2048 px

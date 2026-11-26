@@ -71,7 +71,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   'scientific-reader-ome-tiff': { baselineMinifiedBytes: 267_489, maxMinifiedBytes: 350_000 },
   'scientific-reader-ome-zarr': { maxMinifiedBytes: 220_000 },
   'scientific-reader-aperio-svs': { baselineMinifiedBytes: 259_477, maxMinifiedBytes: 338_000 },
-  'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 87_601 },
+  // 2026-11-26: raised from 87,601 to 91,000 bytes, owner approved. The reader bundles the PNG
+  // codec, whose encoder now also builds an indexed file for output with 256 or fewer colors.
+  'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 91_000 },
   'scientific-reader-jpeg': { baselineMinifiedBytes: 104_815, maxMinifiedBytes: 136_260 },
   'scientific-reader-webp': { baselineMinifiedBytes: 106_317, maxMinifiedBytes: 138_213 },
   'scientific-reader-bmp': { baselineMinifiedBytes: 44_120, maxMinifiedBytes: 57_356 },

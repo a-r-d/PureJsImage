@@ -3,7 +3,7 @@ import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
-import type { DeflateEncoder, DeflateOptions } from '../runtime.ts'
+import type { DeflateEncoder, DeflateOptions, ImageRuntime } from '../runtime.ts'
 import type { ImageSink } from '../sink.ts'
 import { crc32 } from './crc32.ts'
 import { signature, scanlineBlockRows, bytesPerPixel } from './png-common.ts'
@@ -12,13 +12,20 @@ import type { PngAcceleration, PngRowFilter } from './png.ts'
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
 
-const compressionLevel = (options: unknown): number => {
+interface PngEncoderOptions {
+  readonly level: number
+  readonly palette: boolean
+}
+
+const encoderOptions = (options: unknown): PngEncoderOptions => {
   if (!isRecord(options)) throw invalidInput('PNG encoder options must be an object')
-  const value = options.compressionLevel ?? 6
-  if (!Number.isInteger(value) || typeof value !== 'number' || value < 0 || value > 9) {
+  const level = options.compressionLevel ?? 6
+  if (!Number.isInteger(level) || typeof level !== 'number' || level < 0 || level > 9) {
     throw invalidInput('PNG compressionLevel must be an integer from 0 to 9')
   }
-  return value
+  const palette = options.palette ?? true
+  if (typeof palette !== 'boolean') throw invalidInput('PNG palette must be a boolean')
+  return { level, palette }
 }
 
 const typeBytes = (type: string): Uint8Array => {
@@ -32,7 +39,9 @@ const uint32Bytes = (value: number): Uint8Array => {
   return output
 }
 
-const writeChunk = async (sink: ImageSink, type: string, data: Uint8Array): Promise<void> => {
+type ChunkWriter = Pick<ImageSink, 'write'>
+
+const writeChunk = async (sink: ChunkWriter, type: string, data: Uint8Array): Promise<void> => {
   const encodedType = typeBytes(type)
   await sink.write(uint32Bytes(data.byteLength))
   await sink.write(encodedType)
@@ -40,9 +49,32 @@ const writeChunk = async (sink: ImageSink, type: string, data: Uint8Array): Prom
   await sink.write(uint32Bytes(crc32(encodedType, data)))
 }
 
-interface PngColorSignal {
-  readonly type: 'gAMA' | 'sRGB' | 'cICP'
+interface PngChunk {
+  readonly type: string
   readonly data: Uint8Array
+}
+
+interface PngColorSignal extends PngChunk {
+  readonly type: 'gAMA' | 'sRGB' | 'cICP'
+}
+
+const writeHeader = async (
+  sink: ChunkWriter,
+  width: number,
+  height: number,
+  bitDepth: number,
+  colorType: number,
+  ancillary: readonly PngChunk[],
+): Promise<void> => {
+  await sink.write(signature)
+  const header = new Uint8Array(13)
+  const view = new DataView(header.buffer)
+  view.setUint32(0, width)
+  view.setUint32(4, height)
+  header[8] = bitDepth
+  header[9] = colorType
+  await writeChunk(sink, 'IHDR', header)
+  for (const chunk of ancillary) await writeChunk(sink, chunk.type, chunk.data)
 }
 
 const pngRenderingIntentCode = (intent: PixelColorSemantics['renderingIntent']): number => {
@@ -287,7 +319,7 @@ const filterScanline = (
 }
 
 class PngEncoder implements ImageEncoder {
-  readonly #sink: ImageSink
+  readonly #sink: ChunkWriter
   readonly #deflater: DeflateEncoder
   readonly #width: number
   readonly #height: number
@@ -301,7 +333,7 @@ class PngEncoder implements ImageEncoder {
   #finished = false
 
   constructor(
-    sink: ImageSink,
+    sink: ChunkWriter,
     deflater: DeflateEncoder,
     width: number,
     height: number,
@@ -411,6 +443,275 @@ class PngEncoder implements ImageEncoder {
   }
 }
 
+// Holds encoded bytes until the palette encoder knows whether it needs them.
+class StagedOutput implements ChunkWriter {
+  readonly #target: ChunkWriter
+  #chunks: Uint8Array[] = []
+  #state: 'staging' | 'passing' | 'discarded' = 'staging'
+  #stagedBytes = 0
+
+  constructor(target: ChunkWriter) {
+    this.#target = target
+  }
+
+  get stagedBytes(): number {
+    return this.#stagedBytes
+  }
+
+  async write(chunk: Uint8Array): Promise<void> {
+    if (this.#state === 'passing') return this.#target.write(chunk)
+    if (this.#state === 'discarded') return
+    this.#chunks.push(chunk.slice())
+    this.#stagedBytes += chunk.byteLength
+  }
+
+  // Deflate output can arrive while earlier chunks flush, so flush until nothing is left.
+  async release(): Promise<void> {
+    while (this.#chunks.length > 0) {
+      const chunks = this.#chunks
+      this.#chunks = []
+      for (const chunk of chunks) await this.#target.write(chunk)
+    }
+    this.#state = 'passing'
+  }
+
+  discard(): void {
+    this.#chunks = []
+    this.#state = 'discarded'
+  }
+}
+
+const paletteSlots = 1024
+
+// Encodes the RGB or RGBA stream as usual and an 8-bit palette-index stream beside it. Both are
+// held as compressed bytes until the image needs a 257th color, when the index stream stops and
+// the held RGB or RGBA output is released. At the end, the smaller complete file is written.
+class PngPaletteEncoder implements ImageEncoder {
+  readonly #sink: ChunkWriter
+  readonly #staged: StagedOutput
+  readonly #truecolor: PngEncoder
+  readonly #width: number
+  readonly #height: number
+  readonly #rgba: boolean
+  readonly #ancillary: readonly PngChunk[]
+  readonly #keys = new Int32Array(paletteSlots)
+  // Palette index plus one; zero marks an empty slot.
+  readonly #slots = new Uint16Array(paletteSlots)
+  readonly #paletteKeys = new Int32Array(256)
+  readonly #runtime: ImageRuntime
+  readonly #level: number
+  #indexing = true
+  // Index rows collect here across blocks, since some decoders write one row at a time.
+  #pendingRows: Uint8Array | undefined
+  #pendingCount = 0
+  // Created after the first 32 rows fit in the palette, so most photos never open a second stream.
+  #indexDeflater: DeflateEncoder | undefined
+  // One batch compresses while the next is indexed, so decoding does not wait for each batch.
+  #indexWrite: Promise<void> | undefined
+  #indexChunks: Uint8Array[] = []
+  #indexBytes = 0
+  #colors = 0
+
+  constructor(
+    sink: ChunkWriter,
+    staged: StagedOutput,
+    truecolor: PngEncoder,
+    runtime: ImageRuntime,
+    level: number,
+    width: number,
+    height: number,
+    rgba: boolean,
+    ancillary: readonly PngChunk[],
+  ) {
+    this.#sink = sink
+    this.#staged = staged
+    this.#truecolor = truecolor
+    this.#width = width
+    this.#height = height
+    this.#rgba = rgba
+    this.#ancillary = ancillary
+    this.#runtime = runtime
+    this.#level = level
+  }
+
+  async write(block: PixelBlock): Promise<void> {
+    // The RGB or RGBA encoder validates the block before its pixels are indexed.
+    await this.#truecolor.write(block)
+    if (!this.#indexing) return
+    const rowBytes = this.#width + 1
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let row = 0; row < block.height; row += 1) {
+      this.#pendingRows ??= new Uint8Array(rowBytes * scanlineBlockRows)
+      const scanlines = this.#pendingRows
+      const output = this.#pendingCount * rowBytes + 1
+      const indexed = this.#rgba
+        ? this.#indexRgbaRow(view, row * block.stride, scanlines, output)
+        : this.#indexRgbRow(view, row * block.stride, scanlines, output)
+      if (!indexed) {
+        await this.#stopIndexing()
+        return
+      }
+      this.#pendingCount += 1
+      if (this.#pendingCount === scanlineBlockRows) await this.#writePendingRows()
+    }
+  }
+
+  async #writePendingRows(): Promise<void> {
+    const scanlines = this.#pendingRows
+    if (!scanlines) return
+    const length = this.#pendingCount * (this.#width + 1)
+    this.#pendingRows = undefined
+    this.#pendingCount = 0
+    this.#indexDeflater ??= this.#runtime.createDeflateEncoder(
+      { level: this.#level, strategy: 'default' },
+      async (chunk) => {
+        this.#indexChunks.push(chunk.slice())
+        this.#indexBytes += chunk.byteLength
+      },
+    )
+    await this.#indexWrite
+    const write = this.#indexDeflater.write(scanlines.subarray(0, length))
+    // A failed write is reported by the next await of #indexWrite, or dropped on abort.
+    write.catch(() => undefined)
+    this.#indexWrite = write
+  }
+
+  async finish(): Promise<void> {
+    await this.#truecolor.finish()
+    if (!this.#indexing) return
+    await this.#writePendingRows()
+    await this.#indexWrite
+    this.#indexWrite = undefined
+    this.#indexing = false
+    const deflater = this.#indexDeflater
+    this.#indexDeflater = undefined
+    if (!deflater) {
+      await this.#staged.release()
+      return
+    }
+    await deflater.finish()
+
+    const colors = this.#colors
+    let transparent = 0
+    if (this.#rgba) {
+      for (let index = 0; index < colors; index += 1) {
+        if (((this.#paletteKeys[index] ?? 0) & 0xff) !== 0xff) transparent = index + 1
+      }
+    }
+    let paletteBytes = signature.byteLength + 25 + 12 + colors * 3 + 12
+    if (transparent > 0) paletteBytes += 12 + transparent
+    for (const chunk of this.#ancillary) paletteBytes += 12 + chunk.data.byteLength
+    paletteBytes += this.#indexChunks.length * 12 + this.#indexBytes
+    if (paletteBytes >= this.#staged.stagedBytes) {
+      this.#indexChunks = []
+      await this.#staged.release()
+      return
+    }
+
+    this.#staged.discard()
+    const palette = new Uint8Array(colors * 3)
+    const alpha = new Uint8Array(transparent)
+    const shift = this.#rgba ? 8 : 0
+    for (let index = 0; index < colors; index += 1) {
+      const key = this.#paletteKeys[index] ?? 0
+      palette[index * 3] = (key >>> (16 + shift)) & 0xff
+      palette[index * 3 + 1] = (key >>> (8 + shift)) & 0xff
+      palette[index * 3 + 2] = (key >>> shift) & 0xff
+      if (index < transparent) alpha[index] = key & 0xff
+    }
+    await writeHeader(this.#sink, this.#width, this.#height, 8, 3, this.#ancillary)
+    await writeChunk(this.#sink, 'PLTE', palette)
+    if (transparent > 0) await writeChunk(this.#sink, 'tRNS', alpha)
+    const chunks = this.#indexChunks
+    this.#indexChunks = []
+    for (const chunk of chunks) await writeChunk(this.#sink, 'IDAT', chunk)
+    await writeChunk(this.#sink, 'IEND', new Uint8Array())
+  }
+
+  async abort(reason: unknown): Promise<void> {
+    this.#indexing = false
+    this.#pendingRows = undefined
+    this.#indexWrite = undefined
+    const deflater = this.#indexDeflater
+    this.#indexDeflater = undefined
+    this.#indexChunks = []
+    this.#staged.discard()
+    try {
+      await this.#truecolor.abort(reason)
+    } finally {
+      await deflater?.abort(reason)
+    }
+  }
+
+  async #stopIndexing(): Promise<void> {
+    this.#indexing = false
+    this.#pendingRows = undefined
+    this.#indexWrite = undefined
+    const deflater = this.#indexDeflater
+    this.#indexDeflater = undefined
+    this.#indexChunks = []
+    if (deflater) await deflater.abort(new Error('PNG output has more than 256 colors'))
+    await this.#staged.release()
+  }
+
+  // DataView reads keep the color key a small integer and measured 2.5x faster than byte reads.
+  #indexRgbaRow(view: DataView, offset: number, output: Uint8Array, outputOffset: number): boolean {
+    let lastKey = view.getInt32(offset)
+    let lastIndex = this.#paletteIndex(lastKey)
+    if (lastIndex < 0) return false
+    output[outputOffset] = lastIndex
+    const end = outputOffset + this.#width
+    for (let x = outputOffset + 1, index = offset + 4; x < end; x += 1, index += 4) {
+      const key = view.getInt32(index)
+      if (key !== lastKey) {
+        lastIndex = this.#paletteIndex(key)
+        if (lastIndex < 0) return false
+        lastKey = key
+      }
+      output[x] = lastIndex
+    }
+    return true
+  }
+
+  #indexRgbRow(view: DataView, offset: number, output: Uint8Array, outputOffset: number): boolean {
+    let lastKey = (view.getUint16(offset) << 8) | view.getUint8(offset + 2)
+    let lastIndex = this.#paletteIndex(lastKey)
+    if (lastIndex < 0) return false
+    output[outputOffset] = lastIndex
+    const end = outputOffset + this.#width
+    for (let x = outputOffset + 1, index = offset + 3; x < end; x += 1, index += 3) {
+      const key = (view.getUint16(index) << 8) | view.getUint8(index + 2)
+      if (key !== lastKey) {
+        lastIndex = this.#paletteIndex(key)
+        if (lastIndex < 0) return false
+        lastKey = key
+      }
+      output[x] = lastIndex
+    }
+    return true
+  }
+
+  // Returns the color's palette index, adding it when there is room, or -1 for a 257th color.
+  #paletteIndex(key: number): number {
+    const keys = this.#keys
+    const slots = this.#slots
+    let slot = Math.imul(key, 0x9e3779b1) >>> 22
+    let entry = slots[slot] ?? 0
+    while (entry !== 0) {
+      if (keys[slot] === key) return entry - 1
+      slot = (slot + 1) & (paletteSlots - 1)
+      entry = slots[slot] ?? 0
+    }
+    const index = this.#colors
+    if (index === 256) return -1
+    this.#colors = index + 1
+    keys[slot] = key
+    slots[slot] = index + 1
+    this.#paletteKeys[index] = key
+    return index
+  }
+}
+
 export const createPngEncoder = async (
   sink: ImageSink,
   request: EncodeRequest,
@@ -427,7 +728,7 @@ export const createPngEncoder = async (
     throw invalidInput(`Invalid PNG output dimensions: ${request.width}x${request.height}`)
   }
   bytesPerPixel(request.pixelFormat)
-  const level = compressionLevel(request.options)
+  const { level, palette } = encoderOptions(request.options)
   const runtime = request.runtime
   if (!runtime) throw unsupportedOperation('PNG encoding requires a runtime compression provider')
   const semantics = request.colorSemantics
@@ -445,6 +746,45 @@ export const createPngEncoder = async (
   }
   const nativeColorSignal =
     request.metadata?.icc === undefined ? nativePngColorSignal(semantics) : undefined
+  const ancillary: PngChunk[] = []
+  const icc = request.metadata?.icc
+  if (icc) {
+    const colorSpace = iccColorSpace(icc)
+    if (
+      colorSpace === 'other' ||
+      ((request.pixelFormat === 'gray8' || request.pixelFormat === 'gray16') &&
+        colorSpace !== 'gray') ||
+      (request.pixelFormat !== 'gray8' && request.pixelFormat !== 'gray16' && colorSpace !== 'rgb')
+    ) {
+      throw invalidInput('Preserved ICC profile does not match PNG output pixels')
+    }
+    const name = Uint8Array.of(
+      0x50,
+      0x75,
+      0x72,
+      0x65,
+      0x4a,
+      0x73,
+      0x49,
+      0x6d,
+      0x61,
+      0x67,
+      0x65,
+      0,
+      0,
+    )
+    const compressed = await runtime.deflate(icc, {
+      level: 6,
+      strategy: 'default',
+    })
+    const payload = new Uint8Array(name.byteLength + compressed.byteLength)
+    payload.set(name)
+    payload.set(compressed, name.byteLength)
+    ancillary.push({ type: 'iCCP', data: payload })
+  } else if (nativeColorSignal !== undefined) {
+    ancillary.push(nativeColorSignal)
+  }
+  if (request.metadata?.exif) ancillary.push({ type: 'eXIf', data: request.metadata.exif })
 
   let acceleratedFilter: PngRowFilter | undefined
   for (const acceleration of accelerations) {
@@ -459,11 +799,9 @@ export const createPngEncoder = async (
   }
 
   try {
-    await sink.write(signature)
-    const header = new Uint8Array(13)
-    const view = new DataView(header.buffer)
-    view.setUint32(0, request.width)
-    view.setUint32(4, request.height)
+    const indexed = palette && (request.pixelFormat === 'rgb8' || request.pixelFormat === 'rgba8')
+    const staged = indexed ? new StagedOutput(sink) : undefined
+    const output = staged ?? sink
     const bitDepth = request.pixelFormat.endsWith('16') ? 16 : 8
     const storageChannels =
       request.pixelFormat === 'gray8' || request.pixelFormat === 'gray16'
@@ -471,52 +809,13 @@ export const createPngEncoder = async (
         : request.pixelFormat === 'rgb8' || request.pixelFormat === 'rgb16'
           ? 3
           : 4
-    header[8] = bitDepth
-    header[9] = storageChannels === 1 ? 0 : storageChannels === 3 ? 2 : 6
-    await writeChunk(sink, 'IHDR', header)
-
-    const icc = request.metadata?.icc
-    if (icc) {
-      const colorSpace = iccColorSpace(icc)
-      if (
-        colorSpace === 'other' ||
-        ((request.pixelFormat === 'gray8' || request.pixelFormat === 'gray16') &&
-          colorSpace !== 'gray') ||
-        (request.pixelFormat !== 'gray8' &&
-          request.pixelFormat !== 'gray16' &&
-          colorSpace !== 'rgb')
-      ) {
-        throw invalidInput('Preserved ICC profile does not match PNG output pixels')
-      }
-      const name = Uint8Array.of(
-        0x50,
-        0x75,
-        0x72,
-        0x65,
-        0x4a,
-        0x73,
-        0x49,
-        0x6d,
-        0x61,
-        0x67,
-        0x65,
-        0,
-        0,
-      )
-      const compressed = await runtime.deflate(icc, { level: 6, strategy: 'default' })
-      const payload = new Uint8Array(name.byteLength + compressed.byteLength)
-      payload.set(name)
-      payload.set(compressed, name.byteLength)
-      await writeChunk(sink, 'iCCP', payload)
-    } else if (nativeColorSignal !== undefined) {
-      await writeChunk(sink, nativeColorSignal.type, nativeColorSignal.data)
-    }
-    if (request.metadata?.exif) await writeChunk(sink, 'eXIf', request.metadata.exif)
+    const colorType = storageChannels === 1 ? 0 : storageChannels === 3 ? 2 : 6
+    await writeHeader(output, request.width, request.height, bitDepth, colorType, ancillary)
     const options: DeflateOptions = {
       level,
       strategy: request.pixelFormat === 'rgb8' ? 'rle' : 'default',
     }
-    const onData = (chunk: Uint8Array): Promise<void> => writeChunk(sink, 'IDAT', chunk)
+    const onData = (chunk: Uint8Array): Promise<void> => writeChunk(output, 'IDAT', chunk)
     const parallel =
       request.threads === undefined
         ? undefined
@@ -526,14 +825,26 @@ export const createPngEncoder = async (
             request.threads,
             (1 + request.width * bytesPerPixel(request.pixelFormat)) * request.height,
           )
-    return new PngEncoder(
-      sink,
+    const truecolor = new PngEncoder(
+      output,
       parallel ?? runtime.createDeflateEncoder(options, onData),
       request.width,
       request.height,
       request.pixelFormat,
       level !== 0,
       acceleratedFilter,
+    )
+    if (!staged) return truecolor
+    return new PngPaletteEncoder(
+      sink,
+      staged,
+      truecolor,
+      runtime,
+      level,
+      request.width,
+      request.height,
+      request.pixelFormat === 'rgba8',
+      ancillary,
     )
   } catch (error) {
     acceleratedFilter?.release()

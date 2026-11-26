@@ -309,6 +309,8 @@ const lowerPng = (value: ParameterRecord): PipelineOperation => {
   const options: PngEncodeOptions = {}
   const compressionLevel = numberParameter(value, 'compressionLevel')
   if (compressionLevel !== undefined) options.compressionLevel = compressionLevel
+  const palette = booleanParameter(value, 'palette')
+  if (palette !== undefined) options.palette = palette
   return createPngEncodeOperation(options)
 }
 
@@ -542,7 +544,10 @@ const pipelineOperationDefinitions: readonly OperationDefinition<PipelineOperati
     ),
     encodeDefinition(
       'png',
-      objectSchema({ compressionLevel: { type: 'integer', minimum: 0, maximum: 9 } }),
+      objectSchema({
+        compressionLevel: { type: 'integer', minimum: 0, maximum: 9 },
+        palette: booleanSchema,
+      }),
       lowerPng,
     ),
     encodeDefinition(

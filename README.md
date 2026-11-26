@@ -81,7 +81,7 @@ All formats below have a TypeScript implementation. WASM is optional and covers 
 | Format | Read | Write | Optional WASM | What’s supported |
 | --- | --- | --- | --- | --- |
 | [JPEG](jpeg-codec-support.md) | Yes | Yes | [Baseline read/write](https://purejsimage.com/api/#wasm-acceleration) | 8-bit baseline and progressive; grayscale, RGB and CMYK. Gain maps use the HDR API. |
-| [PNG](png-codec-support.md) | Yes | Yes | [8-bit read/write](https://purejsimage.com/api/#wasm-acceleration) | 1–16-bit decode; 8/16-bit grayscale, RGB and RGBA output. No APNG frame decode. |
+| [PNG](png-codec-support.md) | Yes | Yes | [8-bit read/write](https://purejsimage.com/api/#wasm-acceleration) | 1–16-bit decode; 8/16-bit grayscale, RGB and RGBA output, plus exact indexed output. No APNG frame decode. |
 | [WebP](webp-codec-support.md) | Yes | Yes | [Pixel/transform steps](https://purejsimage.com/api/#wasm-acceleration) | Static lossy, lossless and near-lossless output; alpha supported. No animation. |
 | [BMP](bmp-codec-support.md) | Yes | Yes | No | Common Windows/OS2 and palette/RLE inputs; 24-bit RGB or 32-bit RGBA output. |
 | [TIFF](tiff-codec-support.md) | Yes | Yes | No | Classic TIFF/BigTIFF, strips, tiles and pages. Scientific, OME and whole-slide APIs are separate. |
@@ -221,6 +221,18 @@ Images with at most 384 KiB of filtered scanlines, single-threaded runtimes and 
 CompressionStream use the sequential compressor and produce the default bytes. CompressionStream
 does not expose a preset dictionary or a sync flush for joining chunks.
 [CompressionStream interface](https://compression.spec.whatwg.org/#compressionstream).
+
+### Indexed PNG output
+
+When 8-bit RGB or RGBA output has 256 or fewer colors, `png()` also compresses an indexed version
+and writes whichever file is smaller. The pixels are the same.
+
+- On the benchmark logo crop, GIF frame, palette BMP and palette TIFF inputs, the indexed files
+  were 36% to 73% smaller.
+- The encoder holds compressed output in memory until the image needs a 257th color or ends.
+  Photos usually pass 256 colors in the first rows.
+- Grayscale and 16-bit output keep their own color types.
+- Pass `palette: false` to always write grayscale, RGB or RGBA.
 
 ### Memory and optional temporary storage
 
@@ -494,13 +506,13 @@ Generated from the repository manifests and recorded package metrics (package ve
 
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 20.1 KiB | 6.8 KiB | 6.1 KiB |
-| Common web codecs | 687.1 KiB | 254.0 KiB | 210.2 KiB |
-| All stable codecs | 1457.4 KiB | 509.5 KiB | 409.8 KiB |
-| Scientific platform | 206.1 KiB | 59.7 KiB | 50.3 KiB |
-| All scientific readers | 1266.2 KiB | 368.4 KiB | 294.4 KiB |
+| Core API | 20.2 KiB | 6.9 KiB | 6.2 KiB |
+| Common web codecs | 690.7 KiB | 255.3 KiB | 211.2 KiB |
+| All stable codecs | 1461.0 KiB | 510.6 KiB | 410.9 KiB |
+| Scientific platform | 206.2 KiB | 59.7 KiB | 50.4 KiB |
+| All scientific readers | 1269.7 KiB | 369.6 KiB | 295.5 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 638.4 KiB | 194.0 KiB | 157.6 KiB |
+| All Geo readers | 641.9 KiB | 195.1 KiB | 158.8 KiB |
 
 The extracted npm package is 8.7 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -513,11 +525,11 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| Core API initial chunk | `purejsimage` | 20.1 KiB | 6.8 KiB | 6.1 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 687.1 KiB | 254.0 KiB | 210.2 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1457.4 KiB | 509.5 KiB | 409.8 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 206.1 KiB | 59.7 KiB | 50.3 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1266.2 KiB | 368.4 KiB | 294.4 KiB |
+| Core API initial chunk | `purejsimage` | 20.2 KiB | 6.9 KiB | 6.2 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 690.7 KiB | 255.3 KiB | 211.2 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1461.0 KiB | 510.6 KiB | 410.9 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 206.2 KiB | 59.7 KiB | 50.4 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1269.7 KiB | 369.6 KiB | 295.5 KiB |
 
 The 8 optional JPEG, PNG, and WebP accelerator assets total 163.0 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
 

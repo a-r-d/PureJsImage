@@ -96,6 +96,9 @@ have focused fixture or benchmark coverage.
 - [x] 16-bit grayscale output from `gray16` input
 - [x] 16-bit truecolor RGB output from `rgb16` input
 - [x] 16-bit truecolor RGBA output from `rgba16` input
+- [x] Exact 8-bit indexed output, with `tRNS` alpha when needed, from `rgb8` or
+  `rgba8` input with 256 or fewer colors when the indexed file is smaller
+- [x] `palette: false` option that always writes grayscale, RGB, or RGBA
 - [x] Exact alpha preservation
 - [x] Zlib compression levels 0-9
 - [x] Adaptive per-row selection across filters 0-4 when compression is enabled

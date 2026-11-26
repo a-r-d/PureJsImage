@@ -42,6 +42,7 @@
       "encoder": true,
       "evidence": [
         "tests/png.test.ts",
+        "tests/png-palette.test.ts",
         "tests/png-compatibility.test.ts",
         "tests/metadata-preservation.test.ts",
         "tests/wasm-png.test.ts",

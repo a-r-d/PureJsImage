@@ -364,7 +364,10 @@ import SiteLayout from '../layouts/SiteLayout.astro'
   restartInterval?: number       <span class="tok-comment">// 0–65535; 0 disables restart markers</span>
 &#125;
 
-<span class="tok-key">interface</span> PngEncodeOptions &#123; compressionLevel?: number &#125; <span class="tok-comment">// 0–9</span>
+<span class="tok-key">interface</span> PngEncodeOptions &#123;
+  compressionLevel?: number      <span class="tok-comment">// 0–9</span>
+  palette?: boolean              <span class="tok-comment">// true by default; indexed output when smaller</span>
+&#125;
 <span class="tok-key">interface</span> WebpEncodeOptions &#123; lossless?: boolean; quality?: number &#125;
 <span class="tok-key">interface</span> BmpEncodeOptions &#123; alpha?: boolean &#125;
 <span class="tok-key">interface</span> HdrEncodeOptions &#123; exposure?: number; gamma?: number &#125;

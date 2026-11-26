@@ -412,12 +412,13 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "No APNG frame decode, indexed output, or grayscale-alpha output without RGBA expansion",
-      "description": "Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Legal 16-bit input remains gray16, rgb16, or rgba16 through supported pipeline transforms. Encodes streaming 8-bit or 16-bit grayscale, RGB, or RGBA PNG with adaptive filters, exact representable native color signaling, and opt-in EXIF and compatible ICC preservation.",
-      "memory": "Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples",
+      "boundary": "No APNG frame decode, color quantization, sub-byte output, or grayscale-alpha output without RGBA expansion",
+      "description": "Decodes every legal grayscale, truecolor, indexed, and alpha combination at 1-16 bits, including Adam7, palettes, transparency, and supported color profiles. Legal 16-bit input remains gray16, rgb16, or rgba16 through supported pipeline transforms. Encodes streaming 8-bit or 16-bit grayscale, RGB, or RGBA PNG with adaptive filters, exact representable native color signaling, and opt-in EXIF and compatible ICC preservation. Writes 8-bit indexed PNG instead when RGB or RGBA output has 256 or fewer colors and the indexed file is smaller.",
+      "memory": "Sequential scanlines and bounded output blocks; Adam7 retains compact requested samples; 8-bit RGB and RGBA output holds compressed bytes until a 257th color appears or the image ends",
       "recommendation": "Exact alpha, screenshots, graphics, and lossless round trips.",
       "evidence": [
         "tests/png.test.ts",
+        "tests/png-palette.test.ts",
         "tests/png-compatibility.test.ts",
         "tests/metadata-preservation.test.ts",
         "tests/wasm-png.test.ts",
@@ -654,6 +655,14 @@
         {
           "status": "supported",
           "text": "16-bit truecolor RGBA output from `rgba16` input"
+        },
+        {
+          "status": "supported",
+          "text": "Exact 8-bit indexed output, with `tRNS` alpha when needed, from `rgb8` or `rgba8` input with 256 or fewer colors when the indexed file is smaller"
+        },
+        {
+          "status": "supported",
+          "text": "`palette: false` option that always writes grayscale, RGB, or RGBA"
         },
         {
           "status": "supported",

@@ -1589,6 +1589,54 @@ const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
+const canvasPixels = async (bytes: Uint8Array): Promise<Uint8ClampedArray> => {
+  const bitmap = await createImageBitmap(new Blob([Uint8Array.from(bytes)], { type: 'image/png' }))
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('2D OffscreenCanvas context is unavailable')
+  context.drawImage(bitmap, 0, 0)
+  bitmap.close()
+  return context.getImageData(0, 0, canvas.width, canvas.height).data
+}
+
+const pngPaletteOutput = async (): Promise<BrowserWorkflowResult> => {
+  const canvas = new OffscreenCanvas(64, 48)
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('2D OffscreenCanvas context is unavailable')
+  const colors = ['#0c50a0', '#f0b414', '#1e1e1e', '#ffffff']
+  for (let y = 0; y < 48; y += 8) {
+    for (let x = 0; x < 64; x += 8) {
+      context.fillStyle = colors[(x / 8 + y / 8) % colors.length] ?? '#000000'
+      context.fillRect(x, y, 8, 8)
+    }
+  }
+  context.clearRect(16, 16, 24, 16)
+  const source = context.getImageData(0, 0, 64, 48).data
+  const input = new Uint8Array(
+    await (await canvas.convertToBlob({ type: 'image/png' })).arrayBuffer(),
+  )
+  const image = await images.open(input)
+  const indexed = await image.png().toUint8Array()
+  const truecolor = await image.png({ palette: false }).toUint8Array()
+  if (indexed[25] !== 3 || indexed[24] !== 8) {
+    throw new Error(`Few-color PNG used color type ${indexed[25]} at depth ${indexed[24]}`)
+  }
+  if (truecolor[25] !== 6) throw new Error('palette: false did not keep RGBA output')
+  if (indexed.byteLength >= truecolor.byteLength) {
+    throw new Error('Indexed PNG output is not smaller than RGBA output')
+  }
+  for (const output of [indexed, truecolor]) {
+    const pixels = await canvasPixels(output)
+    if (pixels.length !== source.length || !pixels.every((value, i) => value === source[i])) {
+      throw new Error('Browser-decoded PNG output pixels differ from the canvas source')
+    }
+  }
+  return {
+    detail: 'indexed PNG output matched the source pixels',
+    outputBytes: indexed.byteLength,
+  }
+}
+
 const nativePngPrecision = async (): Promise<BrowserWorkflowResult> => {
   const bytes = Uint8Array.of(
     137,
@@ -5288,6 +5336,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   scientificOneDimensionalSeries,
   scientificOrdinaryCodecFallbacks,
   pngAlphaPipeline,
+  pngPaletteOutput,
   nativePngPrecision,
   progressiveJpeg,
   resizeDefaultKernel,

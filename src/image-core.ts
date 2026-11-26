@@ -348,6 +348,9 @@ export class Image<Input, Output extends Uint8Array> {
           ...('compressionLevel' in options && options.compressionLevel !== undefined
             ? { compressionLevel: options.compressionLevel }
             : {}),
+          ...('palette' in options && options.palette !== undefined
+            ? { palette: options.palette }
+            : {}),
         }),
       )
     }

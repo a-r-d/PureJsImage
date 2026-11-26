@@ -1060,9 +1060,15 @@ describe('Rust/WASM PNG accelerator', () => {
     await expect(decode(codec, invalidFilter)).rejects.toMatchObject({ code: 'INVALID_INPUT' })
     await expect(decode(codec, valid)).resolves.toEqual(await decode(pngCodec, valid))
 
-    await expect(createEncoder(codec, new FailingSink(), 'rgba8', 47, 69)).rejects.toThrow(
-      'simulated PNG sink failure',
-    )
+    // 8-bit RGB and RGBA output stays staged until the encoder knows whether a palette fits,
+    // so the sink failure surfaces while writing or finishing. The executor then aborts.
+    const failing = await createEncoder(codec, new FailingSink(), 'rgba8', 47, 69)
+    const writeAll = async (): Promise<void> => {
+      await failing.write(makePixelBlock('rgba8', 47, 0, 69, 5))
+      await failing.finish()
+    }
+    await expect(writeAll()).rejects.toThrow('simulated PNG sink failure')
+    await failing.abort?.(new Error('simulated PNG sink failure'))
     await expect(encode(codec, 'rgba8')).resolves.toEqual(await encode(pngCodec, 'rgba8'))
   })
 

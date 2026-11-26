@@ -350,6 +350,13 @@ test('decodes and encodes PNG while preserving alpha', async ({ page }) => {
   expect(result.detail).toContain('preserved alpha')
 })
 
+test('writes indexed PNG output for few-color images in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.pngPaletteOutput())
+  expect(result.outputBytes).toBeGreaterThan(50)
+  expect(result.detail).toContain('indexed PNG output matched')
+})
+
 test('preserves native 16-bit PNG precision in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.nativePngPrecision())
