@@ -204,13 +204,16 @@ All notable changes to PureJsImage are documented in this file.
   frame of an animated GIF, `gif-first-frame-png` and `lambda-logo-gif`. Both failed for
   PureJsImage after animated GIF decoding started to require an explicit frame. Pipeline
   workflows can set a `frame` field for this.
-- The published web codec benchmark is rerun at `b6ac46f9`, after the JPEG, AVIF, PNG and lossless
-  WebP speedups. The README table, website charts and public snapshot use the new run, with the
-  same 143 passing and 25 unsupported cases. PureJsImage's median wall time across workflows fell
-  10.9% from the previous snapshot; the other engines moved -4.8% to +0.1%. With default settings,
-  PureJsImage is faster than ImageScript 4.0.0 on 16 of 21 shared workflows and uses less peak RSS
-  on 17. ImageScript is still faster on AVIF to PNG, lossy and lossless WebP decoding, the small
-  transparent PNG resize and the 100 MP PNG downscale, where it uses 1268 MiB against 206 MiB.
+- The published web codec benchmark is rerun at `4e4a22e0`, after the lazy codec loading, the
+  JPEG, PNG, WebP, rotation and resize speedups and the faster JPEG and PNG WASM accelerators. The
+  README table, website charts and public snapshot use the new run, with the same 143 passing and
+  25 unsupported cases. Compared with the previous snapshot, PureJsImage's median wall time across
+  workflows fell 5.2% and the WASM configuration's fell 16.0%; the other engines moved -2.1% to
+  +1.2%. The run uses the new garbage collection before each measured run, which lowered peak RSS
+  for every engine (the other engines by 1.5% to 9.6%), so peak RSS is not comparable with older
+  snapshots. With default settings, PureJsImage is faster than ImageScript 4.0.0 on 19 of 21 shared
+  workflows and uses less peak RSS on all 21. ImageScript is still faster on the small transparent
+  PNG resize (38 ms against 43 ms) and AVIF to PNG (457 ms against 472 ms).
 - `AGENTS.md` now allows parallel execution only behind the explicit, default-off `threads`
   option, with capability detection in the runtime adapters, bounded memory per thread, and a
   separate benchmark engine. The single-threaded path stays the default and the main target.

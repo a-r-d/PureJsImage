@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T02:42:30.256Z",
-  "sourceResultIndex": "benchmark/results/result-index-2026-11-25T02-42-30-045Z.json",
+  "generatedAt": "2026-11-26T03:10:03.705Z",
+  "sourceResultIndex": "benchmark/results/result-index-2026-11-26T03-10-03-492Z.json",
   "results": [
     {
       "commit": "a2f0ba6",
@@ -37,8 +37,8 @@
       "sourceValidationStatus": "passed"
     },
     {
-      "commit": "b6ac46f9be55f0aa224350f190aad0f398ef2921",
-      "date": "2026-11-25T02:42:04.827Z",
+      "commit": "4e4a22e030c0848a3c2fea9464e120a4472f0e51",
+      "date": "2026-11-26T03:09:49.485Z",
       "eligibleForDocumentationHeadlines": true,
       "engineVersions": {
         "purejsimage": "0.18.0 (workspace)",
@@ -56,17 +56,17 @@
       "publicationValidationStatus": "passed",
       "validationStatus": "passed",
       "resultPaths": [
-        "benchmark/results/public/web-codecs-2026-11-25T02-42-04-827Z.json",
-        "benchmark/results/public/web-codecs-2026-11-25T02-42-04-827Z.md"
+        "benchmark/results/public/web-codecs-2026-11-26T03-09-49-485Z.json",
+        "benchmark/results/public/web-codecs-2026-11-26T03-09-49-485Z.md"
       ],
       "sha256": {
-        "json": "54bbc7685c00b514177d7acfc1c52ee9d9bc7ee13cd0ba12c75953991c64f461",
-        "markdown": "608fc39b4b0f4bf16123e8b8d0b90aa6158899030ebe607a783163a28e2d2e04"
+        "json": "22fefc8807a094213b19bf3ccf838084a96a9898b17326c90167ffa82d880c66",
+        "markdown": "4b5eec12d633b4ff8677d559cb6d31917645ae9b1a589b255d172b59cec15a9e"
       },
       "sourceEligibilityForDocumentationHeadlines": true,
       "sourceResultPaths": [
-        "benchmark/results/2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.json",
-        "benchmark/results/2026-11-25T02-42-04-827Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.md"
+        "benchmark/results/2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.json",
+        "benchmark/results/2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.md"
       ],
       "sourceValidationStatus": "passed"
     },
