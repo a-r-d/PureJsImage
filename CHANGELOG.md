@@ -18,6 +18,17 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Resizing RGBA images with Lanczos 3 is faster with identical output. Each pair of neighboring
+  output pixels now shares one read and premultiplication of every source pixel they both use,
+  from a coefficient table capped at 512 KiB. A 4000 x 3000 transparent PNG resized to 2048 px
+  wide and saved as JPEG takes 786 ms instead of 873 ms, and the transparent logo resize to PNG
+  is 10% faster.
+- Lossy WebP with alpha and lossless WebP convert to PNG faster with identical output. WebP copies
+  compressed alpha straight from each decoded lossless row into the output, the lossless decoder
+  handles its first predictor row outside the hot loop, and PNG adaptive filtering keeps the
+  Average residuals it computes while scoring a row after an Average row. The 800 x 600 lossy
+  WebP with alpha converts to PNG in 68 ms instead of 78 ms, and the 386 x 395 lossless WebP in
+  31 ms instead of 36 ms.
 - The optional JPEG WASM decoder now handles half- and quarter-resolution decoding and reduced
   4:4:4 crops, which used to fall back to TypeScript. It also uses a faster full-resolution inverse
   DCT and exact integer color conversion, and refills compressed input between MCUs, so its WASM

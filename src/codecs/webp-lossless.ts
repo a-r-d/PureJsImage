@@ -794,15 +794,9 @@ const inversePredictorRow = (
   row: Uint32Array,
   width: number,
   y: number,
-  previous: Uint32Array | undefined,
+  previous: Uint32Array,
   transform: Extract<Transform, { type: 'predictor' }>,
 ): void => {
-  if (y === 0) {
-    row[0] = addPacked(row[0] ?? 0, 0xff000000)
-    for (let x = 1; x < width; x += 1) row[x] = addPacked(row[x] ?? 0, row[x - 1] ?? 0)
-    return
-  }
-  if (!previous) throw invalidInput('WebP predictor previous row is missing')
   if (transform.uniformMode === 11) {
     inversePredictorSelectRow(row, width, previous)
     return
@@ -1037,7 +1031,14 @@ function* decodeLosslessImageRows(
             y,
           )
         ) {
-          inversePredictorRow(row, currentWidth, y, predictorPrevious, transform)
+          if (y === 0) {
+            row[0] = addPacked(row[0] ?? 0, 0xff000000)
+            for (let x = 1; x < currentWidth; x += 1)
+              row[x] = addPacked(row[x] ?? 0, row[x - 1] ?? 0)
+          } else {
+            if (!predictorPrevious) throw invalidInput('WebP predictor previous row is missing')
+            inversePredictorRow(row, currentWidth, y, predictorPrevious, transform)
+          }
         }
         if (predictorPrevious === undefined || predictorPrevious.length !== currentWidth) {
           predictorPrevious = new Uint32Array(currentWidth)

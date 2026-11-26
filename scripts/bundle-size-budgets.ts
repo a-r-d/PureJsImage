@@ -49,7 +49,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 730_000 },
   // 2026-11-24: raised by 3,000 bytes, owner approved, for the same inlined parallel PNG encoder.
   // 2026-11-25: raised to 210,000 bytes, owner approved, for the same RGBA resize paths.
-  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 210_000 },
+  // 2026-11-26: raised to 212,000 bytes, owner approved, for the shared-read RGBA Lanczos resize.
+  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 212_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
   'scientific-reader-gsf': { baselineMinifiedBytes: 37_864, maxMinifiedBytes: 50_000 },

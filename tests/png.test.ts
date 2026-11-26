@@ -860,6 +860,18 @@ describe('PNG pixel pipeline', () => {
     ])
   })
 
+  it('rewrites all RGBA residuals when Paeth follows an Average row', async () => {
+    const first = [84, 138, 190, 248, 44, 70, 96, 126, 20, 33, 44, 61, 8, 14, 24, 32, 3, 8, 11, 15]
+    const second = [92, 141, 194, 255, 51, 94, 95, 141, 36, 38, 28, 45, 22, 0, 19, 33, 19, 0, 0, 25]
+    const input = specializedPng(5, 2, 8, 6, Uint8Array.of(0, ...first, 0, ...second))
+    const output = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()
+    const rows = uncompressedPngScanlines(output)
+    expect(rows[0]).toBe(3)
+    expect(Array.from(rows.subarray(21))).toEqual([
+      4, 8, 3, 4, 7, 7, 24, 255, 15, 16, 224, 240, 240, 2, 242, 251, 1, 253, 0, 245, 10,
+    ])
+  })
+
   it('keeps the final predictor residual beside a zero suffix', async () => {
     const input = specializedPng(
       10,

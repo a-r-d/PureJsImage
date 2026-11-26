@@ -213,8 +213,16 @@ const parseWebp = async (data: Uint8Array): Promise<ParsedWebp> => {
   }
 }
 
+type AlphaRow = Uint8Array | Uint32Array
+
 interface AlphaRows {
-  rows(): Iterable<Uint8Array>
+  rows(): Iterable<AlphaRow>
+}
+
+const nextAlphaRow = (rows: Iterator<AlphaRow>, width: number): AlphaRow => {
+  const row = rows.next()
+  if (row.done || row.value.length !== width) throw truncatedInput('WebP alpha rows are truncated')
+  return row.value
 }
 
 const decodeAlpha = async (
@@ -247,7 +255,11 @@ const decodeAlpha = async (
         )
       : undefined
   return {
-    *rows(): IterableIterator<Uint8Array> {
+    *rows(): IterableIterator<AlphaRow> {
+      if (filter === 0 && compressed) {
+        for (const block of compressed.rows()) yield block.pixels
+        return
+      }
       const sourceRows = compressed?.rows()[Symbol.iterator]()
       let previous: Uint8Array | undefined
       for (let y = 0; y < height; y += 1) {
@@ -351,18 +363,14 @@ class WebpPixelDecoder implements ImageDecoder {
     const region = decodeRegion(this.width, this.height, request)
     const alphaRows = this.#alpha?.rows()[Symbol.iterator]()
     for (const block of this.#source.rows()) {
-      const alphaBlock: Uint8Array[] = []
-      if (alphaRows) {
-        for (let row = 0; row < block.height; row += 1) {
-          const alpha = alphaRows.next().value
-          if (!alpha || alpha.length !== this.width)
-            throw truncatedInput('WebP alpha rows are truncated')
-          alphaBlock.push(alpha)
-        }
-      }
       const sourceStart = Math.max(block.y, region.y)
       const sourceEnd = Math.min(block.y + block.height, region.y + region.height)
-      if (sourceStart >= sourceEnd) continue
+      if (sourceStart >= sourceEnd) {
+        if (alphaRows) {
+          for (let row = 0; row < block.height; row += 1) nextAlphaRow(alphaRows, this.width)
+        }
+        continue
+      }
       const blockHeight = sourceEnd - sourceStart
       const stride = region.width * 4
       const pixels = block.pixels
@@ -378,16 +386,7 @@ class WebpPixelDecoder implements ImageDecoder {
             data.set(pixels.subarray(start, start + stride), row * stride)
           }
         }
-        if (alphaRows) {
-          for (let row = 0; row < blockHeight; row += 1) {
-            const alpha = alphaBlock[firstRow + row]
-            if (!alpha) throw truncatedInput('WebP alpha rows are truncated')
-            for (let x = 0; x < region.width; x += 1) {
-              data[row * stride + x * 4 + 3] = alpha[region.x + x] ?? 0
-            }
-          }
-        }
-      } else if (!alphaRows) {
+      } else {
         data = new Uint8Array(stride * blockHeight)
         for (let row = 0; row < blockHeight; row += 1) {
           let sourceIndex = (sourceStart + row - block.y) * this.width + region.x
@@ -402,19 +401,21 @@ class WebpPixelDecoder implements ImageDecoder {
             target += 4
           }
         }
-      } else {
-        data = new Uint8Array(stride * blockHeight)
-        for (let row = 0; row < blockHeight; row += 1) {
-          const sourceY = sourceStart + row
-          const blockRow = sourceY - block.y
-          for (let x = 0; x < region.width; x += 1) {
-            const sourceX = region.x + x
-            const color = pixels[blockRow * this.width + sourceX] ?? 0
-            const target = row * stride + x * 4
-            data[target] = (color >>> 16) & 255
-            data[target + 1] = (color >>> 8) & 255
-            data[target + 2] = color & 255
-            data[target + 3] = alphaBlock[blockRow]?.[sourceX] ?? 0
+      }
+      if (alphaRows) {
+        // VP8L recycles its row storage. Copy each green byte directly into the
+        // corresponding output alpha before requesting the next row.
+        for (let row = 0; row < block.height; row += 1) {
+          const alpha = nextAlphaRow(alphaRows, this.width)
+          const y = block.y + row
+          if (y < sourceStart || y >= sourceEnd) continue
+          let target = (y - sourceStart) * stride + 3
+          const end = region.x + region.width
+          if (alpha instanceof Uint32Array) {
+            for (let x = region.x; x < end; x += 1, target += 4)
+              data[target] = (alpha[x] ?? 0) >>> 8
+          } else {
+            for (let x = region.x; x < end; x += 1, target += 4) data[target] = alpha[x] ?? 0
           }
         }
       }

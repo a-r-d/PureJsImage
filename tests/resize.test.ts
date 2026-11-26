@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import { PNG } from 'pngjs'
 
@@ -206,6 +207,40 @@ describe('streaming resize', () => {
     // Rounding the four vertical taps only once gives red 226 at (10, 5).
     const offset = (5 * 11 + 10) * 4
     expect(pixels.slice(offset, offset + 4)).toEqual([227, 83, 59, 115])
+  })
+
+  it.each([
+    [57, 'd2d8a18a83055c87d5fe45cab776ef5b4605920bab847425ea944cad10d4f1bb'],
+    [135, 'ab6a2046380861fc67504f64c603ce99160c518e9f45f53ef59f2c6a4f109aeb'],
+  ] as const)(
+    'preserves the scalar Lanczos result at width %i with transparent margins',
+    async (width, expected) => {
+      const input = png(81, 27, (x, y) =>
+        x < 5 || x >= 77
+          ? [0, 0, 0, 0]
+          : [
+              (x * 41 + y * 13) & 255,
+              (y * 57 + x) & 255,
+              ((x ^ y) * 19) & 255,
+              1 + ((x * y) % 255),
+            ],
+      )
+      const output = await execute(input, { width, height: 17, fit: 'fill' })
+      // Pinned from the scalar implementation. The upscale includes exact single-sample
+      // columns beside wider footprints, and both widths end in an unpaired column.
+      expect(createHash('sha256').update(output.data).digest('hex')).toBe(expected)
+    },
+  )
+
+  it('preserves partial alpha when a wide filter footprint exceeds the paired table budget', async () => {
+    const width = 40_001
+    const input = png(width, 3, (x, y) =>
+      x < width / 2 ? [219, y * 59, x % 251, 80] : [17, y * 59, x % 251, 219],
+    )
+    const output = await execute(input, { width: 2, height: 2, fit: 'fill' })
+    expect(Array.from(output.data)).toEqual([
+      185, 14, 119, 89, 22, 14, 123, 210, 185, 104, 119, 89, 22, 104, 123, 210,
+    ])
   })
 
   it('interpolates alpha in premultiplied color space', async () => {

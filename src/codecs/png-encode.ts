@@ -212,16 +212,14 @@ const filterScanline = (
   bytesPerPixel: number,
   output: Uint8Array,
   adaptive: boolean,
-): void => {
+  predictAverage: boolean,
+): 0 | 1 | 2 | 3 | 4 | undefined => {
   let filter: 0 | 1 | 2 | 3 | 4 = 0
   // An all-zero row gives None the lowest possible score and it wins all ties.
   if (adaptive) {
     const sourceView = new DataView(source.buffer, source.byteOffset, source.byteLength)
     const prefix = zeroPrefix(sourceView, source.byteLength)
-    if (prefix === source.byteLength) {
-      output.fill(0)
-      return
-    }
+    if (prefix === source.byteLength) return undefined
     const previousView = new DataView(previous.buffer, previous.byteOffset, previous.byteLength)
     let none = 0
     let sub = 0
@@ -237,7 +235,7 @@ const filterScanline = (
       sub += filteredMagnitude(value)
       up += filteredMagnitude(residual)
       average += filteredMagnitude((value - Math.floor(above / 2)) & 0xff)
-      output[index + 1] = residual
+      output[index + 1] = predictAverage ? value - (above >>> 1) : residual
       paethScore += filteredMagnitude(residual)
     }
     // Beyond the last nonzero byte, Left and the Paeth corner can still
@@ -261,19 +259,31 @@ const filterScanline = (
       none += filteredMagnitude(value)
       sub += filteredMagnitude((value - left) & 0xff)
       up += filteredMagnitude((value - above) & 0xff)
-      average += filteredMagnitude((value - Math.floor((left + above) / 2)) & 0xff)
+      const averageResidual = (value - ((left + above) >>> 1)) & 0xff
+      average += filteredMagnitude(averageResidual)
       const residual = (value - encodePaeth(left, above, upperLeft)) & 0xff
-      output[index + 1] = residual
+      output[index + 1] = predictAverage ? averageResidual : residual
       paethScore += filteredMagnitude(residual)
     }
     filter = chooseAdaptiveFilter(none, sub, up, average, paethScore)
-    // The Paeth residuals are already in the output row from scoring.
-    if (filter === 4) {
+    // Keep the residuals already written while scoring when the prediction was right.
+    if (filter === (predictAverage ? 3 : 4)) {
       output[0] = filter
-      return
+      return filter
+    }
+    if (filter === 4) {
+      output[0] = 4
+      for (let index = 0; index < end; index += 1) {
+        const left = index < bytesPerPixel ? 0 : sourceView.getUint8(index - bytesPerPixel)
+        const corner = index < bytesPerPixel ? 0 : previousView.getUint8(index - bytesPerPixel)
+        output[index + 1] =
+          sourceView.getUint8(index) - encodePaeth(left, previousView.getUint8(index), corner)
+      }
+      return filter
     }
   }
   applyFilterScanline(source, previous, bytesPerPixel, output, filter)
+  return filter
 }
 
 class PngEncoder implements ImageEncoder {
@@ -286,6 +296,7 @@ class PngEncoder implements ImageEncoder {
   readonly #adaptiveFiltering: boolean
   readonly #previousRow: Uint8Array
   #acceleratedFilter: PngRowFilter | undefined
+  #lastFilter = 4
   #expectedY = 0
   #finished = false
 
@@ -345,13 +356,17 @@ class PngEncoder implements ImageEncoder {
           for (let row = 0; row < rows; row += 1) {
             const sourceOffset = (firstRow + row) * block.stride
             const source = block.data.subarray(sourceOffset, sourceOffset + rowBytes)
-            filterScanline(
+            const output = scanlines.subarray(row * (rowBytes + 1), (row + 1) * (rowBytes + 1))
+            const filter = filterScanline(
               source,
               this.#previousRow,
               this.#channels,
-              scanlines.subarray(row * (rowBytes + 1), (row + 1) * (rowBytes + 1)),
+              output,
               this.#adaptiveFiltering,
+              this.#lastFilter === 3,
             )
+            if (filter === undefined) output.fill(0)
+            this.#lastFilter = filter ?? 0
             this.#previousRow.set(source)
           }
         }

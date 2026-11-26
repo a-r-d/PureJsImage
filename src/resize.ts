@@ -1357,7 +1357,49 @@ interface FilteredRow {
 const alphaScales = Float64Array.from({ length: 256 }, (_, alpha) => alpha / 255)
 const rgbaGroupWidth = 32
 
+interface PairedFilters {
+  readonly starts: Uint32Array
+  readonly offsets: Uint32Array
+  readonly weights: Float64Array
+}
+
+// Adjacent output pixels use many of the same source samples. Store both
+// coefficients together so each source pixel is unpacked and premultiplied once.
+const pairedFilters = (axis: AxisCoefficients, width: number): PairedFilters | null => {
+  const count = Math.floor(width / 2)
+  // Bound the extra axis storage for very wide images or downscales with large support.
+  const weightCapacity = (512 * 1024 - (count * 2 + 1) * 4) / 8
+  if (count === 0 || count * 2 > weightCapacity) return null
+  const offsets = new Uint32Array(count + 1)
+  const starts = new Uint32Array(count)
+  for (let pair = 0; pair < count; pair += 1) {
+    const x = pair * 2
+    const a = axis.offsets[x] ?? 0
+    const b = axis.offsets[x + 1] ?? 0
+    const end = axis.offsets[x + 2] ?? 0
+    const left = Math.min(axis.indices[a] ?? 0, axis.indices[b] ?? 0)
+    const right = Math.max(axis.indices[b - 1] ?? 0, axis.indices[end - 1] ?? 0)
+    starts[pair] = left
+    const next = (offsets[pair] ?? 0) + (right - left + 1) * 2
+    if (next > weightCapacity) return null
+    offsets[pair + 1] = next
+  }
+  const weights = new Float64Array(offsets[count] ?? 0)
+  for (let x = 0; x < count * 2; x++) {
+    const pair = x >>> 1
+    const begin = axis.offsets[x] ?? 0
+    const end = axis.offsets[x + 1] ?? 0
+    const left = starts[pair] ?? 0
+    const offset = (offsets[pair] ?? 0) + (x & 1)
+    for (let tap = begin; tap < end; tap++) {
+      weights[offset + 2 * ((axis.indices[tap] ?? 0) - left)] = axis.weights[tap] ?? 0
+    }
+  }
+  return { starts, offsets, weights }
+}
+
 interface RgbaRowCache {
+  pairs: PairedFilters | null | undefined
   readonly sourceBounds: Uint32Array
   source: Uint8Array | undefined
   filtered: FilteredRow | undefined
@@ -1539,6 +1581,7 @@ const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, row, cache
   while (end > start && (axis.indices[axis.offsets[end - 1] ?? 0] ?? 0) * 4 > right) {
     end -= 1
   }
+  if (cache && cache.pairs === undefined) cache.pairs = pairedFilters(axis, outputWidth)
   const pixels = new DataView(source.buffer, source.byteOffset, source.byteLength)
   row.start = start * 4
   row.end = end * 4
@@ -1558,6 +1601,49 @@ const horizontalRgba8: HorizontalKernel = (source, outputWidth, axis, row, cache
         output.set(previous.data.subarray(x * 4, stop * 4), x * 4)
         x = stop
         continue
+      }
+    }
+    if (cache?.pairs && x % 2 === 0) {
+      const { offsets, starts, weights } = cache.pairs
+      for (; x + 1 < stop; x += 2) {
+        const pair = x >>> 1
+        const first = offsets[pair] ?? 0
+        const last = offsets[pair + 1] ?? 0
+        let pos = (starts[pair] ?? 0) * 4
+        let red0 = 0
+        let green0 = 0
+        let blue0 = 0
+        let alpha0 = 0
+        let red1 = 0
+        let green1 = 0
+        let blue1 = 0
+        let alpha1 = 0
+        for (let tap = first; tap < last; tap += 2, pos += 4) {
+          const pixel = pixels.getUint32(pos, true)
+          const alpha = pixel >>> 24
+          const scale = alphaScales[alpha] ?? 0
+          const red = (pixel & 255) * scale
+          const green = ((pixel >>> 8) & 255) * scale
+          const blue = ((pixel >>> 16) & 255) * scale
+          const weight0 = weights[tap] ?? 0
+          const weight1 = weights[tap + 1] ?? 0
+          red0 += red * weight0
+          green0 += green * weight0
+          blue0 += blue * weight0
+          alpha0 += alpha * weight0
+          red1 += red * weight1
+          green1 += green * weight1
+          blue1 += blue * weight1
+          alpha1 += alpha * weight1
+        }
+        output[x * 4] = red0
+        output[x * 4 + 1] = green0
+        output[x * 4 + 2] = blue0
+        output[x * 4 + 3] = alpha0
+        output[x * 4 + 4] = red1
+        output[x * 4 + 5] = green1
+        output[x * 4 + 6] = blue1
+        output[x * 4 + 7] = alpha1
       }
     }
     for (; x < stop; x += 1) {
@@ -1731,6 +1817,7 @@ const resizedBlocks = async function* (
     sourceFormat === 'rgba8' && !opaqueRgba8 && plan.kernel === 'lanczos3' && ringCapacity > 1
       ? {
           sourceBounds: rgbaGroupSourceBounds(horizontal, plan.contentWidth),
+          pairs: undefined,
           source: undefined,
           filtered: undefined,
         }

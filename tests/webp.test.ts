@@ -517,6 +517,29 @@ describe('WebP codec', () => {
     expect(rows).toBe(region.height)
   })
 
+  it('reads borrowed compressed alpha rows in order across a cropped VP8 band', async () => {
+    // Lossy 32 x 64, unfiltered VP8L alpha. Each alpha byte is x + 3*y.
+    const input = Buffer.from(
+      'UklGRmoAAABXRUJQVlA4WAoAAAAQAAAAHwAAPwAAQUxQSBcAAAABuYzofxjIBCw2+gcXwBMxARNAreveAQBWUDggLAAAAHADAJ0BKiAAQAA+nU6iTKWkIyIkCACwE4lpAAAX+s25UKJlgAD++2UAAAAA',
+      'base64',
+    )
+    const decoder = await webpCodec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+    if (!decoder) throw new Error('WebP decoder is unavailable')
+    const region = { x: 3, y: 29, width: 11, height: 21 }
+    let rows = 0
+    for await (const block of decoder.decode(region)) {
+      for (let y = 0; y < block.height; y += 1) {
+        for (let x = 0; x < region.width; x += 1) {
+          expect(block.data[y * block.stride + x * 4 + 3]).toBe(
+            region.x + x + 3 * (region.y + rows + y),
+          )
+        }
+      }
+      rows += block.height
+    }
+    expect(rows).toBe(region.height)
+  })
+
   it('decodes raw and VP8L-compressed extended WebP alpha exactly', async () => {
     const raw = PNG.sync.read(await (await Image.open(lossyRawAlpha)).png().toBuffer())
     expect(raw.width).toBe(3)

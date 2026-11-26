@@ -194,7 +194,7 @@ describe('package contract', () => {
       name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
       baselineMinifiedBytes: 143_546,
-      maxMinifiedBytes: 210_000,
+      maxMinifiedBytes: 212_000,
     })
     const expectedReaderTargetIds = [
       ...capabilityManifest.scientificReaders.map(

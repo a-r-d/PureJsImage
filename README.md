@@ -495,12 +495,12 @@ Generated from the repository manifests and recorded package metrics (package ve
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
 | Core API | 20.1 KiB | 6.8 KiB | 6.1 KiB |
-| Common web codecs | 685.8 KiB | 253.3 KiB | 209.4 KiB |
-| All stable codecs | 1456.2 KiB | 508.9 KiB | 409.8 KiB |
-| Scientific platform | 205.1 KiB | 59.2 KiB | 50.0 KiB |
-| All scientific readers | 1266.0 KiB | 368.3 KiB | 294.5 KiB |
+| Common web codecs | 687.1 KiB | 254.0 KiB | 210.2 KiB |
+| All stable codecs | 1457.4 KiB | 509.5 KiB | 409.8 KiB |
+| Scientific platform | 206.1 KiB | 59.7 KiB | 50.3 KiB |
+| All scientific readers | 1266.2 KiB | 368.4 KiB | 294.4 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 638.2 KiB | 194.0 KiB | 157.6 KiB |
+| All Geo readers | 638.4 KiB | 194.0 KiB | 157.6 KiB |
 
 The extracted npm package is 8.7 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -514,10 +514,10 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 20.1 KiB | 6.8 KiB | 6.1 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 685.8 KiB | 253.3 KiB | 209.4 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1456.2 KiB | 508.9 KiB | 409.8 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 205.1 KiB | 59.2 KiB | 50.0 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1266.0 KiB | 368.3 KiB | 294.5 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 687.1 KiB | 254.0 KiB | 210.2 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1457.4 KiB | 509.5 KiB | 409.8 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 206.1 KiB | 59.7 KiB | 50.3 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1266.2 KiB | 368.4 KiB | 294.4 KiB |
 
 The 8 optional JPEG, PNG, and WebP accelerator assets total 163.0 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
 
