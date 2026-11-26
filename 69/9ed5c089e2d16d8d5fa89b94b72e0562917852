@@ -1,0 +1,25 @@
+tests/ico-encode.test.ts
+  s_fb44c3e6b9dfb0::t_8670d2e79d618a 5,67
+tests/gif-encode.test.ts
+  s_fb44c3e6b9dfb0::t_8670d2e79d618a 6,96,135,140,149,151,155-157,159,245,252
+  s_fb44c3e6b9dfb0::t_2f1df8f9012105 61-77,102,104,162-165
+tests/helpers/animated-fixtures.ts
+  s_fb44c3e6b9dfb0::t_bb2103fbfb00fc 1-58,63-90
+  s_fb44c3e6b9dfb0::t_8670d2e79d618a 59-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "699ed5c089e2d16d8d5fa89b94b72e0562917852",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
