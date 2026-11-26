@@ -1,0 +1,29 @@
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_4a8d84c2558f56 192-200
+benchmark/worker.ts
+  s_fb44c3e6b9dfb0::t_34d45498e7d747 54-56,58-59
+benchmark/optimization-log.md
+  s_fb44c3e6b9dfb0::t_4a8d84c2558f56 8255-8258
+benchmark/hillclimb/run.ts
+  s_fb44c3e6b9dfb0::t_8ba5e807492a6b 566-568
+benchmark/README.md
+  s_fb44c3e6b9dfb0::t_34d45498e7d747 68-76,814-816
+tests/benchmark-harness.test.ts
+  s_fb44c3e6b9dfb0::t_fd761a59e09d8f 280-293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4e4a22e030c0848a3c2fea9464e120a4472f0e51",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
