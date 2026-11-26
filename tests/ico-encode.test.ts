@@ -1,8 +1,8 @@
-import { readFile } from 'node:fs/promises'
 import { decode as decodeBmp } from 'bmp-ts'
 import { PNG } from 'pngjs'
 import { describe, expect, it } from 'vitest'
 
+import { syntheticLogoPng } from './helpers/animated-fixtures.ts'
 import { Image } from './image-library.ts'
 
 interface IconEntry {
@@ -64,9 +64,7 @@ const readIcon = (bytes: Uint8Array): IconEntry[] => {
 
 describe('ICO encoding', () => {
   it('writes the default favicon sizes as BMP entries', async () => {
-    const logo = await readFile(
-      new URL('../benchmark/corpus/files/transparent-logo-1200x480.png', import.meta.url),
-    )
+    const logo = syntheticLogoPng(300, 120)
     const icon = await (await Image.open(logo)).ico().toBuffer()
     const entries = readIcon(icon)
     expect(entries.map((entry) => [entry.size, entry.kind])).toEqual([
