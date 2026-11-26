@@ -32,6 +32,8 @@ const encode = (image: SharpImage, operation: EncodeOperation): SharpImage => {
     })
   }
   if (operation.format === 'tiff') return output.tiff()
+  // Sharp's defaults: libimagequant palettes with full Floyd-Steinberg dithering, effort 7.
+  if (operation.format === 'gif') return output.gif()
   throw new Error(`Sharp benchmark output is unsupported: ${operation.format}`)
 }
 
@@ -39,7 +41,10 @@ const executePipeline = async (
   workflow: PipelineWorkflow,
   input: Buffer,
 ): Promise<EngineExecution> => {
-  let image = sharp(input)
+  let image = sharp(input, {
+    ...(workflow.animated ? { animated: true } : {}),
+    ...(workflow.frame === undefined ? {} : { page: workflow.frame }),
+  })
   for (const operation of workflow.operations) {
     switch (operation.type) {
       case 'metadata': {
@@ -163,6 +168,13 @@ export const createSharpEngine = ({
         )
       ) {
         return 'Sharp has no BMP encoder'
+      }
+      if (
+        workflow.operations?.some(
+          (operation) => operation.type === 'encode' && operation.format === 'ico',
+        )
+      ) {
+        return 'Sharp has no ICO encoder'
       }
       return undefined
     },

@@ -2,6 +2,8 @@ import { invalidInput } from '../errors.ts'
 import type {
   Background,
   BmpEncodeOptions,
+  GifEncodeOptions,
+  IcoEncodeOptions,
   HdrEncodeOptions,
   JpegEncodeOptions,
   JpegXlEncodeOptions,
@@ -19,6 +21,8 @@ import type {
 import {
   createAvifEncodeOperation,
   createBmpEncodeOperation,
+  createGifEncodeOperation,
+  createIcoEncodeOperation,
   createCropOperation,
   createHdrEncodeOperation,
   createJpegEncodeOperation,
@@ -327,6 +331,30 @@ const lowerWebp = (value: ParameterRecord): PipelineOperation => {
   return createWebpEncodeOperation(options)
 }
 
+const lowerGif = (value: ParameterRecord): PipelineOperation => {
+  const options: GifEncodeOptions = {}
+  const dither = numberParameter(value, 'dither')
+  const loop = numberParameter(value, 'loop')
+  if (dither !== undefined) options.dither = dither
+  if (loop !== undefined) options.loop = loop
+  return createGifEncodeOperation(options)
+}
+
+const lowerIco = (value: ParameterRecord): PipelineOperation => {
+  const options: IcoEncodeOptions = {}
+  const sizes = value.sizes
+  if (sizes !== undefined) {
+    if (!Array.isArray(sizes)) throw invalidInput('ICO sizes must be an array')
+    const values: number[] = []
+    for (const size of sizes) {
+      if (typeof size !== 'number') throw invalidInput('ICO sizes must be numbers')
+      values.push(size)
+    }
+    options.sizes = values
+  }
+  return createIcoEncodeOperation(options)
+}
+
 const lowerBmp = (value: ParameterRecord): PipelineOperation => {
   const options: BmpEncodeOptions = {}
   const alpha = booleanParameter(value, 'alpha')
@@ -561,6 +589,26 @@ const pipelineOperationDefinitions: readonly OperationDefinition<PipelineOperati
       lowerWebp,
     ),
     encodeDefinition('bmp', objectSchema({ alpha: booleanSchema }), lowerBmp),
+    encodeDefinition(
+      'gif',
+      objectSchema({
+        dither: { type: 'number', minimum: 0, maximum: 1 },
+        loop: { type: 'integer', minimum: 0, maximum: 65_535 },
+      }),
+      lowerGif,
+    ),
+    encodeDefinition(
+      'ico',
+      objectSchema({
+        sizes: {
+          type: 'array',
+          items: { type: 'integer', minimum: 1, maximum: 256 },
+          minItems: 1,
+          maxItems: 16,
+        },
+      }),
+      lowerIco,
+    ),
     encodeDefinition(
       'hdr',
       objectSchema({

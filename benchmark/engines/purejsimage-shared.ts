@@ -29,12 +29,25 @@ interface PureImage {
   pfm(): { toBuffer(): Promise<Uint8Array> }
   ppm(): { toBuffer(): Promise<Uint8Array> }
   encode(
-    format: 'avif' | 'bmp' | 'hdr' | 'jpeg' | 'netpbm' | 'png' | 'qoi' | 'tga' | 'tiff' | 'webp',
+    format:
+      | 'avif'
+      | 'bmp'
+      | 'gif'
+      | 'hdr'
+      | 'ico'
+      | 'jpeg'
+      | 'netpbm'
+      | 'png'
+      | 'qoi'
+      | 'tga'
+      | 'tiff'
+      | 'webp',
     options: {
       quality?: number
       compressionLevel?: number
       lossless?: boolean
       background?: string
+      sizes?: readonly number[]
     },
   ): { toBuffer(): Promise<Uint8Array> }
 }
@@ -46,6 +59,7 @@ interface PureImageLibrary {
       readonly tolerantDecoding?: boolean
       readonly threads?: number
       readonly frame?: number
+      readonly animated?: boolean
     },
   ): Promise<PureImage>
 }
@@ -326,10 +340,10 @@ const applyOperations = async ({
     return rawDecode(input, rawOperation, workflow.expected.format)
   }
 
-  let image = await Image.open(
-    input,
-    workflow.frame === undefined ? undefined : { frame: workflow.frame },
-  )
+  let image = await Image.open(input, {
+    ...(workflow.frame === undefined ? {} : { frame: workflow.frame }),
+    ...(workflow.animated ? { animated: true } : {}),
+  })
   let output: Uint8Array | undefined
 
   for (const operation of workflow.operations) {
@@ -389,6 +403,7 @@ const applyOperations = async ({
               : {}),
             ...(operation.lossless !== undefined ? { lossless: operation.lossless } : {}),
             ...(operation.background ? { background: operation.background } : {}),
+            ...(operation.sizes ? { sizes: operation.sizes } : {}),
           })
           .toBuffer()
         break

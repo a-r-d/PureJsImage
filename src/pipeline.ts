@@ -167,6 +167,24 @@ export interface BmpEncodeOptions {
   alpha?: boolean
 }
 
+export interface IcoEncodeOptions {
+  /**
+   * Square icon sizes from 1 to 256 pixels. The image is fitted inside each square on a
+   * transparent background. Defaults to 16, 32 and 48.
+   */
+  sizes?: readonly number[]
+}
+
+export interface GifEncodeOptions {
+  /**
+   * Floyd-Steinberg dithering strength from 0 (off) to 1 (full). It applies only when a frame has
+   * more than 256 colors. Defaults to 1.
+   */
+  dither?: number
+  /** Animation repeat count. 0 repeats forever. Defaults to 0. */
+  loop?: number
+}
+
 export interface HdrEncodeOptions {
   exposure?: number
   gamma?: number
@@ -245,6 +263,16 @@ export type PipelineOperation =
       readonly type: 'encode'
       readonly format: 'bmp'
       readonly options: Readonly<BmpEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
+      readonly format: 'gif'
+      readonly options: Readonly<GifEncodeOptions>
+    }
+  | {
+      readonly type: 'encode'
+      readonly format: 'ico'
+      readonly options: Readonly<IcoEncodeOptions>
     }
   | {
       readonly type: 'encode'
@@ -568,6 +596,39 @@ export const createBmpEncodeOperation = (options: BmpEncodeOptions): PipelineOpe
   return Object.freeze({ type: 'encode', format: 'bmp', options: Object.freeze({ ...options }) })
 }
 
+export const createIcoEncodeOperation = (options: IcoEncodeOptions): PipelineOperation => {
+  const sizes = options.sizes
+  if (
+    sizes !== undefined &&
+    (sizes.length < 1 ||
+      sizes.length > 16 ||
+      sizes.some((size) => !Number.isInteger(size) || size < 1 || size > 256))
+  ) {
+    throw invalidInput('ICO sizes must list 1 to 16 integers from 1 to 256')
+  }
+  return Object.freeze({
+    type: 'encode',
+    format: 'ico',
+    options: Object.freeze(sizes === undefined ? {} : { sizes: Object.freeze([...sizes]) }),
+  })
+}
+
+export const createGifEncodeOperation = (options: GifEncodeOptions): PipelineOperation => {
+  if (
+    options.dither !== undefined &&
+    (!Number.isFinite(options.dither) || options.dither < 0 || options.dither > 1)
+  ) {
+    throw invalidInput('GIF dither must be a number from 0 to 1')
+  }
+  if (
+    options.loop !== undefined &&
+    (!Number.isInteger(options.loop) || options.loop < 0 || options.loop > 65_535)
+  ) {
+    throw invalidInput('GIF loop must be an integer from 0 to 65535')
+  }
+  return Object.freeze({ type: 'encode', format: 'gif', options: Object.freeze({ ...options }) })
+}
+
 export const createHdrEncodeOperation = (options: HdrEncodeOptions): PipelineOperation => {
   for (const [label, value] of [
     ['exposure', options.exposure],
@@ -828,6 +889,26 @@ export const planMetadata = (
         hasAlpha: metadata.hasAlpha || transparentCanvas,
       }
       validateImageDimensions(metadata.width, metadata.height, metadata.frames ?? 1, limits)
+      continue
+    }
+
+    if (operation.format === 'gif') {
+      metadata = { ...metadata, format: 'gif', mimeType: 'image/gif', bitDepth: 8 }
+      continue
+    }
+
+    if (operation.format === 'ico') {
+      const largest = Math.max(...(operation.options.sizes ?? [16, 32, 48]))
+      metadata = {
+        ...metadata,
+        format: 'ico',
+        mimeType: 'image/x-icon',
+        width: largest,
+        height: largest,
+        hasAlpha: true,
+        bitDepth: 32,
+        frames: 1,
+      }
       continue
     }
 

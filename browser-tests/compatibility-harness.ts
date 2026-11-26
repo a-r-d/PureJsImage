@@ -32,7 +32,8 @@ import { browserRuntime } from '../src/browser-runtime.ts'
 import { avifCodec } from '../src/codec-entries/avif.ts'
 import { bmpCodec } from '../src/codec-entries/bmp.ts'
 import { experimentalHeifCodec } from '../src/codec-entries/experimental/heic.ts'
-import { gifCodec } from '../src/codec-entries/gif.ts'
+import { encodeGifAnimation, gifCodec, openGifAnimation } from '../src/codec-entries/gif.ts'
+import { icoCodec } from '../src/codec-entries/ico.ts'
 import { jpegCodec } from '../src/codec-entries/jpeg.ts'
 import { jpeg2000Codec } from '../src/codec-entries/jpeg2000.ts'
 import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
@@ -1589,8 +1590,8 @@ const pngAlphaPipeline = async (): Promise<BrowserWorkflowResult> => {
   }
 }
 
-const canvasPixels = async (bytes: Uint8Array): Promise<Uint8ClampedArray> => {
-  const bitmap = await createImageBitmap(new Blob([Uint8Array.from(bytes)], { type: 'image/png' }))
+const canvasPixels = async (bytes: Uint8Array, type = 'image/png'): Promise<Uint8ClampedArray> => {
+  const bitmap = await createImageBitmap(new Blob([Uint8Array.from(bytes)], { type }))
   const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
   const context = canvas.getContext('2d')
   if (!context) throw new Error('2D OffscreenCanvas context is unavailable')
@@ -1634,6 +1635,78 @@ const pngPaletteOutput = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'indexed PNG output matched the source pixels',
     outputBytes: indexed.byteLength,
+  }
+}
+
+const gifAndIcoOutput = async (): Promise<BrowserWorkflowResult> => {
+  const library = createImageLibrary([pngCodec, gifCodec, icoCodec])
+  const canvas = new OffscreenCanvas(48, 32)
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('2D OffscreenCanvas context is unavailable')
+  const colors = ['#0c50a0', '#f0b414', '#1e1e1e']
+  for (let y = 0; y < 32; y += 8) {
+    for (let x = 0; x < 48; x += 8) {
+      context.fillStyle = colors[(x / 8 + y / 8) % colors.length] ?? '#000000'
+      context.fillRect(x, y, 8, 8)
+    }
+  }
+  context.clearRect(8, 8, 16, 8)
+  const source = context.getImageData(0, 0, 48, 32).data
+  const input = new Uint8Array(
+    await (await canvas.convertToBlob({ type: 'image/png' })).arrayBuffer(),
+  )
+
+  const gif = await (await library.open(input)).gif().toUint8Array()
+  const decoded = await canvasPixels(gif, 'image/gif')
+  if (decoded.length !== source.length || !decoded.every((value, i) => value === source[i])) {
+    throw new Error('Browser-decoded GIF pixels differ from the canvas source')
+  }
+
+  const frames = Array.from({ length: 4 }, (_, frame) => {
+    const data = new Uint8Array(24 * 16 * 4)
+    for (let y = 4; y < 12; y += 1) {
+      for (let x = frame * 4; x < frame * 4 + 8; x += 1) {
+        data.set([200, 60 * frame, 90, 255], (y * 24 + x) * 4)
+      }
+    }
+    return { data, durationMs: 100 }
+  })
+  const chunks: Uint8Array[] = []
+  for await (const chunk of encodeGifAnimation(frames, { width: 24, height: 16 })) {
+    chunks.push(chunk)
+  }
+  const animated = new Uint8Array(chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0))
+  let offset = 0
+  for (const chunk of chunks) {
+    animated.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  let index = 0
+  for await (const frame of openGifAnimation(animated).frames()) {
+    const expected = frames[index]?.data
+    if (!expected || !frame.data.every((value, i) => value === expected[i])) {
+      throw new Error(`Animated GIF frame ${index} did not round-trip`)
+    }
+    index += 1
+  }
+  if (index !== 4) throw new Error(`Animated GIF decoded ${index} of 4 frames`)
+  const resized = await (await library.open(animated, { animated: true }))
+    .resize({ width: 12 })
+    .gif()
+    .toUint8Array()
+  const resizedAnimation = openGifAnimation(resized)
+  if (resizedAnimation.frameCount !== 4 || resizedAnimation.width !== 12) {
+    throw new Error('Animated GIF resize did not keep every frame')
+  }
+
+  const icon = await (await library.open(input)).ico({ sizes: [16, 32] }).toUint8Array()
+  const iconMetadata = await (await library.open(icon)).metadata()
+  if (iconMetadata.format !== 'ico' || iconMetadata.width !== 32) {
+    throw new Error('ICO output did not read back as a 32 px icon')
+  }
+  return {
+    detail: 'GIF, animated GIF and ICO output matched',
+    outputBytes: gif.byteLength + animated.byteLength + icon.byteLength,
   }
 }
 
@@ -5337,6 +5410,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   scientificOrdinaryCodecFallbacks,
   pngAlphaPipeline,
   pngPaletteOutput,
+  gifAndIcoOutput,
   nativePngPrecision,
   progressiveJpeg,
   resizeDefaultKernel,

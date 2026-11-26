@@ -547,23 +547,23 @@ This section is generated from `capabilities/manifest.json`. Status and boundary
 ### GIF
 
 - Import: `import { gifCodec } from 'purejsimage/codecs/gif'`
-- Decode: Static / explicit frame 0 (`limited`)
-- Encode: No (`unsupported`)
-- Implemented scope: Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, and static images. Metadata counts animation frames. Animated pixel decode fails unless frame 0 is explicitly selected; later frames and GIF encoding are unsupported.
-- Primary boundary: Static images decode directly; animated inputs require explicit frame 0 selection; no animation editing or GIF output
-- Memory model: Retains compact first-frame palette indices, then emits bounded RGBA rows
-- Recommended output use: Static GIF uploads or explicit first-frame extraction from animated GIFs.
+- Decode: Yes (`supported`)
+- Encode: Yes (`supported`)
+- Implemented scope: Parses GIF87a/GIF89a, palettes, transparency, interlace, LZW data, frame rectangles, delays, disposal methods 0-3, and loop counts. Decodes any selected frame, or every composited frame with `open(input, { animated: true })` through crop, resize, rotate, flip, and flop. Writes static and animated GIF89a: exact palettes for 256 or fewer colors, Wu quantization with optional Floyd-Steinberg dithering above that, changed-rectangle frames, and loop counts. `openGifAnimation()` and `encodeGifAnimation()` in `purejsimage/codecs/gif` read and write frames directly.
+- Primary boundary: One-bit transparency; frames with more than 256 colors are quantized; no interlaced output, comment writing, or disposal 3 output
+- Memory model: Decode keeps the compressed file; frame 0 alone keeps compact indices, later and animated frames share one RGBA canvas. Output keeps the current input frame, the previous frame, and the decoder canvas to choose each palette and changed rectangle.
+- Recommended output use: GIF uploads, animated GIF resizing, and small graphics or stickers.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/gif-codec-support.md
 
 ### ICO
 
 - Import: `import { icoCodec } from 'purejsimage/codecs/ico'`
 - Decode: Yes (`supported`)
-- Encode: No (`unsupported`)
-- Implemented scope: Decodes multi-image Windows icons backed by embedded PNG or common DIB pixels. Selection is deterministic; AND masks, partial alpha, and the legacy all-zero-alpha fallback are preserved.
-- Primary boundary: Static ICO decode only; no CUR or ICO output
-- Memory model: Decodes one selected entry; DIB pixels are emitted in bounded rows
-- Recommended output use: Favicon and Windows icon input converted to a web output format.
+- Encode: Yes (`supported`)
+- Implemented scope: Decodes multi-image Windows icons backed by embedded PNG or common DIB pixels. Selection is deterministic; AND masks, partial alpha, and the legacy all-zero-alpha fallback are preserved. Writes multi-size icons: each requested size from 1 to 256 is fitted on a transparent square with Lanczos resizing. Sizes below 256 are 32-bit BMP entries with AND masks; 256 is a PNG entry.
+- Primary boundary: Static icons only; no CUR, animated cursor, or embedded JPEG entries
+- Memory model: Decodes one selected entry; DIB pixels are emitted in bounded rows; output holds the input image once and resizes it to each size
+- Recommended output use: Favicon and Windows icon input and output.
 - Full checked capability contract: https://github.com/a-r-d/PureJsImage/blob/main/ico-codec-support.md
 
 ### JPEG 2000 / JP2

@@ -189,12 +189,12 @@ describe('package contract', () => {
     )
     expect(
       pureJsImageEntryTargets.find(({ id }) => id === 'core-execution')?.maxMinifiedBytes,
-    ).toBe(80 * 1024)
+    ).toBe(84 * 1024)
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
       baselineMinifiedBytes: 143_546,
-      maxMinifiedBytes: 212_000,
+      maxMinifiedBytes: 216_000,
     })
     const expectedReaderTargetIds = [
       ...capabilityManifest.scientificReaders.map(
@@ -1207,6 +1207,7 @@ describe('benchmark contract', () => {
     const bmp = workflowsForProfile('bmp')
     const heif = workflowsForProfile('heif')
     const ico = workflowsForProfile('ico')
+    const gif = workflowsForProfile('gif')
     const tiff = workflowsForProfile('tiff')
     const webp = workflowsForProfile('webp')
     const smallCodecs = workflowsForProfile('small-codecs')
@@ -1218,7 +1219,8 @@ describe('benchmark contract', () => {
     expect(phase5.length).toBe(5)
     expect(bmp.length).toBe(16)
     expect(heif.length).toBe(4)
-    expect(ico.length).toBe(6)
+    expect(ico.length).toBe(7)
+    expect(gif.length).toBe(7)
     expect(tiff.length).toBe(18)
     expect(webp.length).toBe(13)
     expect(smallCodecs.length).toBe(18)
@@ -1259,6 +1261,7 @@ describe('benchmark contract', () => {
       workflows.filter(
         (workflow) =>
           workflow.tier !== 'bmp' &&
+          workflow.tier !== 'gif' &&
           workflow.tier !== 'heif' &&
           workflow.tier !== 'ico' &&
           workflow.tier !== 'tiff' &&
@@ -1269,6 +1272,7 @@ describe('benchmark contract', () => {
     )
     expect(bmp).toEqual(workflows.filter((workflow) => workflow.tier === 'bmp'))
     expect(heif).toEqual(workflows.filter((workflow) => workflow.tier === 'heif'))
+    expect(gif).toEqual(workflows.filter((workflow) => workflow.tier === 'gif'))
     expect(ico).toEqual(workflows.filter((workflow) => workflow.tier === 'ico'))
     expect(tiff).toEqual(workflows.filter((workflow) => workflow.tier === 'tiff'))
     expect(smallCodecs).toEqual(workflows.filter((workflow) => workflow.tier === 'small-codecs'))

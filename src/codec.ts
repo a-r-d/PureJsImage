@@ -174,6 +174,35 @@ export interface ImageEncoder {
   abort?(reason: unknown): Promise<void>
 }
 
+/** One composited animation frame. Decode it before requesting the next frame. */
+export interface ImageAnimationFrame {
+  readonly index: number
+  readonly durationMs: number
+  decode(request?: DecodeRequest): AsyncIterable<PixelBlock>
+}
+
+export interface ImageAnimationDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly frameCount: number
+  /** Repeat count; 0 repeats forever. */
+  readonly loop: number
+  frames(signal?: AbortSignal): AsyncIterable<ImageAnimationFrame>
+}
+
+export interface AnimationEncodeRequest extends EncodeRequest {
+  /** Source repeat count, used when the encoder options do not set one. */
+  readonly loop?: number
+}
+
+export interface ImageAnimationEncoder {
+  /** Starts the next frame. Write its blocks and finish it before starting another. */
+  frame(options: { readonly durationMs: number }): Promise<ImageEncoder>
+  finish(): Promise<void>
+  abort?(reason: unknown): Promise<void>
+}
+
 export interface PreservedMetadata {
   readonly exif?: Uint8Array
   readonly icc?: Uint8Array
@@ -251,6 +280,15 @@ export interface ImageCodec {
     options?: Readonly<DecoderOptions>,
   ): Promise<ImageDecoder>
   createEncoder?(sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder>
+  createAnimationDecoder?(
+    source: ImageSource,
+    limits: ImageLimits,
+    options?: Readonly<DecoderOptions>,
+  ): Promise<ImageAnimationDecoder>
+  createAnimationEncoder?(
+    sink: ImageSink,
+    request: AnimationEncodeRequest,
+  ): Promise<ImageAnimationEncoder>
 }
 
 export class CodecRegistry {

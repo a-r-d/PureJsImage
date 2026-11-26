@@ -13,12 +13,15 @@ const checkOnly = process.argv.includes('--check')
 const generatedMarkdownNotice =
   '<!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->'
 
+// Braces are escaped too: the Astro codec page reads them as template expressions.
 const html = (value: string): string =>
   value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
+    .replaceAll('{', '&#123;')
+    .replaceAll('}', '&#125;')
 
 const replaceRegion = (source: string, name: string, replacement: string): string => {
   const start = `<!-- capabilities:${name}:start -->`

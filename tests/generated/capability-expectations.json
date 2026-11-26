@@ -132,15 +132,19 @@
       "format": "gif",
       "experimental": false,
       "decoder": true,
-      "encoder": false,
+      "encoder": true,
       "evidence": [
         "tests/gif.test.ts",
+        "tests/gif-lzw.test.ts",
+        "tests/gif-encode.test.ts",
         "browser-tests/compatibility.pw.ts",
         "tests/imazen-corpus-harness.test.ts"
       ],
       "lossyPixelValidation": {
-        "status": "not-applicable",
-        "rationale": "GIF decode reproduces the stored palette indices and does not claim a lossy continuous-tone path"
+        "status": "independent-oracle",
+        "oracle": "omggif 1.0.10 decoder",
+        "tolerance": "Exact pixels for 256 or fewer colors; quantized photo RGB PSNR above 40 dB without dithering and above 38 dB with dithering versus source",
+        "evidence": ["tests/gif-encode.test.ts"]
       }
     },
     {
@@ -148,11 +152,11 @@
       "format": "ico",
       "experimental": false,
       "decoder": true,
-      "encoder": false,
-      "evidence": ["tests/ico.test.ts"],
+      "encoder": true,
+      "evidence": ["tests/ico.test.ts", "tests/ico-encode.test.ts"],
       "lossyPixelValidation": {
         "status": "not-applicable",
-        "rationale": "The implemented ICO entries contain lossless PNG or DIB pixel data"
+        "rationale": "ICO entries store lossless PNG or DIB pixels; resizing to each size is a pipeline transform"
       }
     },
     {

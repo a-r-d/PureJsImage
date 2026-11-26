@@ -778,6 +778,30 @@
       }
     },
     {
+      "id": "animated-photo-480x270",
+      "file": "animated-photo-480x270.gif",
+      "generator": "animated-photo-gif",
+      "expected": {
+        "format": "gif",
+        "width": 480,
+        "height": 270,
+        "frames": 36,
+        "sha256": "ebfdf636962324ca2bbf65c339a5563e02a854198f912822cbc4e6f2eb6c5acf"
+      }
+    },
+    {
+      "id": "animated-sticker-320",
+      "file": "animated-sticker-320.gif",
+      "generator": "animated-sticker-gif",
+      "expected": {
+        "format": "gif",
+        "width": 320,
+        "height": 320,
+        "frames": 24,
+        "sha256": "752ae7fc5d95774c59e474fda8da625ea6b0511b8ac03d98c26b1e5bf7d9b401"
+      }
+    },
+    {
       "id": "noise-2048x2048",
       "file": "noise-2048x2048.png",
       "generator": "seeded-noise",

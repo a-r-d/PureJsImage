@@ -1,6 +1,6 @@
 import type { AbortOptions } from './abort.ts'
 import { throwIfAborted } from './abort.ts'
-import type { CodecRegistry, ImageCodec, ImageEncoder } from './codec.ts'
+import type { CodecRegistry, ImageAnimationEncoder, ImageCodec, ImageEncoder } from './codec.ts'
 import { convertedPixelColorSemantics, convertPixelBlocks } from './convert.ts'
 import { cropPixelBlocks } from './crop.ts'
 import { ImageError, invalidInput, unsupportedOperation } from './errors.ts'
@@ -19,8 +19,10 @@ import {
   normalizedPixelFormat,
   normalizePixelBlocks,
   type PixelBlock,
+  type PixelFormat,
   pixelStorage,
 } from './pixel.ts'
+import type { PixelColorSemantics } from './color.ts'
 import {
   describePrecisionExecution,
   negotiateEncoderOptions,
@@ -38,6 +40,7 @@ export interface ExecutionContext {
   readonly codec: ImageCodec
   readonly registry: CodecRegistry
   readonly frame: number | undefined
+  readonly animated?: boolean
   readonly resolutionLevel: number | undefined
   readonly tolerantDecoding: boolean
   readonly alphaChannel: number | undefined
@@ -338,12 +341,239 @@ const instrumentOperationBlocks = async function* (
   }
 }
 
+interface StageState {
+  readonly blocks: AsyncIterable<PixelBlock>
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat: PixelFormat
+  readonly colorSemantics: PixelColorSemantics | undefined
+  readonly sampleBitDepths: readonly number[] | undefined
+}
+
+/** Chains the planned transforms onto decoded blocks. Each transform is built immediately. */
+const applyStages = (
+  state: StageState,
+  stages: readonly PipelineOperation[],
+  opaqueFirstResize: boolean,
+  sourceOrientation: ExifOrientation,
+  context: ExecutionContext,
+  options: Readonly<PipelineExecutionOptions>,
+): StageState => {
+  let { blocks, width, height, pixelFormat, colorSemantics, sampleBitDepths } = state
+  for (const operation of stages) {
+    if (operation.type === 'encode' || operation.type === 'window') continue
+    if (!transformAcceptsPixelFormat(operation, pixelFormat)) {
+      throw unsupportedOperation(`${operation.type} does not support ${pixelFormat} pixels`)
+    }
+    if (operation.type === 'convertPixelFormat') {
+      blocks = convertPixelBlocks(blocks, pixelFormat, operation.options, options, sampleBitDepths)
+      pixelFormat = operation.options.format
+      sampleBitDepths = undefined
+      colorSemantics = convertedPixelColorSemantics(colorSemantics, pixelFormat)
+    } else if (operation.type === 'lut') {
+      blocks = applyLutPixelBlocks(blocks, pixelFormat, operation.options, options)
+      pixelFormat = operation.options.format
+      sampleBitDepths = undefined
+    } else if (operation.type === 'crop') {
+      validateCrop(width, height, operation)
+      blocks = cropPixelBlocks(blocks, width, height, pixelFormat, operation)
+      width = operation.width
+      height = operation.height
+    } else if (operation.type === 'resize') {
+      const resize = createResizeTransform(
+        width,
+        height,
+        pixelFormat,
+        operation,
+        colorSemantics,
+        sampleBitDepths,
+        opaqueFirstResize && operation === stages[0],
+      )
+      width = resize.width
+      height = resize.height
+      if (sampleBitDepths && resize.pixelFormat !== pixelFormat) {
+        const depths = sampleBitDepths
+        const sourceGray = pixelFormat.startsWith('gray')
+        const storage = pixelStorage(resize.pixelFormat)
+        sampleBitDepths = Array.from({ length: storage.channels }, (_, channel) =>
+          channel === 3
+            ? storage.bytesPerSample * 8
+            : (depths[sourceGray ? 0 : channel] ?? storage.bytesPerSample * 8),
+        )
+      }
+      pixelFormat = resize.pixelFormat
+      colorSemantics = resizedPixelColorSemantics(colorSemantics, pixelFormat)
+      blocks = resize.apply(blocks)
+    } else if (operation.type === 'autoOrient') {
+      const orientation = createOrientationTransform(
+        width,
+        height,
+        pixelFormat,
+        sourceOrientation,
+        context.runtime,
+      )
+      width = orientation.width
+      height = orientation.height
+      blocks = orientation.apply(blocks)
+    } else if (operation.type === 'flip' || operation.type === 'flop') {
+      const orientation = createOrientationTransform(
+        width,
+        height,
+        pixelFormat,
+        operation.type === 'flip' ? 4 : 2,
+        context.runtime,
+      )
+      blocks = orientation.apply(blocks)
+    } else if (operation.type === 'rotate') {
+      const degrees = normalizedRotation(operation.degrees)
+      if (degrees === 0) continue
+      if (degrees === 90 || degrees === 180 || degrees === 270) {
+        const orientation = createOrientationTransform(
+          width,
+          height,
+          pixelFormat,
+          degrees === 90 ? 6 : degrees === 180 ? 3 : 8,
+          context.runtime,
+        )
+        width = orientation.width
+        height = orientation.height
+        blocks = orientation.apply(blocks)
+      } else {
+        const rotation = createRotationTransform(
+          width,
+          height,
+          pixelFormat,
+          degrees,
+          operation.options.background,
+          context.runtime,
+        )
+        width = rotation.width
+        height = rotation.height
+        pixelFormat = rotation.pixelFormat
+        blocks = rotation.apply(blocks)
+      }
+    }
+    if (options.evidence !== undefined)
+      blocks = instrumentOperationBlocks(blocks, options.evidence, operation.type)
+    throwIfAborted(options.signal)
+    validateImageDimensions(width, height, 1, context.limits)
+  }
+  return { blocks, width, height, pixelFormat, colorSemantics, sampleBitDepths }
+}
+
+const abortableSink = (sink: ImageSink, signal: AbortSignal | undefined): ImageSink =>
+  signal === undefined
+    ? sink
+    : {
+        async write(chunk) {
+          throwIfAborted(signal)
+          await sink.write(chunk)
+          throwIfAborted(signal)
+        },
+        close: () => sink.close(),
+        abort: (reason) => sink.abort(reason),
+      }
+
+const notForAnimation = new Set(['keepExif', 'keepIcc', 'window', 'lut', 'convertPixelFormat'])
+
+/** Runs the transforms on every composited frame and writes them to an animation encoder. */
+const executeAnimatedPipeline = async (
+  context: ExecutionContext,
+  operations: readonly PipelineOperation[],
+  sink: ImageSink,
+  options: Readonly<PipelineExecutionOptions>,
+): Promise<void> => {
+  let encoder: ImageAnimationEncoder | undefined
+  try {
+    throwIfAborted(options.signal)
+    if (!context.codec.createAnimationDecoder) {
+      throw unsupportedOperation(`${context.codec.format} animation decoding is not implemented`)
+    }
+    for (const operation of operations) {
+      if (notForAnimation.has(operation.type)) {
+        throw unsupportedOperation(`${operation.type} is not supported for animated images`)
+      }
+    }
+    const decoder = await context.codec.createAnimationDecoder(context.source, context.limits, {
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
+    })
+    const output = planOutput(decoder.width, decoder.height, context.codec.format, operations, 1)
+    const outputCodec = context.registry.get(output.format)
+    if (!outputCodec?.createAnimationEncoder) {
+      throw unsupportedOperation(`${output.format} animation encoding is not implemented`)
+    }
+    const encoderSink = abortableSink(sink, options.signal)
+    for await (const frame of decoder.frames(options.signal)) {
+      const region = output.decoderRegion
+      const staged = applyStages(
+        {
+          blocks: frame.decode({
+            ...region,
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
+          }),
+          width: region.width,
+          height: region.height,
+          pixelFormat: decoder.pixelFormat,
+          colorSemantics: undefined,
+          sampleBitDepths: undefined,
+        },
+        output.stages,
+        false,
+        1,
+        context,
+        options,
+      )
+      validateImageDimensions(staged.width, staged.height, 1, context.limits)
+      let blocks = staged.blocks
+      let pixelFormat = staged.pixelFormat
+      if (!outputCodec.encoderPixelFormats?.includes(pixelFormat)) {
+        blocks = normalizePixelBlocks(blocks, pixelFormat, {
+          ...(options.signal === undefined ? {} : { signal: options.signal }),
+        })
+        pixelFormat = normalizedPixelFormat(pixelFormat)
+      }
+      encoder ??= await outputCodec.createAnimationEncoder(encoderSink, {
+        width: staged.width,
+        height: staged.height,
+        pixelFormat,
+        options: output.options,
+        runtime: context.runtime,
+        limits: context.limits,
+        loop: decoder.loop,
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
+      })
+      const frameEncoder = await encoder.frame({ durationMs: frame.durationMs })
+      for await (const block of blocks) {
+        try {
+          throwIfAborted(options.signal)
+          await frameEncoder.write(block)
+        } finally {
+          block.release?.()
+        }
+      }
+      await frameEncoder.finish()
+    }
+    if (!encoder) throw invalidInput('Animation contains no frames')
+    await encoder.finish()
+    throwIfAborted(options.signal)
+    await sink.close()
+  } catch (error) {
+    try {
+      await encoder?.abort?.(error)
+    } finally {
+      await sink.abort(error)
+    }
+    throw error
+  }
+}
+
 export const executePipeline = async (
   context: ExecutionContext,
   operations: readonly PipelineOperation[],
   sink: ImageSink,
   options: Readonly<PipelineExecutionOptions> = {},
 ): Promise<void> => {
+  if (context.animated === true) return executeAnimatedPipeline(context, operations, sink, options)
   let encoder: ImageEncoder | undefined
   options.evidence?.operation({ operationId: 'pipeline', phase: 'start' })
   try {
@@ -555,110 +785,20 @@ export const executePipeline = async (
       if (options.evidence !== undefined)
         blocks = instrumentOperationBlocks(blocks, options.evidence, 'window')
     }
-    for (const operation of output.stages) {
-      if (operation.type === 'encode' || operation.type === 'window') continue
-      if (!transformAcceptsPixelFormat(operation, pixelFormat)) {
-        throw unsupportedOperation(`${operation.type} does not support ${pixelFormat} pixels`)
-      }
-      if (operation.type === 'convertPixelFormat') {
-        blocks = convertPixelBlocks(
-          blocks,
-          pixelFormat,
-          operation.options,
-          options,
-          sampleBitDepths,
-        )
-        pixelFormat = operation.options.format
-        sampleBitDepths = undefined
-        colorSemantics = convertedPixelColorSemantics(colorSemantics, pixelFormat)
-      } else if (operation.type === 'lut') {
-        blocks = applyLutPixelBlocks(blocks, pixelFormat, operation.options, options)
-        pixelFormat = operation.options.format
-        sampleBitDepths = undefined
-      } else if (operation.type === 'crop') {
-        validateCrop(width, height, operation)
-        blocks = cropPixelBlocks(blocks, width, height, pixelFormat, operation)
-        width = operation.width
-        height = operation.height
-      } else if (operation.type === 'resize') {
-        const resize = createResizeTransform(
-          width,
-          height,
-          pixelFormat,
-          operation,
-          colorSemantics,
-          sampleBitDepths,
-          !output.window && operation === output.stages[0] && decoder.opaqueRgba8 === true,
-        )
-        width = resize.width
-        height = resize.height
-        if (sampleBitDepths && resize.pixelFormat !== pixelFormat) {
-          const depths = sampleBitDepths
-          const sourceGray = pixelFormat.startsWith('gray')
-          const storage = pixelStorage(resize.pixelFormat)
-          sampleBitDepths = Array.from({ length: storage.channels }, (_, channel) =>
-            channel === 3
-              ? storage.bytesPerSample * 8
-              : (depths[sourceGray ? 0 : channel] ?? storage.bytesPerSample * 8),
-          )
-        }
-        pixelFormat = resize.pixelFormat
-        colorSemantics = resizedPixelColorSemantics(colorSemantics, pixelFormat)
-        blocks = resize.apply(blocks)
-      } else if (operation.type === 'autoOrient') {
-        const orientation = createOrientationTransform(
-          width,
-          height,
-          pixelFormat,
-          sourceOrientation,
-          context.runtime,
-        )
-        width = orientation.width
-        height = orientation.height
-        blocks = orientation.apply(blocks)
-      } else if (operation.type === 'flip' || operation.type === 'flop') {
-        const orientation = createOrientationTransform(
-          width,
-          height,
-          pixelFormat,
-          operation.type === 'flip' ? 4 : 2,
-          context.runtime,
-        )
-        blocks = orientation.apply(blocks)
-      } else if (operation.type === 'rotate') {
-        const degrees = normalizedRotation(operation.degrees)
-        if (degrees === 0) continue
-        if (degrees === 90 || degrees === 180 || degrees === 270) {
-          const orientation = createOrientationTransform(
-            width,
-            height,
-            pixelFormat,
-            degrees === 90 ? 6 : degrees === 180 ? 3 : 8,
-            context.runtime,
-          )
-          width = orientation.width
-          height = orientation.height
-          blocks = orientation.apply(blocks)
-        } else {
-          const rotation = createRotationTransform(
-            width,
-            height,
-            pixelFormat,
-            degrees,
-            operation.options.background,
-            context.runtime,
-          )
-          width = rotation.width
-          height = rotation.height
-          pixelFormat = rotation.pixelFormat
-          blocks = rotation.apply(blocks)
-        }
-      }
-      if (options.evidence !== undefined)
-        blocks = instrumentOperationBlocks(blocks, options.evidence, operation.type)
-      throwIfAborted(options.signal)
-      validateImageDimensions(width, height, 1, context.limits)
-    }
+    const staged = applyStages(
+      { blocks, width, height, pixelFormat, colorSemantics, sampleBitDepths },
+      output.stages,
+      !output.window && decoder.opaqueRgba8 === true,
+      sourceOrientation,
+      context,
+      options,
+    )
+    blocks = staged.blocks
+    width = staged.width
+    height = staged.height
+    pixelFormat = staged.pixelFormat
+    colorSemantics = staged.colorSemantics
+    sampleBitDepths = staged.sampleBitDepths
     validateImageDimensions(width, height, 1, context.limits)
 
     if (!outputCodec.encoderPixelFormats?.includes(pixelFormat)) {
@@ -682,18 +822,7 @@ export const executePipeline = async (
     }
 
     options.evidence?.operation({ operationId: 'encoder-open', phase: 'start' })
-    const encoderSink: ImageSink =
-      options.signal === undefined
-        ? sink
-        : {
-            async write(chunk) {
-              throwIfAborted(options.signal)
-              await sink.write(chunk)
-              throwIfAborted(options.signal)
-            },
-            close: () => sink.close(),
-            abort: (reason) => sink.abort(reason),
-          }
+    const encoderSink = abortableSink(sink, options.signal)
     encoder = await outputCodec.createEncoder(encoderSink, {
       width,
       height,

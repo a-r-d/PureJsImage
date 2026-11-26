@@ -62,6 +62,8 @@ const isSourceFixture = (value: unknown): value is SourceFixture => {
 }
 
 const fixtureGenerators: Readonly<Record<FixtureGenerator, true>> = {
+  'animated-photo-gif': true,
+  'animated-sticker-gif': true,
   'avif-benchmark-copy': true,
   'bmp-gradient': true,
   'ico-dib24': true,
@@ -135,7 +137,7 @@ export const sha256 = (buffer: Uint8Array): string => {
   return createHash('sha256').update(buffer).digest('hex')
 }
 
-const identifyIco = (
+export const identifyIco = (
   bytes: Uint8Array,
 ): { type: 'ico'; width: number; height: number; frames: number } | undefined => {
   if (

@@ -56,6 +56,74 @@ const writeProgressiveJpegFromTundra = async (fixture: GeneratedCorpusFixture): 
   }
 }
 
+// A pan and zoom across the tundra photo, encoded by Sharp/libvips with libimagequant so the
+// animation has photographic local palettes and dithering, like screen-recorded or video GIFs.
+const writeAnimatedPhotoGif = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const frames = fixture.expected.frames ?? 36
+  const base = await sharp(join(corpusFilesDirectory, 'tundra-4000x3000.jpg'))
+    .resize({ width: 1600 })
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+  const strip = Buffer.alloc(width * height * 3 * frames)
+  for (let frame = 0; frame < frames; frame += 1) {
+    const progress = frame / (frames - 1)
+    const windowWidth = Math.round(base.info.width * (1 - 0.4 * progress))
+    const windowHeight = Math.round((windowWidth * height) / width)
+    const pixels = await sharp(base.data, {
+      raw: { width: base.info.width, height: base.info.height, channels: 3 },
+    })
+      .extract({
+        left: Math.round((base.info.width - windowWidth) * progress),
+        top: Math.round((base.info.height - windowHeight) * (0.3 + 0.4 * progress)),
+        width: windowWidth,
+        height: windowHeight,
+      })
+      .resize(width, height)
+      .raw()
+      .toBuffer()
+    pixels.copy(strip, frame * width * height * 3)
+  }
+  await sharp(strip, { raw: { width, height: height * frames, channels: 3, pageHeight: height } })
+    .gif({ delay: new Array<number>(frames).fill(80), loop: 0 })
+    .toFile(fixturePath(fixture))
+}
+
+// The generated transparent logo turning and bobbing on a transparent square, like a sticker.
+const writeAnimatedStickerGif = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const frames = fixture.expected.frames ?? 24
+  const logo = await sharp(join(corpusFilesDirectory, 'transparent-logo-1200x480.png'))
+    .resize({ width: Math.round(width * 0.75) })
+    .png()
+    .toBuffer()
+  const strip = Buffer.alloc(width * height * 4 * frames)
+  for (let frame = 0; frame < frames; frame += 1) {
+    const phase = (frame / frames) * 2 * Math.PI
+    const turned = await sharp(logo)
+      .rotate(Math.round(Math.sin(phase) * 20), { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .png()
+      .toBuffer({ resolveWithObject: true })
+    const pixels = await sharp({
+      create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+    })
+      .composite([
+        {
+          input: turned.data,
+          left: Math.round((width - turned.info.width) / 2),
+          top: Math.round((height - turned.info.height) / 2 + Math.sin(phase) * height * 0.08),
+        },
+      ])
+      .raw()
+      .toBuffer()
+    pixels.copy(strip, frame * width * height * 4)
+  }
+  await sharp(strip, { raw: { width, height: height * frames, channels: 4, pageHeight: height } })
+    .gif({ delay: new Array<number>(frames).fill(60), loop: 0 })
+    .toFile(fixturePath(fixture))
+}
+
 const writeAvifBenchmarkCopy = async (fixture: GeneratedCorpusFixture): Promise<void> => {
   const sourceName = avifBenchmarkSources[fixture.id]
   if (sourceName === undefined) {
@@ -859,6 +927,10 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
       return writeAvifBenchmarkCopy(fixture)
     case 'progressive-jpeg-from-tundra':
       return writeProgressiveJpegFromTundra(fixture)
+    case 'animated-photo-gif':
+      return writeAnimatedPhotoGif(fixture)
+    case 'animated-sticker-gif':
+      return writeAnimatedStickerGif(fixture)
     case 'bmp-gradient':
       return writeBmpGradient(fixture)
     case 'ico-dib24':

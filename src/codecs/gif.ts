@@ -25,6 +25,8 @@ export const gifCodec: ImageCodec = {
   mimeTypes: ['image/gif'],
   minimumBytes: 6,
   detect: isGif,
+  encoderPixelFormats: ['gray8', 'rgb8', 'rgba8'],
+  selection: { frames: true, resolutionLevels: false },
   async metadata(source: ImageSource, limits: ImageLimits): Promise<ImageMetadata> {
     const header = await readExactly(source, 0, 13)
     if (!isGif(header)) throw invalidInput('GIF header is invalid')
@@ -117,5 +119,17 @@ export const gifCodec: ImageCodec = {
   async createDecoder(source, limits, options) {
     const { decodeGif } = await import('./gif-pixels.ts')
     return decodeGif(source, limits, options)
+  },
+  async createEncoder(sink, request) {
+    const { createGifEncoder } = await import('./gif-encode.ts')
+    return createGifEncoder(sink, request)
+  },
+  async createAnimationDecoder(source, limits) {
+    const { decodeGifAnimation } = await import('./gif-pixels.ts')
+    return decodeGifAnimation(source, limits)
+  },
+  async createAnimationEncoder(sink, request) {
+    const { createGifAnimationEncoder } = await import('./gif-encode.ts')
+    return createGifAnimationEncoder(sink, request)
   },
 }

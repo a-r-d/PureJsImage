@@ -103,16 +103,18 @@ describe('GIF decode pipeline', () => {
     await expect(image.metadata()).resolves.toMatchObject({ frames: 2 })
     await expect(image.png().toBuffer()).rejects.toMatchObject({
       code: 'UNSUPPORTED_OPERATION',
-      message: expect.stringContaining('pass { frame: 0 } to open()'),
+      message: expect.stringContaining('pass { animated: true } to open() for every frame'),
     })
   })
 
-  it('rejects unsupported and invalid frame selections', async () => {
+  it('decodes later frames and rejects invalid frame selections', async () => {
     const input = gifFixture()
 
-    await expect(Image.open(input, { frame: 1 })).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-      message: expect.stringContaining('Only frame 0 can be selected'),
+    const second = await (await Image.open(input, { frame: 1 })).png().toBuffer()
+    expect(second.byteLength).toBeGreaterThan(0)
+    await expect((await Image.open(input, { frame: 2 })).png().toBuffer()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+      message: 'GIF frame 2 does not exist; the file has 2 frames',
     })
     await expect(Image.open(input, { frame: -1 })).rejects.toMatchObject({
       code: 'INVALID_INPUT',

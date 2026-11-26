@@ -4,9 +4,10 @@ import { fileURLToPath } from 'node:url'
 import { decode as decodeBmp } from 'bmp-ts'
 import { imageDimensionsFromData } from 'image-dimensions'
 import jpeg from 'jpeg-js'
+import { GifReader } from 'omggif'
 import { PNG } from 'pngjs'
 import type { EngineExecution, PixelCorner, ValidationResult, Workflow } from '../types.ts'
-import { identifySmallCodecFixture } from './corpus.ts'
+import { identifyIco, identifySmallCodecFixture } from './corpus.ts'
 import { identifyTiff } from './tiff.ts'
 
 interface DecodedPixels {
@@ -92,6 +93,12 @@ const decodeWebpSamples = async (
 }
 
 const decodePixels = (output: Buffer, format: string): DecodedPixels | undefined => {
+  if (format === 'gif') {
+    const reader = new GifReader(output)
+    const data = new Uint8Array(reader.width * reader.height * 4)
+    reader.decodeAndBlitFrameRGBA(0, data)
+    return { width: reader.width, height: reader.height, data }
+  }
   if (format === 'bmp') {
     const decoded = decodeBmp(output, { toRGBA: true })
     return { width: decoded.width, height: decoded.height, data: decoded.data }
@@ -133,6 +140,8 @@ const identifyOutput = (
   if (detected) return detected
   const tiff = identifyTiff(bytes)
   if (tiff) return tiff
+  const ico = identifyIco(bytes)
+  if (ico) return ico
   const smallCodec = identifySmallCodecFixture(bytes, expectedFormat)
   if (smallCodec) return smallCodec
   if (bytes[0] !== 0x42 || bytes[1] !== 0x4d) return undefined
@@ -244,6 +253,27 @@ export const validateExecution = async ({
     execution.outputCount !== workflow.expected.outputs
   ) {
     errors.push(`outputs: expected ${workflow.expected.outputs}, got ${execution.outputCount}`)
+  }
+
+  if (dimensions.type === 'gif') {
+    // Every frame must decode with an independent decoder, not only the first.
+    try {
+      const reader = new GifReader(output)
+      const canvas = new Uint8Array(reader.width * reader.height * 4)
+      for (let frame = 0; frame < reader.numFrames(); frame += 1) {
+        reader.decodeAndBlitFrameRGBA(frame, canvas)
+      }
+      if (
+        workflow.expected.frames !== undefined &&
+        reader.numFrames() !== workflow.expected.frames
+      ) {
+        errors.push(`frames: expected ${workflow.expected.frames}, got ${reader.numFrames()}`)
+      }
+    } catch (error) {
+      errors.push(
+        `GIF frames did not decode: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
   }
 
   const needsPixels =

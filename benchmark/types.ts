@@ -16,7 +16,9 @@ export type ImageFormat =
 export type OutputFormat =
   | 'avif'
   | 'bmp'
+  | 'gif'
   | 'hdr'
+  | 'ico'
   | 'jpeg'
   | 'netpbm'
   | 'pfm'
@@ -32,6 +34,7 @@ export type BenchmarkProfile =
   | 'bmp'
   | 'competitors'
   | 'full'
+  | 'gif'
   | 'heif'
   | 'ico'
   | 'smoke'
@@ -65,6 +68,8 @@ export interface SourceFixture extends FixtureBase {
 }
 
 export type FixtureGenerator =
+  | 'animated-photo-gif'
+  | 'animated-sticker-gif'
   | 'avif-benchmark-copy'
   | 'bmp-gradient'
   | 'ico-dib24'
@@ -148,6 +153,8 @@ export type Operation =
       compressionLevel?: number
       lossless?: boolean
       background?: BenchmarkColor
+      /** ICO entry sizes. */
+      sizes?: readonly number[]
     }
 
 export interface PixelSampleExpectation {
@@ -165,6 +172,8 @@ export interface WorkflowExpectation {
   width?: number
   height?: number
   outputs?: number
+  /** GIF output frame count; every frame is decoded with an independent decoder. */
+  frames?: number
   cornerAlpha?: number
   cornerRgbMinimum?: number
   pixelSamples?: readonly PixelSampleExpectation[]
@@ -191,6 +200,8 @@ export interface PipelineWorkflow extends WorkflowBase {
    * engines that refuse implicit first-frame decoding receive the same request.
    */
   frame?: number
+  /** Decode every frame, apply the operations to each, and write an animation. */
+  animated?: true
   operations: readonly Operation[]
   inputs?: never
   batch?: never

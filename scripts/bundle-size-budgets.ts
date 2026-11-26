@@ -19,7 +19,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // row-reuse paths in the RGBA resize, with headroom for the next small core change.
   // 2026-11-25: raised from 78 KiB to 80 KiB, owner approved, for the bounded-window rotation
   // sampler and the four-tap RGBA resize path.
-  'core-execution': { maxMinifiedBytes: 80 * 1024 },
+  // 2026-11-26: raised from 80 KiB to 84 KiB, owner approved, for the animated GIF pipeline path
+  // in the executor and the GIF and ICO encode operations.
+  'core-execution': { maxMinifiedBytes: 84 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // Owner approved campaign ceiling increases on 2026-10-10. Report sizes; they are not promotion gates.
   // 2026-11-20: raised to fit the libjxl-derived effort-7 encoder (about 25.5 KB), owner approved.
@@ -38,7 +40,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-24: raised by 3,000 bytes, owner approved, for the same inlined parallel PNG encoder.
   // 2026-11-25: raised to 660,000 bytes, owner approved, for the same RGBA resize paths.
   // 2026-11-25: raised to 662,000 bytes, owner approved, for the same rotation and resize paths.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 662_000 },
+  // 2026-11-26: raised to 667,000 bytes, owner approved, for the same animated GIF pipeline path.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 667_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.
@@ -50,7 +53,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-24: raised by 3,000 bytes, owner approved, for the same inlined parallel PNG encoder.
   // 2026-11-25: raised to 210,000 bytes, owner approved, for the same RGBA resize paths.
   // 2026-11-26: raised to 212,000 bytes, owner approved, for the shared-read RGBA Lanczos resize.
-  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 212_000 },
+  // 2026-11-26: raised to 216,000 bytes, owner approved, for the same animated GIF pipeline path.
+  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 216_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
   'scientific-reader-gsf': { baselineMinifiedBytes: 37_864, maxMinifiedBytes: 50_000 },

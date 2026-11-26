@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { Image, ImageType } from 'imagescript'
+import { Animation, Image, ImageType } from 'imagescript'
 import type {
   BatchWorkflow,
   BenchmarkColor,
@@ -45,20 +45,62 @@ const encode = (image: Image, operation: EncodeOperation): Promise<Uint8Array> =
       return image.encodeQOI()
     case 'tga':
       return image.encodeTGA()
+    case 'gif':
+      // ImageScript's default dithering is Floyd-Steinberg at strength 0.85.
+      return image.encodeGIF()
     default:
       throw new Error(`ImageScript benchmark output is unsupported: ${operation.format}`)
   }
+}
+
+const executeAnimated = async (
+  workflow: PipelineWorkflow,
+  input: Buffer,
+): Promise<EngineExecution> => {
+  const animation = await Animation.decode(input)
+  for (const operation of workflow.operations) {
+    if (operation.type === 'resize' && operation.width !== undefined) {
+      animation.resize({ width: operation.width })
+    } else if (operation.type === 'encode' && operation.format === 'gif') {
+      return { output: await animation.encodeGIF() }
+    } else {
+      throw new Error(`ImageScript animated operation is unsupported: ${operation.type}`)
+    }
+  }
+  return {}
+}
+
+// ImageScript returns GIF frames as stored rectangles. The benchmark only selects frames that
+// cover the whole canvas, so a stored frame equals the composited frame.
+const selectedFrame = async (input: Buffer, frame: number): Promise<Image> => {
+  const animation = await Animation.decode(input)
+  const selected = animation.frames[frame]
+  if (
+    selected?.xOffset !== 0 ||
+    selected.yOffset !== 0 ||
+    selected.width !== animation.width ||
+    selected.height !== animation.height
+  ) {
+    throw new Error(`ImageScript frame ${frame} does not cover the whole canvas`)
+  }
+  return selected.image
 }
 
 const executePipeline = async (
   workflow: PipelineWorkflow,
   input: Buffer,
 ): Promise<EngineExecution> => {
+  if (workflow.animated) return executeAnimated(workflow, input)
   // ImageScript applies EXIF orientation while decoding, so it is enabled only when the workflow
   // asks for it.
-  const image = await Image.decode(input, {
-    applyOrientation: workflow.operations.some((operation) => operation.type === 'autoOrient'),
-  })
+  const image =
+    workflow.frame !== undefined && workflow.frame > 0
+      ? await selectedFrame(input, workflow.frame)
+      : await Image.decode(input, {
+          applyOrientation: workflow.operations.some(
+            (operation) => operation.type === 'autoOrient',
+          ),
+        })
   let output: Uint8Array | undefined
 
   for (const operation of workflow.operations) {
@@ -148,7 +190,7 @@ const executeBatch = async (
   }
 }
 
-const unsupportedOutputs = new Set(['hdr', 'netpbm', 'pfm', 'ppm', 'tiff'])
+const unsupportedOutputs = new Set(['hdr', 'ico', 'netpbm', 'pfm', 'ppm', 'tiff'])
 
 const unsupportedReason = (workflow: Workflow, inputs: readonly Buffer[]): string | undefined => {
   const inputIds = workflow.batch ? workflow.inputs : [workflow.input]

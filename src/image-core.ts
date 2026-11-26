@@ -10,6 +10,8 @@ import { resolveLimits } from './limits.ts'
 import type {
   AvifEncodeOptions,
   BmpEncodeOptions,
+  GifEncodeOptions,
+  IcoEncodeOptions,
   ConvertPixelFormatOptions,
   CropOptions,
   HdrEncodeOptions,
@@ -35,6 +37,8 @@ import type {
 import {
   createAvifEncodeOperation,
   createBmpEncodeOperation,
+  createGifEncodeOperation,
+  createIcoEncodeOperation,
   createConvertPixelFormatOperation,
   createCropOperation,
   createHdrEncodeOperation,
@@ -67,6 +71,11 @@ export interface ImageOpenOptions extends AbortOptions {
   readonly threads?: number
   readonly limits?: ImageLimitOptions
   readonly frame?: number
+  /**
+   * Process every frame of an animated GIF and write an animated GIF. Crop, resize, rotate,
+   * flip and flop apply to each frame. Formats without animation support decode as usual.
+   */
+  readonly animated?: boolean
   readonly resolutionLevel?: number
   readonly tolerantDecoding?: boolean
   readonly alphaChannel?: number
@@ -98,6 +107,7 @@ interface ImageContext<Input, Output extends Uint8Array> {
   readonly registry: CodecRegistry
   readonly limits: Readonly<ImageLimits>
   readonly frame: number | undefined
+  readonly animated: boolean
   readonly resolutionLevel: number | undefined
   readonly tolerantDecoding: boolean
   readonly alphaChannel: number | undefined
@@ -139,6 +149,12 @@ export class Image<Input, Output extends Uint8Array> {
     ) {
       throw invalidInput('resolutionLevel must be a non-negative safe integer')
     }
+    if (options.animated !== undefined && typeof options.animated !== 'boolean') {
+      throw invalidInput('animated must be a boolean')
+    }
+    if (options.animated === true && options.frame !== undefined) {
+      throw invalidInput('animated and frame cannot be combined')
+    }
     if (options.tolerantDecoding !== undefined && typeof options.tolerantDecoding !== 'boolean') {
       throw invalidInput('tolerantDecoding must be a boolean')
     }
@@ -171,6 +187,7 @@ export class Image<Input, Output extends Uint8Array> {
       codec,
       ...(threads > 1 ? { threads } : {}),
       frame: options.frame,
+      animated: options.animated === true && codec.createAnimationDecoder !== undefined,
       resolutionLevel: options.resolutionLevel,
       tolerantDecoding: options.tolerantDecoding ?? true,
       alphaChannel: options.alphaChannel,
@@ -258,6 +275,8 @@ export class Image<Input, Output extends Uint8Array> {
 
   encode(format: 'avif', options?: AvifEncodeOptions): Image<Input, Output>
   encode(format: 'bmp', options?: BmpEncodeOptions): Image<Input, Output>
+  encode(format: 'gif', options?: GifEncodeOptions): Image<Input, Output>
+  encode(format: 'ico', options?: IcoEncodeOptions): Image<Input, Output>
   encode(format: 'hdr', options?: HdrEncodeOptions): Image<Input, Output>
   encode(format: 'jpeg', options?: JpegEncodeOptions): Image<Input, Output>
   encode(format: 'jpegxl', options?: JpegXlEncodeOptions): Image<Input, Output>
@@ -271,7 +290,9 @@ export class Image<Input, Output extends Uint8Array> {
     format:
       | 'avif'
       | 'bmp'
+      | 'gif'
       | 'hdr'
+      | 'ico'
       | 'jpeg'
       | 'jpegxl'
       | 'netpbm'
@@ -283,7 +304,9 @@ export class Image<Input, Output extends Uint8Array> {
     options:
       | AvifEncodeOptions
       | BmpEncodeOptions
+      | GifEncodeOptions
       | HdrEncodeOptions
+      | IcoEncodeOptions
       | JpegEncodeOptions
       | JpegXlEncodeOptions
       | NetpbmEncodeOptions
@@ -352,6 +375,23 @@ export class Image<Input, Output extends Uint8Array> {
             ? { palette: options.palette }
             : {}),
         }),
+      )
+    }
+    if (format === 'gif') {
+      return this.#append(
+        createGifEncodeOperation({
+          ...('dither' in options && options.dither !== undefined
+            ? { dither: options.dither }
+            : {}),
+          ...('loop' in options && options.loop !== undefined ? { loop: options.loop } : {}),
+        }),
+      )
+    }
+    if (format === 'ico') {
+      return this.#append(
+        createIcoEncodeOperation(
+          'sizes' in options && options.sizes !== undefined ? { sizes: options.sizes } : {},
+        ),
       )
     }
     if (format === 'bmp') {
@@ -470,6 +510,14 @@ export class Image<Input, Output extends Uint8Array> {
 
   bmp(options: BmpEncodeOptions = {}): Image<Input, Output> {
     return this.#append(createBmpEncodeOperation(options))
+  }
+
+  gif(options: GifEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createGifEncodeOperation(options))
+  }
+
+  ico(options: IcoEncodeOptions = {}): Image<Input, Output> {
+    return this.#append(createIcoEncodeOperation(options))
   }
 
   hdr(options: HdrEncodeOptions = {}): Image<Input, Output> {

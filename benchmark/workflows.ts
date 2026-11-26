@@ -191,6 +191,87 @@ export const workflows: readonly Workflow[] = [
     expected: { format: 'png', width: 200, height: 200 },
   },
   {
+    id: 'gif-animated-resize',
+    title: 'Resize every frame of a 36-frame photographic GIF to 240 px wide',
+    tier: 'gif',
+    input: 'animated-photo-480x270',
+    animated: true,
+    operations: [
+      { type: 'resize', width: 240 },
+      { type: 'encode', format: 'gif' },
+    ],
+    expected: { format: 'gif', width: 240, height: 135, frames: 36 },
+  },
+  {
+    id: 'gif-animated-roundtrip',
+    title: 'Decode and re-encode every frame of a 36-frame photographic GIF',
+    tier: 'gif',
+    input: 'animated-photo-480x270',
+    animated: true,
+    operations: [{ type: 'encode', format: 'gif' }],
+    expected: { format: 'gif', width: 480, height: 270, frames: 36 },
+  },
+  {
+    id: 'gif-sticker-resize',
+    title: 'Resize every frame of a 24-frame transparent sticker GIF to 160 px',
+    tier: 'gif',
+    input: 'animated-sticker-320',
+    animated: true,
+    operations: [
+      { type: 'resize', width: 160 },
+      { type: 'encode', format: 'gif' },
+    ],
+    expected: { format: 'gif', width: 160, height: 160, frames: 24, cornerAlpha: 0 },
+  },
+  {
+    id: 'gif-cc0-resize',
+    title: 'Resize every frame of the 70-frame CC0 GIF to 100 px',
+    tier: 'gif',
+    input: 'animated-gif-cc0',
+    animated: true,
+    operations: [
+      { type: 'resize', width: 100 },
+      { type: 'encode', format: 'gif' },
+    ],
+    expected: { format: 'gif', width: 100, height: 100, frames: 70 },
+  },
+  {
+    id: 'gif-last-frame-png',
+    title: 'Composite the last of 36 photographic GIF frames to PNG',
+    tier: 'gif',
+    input: 'animated-photo-480x270',
+    frame: 35,
+    operations: [png(6)],
+    expected: { format: 'png', width: 480, height: 270 },
+  },
+  {
+    id: 'jpeg-to-gif',
+    title: 'Resize a 2400x3000 photo to 800 px and write a 256-color GIF',
+    tier: 'gif',
+    input: 'portrait-2400x3000',
+    operations: [
+      { type: 'resize', width: 800 },
+      { type: 'encode', format: 'gif' },
+    ],
+    expected: { format: 'gif', width: 800, height: 1000, frames: 1 },
+  },
+  {
+    id: 'logo-to-gif',
+    title: 'Write the transparent 1200x480 logo as GIF',
+    tier: 'gif',
+    input: 'transparent-logo-1200x480',
+    operations: [{ type: 'encode', format: 'gif' }],
+    expected: { format: 'gif', width: 1200, height: 480, frames: 1, cornerAlpha: 0 },
+  },
+  {
+    id: 'logo-to-ico',
+    title: 'Write a 16, 32, 48 and 256 px favicon from the transparent 1200x480 logo',
+    tier: 'ico',
+    input: 'transparent-logo-1200x480',
+    operations: [{ type: 'encode', format: 'ico', sizes: [16, 32, 48, 256] }],
+    expected: { format: 'ico', width: 256, height: 256 },
+  },
+  {
     id: 'png-palette-roundtrip',
     title: 'Palette PNG decode and encode',
     tier: 'standard',
@@ -1752,6 +1833,7 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
     return workflows.filter(
       (workflow) =>
         workflow.tier !== 'bmp' &&
+        workflow.tier !== 'gif' &&
         workflow.tier !== 'heif' &&
         workflow.tier !== 'ico' &&
         workflow.tier !== 'small-codecs' &&
@@ -1771,6 +1853,9 @@ export const workflowsForProfile = (profile: string): readonly Workflow[] => {
   }
   if (profile === 'ico') {
     return workflows.filter((workflow) => workflow.tier === 'ico')
+  }
+  if (profile === 'gif') {
+    return workflows.filter((workflow) => workflow.tier === 'gif')
   }
   if (profile === 'small-codecs') {
     return workflows.filter((workflow) => workflow.tier === 'small-codecs')

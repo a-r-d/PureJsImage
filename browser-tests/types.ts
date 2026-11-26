@@ -82,6 +82,7 @@ export interface BrowserCompatibilityHarness {
   orientation(): Promise<BrowserWorkflowResult>
   pngAlphaPipeline(): Promise<BrowserWorkflowResult>
   pngPaletteOutput(): Promise<BrowserWorkflowResult>
+  gifAndIcoOutput(): Promise<BrowserWorkflowResult>
   nativePngPrecision(): Promise<BrowserWorkflowResult>
   resizeDefaultKernel(): Promise<BrowserWorkflowResult>
   scientificTiffDocument(): Promise<BrowserWorkflowResult>

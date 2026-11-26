@@ -1,30 +1,56 @@
-import type { DecoderOptions, DecodeRequest, ImageDecoder } from '../codec.ts'
+import type {
+  DecoderOptions,
+  DecodeRequest,
+  ImageAnimationDecoder,
+  ImageAnimationFrame,
+  ImageDecoder,
+} from '../codec.ts'
+import { throwIfAborted } from '../abort.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import { type ImageLimits, validateImageDimensions } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
 import { type ImageSource, readExactly } from '../source.ts'
-import { gifCodec, isGif, colorTableBytes } from './gif.ts'
+import { colorTableBytes, isGif } from './gif.ts'
+import { createGifLzwDecodeScratch, decodeGifLzw, type GifLzwDecodeScratch } from './gif-lzw.ts'
+
 const blockRows = 32
 
-interface GifFrame {
-  readonly screenWidth: number
-  readonly screenHeight: number
+// Opaque RGBA8 pixels are written as one 32-bit value in the platform's byte order.
+const nativeLittleEndian = new Uint8Array(Uint32Array.of(1).buffer)[0] === 1
+
+const palette32 = (palette: Uint8Array, target: Uint32Array): void => {
+  const colors = Math.min(256, palette.byteLength / 3)
+  for (let index = 0; index < colors; index += 1) {
+    const r = palette[index * 3] ?? 0
+    const g = palette[index * 3 + 1] ?? 0
+    const b = palette[index * 3 + 2] ?? 0
+    target[index] = nativeLittleEndian
+      ? (0xff000000 | (b << 16) | (g << 8) | r) >>> 0
+      : ((r << 24) | (g << 16) | (b << 8) | 0xff) >>> 0
+  }
+}
+
+export interface GifFrameDescriptor {
   readonly left: number
   readonly top: number
   readonly width: number
   readonly height: number
   readonly interlaced: boolean
   readonly palette: Uint8Array
-  readonly transparentIndex: number | undefined
+  readonly transparentIndex: number
+  readonly disposal: number
+  readonly delayCentiseconds: number
   readonly minimumCodeSize: number
-  readonly chunks: readonly Uint8Array[]
+  /** Offset of the first data sub-block length byte. */
+  readonly dataOffset: number
 }
 
-interface GifRegion {
-  readonly x: number
-  readonly y: number
+export interface GifStructure {
   readonly width: number
   readonly height: number
+  /** NETSCAPE repeat count; 0 repeats forever. 1 when the file has no loop extension. */
+  readonly loop: number
+  readonly frames: readonly GifFrameDescriptor[]
 }
 
 const byte = (data: Uint8Array, offset: number): number => {
@@ -36,49 +62,38 @@ const byte = (data: Uint8Array, offset: number): number => {
 const littleEndian = (data: Uint8Array, offset: number): number =>
   byte(data, offset) | (byte(data, offset + 1) << 8)
 
-const tableAt = (
-  data: Uint8Array,
-  offset: number,
-  packed: number,
-): { readonly table: Uint8Array; readonly next: number } => {
-  const length = colorTableBytes(packed)
-  if (offset + length > data.byteLength) throw truncatedInput('GIF color table is truncated')
-  return { table: data.subarray(offset, offset + length), next: offset + length }
-}
-
-const subBlocksAt = (
-  data: Uint8Array,
-  start: number,
-  collect: boolean,
-): { readonly chunks: readonly Uint8Array[]; readonly next: number } => {
-  const chunks: Uint8Array[] = []
+const skipSubBlocks = (data: Uint8Array, start: number): number => {
   let offset = start
   for (let blocks = 0; blocks < 1_000_000; blocks += 1) {
     const length = byte(data, offset)
     offset += 1
-    if (length === 0) return { chunks, next: offset }
-    if (offset + length > data.byteLength) throw truncatedInput('GIF data sub-block is truncated')
-    if (collect) chunks.push(data.subarray(offset, offset + length))
+    if (length === 0) return offset
     offset += length
+    if (offset > data.byteLength) throw truncatedInput('GIF data sub-block is truncated')
   }
   throw invalidInput('GIF contains too many data sub-blocks')
 }
 
-const parseFirstFrame = (data: Uint8Array, limits: ImageLimits): GifFrame => {
+/** Reads every frame descriptor without decompressing image data. */
+export const parseGif = (data: Uint8Array, limits: ImageLimits): GifStructure => {
   if (data.byteLength < 13 || !isGif(data)) throw invalidInput('GIF header is invalid')
-  const screenWidth = littleEndian(data, 6)
-  const screenHeight = littleEndian(data, 8)
-  validateImageDimensions(screenWidth, screenHeight, 1, limits)
+  const width = littleEndian(data, 6)
+  const height = littleEndian(data, 8)
+  validateImageDimensions(width, height, 1, limits)
   const screenPacked = byte(data, 10)
   let offset = 13
   let globalPalette: Uint8Array | undefined
   if ((screenPacked & 0x80) !== 0) {
-    const colorTable = tableAt(data, offset, screenPacked)
-    globalPalette = colorTable.table
-    offset = colorTable.next
+    const length = colorTableBytes(screenPacked)
+    if (offset + length > data.byteLength) throw truncatedInput('GIF color table is truncated')
+    globalPalette = data.subarray(offset, offset + length)
+    offset += length
   }
-  let transparentIndex: number | undefined
-
+  const frames: GifFrameDescriptor[] = []
+  let loop = 1
+  let transparentIndex = -1
+  let disposal = 0
+  let delayCentiseconds = 0
   for (let blocks = 0; offset < data.byteLength && blocks < 1_000_000; blocks += 1) {
     const marker = byte(data, offset)
     offset += 1
@@ -90,34 +105,51 @@ const parseFirstFrame = (data: Uint8Array, limits: ImageLimits): GifFrame => {
         if (byte(data, offset) !== 4)
           throw invalidInput('GIF graphics control extension is invalid')
         const packed = byte(data, offset + 1)
-        transparentIndex = (packed & 1) === 0 ? undefined : byte(data, offset + 4)
+        disposal = (packed >>> 2) & 0x07
+        delayCentiseconds = littleEndian(data, offset + 2)
+        transparentIndex = (packed & 1) === 0 ? -1 : byte(data, offset + 4)
         if (byte(data, offset + 5) !== 0) throw invalidInput('GIF extension terminator is missing')
         offset += 6
+      } else if (
+        label === 0xff &&
+        byte(data, offset) === 11 &&
+        offset + 16 <= data.byteLength &&
+        String.fromCharCode(...data.subarray(offset + 1, offset + 12)) === 'NETSCAPE2.0' &&
+        byte(data, offset + 12) === 3 &&
+        byte(data, offset + 13) === 1
+      ) {
+        loop = littleEndian(data, offset + 14)
+        offset = skipSubBlocks(data, offset + 12)
       } else {
-        offset = subBlocksAt(data, offset, false).next
+        offset = skipSubBlocks(data, offset)
       }
       continue
     }
     if (marker !== 0x2c) {
       throw invalidInput(`GIF contains an unknown block marker: 0x${marker.toString(16)}`)
     }
-
     const left = littleEndian(data, offset)
     const top = littleEndian(data, offset + 2)
-    const width = littleEndian(data, offset + 4)
-    const height = littleEndian(data, offset + 6)
+    const frameWidth = littleEndian(data, offset + 4)
+    const frameHeight = littleEndian(data, offset + 6)
     const imagePacked = byte(data, offset + 8)
     offset += 9
-    if (width < 1 || height < 1 || left + width > screenWidth || top + height > screenHeight) {
+    if (
+      frameWidth < 1 ||
+      frameHeight < 1 ||
+      left + frameWidth > width ||
+      top + frameHeight > height
+    ) {
       throw invalidInput(
-        `GIF frame ${left},${top} ${width}x${height} exceeds ${screenWidth}x${screenHeight}`,
+        `GIF frame ${left},${top} ${frameWidth}x${frameHeight} exceeds ${width}x${height}`,
       )
     }
     let palette = globalPalette
     if ((imagePacked & 0x80) !== 0) {
-      const colorTable = tableAt(data, offset, imagePacked)
-      palette = colorTable.table
-      offset = colorTable.next
+      const length = colorTableBytes(imagePacked)
+      if (offset + length > data.byteLength) throw truncatedInput('GIF color table is truncated')
+      palette = data.subarray(offset, offset + length)
+      offset += length
     }
     if (!palette) throw invalidInput('GIF frame has no color table')
     const minimumCodeSize = byte(data, offset)
@@ -125,147 +157,34 @@ const parseFirstFrame = (data: Uint8Array, limits: ImageLimits): GifFrame => {
     if (minimumCodeSize < 2 || minimumCodeSize > 8) {
       throw invalidInput(`GIF LZW minimum code size ${minimumCodeSize} is invalid`)
     }
-    const imageData = subBlocksAt(data, offset, true)
-    return {
-      screenWidth,
-      screenHeight,
+    frames.push({
       left,
       top,
-      width,
-      height,
+      width: frameWidth,
+      height: frameHeight,
       interlaced: (imagePacked & 0x40) !== 0,
       palette,
       transparentIndex,
+      disposal,
+      delayCentiseconds,
       minimumCodeSize,
-      chunks: imageData.chunks,
+      dataOffset: offset,
+    })
+    if (frames.length > limits.maxFrames) {
+      validateImageDimensions(width, height, frames.length, limits)
     }
+    offset = skipSubBlocks(data, offset)
+    transparentIndex = -1
+    disposal = 0
+    delayCentiseconds = 0
   }
-  throw invalidInput('GIF contains no image frames')
+  if (frames.length === 0) throw invalidInput('GIF contains no image frames')
+  validateImageDimensions(width, height, frames.length, limits)
+  return { width, height, loop, frames }
 }
 
-class GifBitReader {
-  readonly #chunks: readonly Uint8Array[]
-  #chunk = 0
-  #offset = 0
-  #bits = 0
-  #bitCount = 0
-
-  constructor(chunks: readonly Uint8Array[]) {
-    this.#chunks = chunks
-  }
-
-  read(length: number): number {
-    while (this.#bitCount < length) {
-      while (this.#chunk < this.#chunks.length) {
-        const chunk = this.#chunks[this.#chunk]
-        const next = chunk?.[this.#offset]
-        if (next !== undefined) {
-          this.#bits |= next << this.#bitCount
-          this.#bitCount += 8
-          this.#offset += 1
-          break
-        }
-        this.#chunk += 1
-        this.#offset = 0
-      }
-      if (this.#bitCount < length && this.#chunk >= this.#chunks.length) {
-        throw truncatedInput('GIF LZW data ended before its end code')
-      }
-    }
-    const value = this.#bits & ((1 << length) - 1)
-    this.#bits >>>= length
-    this.#bitCount -= length
-    return value
-  }
-}
-
-const decodeIndices = (frame: GifFrame): Uint8Array => {
-  const expected = frame.width * frame.height
-  const output = new Uint8Array(expected)
-  const prefix = new Int16Array(4096)
-  const suffix = new Uint8Array(4096)
-  const stack = new Uint8Array(4096)
-  const clearCode = 1 << frame.minimumCodeSize
-  const endCode = clearCode + 1
-  for (let code = 0; code < clearCode; code += 1) suffix[code] = code
-  const reader = new GifBitReader(frame.chunks)
-  let codeSize = frame.minimumCodeSize + 1
-  let available = endCode + 1
-  let previous = -1
-  let first = 0
-  let written = 0
-  let ended = false
-
-  for (let codes = 0; codes < expected * 2 + 4096; codes += 1) {
-    let code = reader.read(codeSize)
-    if (code === clearCode) {
-      codeSize = frame.minimumCodeSize + 1
-      available = endCode + 1
-      previous = -1
-      continue
-    }
-    if (code === endCode) {
-      ended = true
-      break
-    }
-    if (previous < 0) {
-      if (code >= clearCode) throw invalidInput('GIF LZW stream starts with an invalid code')
-      if (written >= expected) throw invalidInput('GIF LZW stream contains too many pixels')
-      output[written] = code
-      written += 1
-      first = code
-      previous = code
-      continue
-    }
-
-    const inputCode = code
-    let stackLength = 0
-    if (code === available) {
-      stack[stackLength] = first
-      stackLength += 1
-      code = previous
-    } else if (code > available) {
-      throw invalidInput('GIF LZW stream references an unavailable code')
-    }
-    while (code >= clearCode) {
-      if (code >= available || stackLength >= stack.length) {
-        throw invalidInput('GIF LZW dictionary chain is invalid')
-      }
-      stack[stackLength] = suffix[code] ?? 0
-      stackLength += 1
-      code = prefix[code] ?? -1
-      if (code < 0) throw invalidInput('GIF LZW dictionary prefix is invalid')
-    }
-    first = suffix[code] ?? 0
-    stack[stackLength] = first
-    stackLength += 1
-    while (stackLength > 0) {
-      if (written >= expected) throw invalidInput('GIF LZW stream contains too many pixels')
-      stackLength -= 1
-      output[written] = stack[stackLength] ?? 0
-      written += 1
-    }
-    if (available < 4096) {
-      prefix[available] = previous
-      suffix[available] = first
-      available += 1
-      if (available === 1 << codeSize && codeSize < 12) codeSize += 1
-    }
-    previous = inputCode
-  }
-  if (!ended) throw invalidInput('GIF LZW stream did not reach an end code')
-  if (written !== expected) {
-    throw truncatedInput(`GIF frame decoded ${written} of ${expected} pixels`)
-  }
-  for (const index of output) {
-    if (index !== frame.transparentIndex && index * 3 + 2 >= frame.palette.byteLength) {
-      throw invalidInput(`GIF palette index ${index} is outside its color table`)
-    }
-  }
-  return output
-}
-
-const rowsByDisplayOrder = (height: number, interlaced: boolean): Int32Array => {
+// Interlaced GIF rows arrive in four passes. Returns the storage row of each display row.
+const storageRows = (height: number, interlaced: boolean): Int32Array => {
   const rows = new Int32Array(height)
   if (!interlaced) {
     for (let row = 0; row < height; row += 1) rows[row] = row
@@ -284,6 +203,131 @@ const rowsByDisplayOrder = (height: number, interlaced: boolean): Int32Array => 
     }
   }
   return rows
+}
+
+const validateIndices = (frame: GifFrameDescriptor, indices: Uint8Array, length: number): void => {
+  const colors = frame.palette.byteLength / 3
+  if (colors >= 256) return
+  for (let index = 0; index < length; index += 1) {
+    const value = indices[index] ?? 0
+    if (value >= colors && value !== frame.transparentIndex) {
+      throw invalidInput(`GIF palette index ${value} is outside its color table`)
+    }
+  }
+}
+
+/** Composites frames in order on one RGBA8 canvas, applying each frame's disposal. */
+export class GifCompositor {
+  readonly #data: Uint8Array
+  readonly #structure: GifStructure
+  readonly #scratch: GifLzwDecodeScratch = createGifLzwDecodeScratch()
+  readonly canvas: Uint8Array
+  readonly #canvas32: Uint32Array
+  readonly #colors = new Uint32Array(256)
+  #indices = new Uint8Array(0)
+  #saved = new Uint8Array(0)
+  #next = 0
+  // Disposal still owed by the last drawn frame.
+  #pendingDisposal: GifFrameDescriptor | undefined
+
+  constructor(data: Uint8Array, structure: GifStructure) {
+    this.#data = data
+    this.#structure = structure
+    this.canvas = new Uint8Array(structure.width * structure.height * 4)
+    this.#canvas32 = new Uint32Array(this.canvas.buffer)
+  }
+
+  get nextFrame(): number {
+    return this.#next
+  }
+
+  /**
+   * Starts at the last frame up to `frame` that covers the canvas without transparency. Earlier
+   * frames cannot show through it, so they need no decoding.
+   */
+  skipTo(frame: number): void {
+    const frames = this.#structure.frames
+    for (let index = frame; index > this.#next; index -= 1) {
+      const candidate = frames[index]
+      if (
+        candidate &&
+        candidate.transparentIndex < 0 &&
+        candidate.left === 0 &&
+        candidate.top === 0 &&
+        candidate.width === this.#structure.width &&
+        candidate.height === this.#structure.height
+      ) {
+        this.#next = index
+        this.#pendingDisposal = undefined
+        return
+      }
+    }
+  }
+
+  /** Draws the next frame. The canvas then shows that frame as a viewer displays it. */
+  drawNext(): GifFrameDescriptor {
+    const frame = this.#structure.frames[this.#next]
+    if (!frame) throw invalidInput('GIF has no more frames')
+    const canvas = this.canvas
+    const canvasWidth = this.#structure.width
+    const owed = this.#pendingDisposal
+    if (owed?.disposal === 2) {
+      for (let y = 0; y < owed.height; y += 1) {
+        const start = ((owed.top + y) * canvasWidth + owed.left) * 4
+        canvas.fill(0, start, start + owed.width * 4)
+      }
+    } else if (owed?.disposal === 3) {
+      const rowBytes = owed.width * 4
+      for (let y = 0; y < owed.height; y += 1) {
+        const start = ((owed.top + y) * canvasWidth + owed.left) * 4
+        canvas.set(this.#saved.subarray(y * rowBytes, (y + 1) * rowBytes), start)
+      }
+    }
+    if (frame.disposal === 3) {
+      const rowBytes = frame.width * 4
+      if (this.#saved.byteLength < rowBytes * frame.height) {
+        this.#saved = new Uint8Array(rowBytes * frame.height)
+      }
+      for (let y = 0; y < frame.height; y += 1) {
+        const start = ((frame.top + y) * canvasWidth + frame.left) * 4
+        this.#saved.set(canvas.subarray(start, start + rowBytes), y * rowBytes)
+      }
+    }
+    const area = frame.width * frame.height
+    if (this.#indices.byteLength < area) this.#indices = new Uint8Array(area)
+    const indices = this.#indices.subarray(0, area)
+    decodeGifLzw(this.#data, frame.dataOffset, frame.minimumCodeSize, indices, this.#scratch)
+    validateIndices(frame, indices, area)
+    const rows = storageRows(frame.height, frame.interlaced)
+    const colors = this.#colors
+    palette32(frame.palette, colors)
+    const canvas32 = this.#canvas32
+    const transparent = frame.transparentIndex
+    for (let y = 0; y < frame.height; y += 1) {
+      let source = (rows[y] ?? 0) * frame.width
+      let target = (frame.top + y) * canvasWidth + frame.left
+      const end = source + frame.width
+      if (transparent < 0) {
+        for (; source < end; source += 1, target += 1)
+          canvas32[target] = colors[indices[source] ?? 0] ?? 0
+        continue
+      }
+      for (; source < end; source += 1, target += 1) {
+        const index = indices[source] ?? 0
+        if (index !== transparent) canvas32[target] = colors[index] ?? 0
+      }
+    }
+    this.#pendingDisposal = frame
+    this.#next += 1
+    return frame
+  }
+}
+
+interface GifRegion {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
 }
 
 const region = (width: number, height: number, request: DecodeRequest = {}): GifRegion => {
@@ -308,61 +352,106 @@ const region = (width: number, height: number, request: DecodeRequest = {}): Gif
   return { x, y, width: outputWidth, height: outputHeight }
 }
 
+/** Emits a canvas region as RGBA8 blocks that copy the canvas rows. */
+async function* canvasBlocks(
+  canvas: Uint8Array,
+  canvasWidth: number,
+  output: GifRegion,
+  signal: AbortSignal | undefined,
+): AsyncGenerator<PixelBlock> {
+  const stride = output.width * 4
+  for (let outputY = 0; outputY < output.height; outputY += blockRows) {
+    throwIfAborted(signal)
+    const height = Math.min(blockRows, output.height - outputY)
+    const data = new Uint8Array(stride * height)
+    for (let row = 0; row < height; row += 1) {
+      const start = ((output.y + outputY + row) * canvasWidth + output.x) * 4
+      data.set(canvas.subarray(start, start + stride), row * stride)
+    }
+    yield { x: 0, y: outputY, width: output.width, height, stride, format: 'rgba8', data }
+  }
+}
+
+const capabilities = Object.freeze({
+  sequential: true,
+  regionDecode: true,
+  scaledDecode: false,
+  progressive: false,
+})
+
+/** One frame as a viewer shows it. Frame 0 decodes without a canvas. */
 class GifDecoder implements ImageDecoder {
   readonly width: number
   readonly height: number
   readonly pixelFormat = 'rgba8' as const
-  readonly capabilities = Object.freeze({
-    sequential: true,
-    regionDecode: false,
-    scaledDecode: false,
-    progressive: false,
-  })
-  readonly #frame: GifFrame
+  readonly capabilities = capabilities
+  readonly #data: Uint8Array
+  readonly #structure: GifStructure
+  readonly #frame: number
 
-  constructor(frame: GifFrame) {
-    this.width = frame.screenWidth
-    this.height = frame.screenHeight
+  constructor(data: Uint8Array, structure: GifStructure, frame: number) {
+    this.width = structure.width
+    this.height = structure.height
+    this.#data = data
+    this.#structure = structure
     this.#frame = frame
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
     const output = region(this.width, this.height, request)
-    const indices = decodeIndices(this.#frame)
-    const rows = rowsByDisplayOrder(this.#frame.height, this.#frame.interlaced)
+    if (this.#frame > 0) {
+      const compositor = new GifCompositor(this.#data, this.#structure)
+      compositor.skipTo(this.#frame)
+      while (compositor.nextFrame <= this.#frame) {
+        throwIfAborted(request.signal)
+        compositor.drawNext()
+      }
+      yield* canvasBlocks(compositor.canvas, this.width, output, request.signal)
+      return
+    }
+    const frame = this.#structure.frames[0]
+    if (!frame) throw invalidInput('GIF contains no image frames')
+    const area = frame.width * frame.height
+    const indices = new Uint8Array(area)
+    decodeGifLzw(
+      this.#data,
+      frame.dataOffset,
+      frame.minimumCodeSize,
+      indices,
+      createGifLzwDecodeScratch(),
+    )
+    validateIndices(frame, indices, area)
+    const rows = storageRows(frame.height, frame.interlaced)
+    const colors = new Uint32Array(256)
+    palette32(frame.palette, colors)
+    const transparent = frame.transparentIndex
     const stride = output.width * 4
+    // Columns of the output that the frame covers.
+    const firstX = Math.max(output.x, frame.left)
+    const lastX = Math.min(output.x + output.width, frame.left + frame.width)
     for (let outputY = 0; outputY < output.height; outputY += blockRows) {
+      throwIfAborted(request.signal)
       const height = Math.min(blockRows, output.height - outputY)
       const data = new Uint8Array(stride * height)
+      const data32 = new Uint32Array(data.buffer)
       for (let row = 0; row < height; row += 1) {
-        const screenY = output.y + outputY + row
-        const frameY = screenY - this.#frame.top
-        if (frameY < 0 || frameY >= this.#frame.height) continue
-        const storageRow = rows[frameY] ?? 0
-        for (let x = 0; x < output.width; x += 1) {
-          const frameX = output.x + x - this.#frame.left
-          if (frameX < 0 || frameX >= this.#frame.width) continue
-          const index = indices[storageRow * this.#frame.width + frameX] ?? 0
-          if (index === this.#frame.transparentIndex) continue
-          const palette = index * 3
-          const target = row * stride + x * 4
-          data[target] = this.#frame.palette[palette] ?? 0
-          data[target + 1] = this.#frame.palette[palette + 1] ?? 0
-          data[target + 2] = this.#frame.palette[palette + 2] ?? 0
-          data[target + 3] = 255
+        const frameY = output.y + outputY + row - frame.top
+        if (frameY < 0 || frameY >= frame.height || firstX >= lastX) continue
+        let source = (rows[frameY] ?? 0) * frame.width + firstX - frame.left
+        let target = row * output.width + firstX - output.x
+        for (let x = firstX; x < lastX; x += 1, source += 1, target += 1) {
+          const index = indices[source] ?? 0
+          if (index !== transparent) data32[target] = colors[index] ?? 0
         }
       }
-      yield {
-        x: 0,
-        y: outputY,
-        width: output.width,
-        height,
-        stride,
-        format: 'rgba8',
-        data,
-      }
+      yield { x: 0, y: outputY, width: output.width, height, stride, format: 'rgba8', data }
     }
   }
+}
+
+const readGif = async (source: ImageSource, limits: ImageLimits) => {
+  const data = await readExactly(source, 0, source.size)
+  return { data, structure: parseGif(data, limits) }
 }
 
 export const decodeGif = async (
@@ -370,18 +459,60 @@ export const decodeGif = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
 ): Promise<ImageDecoder> => {
-  if (options.frame !== undefined && options.frame !== 0) {
+  const { data, structure } = await readGif(source, limits)
+  const frames = structure.frames.length
+  if (options.frame === undefined && frames > 1) {
     throw unsupportedOperation(
-      `GIF frame ${options.frame} cannot be decoded; only frame 0 is supported`,
+      `Animated GIF has ${frames} frames; pass { animated: true } to open() for every frame or { frame: 0 } for one`,
     )
   }
-  const metadata = await gifCodec.metadata(source, limits)
-  const frames = metadata.frames ?? 1
-  if (frames > 1 && options.frame === undefined) {
-    throw unsupportedOperation(
-      `Animated GIF has ${frames} frames; pass { frame: 0 } to open() to explicitly decode its first frame`,
-    )
+  const frame = options.frame ?? 0
+  if (frame >= frames) {
+    throw invalidInput(`GIF frame ${frame} does not exist; the file has ${frames} frames`)
   }
-  const data = await readExactly(source, 0, source.size)
-  return new GifDecoder(parseFirstFrame(data, limits))
+  return new GifDecoder(data, structure, frame)
+}
+
+class GifAnimationDecoder implements ImageAnimationDecoder {
+  readonly width: number
+  readonly height: number
+  readonly pixelFormat = 'rgba8' as const
+  readonly frameCount: number
+  readonly loop: number
+  readonly #data: Uint8Array
+  readonly #structure: GifStructure
+
+  constructor(data: Uint8Array, structure: GifStructure) {
+    this.width = structure.width
+    this.height = structure.height
+    this.frameCount = structure.frames.length
+    this.loop = structure.loop
+    this.#data = data
+    this.#structure = structure
+  }
+
+  async *frames(signal?: AbortSignal): AsyncGenerator<ImageAnimationFrame> {
+    const compositor = new GifCompositor(this.#data, this.#structure)
+    const width = this.width
+    const height = this.height
+    for (let index = 0; index < this.frameCount; index += 1) {
+      throwIfAborted(signal)
+      const frame = compositor.drawNext()
+      const canvas = compositor.canvas
+      yield {
+        index,
+        durationMs: frame.delayCentiseconds * 10,
+        decode: (request?: DecodeRequest) =>
+          canvasBlocks(canvas, width, region(width, height, request), request?.signal ?? signal),
+      }
+    }
+  }
+}
+
+export const decodeGifAnimation = async (
+  source: ImageSource,
+  limits: ImageLimits,
+): Promise<ImageAnimationDecoder> => {
+  const { data, structure } = await readGif(source, limits)
+  return new GifAnimationDecoder(data, structure)
 }

@@ -101,6 +101,7 @@ const encode = async (image: JimpImage, operation: EncodeOperation): Promise<Buf
   }
   if (operation.format === 'bmp') return outputImage.getBuffer(JimpMime.bmp)
   if (operation.format === 'tiff') return outputImage.getBuffer(JimpMime.tiff)
+  if (operation.format === 'gif') return outputImage.getBuffer(JimpMime.gif)
   throw new Error(`Unsupported output format: ${operation.format}`)
 }
 
@@ -217,6 +218,16 @@ export const engine: Engine = {
       return 'Jimp 1.7.0 has no HEIC decoder'
     }
     if (input.includes('ico')) return 'Jimp 1.7.0 has no ICO decoder'
+    if (!workflow.batch && (workflow.animated || (workflow.frame ?? 0) > 0)) {
+      return 'Jimp 1.7.0 decodes only the first GIF frame'
+    }
+    if (
+      workflow.operations?.some(
+        (operation) => operation.type === 'encode' && operation.format === 'ico',
+      )
+    ) {
+      return 'Jimp 1.7.0 has no ICO encoder'
+    }
     if (workflow.operations?.some((operation) => operation.type === 'raw')) {
       return 'Jimp has no streaming raw-decode benchmark path'
     }

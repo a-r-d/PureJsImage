@@ -4,8 +4,8 @@
 This document is the capability contract for PureJsImage's first-party GIF
 codec. A checked item is implemented in the current code. An unchecked item is
 planned and must not be presented as supported until its output is independently
-validated. Static GIFs decode directly. Animated GIF metadata still counts
-every frame, but pixel output requires an explicit frame 0 selection.
+validated. Static GIFs decode directly. Animated GIFs decode one selected frame,
+or every composited frame when opened with `{ animated: true }`.
 
 ## Decode
 
@@ -23,10 +23,10 @@ every frame, but pixel output requires an explicit frame 0 selection.
 - [x] Metadata transparency detection from graphics control extensions
 - [x] Safe skipping of comment, application, plain-text, and other extension
   sub-blocks during metadata and first-frame parsing
-- [ ] Decode and composite every animation frame
-- [ ] Frame delays from graphics control extensions
-- [ ] Disposal methods 0-3
-- [ ] Animation loop counts from Netscape/ANIMEXTS application extensions
+- [x] Decode and composite every animation frame
+- [x] Frame delays from graphics control extensions
+- [x] Disposal methods 0-3, with restore-to-background clearing to transparent
+- [x] Animation loop counts from the NETSCAPE2.0 application extension
 - [ ] Logical-screen background-color semantics where they affect animation
   composition
 - [ ] Pixel aspect ratio exposure
@@ -59,7 +59,7 @@ every frame, but pixel output requires an explicit frame 0 selection.
   and explicit frame 0 selections
 - [x] Reject implicit animated GIF pixel decode with `UNSUPPORTED_OPERATION`
 - [x] Explicit API selection of frame 0
-- [ ] Explicit API selection of later frames by index
+- [x] Explicit API selection of later frames by index
 - [ ] Explicit API selection by animation timestamp
 - [ ] Poster-frame or representative-frame selection policies
 
@@ -75,8 +75,8 @@ every frame, but pixel output requires an explicit frame 0 selection.
   index plane
 - [ ] Bounded interlace reordering or a disk-backed fallback
 - [ ] Crop- and resize-aware decode that avoids expanding unused palette pixels
-- [ ] Animation composition with a bounded canvas strategy and explicit memory
-  behavior for disposal method 3
+- [x] Animation composition on one RGBA canvas, saving only the frame rectangle
+  for disposal method 3
 
 ### Metadata
 
@@ -89,39 +89,35 @@ every frame, but pixel output requires an explicit frame 0 selection.
 
 ## Encode
 
-### Current status
+### Static output
 
-- [ ] Static GIF encoding
-- [ ] Animated GIF encoding
-- [ ] Public `image.gif()` and `image.encode('gif')` APIs
-
-GIF output is not currently implemented. Requests must continue to fail as an
-unsupported output format until independently decodable files and focused tests
-exist.
-
-### Planned static output
-
-- [ ] Deterministic RGB/RGBA-to-indexed color quantization
-- [ ] Global color-table generation with 2-256 entries
-- [ ] Optional local color tables
-- [ ] Binary transparency with a selected transparent palette index
-- [ ] Configurable dithering
-- [ ] GIF LZW encoding with dictionary clears and sub-block emission
+- [x] Static GIF89a encoding from `gray8`, `rgb8`, or `rgba8` pixels
+- [x] Public `image.gif()` and `image.encode('gif')` APIs
+- [x] Exact palettes for images with 256 or fewer colors
+- [x] Wu variance-minimizing quantization for images with more colors
+- [x] Floyd-Steinberg dithering in serpentine order, `dither` from 0 to 1,
+  on by default
+- [x] Global color tables with 2-256 entries
+- [x] One-bit transparency: alpha below 128 maps to one reserved palette index
+- [x] GIF LZW encoding with dictionary clears and 255-byte sub-blocks
 - [ ] Optional interlaced output
-- [ ] Frame cropping to the smallest changed or non-transparent rectangle
 - [ ] Comment and application-extension writing when requested
 
-### Planned animated output
+### Animated output
 
-- [ ] Multiple frames with per-frame rectangles
-- [ ] Frame delays with defined rounding from milliseconds to centiseconds
-- [ ] Disposal methods 0-3
-- [ ] Per-frame transparency and local palettes
-- [ ] Netscape loop-count extension
-- [ ] Global-palette optimization across frames
-- [ ] Frame differencing and unchanged-region optimization
-- [ ] Deterministic animation output for reproducible builds
-- [ ] Streaming frame input without retaining every source frame in RGBA form
+- [x] `open(input, { animated: true })` pipelines that write every frame
+- [x] `encodeGifAnimation()` frame input and `openGifAnimation()` frame output
+- [x] Frame delays rounded from milliseconds to centiseconds
+- [x] Source loop counts kept unless the `loop` option sets one
+- [x] Frame rectangles cropped to the changed region
+- [x] Unchanged pixels inside a frame rectangle written as transparent
+- [x] Disposal method 1, and method 2 when the next frame clears pixels
+- [ ] Disposal method 3 output
+- [x] Local palettes, reusing the first frame's global table when every drawn
+  color is in it
+- [x] Deterministic output for the same frames and options
+- [x] Streaming frame input that holds one input frame, the previous frame,
+  and the decoder canvas
 
 ## Correctness and safety contract
 

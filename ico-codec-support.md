@@ -1,17 +1,17 @@
 <!-- Generated from capabilities/manifest.json by npm run capabilities:generate. Do not edit directly. -->
-# ICO decode support plan
+# ICO codec support
 
-This document is the implementation plan and eventual capability contract for
-PureJsImage's first-party Windows icon decoder. The target is static `.ico`
-files used for favicons, Windows icons, and uploaded web assets. ICO encoding is
-intentionally out of scope.
+This document is the capability contract for PureJsImage's first-party Windows
+icon codec. The target is static `.ico` files used for favicons, Windows icons,
+and uploaded web assets.
 
 A checked implementation item is already present and tested. An unchecked item
 is unsupported until implemented and independently validated.
 
 ## Scope decisions
 
-- [x] Decode `.ico` files only; do not implement ICO encoding
+- [x] Decode `.ico` files and write multi-size `.ico` files
+- [x] Write BMP entries below 256 px for older readers and a PNG entry at 256 px
 - [x] Support multi-image icon files and deterministic image selection
 - [x] Support both PNG-backed and DIB-backed icon entries
 - [x] Reuse the first-party PNG decoder and keep the DIB row kernel specialized
@@ -106,7 +106,6 @@ is unsupported until implemented and independently validated.
 
 ## Explicitly skip
 
-- [ ] ICO encoding
 - [ ] Animated cursor (`.ani`) decode
 - [ ] Executing or interpreting shell extensions and executable resources
 - [ ] Embedded JPEG or undocumented vendor payloads

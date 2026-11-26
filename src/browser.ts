@@ -55,6 +55,8 @@ export type {
   AvifEncodeOptions,
   Background,
   BmpEncodeOptions,
+  GifEncodeOptions,
+  IcoEncodeOptions,
   ConvertiblePixelFormat,
   ConvertPixelFormatOptions,
   CropOptions,

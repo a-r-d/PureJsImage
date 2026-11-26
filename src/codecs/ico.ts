@@ -425,6 +425,7 @@ export const icoCodec: ImageCodec = {
   mimeTypes: ['image/x-icon', 'image/vnd.microsoft.icon'],
   minimumBytes: iconDirectoryBytes,
   detect: isIco,
+  encoderPixelFormats: ['gray8', 'rgb8', 'rgba8'],
   async metadata(source: ImageSource, limits: ImageLimits): Promise<ImageMetadata> {
     const directory = await parseDirectory(source, limits)
     return selectedMetadata(source, directory, limits)
@@ -432,5 +433,9 @@ export const icoCodec: ImageCodec = {
   async createDecoder(source, limits) {
     const { createIcoDecoder } = await import('./ico-pixels.ts')
     return createIcoDecoder(source, limits)
+  },
+  async createEncoder(sink, request) {
+    const { createIcoEncoder } = await import('./ico-encode.ts')
+    return createIcoEncoder(sink, request)
   },
 }

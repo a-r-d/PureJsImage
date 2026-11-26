@@ -85,8 +85,8 @@ All formats below have a TypeScript implementation. WASM is optional and covers 
 | [WebP](webp-codec-support.md) | Yes | Yes | [Pixel/transform steps](https://purejsimage.com/api/#wasm-acceleration) | Static lossy, lossless and near-lossless output; alpha supported. No animation. |
 | [BMP](bmp-codec-support.md) | Yes | Yes | No | Common Windows/OS2 and palette/RLE inputs; 24-bit RGB or 32-bit RGBA output. |
 | [TIFF](tiff-codec-support.md) | Yes | Yes | No | Classic TIFF/BigTIFF, strips, tiles and pages. Scientific, OME and whole-slide APIs are separate. |
-| [GIF](gif-codec-support.md) | Static / explicit frame 0 | No | No | Static images; animated files require frame 0 selection. No GIF output. |
-| [ICO](ico-codec-support.md) | Yes | No | No | One selected PNG or DIB icon; transparency supported. No CUR or ICO output. |
+| [GIF](gif-codec-support.md) | Yes | Yes | No | Any frame or every animated frame; static and animated output with 256-color palettes. |
+| [ICO](ico-codec-support.md) | Yes | Yes | No | One selected PNG or DIB icon on read; multi-size icon output. No CUR. |
 | [JPEG 2000 / JP2](jpeg2000-codec-support.md) | Yes | No | No | Static Part 1 JP2, 1–16-bit samples. No HTJ2K, JPX or encoding. |
 | [AVIF](avif-codec-support.md) | Yes | Limited | No | Common 8/10/12-bit stills and alpha. Writer is limited to opaque 8-bit YUV420; no general animation. |
 | [JPEG XL](jpegxl-codec-support.md) | Stable common static | Stable lossless, static lossy and exact transcode | No | Lossless/static lossy, exact JPEG recovery, high-depth samples and separate animation APIs. Lossy animation is Experimental. |
@@ -233,6 +233,33 @@ and writes whichever file is smaller. The pixels are the same.
   Photos usually pass 256 colors in the first rows.
 - Grayscale and 16-bit output keep their own color types.
 - Pass `palette: false` to always write grayscale, RGB or RGBA.
+
+### GIF, animated GIF and ICO output
+
+```ts
+const sticker = await (await images.open(input, { animated: true }))
+  .resize({ width: 320 })
+  .gif()
+  .toBuffer();
+
+const favicon = await (await images.open(logo)).ico({ sizes: [16, 32, 48] }).toBuffer();
+```
+
+- `open(input, { animated: true })` decodes every frame of an animated GIF. Crop, resize,
+  rotate, flip and flop run on each frame, and `gif()` writes the frames with their delays and
+  loop count. `{ frame: n }` decodes one composited frame instead.
+- Images with 256 or fewer colors keep their exact colors. Other images get a Wu palette refined
+  with k-means, and Floyd-Steinberg dithering that fades out on edges and texture. Pass
+  `dither: 0` to turn dithering off.
+- GIF transparency is one bit: alpha below 128 becomes transparent.
+- Each animated frame stores only the rectangle that changed. Unchanged pixels inside it are
+  written as transparent.
+- Decoding keeps the compressed file and one RGBA canvas. Encoding keeps the current frame, the
+  previous frame and the canvas a viewer would show.
+- `openGifAnimation()` and `encodeGifAnimation()` from `purejsimage/codecs/gif` read and write
+  frames directly.
+- `ico()` writes one entry per size, up to 256. Sizes below 256 are 32-bit BMP entries for older
+  readers, and 256 is a PNG entry.
 
 ### Memory and optional temporary storage
 
@@ -506,15 +533,15 @@ Generated from the repository manifests and recorded package metrics (package ve
 
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 20.2 KiB | 6.9 KiB | 6.2 KiB |
-| Common web codecs | 690.7 KiB | 255.3 KiB | 211.2 KiB |
-| All stable codecs | 1461.0 KiB | 510.6 KiB | 410.9 KiB |
-| Scientific platform | 206.2 KiB | 59.7 KiB | 50.4 KiB |
+| Core API | 20.7 KiB | 7.0 KiB | 6.3 KiB |
+| Common web codecs | 693.9 KiB | 256.2 KiB | 211.7 KiB |
+| All stable codecs | 1487.5 KiB | 519.3 KiB | 417.6 KiB |
+| Scientific platform | 209.4 KiB | 60.6 KiB | 51.1 KiB |
 | All scientific readers | 1269.7 KiB | 369.6 KiB | 295.5 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
 | All Geo readers | 641.9 KiB | 195.1 KiB | 158.8 KiB |
 
-The extracted npm package is 8.7 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
+The extracted npm package is 8.8 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
 
 <!-- package-metrics:bundle:start -->
@@ -525,10 +552,10 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| Core API initial chunk | `purejsimage` | 20.2 KiB | 6.9 KiB | 6.2 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 690.7 KiB | 255.3 KiB | 211.2 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1461.0 KiB | 510.6 KiB | 410.9 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 206.2 KiB | 59.7 KiB | 50.4 KiB |
+| Core API initial chunk | `purejsimage` | 20.7 KiB | 7.0 KiB | 6.3 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 693.9 KiB | 256.2 KiB | 211.7 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1487.5 KiB | 519.3 KiB | 417.6 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 209.4 KiB | 60.6 KiB | 51.1 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1269.7 KiB | 369.6 KiB | 295.5 KiB |
 
 The 8 optional JPEG, PNG, and WebP accelerator assets total 163.0 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.

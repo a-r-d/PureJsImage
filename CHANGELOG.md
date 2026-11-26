@@ -6,6 +6,29 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Added
 
+- GIF output: `image.gif()` and `encode('gif')`. Images with 256 or fewer colors keep their exact
+  colors. Other images get a Wu palette refined with three k-means passes, and Floyd-Steinberg
+  dithering in serpentine order that fades out where the source already has edges or texture
+  (`dither` from 0 to 1, default 1). Alpha below 128 becomes transparent. On 600 px photos and a
+  smooth gradient, plain PSNR is 0.4 to 2.4 dB below Sharp/libimagequant and PSNR after a 3x3 blur
+  matches or beats it, with files from 16% smaller to 8% larger. The 2400x3000 portrait resized to
+  800 px and written as GIF takes 519 ms against 569 ms for ImageScript and 961 ms for Sharp.
+- Animated GIF: `open(input, { animated: true })` runs crop, resize, rotate, flip, and flop on
+  every frame and writes an animated GIF with the source delays and loop count. Each frame stores
+  only its changed rectangle, with unchanged pixels inside it written as transparent, and the
+  encoder chooses each frame's disposal one frame later so pixels that turn transparent are
+  cleared. `{ frame: n }` now selects any frame. `openGifAnimation()` and `encodeGifAnimation()` in
+  `purejsimage/codecs/gif` read and write frames directly. A 36-frame 480x270 photographic GIF
+  resized to 240 px takes 296 ms against 371 ms for ImageScript and 3,765 ms for Sharp; the
+  70-frame CC0 GIF resized to 100 px takes 58 ms against 72 and 85 ms.
+- ICO output: `image.ico({ sizes })` writes one entry per size, 16, 32, and 48 by default, up to
+  256. Each size fits the image on a transparent square with Lanczos resizing. Sizes below 256 are
+  32-bit BMP entries with AND masks; 256 is a PNG entry.
+- The benchmark suite adds a `gif` profile with generated 36-frame photographic and 24-frame
+  transparent sticker GIFs, animated resize and round-trip workflows, last-frame decoding, and
+  photo and logo GIF output, plus a favicon workflow in the `ico` profile. Every GIF frame of the
+  output is decoded with omggif during validation.
+
 - `open(input, { threads })` turns on parallel PNG compression in Node. It is off by default; the
   default single-threaded path, its output bytes, speed and memory are unchanged. With
   `threads: 4`, Node compresses filtered scanlines in 384 KiB chunks on its libuv thread pool, at
@@ -18,6 +41,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- GIF decoding reads every frame descriptor up front and composites frames on one canvas, with
+  disposal methods 0 to 3. LZW data is gathered from its sub-blocks before decoding, codes are
+  read with one 16-bit refill, and opaque pixels are written as 32-bit values. Selecting a frame
+  skips frames hidden behind a later full-canvas frame without transparency. Opening an animated
+  GIF without `animated` or `frame` still fails; the error now names both options.
 - PNG output from 8-bit RGB or RGBA pixels is now an indexed PNG when the image has 256 or fewer
   colors and the indexed file is smaller. The pixels are the same. The encoder compresses the RGB
   or RGBA stream and an 8-bit palette-index stream side by side, stops the index stream when a
