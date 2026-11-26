@@ -563,7 +563,9 @@ const selectWorkload = async (
 const overlayHarness = async (suite: Suite, baseDirectory: string): Promise<void> => {
   const paths =
     suite === 'web'
-      ? ['benchmark/run.ts']
+      ? // The worker owns the warmup, garbage collection and measured-run boundary, so both
+        // revisions must use the candidate's copy for comparable timing and peak RSS.
+        ['benchmark/run.ts', 'benchmark/worker.ts']
       : [
           'benchmark/scientific-readers/integrity.ts',
           'benchmark/scientific-readers/run.ts',

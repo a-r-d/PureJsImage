@@ -65,6 +65,15 @@ performance benchmark suite.
   from. Before November 24, 2026, both decodes counted toward peak RSS, which
   added up to 70 MiB to PNG output rows and made some rows swing by about
   30 MiB between runs.
+* Run one last-resort major garbage collection after the warmup and before the
+  measured run (`gc({ type: 'major', execution: 'sync', flavor: 'last-resort' })`).
+  It frees warmup garbage, shrinks V8's young generation and returns pooled heap
+  pages, so every measured run starts from a reclaimed heap. Before November 26,
+  2026, three plain `gc()` calls left 15 to 30 MiB of freed warmup memory
+  resident. How much depended on how V8 had sized its heap, so peak RSS for
+  identical runs split into two clusters about 14 MiB apart. The change lowered
+  absolute peaks for JavaScript engines by about 30 MiB, so compare peak RSS
+  only between runs that use the same method.
 
 ## Corpus
 
@@ -802,8 +811,9 @@ The package count includes the engine package itself and every installed
 production dependency instance required on the current platform.
 
 Absolute peak RSS is the headline memory number. The delta remains available in
-JSON as a diagnostic, but a warmup may leave allocator pages resident and make
-the delta understate the real process footprint.
+JSON as a diagnostic. Native allocators can still keep some warmup pages
+resident after the garbage collection, which makes the delta understate the
+real process footprint.
 
 The separate bundle and installed-deployment comparison is reproducible with:
 

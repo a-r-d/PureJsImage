@@ -277,6 +277,20 @@ describe('competitor benchmark classification', () => {
     expect(validations[0]).toBeGreaterThan(measurementComplete)
   })
 
+  it('reclaims warmup memory with a last-resort collection before peak-RSS sampling starts', () => {
+    // Three plain gc() calls left 15 to 30 MiB of freed warmup memory resident, which split peak
+    // RSS for identical runs into two clusters about 14 MiB apart.
+    const worker = readFileSync('benchmark/worker.ts', 'utf8')
+    const settle = worker.indexOf(
+      "global.gc?.({ type: 'major', execution: 'sync', flavor: 'last-resort' })",
+    )
+    const settleCall = worker.indexOf('await settleGarbage()')
+    const ready = worker.indexOf("type: 'ready'")
+    expect(settle).toBeGreaterThan(0)
+    expect(settleCall).toBeGreaterThan(settle)
+    expect(ready).toBeGreaterThan(settleCall)
+  })
+
   it('reports the installed comparator versions pinned in package.json', () => {
     expect(jimpEngine.version).toBe(packageJson.devDependencies.jimp)
     expect(imageJsEngine.version).toBe(packageJson.devDependencies['image-js'])

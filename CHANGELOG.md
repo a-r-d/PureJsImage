@@ -189,6 +189,15 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Testing, CI and docs
 
+- The web benchmark worker now runs one last-resort major garbage collection between the warmup
+  and the measured run. It frees warmup garbage, shrinks V8's young generation and returns pooled
+  heap pages. Three plain collections used to leave 15 to 30 MiB of freed warmup memory resident,
+  and how much depended on how V8 had sized its heap, so peak RSS for identical runs split into two
+  clusters about 14 MiB apart. On the 1200-pixel JPEG resize, 18 peak RSS samples now span 101 to
+  110 MiB instead of 125 to 146 MiB, with unchanged wall time. Absolute peaks for JavaScript
+  engines are about 30 MiB lower than before, so older and newer peak RSS numbers are not
+  comparable. `npm run bench:hillclimb` now copies the candidate's worker into the base revision
+  too, so both sides measure the same way.
 - `npm run bench:hillclimb` takes `--profile` for web workloads outside the `web-codecs` profile,
   such as `transforms`, `standard` and `webp`. It still defaults to `web-codecs`.
 - The PureJsImage benchmark engine now opens frame 0 on the two workflows that benchmark the first

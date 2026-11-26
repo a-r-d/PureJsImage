@@ -51,11 +51,12 @@ const sendResult = (result: WorkerResult): void => {
   process.send?.({ type: 'result', result })
 }
 
+// A last-resort major collection also shrinks V8's young generation and returns pooled heap
+// pages. Three plain gc() calls left 15 to 30 MiB of freed warmup memory resident, depending on
+// how V8 had sized its heap, so peak RSS for identical runs split into two clusters.
 const settleGarbage = async (): Promise<void> => {
-  for (let pass = 0; pass < 3; pass += 1) {
-    global.gc?.()
-    await new Promise<void>((resolve) => setImmediate(resolve))
-  }
+  global.gc?.({ type: 'major', execution: 'sync', flavor: 'last-resort' })
+  await new Promise<void>((resolve) => setImmediate(resolve))
 }
 
 const main = async (): Promise<void> => {
