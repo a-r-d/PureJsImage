@@ -1,0 +1,104 @@
+src/image-core.ts
+  s_fb44c3e6b9dfb0::t_46fd55a10cc742 487
+tests/project-contract.test.ts
+  s_fb44c3e6b9dfb0::t_719ba2000a19a7 1225
+src/codecs/webp.ts
+  s_fb44c3e6b9dfb0::t_ea9d487c920e5d 25,31,37-39,95,110-111,158-162,165,213-214,446-483,487,563-571,573-575,581-588,603,641-648
+benchmark/lib/corpus.ts
+  s_fb44c3e6b9dfb0::t_e40f3296b83f37 66
+  s_fb44c3e6b9dfb0::t_434342fa2fa202 141-154,290-292
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_9da29908e3cc64 179,529,532,541,544,547,586,589,592,631,634,637,901,904,907,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+browser-tests/compatibility.pw.ts
+  s_fb44c3e6b9dfb0::t_7d97c540dade95 367-373
+tests/generated/capability-expectations.json
+  s_fb44c3e6b9dfb0::t_ee59e04455b446 67
+src/pipeline.ts
+  s_fb44c3e6b9dfb0::t_cee08e5b9c754a 164-165,591-595
+  s_fb44c3e6b9dfb0::t_7f8122bf8f2e6f 596
+docs-astro/public/capabilities.json
+  s_fb44c3e6b9dfb0::t_ee59e04455b446 826-828,832,879,882-883,1182-1187
+tests/webp-animation.test.ts
+  s_fb44c3e6b9dfb0::t_2f1df8f9012105 164-165
+  s_fb44c3e6b9dfb0::t_287f43c300b807 39-41,65-67,109-113,124-126,157-159,167-170
+  s_fb44c3e6b9dfb0::t_8670d2e79d618a 6,82,87,96-100,108,156,162,172,185
+  s_fb44c3e6b9dfb0::t_33b5420e1c0800 1-5,7-38,42-64,68-81,83-86,88,92-95,101-107,114-123,127-155,160-161,163,166,171,173-184,186-188
+  s_fb44c3e6b9dfb0::t_fb18f2b34e77ba 89-91
+src/codec-entries/webp.ts
+  s_fb44c3e6b9dfb0::t_947c6b79a11344 1-9
+docs-astro/public/llms.txt
+  s_fb44c3e6b9dfb0::t_ee59e04455b446 519-521
+README.md
+  s_fb44c3e6b9dfb0::t_d28943638fcb6c 237,261-265
+  s_fb44c3e6b9dfb0::t_9da29908e3cc64 542-545,561-564
+  s_fb44c3e6b9dfb0::t_ee59e04455b446 85
+src/codecs/rgba-frame.ts
+  s_fb44c3e6b9dfb0::t_947c6b79a11344 113-115
+  s_fb44c3e6b9dfb0::t_ddb2079529ec71 1-2,82-112,116-140
+browser-tests/compatibility-harness.ts
+  s_fb44c3e6b9dfb0::t_7d97c540dade95 42,1713-1766,5468
+benchmark/lib/validate-output.ts
+  s_fb44c3e6b9dfb0::t_6f638c16c3163c 27,56-57,296,308
+  s_fb44c3e6b9dfb0::t_e40f3296b83f37 304-307
+  s_fb44c3e6b9dfb0::t_ee3cfa861d007f 309
+docs-astro/src/pages/api.astro
+  s_fb44c3e6b9dfb0::t_d28943638fcb6c 31,373-377
+benchmark/types.ts
+  s_fb44c3e6b9dfb0::t_e40f3296b83f37 72
+webp-codec-support.md
+  s_fb44c3e6b9dfb0::t_ee59e04455b446 22-24,153-155
+docs-astro/src/pages/codecs.astro
+  s_fb44c3e6b9dfb0::t_ee59e04455b446 25,50,87
+benchmark/optimization-log.md
+  s_fb44c3e6b9dfb0::t_52862c05dfbed5 8284-8291
+src/codecs/webp-animation.ts
+  s_fb44c3e6b9dfb0::t_cee08e5b9c754a 304,310-315
+  s_fb44c3e6b9dfb0::t_947c6b79a11344 12-17,695-789,791-804
+  s_fb44c3e6b9dfb0::t_c35904b82e495f 1-11,18-303,305-309,316-694,790,805
+benchmark/lib/webp-oracle-worker.ts
+  s_fb44c3e6b9dfb0::t_6f638c16c3163c 29-35,37,51
+capabilities/manifest.json
+  s_fb44c3e6b9dfb0::t_ee59e04455b446 996,1006-1008,1018,1045-1047,1176-1178
+src/operations/builtins.ts
+  s_fb44c3e6b9dfb0::t_46fd55a10cc742 331-332,590
+benchmark/engines/imagescript.ts
+  s_fb44c3e6b9dfb0::t_719ba2000a19a7 66-72
+benchmark/scripts/prepare-corpus.ts
+  s_fb44c3e6b9dfb0::t_e40f3296b83f37 59-64,89-97,103-112,952-953
+benchmark/corpus/manifest.json
+  s_fb44c3e6b9dfb0::t_434342fa2fa202 801
+  s_fb44c3e6b9dfb0::t_e40f3296b83f37 793-800,802-803
+  s_fb44c3e6b9dfb0::t_80e6a0950bb3f4 792
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_9da29908e3cc64 179,529,532,541,544,547,586,589,592,631,634,637,901,904,907,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+browser-tests/types.ts
+  s_fb44c3e6b9dfb0::t_7d97c540dade95 86
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_d28943638fcb6c 24-32
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_9da29908e3cc64 104-106,109-111,114-116,119,121,129,134-136
+src/executor.ts
+  s_fb44c3e6b9dfb0::t_947c6b79a11344 582-585
+  s_fb44c3e6b9dfb0::t_cee08e5b9c754a 479-483,489,502,505-509,565,586-587
+benchmark/workflows.ts
+  s_fb44c3e6b9dfb0::t_719ba2000a19a7 266-304
+src/codecs/gif-pixels.ts
+  s_fb44c3e6b9dfb0::t_ddb2079529ec71 15,353
+  s_fb44c3e6b9dfb0::t_947c6b79a11344 458-463
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3e59381428689d4b2a1d20c13a325eb54d06fb67",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
