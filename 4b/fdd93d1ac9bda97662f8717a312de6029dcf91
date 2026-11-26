@@ -1,0 +1,55 @@
+benchmark/results/public/index.json
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 3-4,40-41,59-60,63-64,68-69
+benchmark/results/public/index.md
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 3,8
+benchmark/results/public/web-codecs-2026-11-26T03-09-49-485Z.md
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-12
+docs-astro/public/assets/web-codecs-memory-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-345
+benchmark/results/web-codecs-speed-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-347
+docs-astro/public/assets/web-codecs-quality-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-147
+README.md
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 140-142,144,146,455
+docs-astro/public/assets/readme/web-codec-memory.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 20,50-51,53-54,56-57,59-60,62-63,65-66,68-69,71-72,76-77,79-80,82-83,85-86,88-89,91-92,94-95,97-98,102-103,105-106,108-109,111-112,114-115,117-118,120-121,123-124,128-129,131-132,134-135,137-138,140-141,143-144,146-147,149-150,154-155,157-158,162-163,165-166,170-171,173-174,178-179,181-182,186-187,189-190,194-195,197-198,202-203,205-206,210-211,213-214,218-219,221-222,226-227,229-230,232-233,235-236,238-239,241-242,244-245,251-252,254-255,259-260,262-263,267-268,270-271,275-276,278-279,283-284,286-287,291-292,294-295,299-300,302-303,307-308,310-311,315-316,322-323,325-326,330-331,333-334,338-339,341-342,344
+benchmark/results/result-index-2026-11-26T03-10-03-492Z.json
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-4237
+benchmark/results/result-index-2026-11-26T03-10-03-492Z.md
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-275
+docs-astro/public/assets/readme/web-codec-speed.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 20,52-53,55-56,58-59,61-62,64-65,67-68,70-71,73-74,78-79,81-82,84-85,87-88,90-91,93-94,96-97,99-100,104-105,107-108,110-111,113-114,116-117,119-120,122-123,125-126,130-131,133-134,136-137,139-140,142-143,145-146,148-149,151-152,156-157,159-160,164-165,167-168,172-173,175-176,180-181,183-184,188-189,191-192,196-197,199-200,204-205,207-208,212-213,215-216,220-221,223-224,228-229,231-232,234-235,237-238,240-241,243-244,246-247,253-254,256-257,261-262,264-265,269-270,272-273,277-278,280-281,285-286,288-289,293-294,296-297,301-302,304-305,309-310,312-313,317-318,324-325,327-328,332-333,335-336,340-341,343-344,346
+benchmark/results/public/web-codecs-2026-11-26T03-09-49-485Z.json
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-1421
+benchmark/results/web-codecs-memory-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-345
+docs-astro/public/assets/web-codecs-speed-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-347
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 143,148,153,157,211-213,216-217
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_17fe9e6be65dae 207-216
+benchmark/results/web-codecs-quality-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_5adf68231825ee 1-147
+benchmark/results/2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.json
+  s_fb44c3e6b9dfb0::t_35655cc9fcf527 1-26600
+benchmark/results/2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.md
+  s_fb44c3e6b9dfb0::t_8701f417f46385 1-275
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4bfdd93d1ac9bda97662f8717a312de6029dcf91",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
