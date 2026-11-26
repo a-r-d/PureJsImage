@@ -1,3 +1,5 @@
+import { throwIfAborted } from '../abort.ts'
+import type { DecodeRequest } from '../codec.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 
@@ -75,5 +77,64 @@ export class RgbaFrameStager {
 
   reset(): void {
     this.#expectedY = 0
+  }
+}
+
+export interface CanvasRegion {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
+/** Validates a decode request against a canvas and fills in the default full region. */
+export const canvasRegion = (
+  width: number,
+  height: number,
+  request: DecodeRequest = {},
+  format: string,
+): CanvasRegion => {
+  const x = request.x ?? 0
+  const y = request.y ?? 0
+  const outputWidth = request.width ?? width - x
+  const outputHeight = request.height ?? height - y
+  if (
+    !Number.isSafeInteger(x) ||
+    !Number.isSafeInteger(y) ||
+    !Number.isSafeInteger(outputWidth) ||
+    !Number.isSafeInteger(outputHeight) ||
+    x < 0 ||
+    y < 0 ||
+    outputWidth < 1 ||
+    outputHeight < 1 ||
+    x + outputWidth > width ||
+    y + outputHeight > height
+  ) {
+    throw invalidInput(
+      `${format} decode region ${x},${y} ${outputWidth}x${outputHeight} is invalid`,
+    )
+  }
+  return { x, y, width: outputWidth, height: outputHeight }
+}
+
+const canvasBlockRows = 32
+
+/** Emits a region of an RGBA8 canvas as blocks that copy the canvas rows. */
+export async function* canvasBlocks(
+  canvas: Uint8Array,
+  canvasWidth: number,
+  output: CanvasRegion,
+  signal: AbortSignal | undefined,
+): AsyncGenerator<PixelBlock> {
+  const stride = output.width * 4
+  for (let outputY = 0; outputY < output.height; outputY += canvasBlockRows) {
+    throwIfAborted(signal)
+    const height = Math.min(canvasBlockRows, output.height - outputY)
+    const data = new Uint8Array(stride * height)
+    for (let row = 0; row < height; row += 1) {
+      const start = ((output.y + outputY + row) * canvasWidth + output.x) * 4
+      data.set(canvas.subarray(start, start + stride), row * stride)
+    }
+    yield { x: 0, y: outputY, width: output.width, height, stride, format: 'rgba8', data }
   }
 }

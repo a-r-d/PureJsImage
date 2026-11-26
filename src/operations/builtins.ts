@@ -328,6 +328,8 @@ const lowerWebp = (value: ParameterRecord): PipelineOperation => {
   if (effort !== undefined) options.effort = effort
   if (nearLossless !== undefined) options.nearLossless = nearLossless
   if (quality !== undefined) options.quality = quality
+  const loop = numberParameter(value, 'loop')
+  if (loop !== undefined) options.loop = loop
   return createWebpEncodeOperation(options)
 }
 
@@ -585,6 +587,7 @@ const pipelineOperationDefinitions: readonly OperationDefinition<PipelineOperati
         effort: { type: 'integer', minimum: 0, maximum: 6 },
         nearLossless: { type: 'integer', minimum: 0, maximum: 100 },
         quality: { type: 'integer', minimum: 1, maximum: 100 },
+        loop: { type: 'integer', minimum: 0, maximum: 65_535 },
       }),
       lowerWebp,
     ),

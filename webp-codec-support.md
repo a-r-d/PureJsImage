@@ -19,8 +19,9 @@ coverage.
 - [x] RIFF odd-length chunk padding
 - [x] Canvas dimensions and alpha-presence metadata
 - [x] Animated-image detection and `ANMF` frame counting
-- [x] Explicit rejection of animated WebP pixel decode
-- [ ] Animated WebP frame parsing, timing, blending, disposal, and canvas
+- [x] Animated WebP pixel decode only with `{ animated: true }` or an explicit `frame`
+- [x] Animated WebP frame parsing, timing, alpha blending, disposal, and canvas
+  composition, checked exactly against libwebp for lossless frames
   composition
 - [ ] Complete `VP8X` reserved-bit, feature-flag, chunk-order, uniqueness, and
   chunk-dependency validation
@@ -149,7 +150,9 @@ source because lossless WebP can be larger than PNG on photographic content.
 
 ### Common container output planned
 
-- [ ] Animated WebP encoding
+- [x] Animated WebP encoding with changed-rectangle lossy or lossless frames
+- [x] Blended frames with transparent unchanged pixels when every changed pixel is
+  opaque, and exact rectangle replacement otherwise
 - [x] ICC and EXIF writing when explicitly preserved
 - [ ] XMP writing or preservation
 - [x] Explicit control over ICC and EXIF stripping versus preservation

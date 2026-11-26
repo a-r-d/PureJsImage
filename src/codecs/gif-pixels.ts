@@ -12,6 +12,7 @@ import type { PixelBlock } from '../pixel.ts'
 import { type ImageSource, readExactly } from '../source.ts'
 import { colorTableBytes, isGif } from './gif.ts'
 import { createGifLzwDecodeScratch, decodeGifLzw, type GifLzwDecodeScratch } from './gif-lzw.ts'
+import { canvasBlocks, canvasRegion } from './rgba-frame.ts'
 
 const blockRows = 32
 
@@ -323,55 +324,6 @@ export class GifCompositor {
   }
 }
 
-interface GifRegion {
-  readonly x: number
-  readonly y: number
-  readonly width: number
-  readonly height: number
-}
-
-const region = (width: number, height: number, request: DecodeRequest = {}): GifRegion => {
-  const x = request.x ?? 0
-  const y = request.y ?? 0
-  const outputWidth = request.width ?? width - x
-  const outputHeight = request.height ?? height - y
-  if (
-    !Number.isSafeInteger(x) ||
-    !Number.isSafeInteger(y) ||
-    !Number.isSafeInteger(outputWidth) ||
-    !Number.isSafeInteger(outputHeight) ||
-    x < 0 ||
-    y < 0 ||
-    outputWidth < 1 ||
-    outputHeight < 1 ||
-    x + outputWidth > width ||
-    y + outputHeight > height
-  ) {
-    throw invalidInput(`GIF decode region ${x},${y} ${outputWidth}x${outputHeight} is invalid`)
-  }
-  return { x, y, width: outputWidth, height: outputHeight }
-}
-
-/** Emits a canvas region as RGBA8 blocks that copy the canvas rows. */
-async function* canvasBlocks(
-  canvas: Uint8Array,
-  canvasWidth: number,
-  output: GifRegion,
-  signal: AbortSignal | undefined,
-): AsyncGenerator<PixelBlock> {
-  const stride = output.width * 4
-  for (let outputY = 0; outputY < output.height; outputY += blockRows) {
-    throwIfAborted(signal)
-    const height = Math.min(blockRows, output.height - outputY)
-    const data = new Uint8Array(stride * height)
-    for (let row = 0; row < height; row += 1) {
-      const start = ((output.y + outputY + row) * canvasWidth + output.x) * 4
-      data.set(canvas.subarray(start, start + stride), row * stride)
-    }
-    yield { x: 0, y: outputY, width: output.width, height, stride, format: 'rgba8', data }
-  }
-}
-
 const capabilities = Object.freeze({
   sequential: true,
   regionDecode: true,
@@ -398,7 +350,7 @@ class GifDecoder implements ImageDecoder {
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
-    const output = region(this.width, this.height, request)
+    const output = canvasRegion(this.width, this.height, request, 'GIF')
     if (this.#frame > 0) {
       const compositor = new GifCompositor(this.#data, this.#structure)
       compositor.skipTo(this.#frame)
@@ -503,7 +455,12 @@ class GifAnimationDecoder implements ImageAnimationDecoder {
         index,
         durationMs: frame.delayCentiseconds * 10,
         decode: (request?: DecodeRequest) =>
-          canvasBlocks(canvas, width, region(width, height, request), request?.signal ?? signal),
+          canvasBlocks(
+            canvas,
+            width,
+            canvasRegion(width, height, request, 'GIF'),
+            request?.signal ?? signal,
+          ),
       }
     }
   }

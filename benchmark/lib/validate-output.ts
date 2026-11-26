@@ -24,6 +24,7 @@ interface OracleSample extends PixelCorner {
 interface WebpOracleResult {
   readonly width: number
   readonly height: number
+  readonly frames: number
   readonly samples: readonly OracleSample[]
 }
 
@@ -52,6 +53,8 @@ const isWebpOracleResult = (value: unknown): value is WebpOracleResult =>
   isNumber(value.width) &&
   'height' in value &&
   isNumber(value.height) &&
+  'frames' in value &&
+  isNumber(value.frames) &&
   'samples' in value &&
   Array.isArray(value.samples) &&
   value.samples.every(isOracleSample)
@@ -290,13 +293,19 @@ export const validateExecution = async ({
     ...(workflow.expected.pixelSamples ?? []).map(({ x, y }) => ({ x, y })),
   ]
   let webpOracle: WebpOracleResult | undefined
-  if (needsPixels && dimensions.type === 'webp') {
+  if (dimensions.type === 'webp' && (needsPixels || workflow.expected.frames !== undefined)) {
     try {
       webpOracle = await decodeWebpSamples(output, points)
       if (webpOracle.width !== dimensions.width || webpOracle.height !== dimensions.height) {
         errors.push(
           `WebP oracle dimensions: expected ${dimensions.width}x${dimensions.height}, got ${webpOracle.width}x${webpOracle.height}`,
         )
+      }
+      if (
+        workflow.expected.frames !== undefined &&
+        webpOracle.frames !== workflow.expected.frames
+      ) {
+        errors.push(`frames: expected ${workflow.expected.frames}, got ${webpOracle.frames}`)
       }
     } catch (error) {
       errors.push(

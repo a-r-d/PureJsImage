@@ -63,6 +63,7 @@ const isSourceFixture = (value: unknown): value is SourceFixture => {
 
 const fixtureGenerators: Readonly<Record<FixtureGenerator, true>> = {
   'animated-photo-gif': true,
+  'animated-photo-webp': true,
   'animated-sticker-gif': true,
   'avif-benchmark-copy': true,
   'bmp-gradient': true,
@@ -135,6 +136,20 @@ export const fixturePath = (fixture: Fixture): string => {
 
 export const sha256 = (buffer: Uint8Array): string => {
   return createHash('sha256').update(buffer).digest('hex')
+}
+
+/** Counts ANMF chunks in a WebP RIFF; a still WebP has one frame. */
+const webpFrameCount = (bytes: Uint8Array): number => {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  let frames = 0
+  let offset = 12
+  while (offset + 8 <= bytes.byteLength) {
+    const type = String.fromCharCode(...bytes.subarray(offset, offset + 4))
+    const length = view.getUint32(offset + 4, true)
+    if (type === 'ANMF') frames += 1
+    offset += 8 + length + (length & 1)
+  }
+  return Math.max(1, frames)
 }
 
 export const identifyIco = (
@@ -271,6 +286,9 @@ export const inspectFixture = async (fixture: Fixture): Promise<FixtureInspectio
 
   if (dimensions.type === 'gif') {
     inspection.frames = new GifReader(buffer).numFrames()
+  }
+  if (dimensions.type === 'webp' && fixture.expected.frames !== undefined) {
+    inspection.frames = webpFrameCount(buffer)
   }
   if (
     dimensions.type === 'ico' &&

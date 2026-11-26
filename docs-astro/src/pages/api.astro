@@ -28,7 +28,7 @@ import SiteLayout from '../layouts/SiteLayout.astro'
 &#125;</code></pre></div>
           <div class="api-list">
             <article class="api-item" data-search-item><h3>formats()</h3><p>Returns the format names registered in this library.</p><span class="returns">returns readonly string[]</span></article>
-            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, validates optional zero-based frame and resolution-level selections, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline. TIFF supports explicit top-level <code>frame</code> selection and <code>resolutionLevel</code> selection, where level 0 is the full-resolution frame and later levels are reduced-resolution SubIFDs ordered from largest to smallest. Codecs reject nonzero selections they do not support. Static GIFs decode without a selection. For an animated GIF, pass <code>&#123; frame: n &#125;</code> for one composited frame, or <code>&#123; animated: true &#125;</code> to run crop, resize, rotate, flip, and flop on every frame and write an animated GIF. Without either, animated GIF pixel output fails instead of silently dropping frames. Formats without animation support ignore <code>animated</code>. Baseline JPEG restart recovery defaults to <code>tolerantDecoding: true</code> for compatibility with malformed real-world files. Set <code>&#123; tolerantDecoding: false &#125;</code> to require exact restart sequencing and permit an explicitly registered JPEG decode accelerator.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
+            <article class="api-item" data-search-item><h3>open(input, options?)</h3><p>Creates a source, validates optional zero-based frame and resolution-level selections, enforces the input-byte limit, probes registered codecs, and returns a lazy image pipeline. TIFF supports explicit top-level <code>frame</code> selection and <code>resolutionLevel</code> selection, where level 0 is the full-resolution frame and later levels are reduced-resolution SubIFDs ordered from largest to smallest. Codecs reject nonzero selections they do not support. Static GIFs decode without a selection. For an animated GIF or WebP, pass <code>&#123; frame: n &#125;</code> for one composited frame, or <code>&#123; animated: true &#125;</code> to run crop, resize, rotate, flip, and flop on every frame and write an animated GIF or WebP. Without either, animated pixel output fails instead of silently dropping frames. Formats without animation support ignore <code>animated</code>. Baseline JPEG restart recovery defaults to <code>tolerantDecoding: true</code> for compatibility with malformed real-world files. Set <code>&#123; tolerantDecoding: false &#125;</code> to require exact restart sequencing and permit an explicitly registered JPEG decode accelerator.</p><span class="returns">returns Promise&lt;Image&gt;</span></article>
           </div>
           <h3>Codec imports</h3>
           <div class="table-wrap"><table><thead><tr><th>Entry</th><th>Named export</th></tr></thead><tbody>
@@ -370,7 +370,11 @@ import SiteLayout from '../layouts/SiteLayout.astro'
   compressionLevel?: number      <span class="tok-comment">// 0–9</span>
   palette?: boolean              <span class="tok-comment">// true by default; indexed output when smaller</span>
 &#125;
-<span class="tok-key">interface</span> WebpEncodeOptions &#123; lossless?: boolean; quality?: number &#125;
+<span class="tok-key">interface</span> WebpEncodeOptions &#123;
+  lossless?: boolean
+  quality?: number
+  loop?: number                  <span class="tok-comment">// animated output; source loop count by default</span>
+&#125;
 <span class="tok-key">interface</span> BmpEncodeOptions &#123; alpha?: boolean &#125;
 <span class="tok-key">interface</span> GifEncodeOptions &#123;
   dither?: number                <span class="tok-comment">// 0–1; 1 by default</span>

@@ -21,6 +21,15 @@ All notable changes to PureJsImage are documented in this file.
   `purejsimage/codecs/gif` read and write frames directly. A 36-frame 480x270 photographic GIF
   resized to 240 px takes 296 ms against 371 ms for ImageScript and 3,765 ms for Sharp; the
   70-frame CC0 GIF resized to 100 px takes 58 ms against 72 and 85 ms.
+- Animated WebP: `open(input, { animated: true })` decodes every frame of an animated WebP,
+  applying alpha blending and disposal, and `webp()` writes animated WebP. Each output frame encodes
+  the rectangle that changed, at even offsets; when every changed pixel is opaque the frame blends
+  with transparent unchanged pixels, otherwise it replaces the rectangle exactly. Durations and
+  the loop count carry over unless `loop` is set. `{ frame: n }` selects one frame, and
+  `openWebpAnimation()` and `encodeWebpAnimation()` in `purejsimage/codecs/webp` read and write
+  frames directly. Lossless frames decode exactly like libwebp, including partial-alpha blending.
+  The 36-frame lossy WebP resized to 240 px takes 461 ms against 645 ms for ImageScript and
+  292 ms for Sharp; converting it to GIF takes 804 ms against 1,187 and 6,920 ms.
 - ICO output: `image.ico({ sizes })` writes one entry per size, 16, 32, and 48 by default, up to
   256. Each size fits the image on a transparent square with Lanczos resizing. Sizes below 256 are
   32-bit BMP entries with AND masks; 256 is a PNG entry.

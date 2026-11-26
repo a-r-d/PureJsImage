@@ -69,6 +69,7 @@ export interface SourceFixture extends FixtureBase {
 
 export type FixtureGenerator =
   | 'animated-photo-gif'
+  | 'animated-photo-webp'
   | 'animated-sticker-gif'
   | 'avif-benchmark-copy'
   | 'bmp-gradient'

@@ -56,11 +56,12 @@ const writeProgressiveJpegFromTundra = async (fixture: GeneratedCorpusFixture): 
   }
 }
 
-// A pan and zoom across the tundra photo, encoded by Sharp/libvips with libimagequant so the
-// animation has photographic local palettes and dithering, like screen-recorded or video GIFs.
-const writeAnimatedPhotoGif = async (fixture: GeneratedCorpusFixture): Promise<void> => {
-  const { width, height } = fixture.expected
-  const frames = fixture.expected.frames ?? 36
+// A pan and zoom across the tundra photo as a strip of RGB frames.
+const animatedPhotoStrip = async (
+  width: number,
+  height: number,
+  frames: number,
+): Promise<Buffer> => {
   const base = await sharp(join(corpusFilesDirectory, 'tundra-4000x3000.jpg'))
     .resize({ width: 1600 })
     .removeAlpha()
@@ -85,8 +86,27 @@ const writeAnimatedPhotoGif = async (fixture: GeneratedCorpusFixture): Promise<v
       .toBuffer()
     pixels.copy(strip, frame * width * height * 3)
   }
+  return strip
+}
+
+// Encoded by Sharp/libvips with libimagequant so the animation has photographic local palettes and
+// dithering, like screen-recorded or video GIFs.
+const writeAnimatedPhotoGif = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const frames = fixture.expected.frames ?? 36
+  const strip = await animatedPhotoStrip(width, height, frames)
   await sharp(strip, { raw: { width, height: height * frames, channels: 3, pageHeight: height } })
     .gif({ delay: new Array<number>(frames).fill(80), loop: 0 })
+    .toFile(fixturePath(fixture))
+}
+
+// The same frames as lossy animated WebP from Sharp/libwebp at quality 75.
+const writeAnimatedPhotoWebp = async (fixture: GeneratedCorpusFixture): Promise<void> => {
+  const { width, height } = fixture.expected
+  const frames = fixture.expected.frames ?? 36
+  const strip = await animatedPhotoStrip(width, height, frames)
+  await sharp(strip, { raw: { width, height: height * frames, channels: 3, pageHeight: height } })
+    .webp({ quality: 75, delay: new Array<number>(frames).fill(80), loop: 0 })
     .toFile(fixturePath(fixture))
 }
 
@@ -929,6 +949,8 @@ const generate = async (fixture: GeneratedCorpusFixture): Promise<void> => {
       return writeProgressiveJpegFromTundra(fixture)
     case 'animated-photo-gif':
       return writeAnimatedPhotoGif(fixture)
+    case 'animated-photo-webp':
+      return writeAnimatedPhotoWebp(fixture)
     case 'animated-sticker-gif':
       return writeAnimatedStickerGif(fixture)
     case 'bmp-gradient':

@@ -82,7 +82,7 @@ All formats below have a TypeScript implementation. WASM is optional and covers 
 | --- | --- | --- | --- | --- |
 | [JPEG](jpeg-codec-support.md) | Yes | Yes | [Baseline read/write](https://purejsimage.com/api/#wasm-acceleration) | 8-bit baseline and progressive; grayscale, RGB and CMYK. Gain maps use the HDR API. |
 | [PNG](png-codec-support.md) | Yes | Yes | [8-bit read/write](https://purejsimage.com/api/#wasm-acceleration) | 1–16-bit decode; 8/16-bit grayscale, RGB and RGBA output, plus exact indexed output. No APNG frame decode. |
-| [WebP](webp-codec-support.md) | Yes | Yes | [Pixel/transform steps](https://purejsimage.com/api/#wasm-acceleration) | Static lossy, lossless and near-lossless output; alpha supported. No animation. |
+| [WebP](webp-codec-support.md) | Yes | Yes | [Pixel/transform steps](https://purejsimage.com/api/#wasm-acceleration) | Static and animated lossy, lossless and near-lossless output; alpha supported. |
 | [BMP](bmp-codec-support.md) | Yes | Yes | No | Common Windows/OS2 and palette/RLE inputs; 24-bit RGB or 32-bit RGBA output. |
 | [TIFF](tiff-codec-support.md) | Yes | Yes | No | Classic TIFF/BigTIFF, strips, tiles and pages. Scientific, OME and whole-slide APIs are separate. |
 | [GIF](gif-codec-support.md) | Yes | Yes | No | Any frame or every animated frame; static and animated output with 256-color palettes. |
@@ -234,7 +234,7 @@ and writes whichever file is smaller. The pixels are the same.
 - Grayscale and 16-bit output keep their own color types.
 - Pass `palette: false` to always write grayscale, RGB or RGBA.
 
-### GIF, animated GIF and ICO output
+### Animated GIF and WebP, GIF and ICO output
 
 ```ts
 const sticker = await (await images.open(input, { animated: true }))
@@ -258,6 +258,11 @@ const favicon = await (await images.open(logo)).ico({ sizes: [16, 32, 48] }).toB
   previous frame and the canvas a viewer would show.
 - `openGifAnimation()` and `encodeGifAnimation()` from `purejsimage/codecs/gif` read and write
   frames directly.
+- Animated WebP works the same way: `open(input, { animated: true })` decodes every frame, and
+  `webp()` writes an animated WebP with lossy or lossless frames, each covering the rectangle that
+  changed. Animated GIF and WebP convert in either direction. `openWebpAnimation()` and
+  `encodeWebpAnimation()` from `purejsimage/codecs/webp` read and write frames directly. Animated
+  WebP output is held in memory until the last frame, because the file starts with its size.
 - `ico()` writes one entry per size, up to 256. Sizes below 256 are 32-bit BMP entries for older
   readers, and 256 is a PNG entry.
 
@@ -534,10 +539,10 @@ Generated from the repository manifests and recorded package metrics (package ve
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
 | Core API | 20.7 KiB | 7.0 KiB | 6.3 KiB |
-| Common web codecs | 693.9 KiB | 256.2 KiB | 211.7 KiB |
-| All stable codecs | 1487.5 KiB | 519.3 KiB | 417.6 KiB |
-| Scientific platform | 209.4 KiB | 60.6 KiB | 51.1 KiB |
-| All scientific readers | 1269.7 KiB | 369.6 KiB | 295.5 KiB |
+| Common web codecs | 705.9 KiB | 260.3 KiB | 215.2 KiB |
+| All stable codecs | 1498.0 KiB | 522.8 KiB | 420.0 KiB |
+| Scientific platform | 209.7 KiB | 60.6 KiB | 51.1 KiB |
+| All scientific readers | 1281.8 KiB | 373.9 KiB | 298.6 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
 | All Geo readers | 641.9 KiB | 195.1 KiB | 158.8 KiB |
 
@@ -553,10 +558,10 @@ Generated for purejsimage 0.18.0. Use these imports to select an entry point; th
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 20.7 KiB | 7.0 KiB | 6.3 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 693.9 KiB | 256.2 KiB | 211.7 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1487.5 KiB | 519.3 KiB | 417.6 KiB |
-| Core + scientific platform | `purejsimage/scientific` | 209.4 KiB | 60.6 KiB | 51.1 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1269.7 KiB | 369.6 KiB | 295.5 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 705.9 KiB | 260.3 KiB | 215.2 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1498.0 KiB | 522.8 KiB | 420.0 KiB |
+| Core + scientific platform | `purejsimage/scientific` | 209.7 KiB | 60.6 KiB | 51.1 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1281.8 KiB | 373.9 KiB | 298.6 KiB |
 
 The 8 optional JPEG, PNG, and WebP accelerator assets total 163.0 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
 

@@ -823,12 +823,13 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Static images only; compressed RIFF input and compact VP8L transform maps remain source-sized",
-      "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy, exact lossless, or near-lossless WebP with effort-based size optimization plus opt-in EXIF and compatible ICC preservation. Animation is detected and rejected for pixel decode.",
-      "memory": "VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains one 32-bit transformed frame, a fixed maximum 4 MiB match table, and one encoded payload.",
+      "boundary": "Animated frames use one RGBA canvas and VP8 frames use nearest chroma upsampling; compressed RIFF input and compact VP8L transform maps remain source-sized",
+      "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy, exact lossless, or near-lossless WebP with effort-based size optimization plus opt-in EXIF and compatible ICC preservation. Animated WebP decodes any selected frame, or every composited frame with `open(input, { animated: true })`, applying alpha blending and disposal. Animated output encodes each changed rectangle as a lossy or lossless frame with the source durations and loop count. `openWebpAnimation()` and `encodeWebpAnimation()` in `purejsimage/codecs/webp` read and write frames directly.",
+      "memory": "VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains one 32-bit transformed frame, a fixed maximum 4 MiB match table, and one encoded payload. Animated decode keeps one RGBA canvas; animated encode keeps the current and previous frames and every encoded frame until the RIFF size is known.",
       "recommendation": "Use lossless WebP for graphics, interface captures, screenshots, and other repeated structure; use lossy WebP for photographs, or PNG when exact lossless photographic preservation is required. Compare sizes for the actual source because lossless WebP can be larger than PNG on photographic content. Use effort 0 for faster lossless encoding or effort 6 for the smallest output.",
       "evidence": [
         "tests/webp.test.ts",
+        "tests/webp-animation.test.ts",
         "tests/metadata-preservation.test.ts",
         "tests/lossy-codec-quality.test.ts",
         "tests/imazen-corpus-harness.test.ts",
@@ -875,11 +876,11 @@
         },
         {
           "status": "supported",
-          "text": "Explicit rejection of animated WebP pixel decode"
+          "text": "Animated WebP pixel decode only with `{ animated: true }` or an explicit `frame`"
         },
         {
-          "status": "planned",
-          "text": "Animated WebP frame parsing, timing, blending, disposal, and canvas composition"
+          "status": "supported",
+          "text": "Animated WebP frame parsing, timing, alpha blending, disposal, and canvas composition, checked exactly against libwebp for lossless frames composition"
         },
         {
           "status": "planned",
@@ -1178,8 +1179,12 @@
           "text": "Output-size targeting and perceptual quality tuning"
         },
         {
-          "status": "planned",
-          "text": "Animated WebP encoding"
+          "status": "supported",
+          "text": "Animated WebP encoding with changed-rectangle lossy or lossless frames"
+        },
+        {
+          "status": "supported",
+          "text": "Blended frames with transparent unchanged pixels when every changed pixel is opaque, and exact rectangle replacement otherwise"
         },
         {
           "status": "supported",

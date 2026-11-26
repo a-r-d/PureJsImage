@@ -64,6 +64,7 @@
       "encoder": true,
       "evidence": [
         "tests/webp.test.ts",
+        "tests/webp-animation.test.ts",
         "tests/metadata-preservation.test.ts",
         "tests/lossy-codec-quality.test.ts",
         "tests/imazen-corpus-harness.test.ts",

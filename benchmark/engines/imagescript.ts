@@ -63,6 +63,13 @@ const executeAnimated = async (
       animation.resize({ width: operation.width })
     } else if (operation.type === 'encode' && operation.format === 'gif') {
       return { output: await animation.encodeGIF() }
+    } else if (operation.type === 'encode' && operation.format === 'webp') {
+      // ImageScript writes lossless WebP when no quality is given.
+      if (operation.lossless === true) return { output: await animation.encodeWebP() }
+      if (operation.quality === undefined) {
+        throw new Error('ImageScript lossy WebP output needs an explicit quality')
+      }
+      return { output: await animation.encodeWebP({ quality: operation.quality }) }
     } else {
       throw new Error(`ImageScript animated operation is unsupported: ${operation.type}`)
     }

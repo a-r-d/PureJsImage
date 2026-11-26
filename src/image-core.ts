@@ -484,6 +484,7 @@ export class Image<Input, Output extends Uint8Array> {
         ...('quality' in options && options.quality !== undefined
           ? { quality: options.quality }
           : {}),
+        ...('loop' in options && options.loop !== undefined ? { loop: options.loop } : {}),
       }),
     )
   }

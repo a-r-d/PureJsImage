@@ -26,9 +26,15 @@ const input = await new Promise<Uint8Array>((resolve, reject) => {
   })
 })
 
-const decoded = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+// Decoding every page proves each animation frame decodes; samples come from the first page.
+const decoded = await sharp(input, { animated: true })
+  .ensureAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true })
+const pageHeight = decoded.info.pageHeight ?? decoded.info.height
+const frames = decoded.info.height / pageHeight
 const samples = parsed.map(({ x, y }) => {
-  if (x < 0 || y < 0 || x >= decoded.info.width || y >= decoded.info.height) {
+  if (x < 0 || y < 0 || x >= decoded.info.width || y >= pageHeight) {
     return { x, y }
   }
   const offset = (y * decoded.info.width + x) * 4
@@ -42,5 +48,5 @@ const samples = parsed.map(({ x, y }) => {
   }
 })
 
-process.send?.({ width: decoded.info.width, height: decoded.info.height, samples })
+process.send?.({ width: decoded.info.width, height: pageHeight, frames, samples })
 process.disconnect?.()

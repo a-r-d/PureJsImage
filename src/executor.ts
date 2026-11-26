@@ -476,23 +476,22 @@ const abortableSink = (sink: ImageSink, signal: AbortSignal | undefined): ImageS
 
 const notForAnimation = new Set(['keepExif', 'keepIcc', 'window', 'lut', 'convertPixelFormat'])
 
-/** Runs the transforms on every composited frame and writes them to an animation encoder. */
+/**
+ * Runs the transforms on every composited frame and writes them to an animation encoder. Returns
+ * false, before writing anything, when a one-frame input goes to a format without animation
+ * output; the caller then runs the ordinary pipeline.
+ */
 const executeAnimatedPipeline = async (
   context: ExecutionContext,
   operations: readonly PipelineOperation[],
   sink: ImageSink,
   options: Readonly<PipelineExecutionOptions>,
-): Promise<void> => {
+): Promise<boolean> => {
   let encoder: ImageAnimationEncoder | undefined
   try {
     throwIfAborted(options.signal)
     if (!context.codec.createAnimationDecoder) {
       throw unsupportedOperation(`${context.codec.format} animation decoding is not implemented`)
-    }
-    for (const operation of operations) {
-      if (notForAnimation.has(operation.type)) {
-        throw unsupportedOperation(`${operation.type} is not supported for animated images`)
-      }
     }
     const decoder = await context.codec.createAnimationDecoder(context.source, context.limits, {
       ...(options.signal === undefined ? {} : { signal: options.signal }),
@@ -500,7 +499,13 @@ const executeAnimatedPipeline = async (
     const output = planOutput(decoder.width, decoder.height, context.codec.format, operations, 1)
     const outputCodec = context.registry.get(output.format)
     if (!outputCodec?.createAnimationEncoder) {
+      if (decoder.frameCount === 1) return false
       throw unsupportedOperation(`${output.format} animation encoding is not implemented`)
+    }
+    for (const operation of operations) {
+      if (notForAnimation.has(operation.type)) {
+        throw unsupportedOperation(`${operation.type} is not supported for animated images`)
+      }
     }
     const encoderSink = abortableSink(sink, options.signal)
     for await (const frame of decoder.frames(options.signal)) {
@@ -557,6 +562,7 @@ const executeAnimatedPipeline = async (
     await encoder.finish()
     throwIfAborted(options.signal)
     await sink.close()
+    return true
   } catch (error) {
     try {
       await encoder?.abort?.(error)
@@ -573,7 +579,12 @@ export const executePipeline = async (
   sink: ImageSink,
   options: Readonly<PipelineExecutionOptions> = {},
 ): Promise<void> => {
-  if (context.animated === true) return executeAnimatedPipeline(context, operations, sink, options)
+  if (
+    context.animated === true &&
+    (await executeAnimatedPipeline(context, operations, sink, options))
+  ) {
+    return
+  }
   let encoder: ImageEncoder | undefined
   options.evidence?.operation({ operationId: 'pipeline', phase: 'start' })
   try {

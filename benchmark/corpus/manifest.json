@@ -790,6 +790,18 @@
       }
     },
     {
+      "id": "animated-photo-480x270-webp",
+      "file": "animated-photo-480x270.webp",
+      "generator": "animated-photo-webp",
+      "expected": {
+        "format": "webp",
+        "width": 480,
+        "height": 270,
+        "frames": 36,
+        "sha256": "9aa9cc53e417b956009ba0eb7b41039745af815e6e732458e88df65be6d09da2"
+      }
+    },
+    {
       "id": "animated-sticker-320",
       "file": "animated-sticker-320.gif",
       "generator": "animated-sticker-gif",

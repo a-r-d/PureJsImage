@@ -161,6 +161,8 @@ export interface WebpEncodeOptions {
   /** VP8L near-lossless preprocessing quality from 0 (strongest) through 100 (off). */
   nearLossless?: number
   quality?: number
+  /** Animation repeat count for animated output. 0 repeats forever. Defaults to the source's. */
+  loop?: number
 }
 
 export interface BmpEncodeOptions {
@@ -585,6 +587,12 @@ export const createWebpEncodeOperation = (options: WebpEncodeOptions): PipelineO
   }
   if (options.nearLossless !== undefined && options.lossless !== true) {
     throw invalidInput('WebP nearLossless requires lossless: true')
+  }
+  if (
+    options.loop !== undefined &&
+    (!Number.isInteger(options.loop) || options.loop < 0 || options.loop > 65_535)
+  ) {
+    throw invalidInput('WebP loop must be an integer from 0 to 65535')
   }
   return Object.freeze({ type: 'encode', format: 'webp', options: Object.freeze({ ...options }) })
 }

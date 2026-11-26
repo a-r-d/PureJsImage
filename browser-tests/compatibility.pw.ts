@@ -364,6 +364,13 @@ test('writes GIF, animated GIF and ICO output in a real browser', async ({ page 
   expect(result.detail).toContain('GIF, animated GIF and ICO output matched')
 })
 
+test('reads and writes animated WebP in a real browser', async ({ page }) => {
+  await harness(page)
+  const result = await page.evaluate(() => window.pureJsImageBrowserTests.animatedWebpOutput())
+  expect(result.outputBytes).toBeGreaterThan(100)
+  expect(result.detail).toContain('animated WebP frames matched')
+})
+
 test('preserves native 16-bit PNG precision in a real browser', async ({ page }) => {
   await harness(page)
   const result = await page.evaluate(() => window.pureJsImageBrowserTests.nativePngPrecision())

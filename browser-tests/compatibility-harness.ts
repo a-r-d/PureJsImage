@@ -39,7 +39,7 @@ import { jpeg2000Codec } from '../src/codec-entries/jpeg2000.ts'
 import { jpegxlCodec } from '../src/codec-entries/jpegxl.ts'
 import { pngCodec } from '../src/codec-entries/png.ts'
 import { createTiffCodec, tiffCodec } from '../src/codec-entries/tiff.ts'
-import { webpCodec } from '../src/codec-entries/webp.ts'
+import { encodeWebpAnimation, openWebpAnimation, webpCodec } from '../src/codec-entries/webp.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { geoZarrReader } from '../src/geo/readers/geozarr/index.ts'
@@ -1707,6 +1707,60 @@ const gifAndIcoOutput = async (): Promise<BrowserWorkflowResult> => {
   return {
     detail: 'GIF, animated GIF and ICO output matched',
     outputBytes: gif.byteLength + animated.byteLength + icon.byteLength,
+  }
+}
+
+const collect = async (chunks: AsyncIterable<Uint8Array>): Promise<Uint8Array> => {
+  const parts: Uint8Array[] = []
+  for await (const chunk of chunks) parts.push(chunk)
+  const output = new Uint8Array(parts.reduce((sum, part) => sum + part.byteLength, 0))
+  let offset = 0
+  for (const part of parts) {
+    output.set(part, offset)
+    offset += part.byteLength
+  }
+  return output
+}
+
+const animatedWebpOutput = async (): Promise<BrowserWorkflowResult> => {
+  const frames = Array.from({ length: 5 }, (_, frame) => {
+    const data = new Uint8Array(32 * 20 * 4)
+    for (let y = 4; y < 14; y += 1) {
+      for (let x = frame * 4; x < frame * 4 + 10; x += 1) {
+        data.set([30 + frame * 40, 200, 90, 255], (y * 32 + x) * 4)
+      }
+    }
+    return { data, durationMs: 70 }
+  })
+  const webp = await collect(
+    encodeWebpAnimation(frames, { width: 32, height: 20, lossless: true, loop: 0 }),
+  )
+  let index = 0
+  for await (const frame of (await openWebpAnimation(webp)).frames()) {
+    const expected = frames[index]?.data
+    if (!expected || !frame.data.every((value, i) => value === expected[i])) {
+      throw new Error(`Animated WebP frame ${index} did not round-trip`)
+    }
+    index += 1
+  }
+  if (index !== 5) throw new Error(`Animated WebP decoded ${index} of 5 frames`)
+  const firstFrame = await canvasPixels(webp, 'image/webp')
+  const expectedFirst = frames[0]?.data ?? new Uint8Array()
+  if (!firstFrame.every((value, i) => value === expectedFirst[i])) {
+    throw new Error('Browser-decoded animated WebP first frame differs')
+  }
+  const gif = await collect(encodeGifAnimation(frames, { width: 32, height: 20 }))
+  const library = createImageLibrary([gifCodec, webpCodec])
+  const converted = await (await library.open(gif, { animated: true }))
+    .webp({ lossless: true })
+    .toUint8Array()
+  const convertedAnimation = await openWebpAnimation(converted)
+  if (convertedAnimation.frameCount !== 5 || convertedAnimation.width !== 32) {
+    throw new Error('Animated GIF did not convert to a five-frame WebP')
+  }
+  return {
+    detail: 'animated WebP frames matched',
+    outputBytes: webp.byteLength + converted.byteLength,
   }
 }
 
@@ -5411,6 +5465,7 @@ const harness: BrowserCompatibilityHarness = Object.freeze({
   pngAlphaPipeline,
   pngPaletteOutput,
   gifAndIcoOutput,
+  animatedWebpOutput,
   nativePngPrecision,
   progressiveJpeg,
   resizeDefaultKernel,
