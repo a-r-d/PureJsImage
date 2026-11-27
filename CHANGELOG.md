@@ -45,7 +45,8 @@ All notable changes to PureJsImage are documented in this file.
 - The benchmark suite adds a `gif` profile with generated 36-frame photographic and 24-frame
   transparent sticker GIFs, animated resize and round-trip workflows, last-frame decoding, and
   photo and logo GIF output, plus a favicon workflow in the `ico` profile. Every GIF frame of the
-  output is decoded with omggif during validation.
+  output is decoded with omggif during validation. The performance page and README now publish
+  GIF speed and peak memory charts against Sharp, ImageScript, and Jimp.
 
 - `open(input, { threads })` turns on parallel PNG compression in Node. It is off by default; the
   default single-threaded path, its output bytes, speed and memory are unchanged. With
@@ -59,6 +60,14 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Still images run their transforms in the pipeline executor's own loop again instead of the
+  shared helper added for animation. With the helper, V8 discarded and recompiled the JPEG encoder
+  and TIFF reader code, and the TypeScript 4000x3000 TIFF to JPEG workflow ran about 5% slower;
+  the restored loop measured 3.1% faster in a same-path comparison, with no change on the other
+  workflows checked.
+- The benchmark hillclimb runner now runs the base and candidate builds from one shared path.
+  Running them from different directories had shifted identical code by up to 16% in peak memory
+  and 13% in time on some workflows.
 - The lossy WebP encoder now uses four more VP8 tools: a normal loop filter on textured images
   at a level set from the quantizer, two segments that give smooth-gradient macroblocks a finer
   quantizer, coefficient probabilities learned from the start of each frame, and skip flags for

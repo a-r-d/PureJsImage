@@ -106,17 +106,17 @@
       "minifiedBytes": 1329691
     },
     "allStableCodecs": {
-      "brotliBytes": 437137,
-      "gzipBytes": 543319,
-      "minifiedBytes": 1553204
+      "brotliBytes": 437458,
+      "gzipBytes": 543506,
+      "minifiedBytes": 1554245
     },
     "commonWebCodecs": {
-      "brotliBytes": 227503,
-      "gzipBytes": 274563,
-      "minifiedBytes": 742088
+      "brotliBytes": 227333,
+      "gzipBytes": 274828,
+      "minifiedBytes": 743129
     },
     "core": {
-      "brotliBytes": 6916,
+      "brotliBytes": 6908,
       "gzipBytes": 7692,
       "minifiedBytes": 22583
     },
@@ -126,35 +126,35 @@
       "minifiedBytes": 141415
     },
     "installedPackage": {
-      "bytes": 9552393,
+      "bytes": 9556723,
       "productionPackageCount": 1
     },
     "packageVersion": "0.18.0",
     "scientificPlatform": {
-      "brotliBytes": 53007,
-      "gzipBytes": 62797,
-      "minifiedBytes": 216767
+      "brotliBytes": 53214,
+      "gzipBytes": 63081,
+      "minifiedBytes": 217809
     }
   },
   "ordinary": {
     "charts": {
       "speed": {
         "height": 3598,
-        "src": "assets/web-codecs-speed-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-speed-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
         "width": 2400
       },
       "quality": {
         "height": 1312,
-        "src": "assets/web-codecs-quality-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-quality-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
         "width": 2400
       },
       "memory": {
         "height": 3598,
-        "src": "assets/web-codecs-memory-2026-11-26T03-09-49-485Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
+        "src": "assets/web-codecs-memory-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg",
         "width": 2400
       }
     },
-    "createdAt": "2026-11-26T03:09:49.485Z",
+    "createdAt": "2026-11-27T13:07:40.398Z",
     "engineVersions": [
       {
         "id": "purejsimage",
@@ -206,18 +206,80 @@
       "runner": "local",
       "v8": "13.6.233.17-node.49"
     },
-    "fixtureManifestHash": "698acba0f5eb837b1207afa570c2e8b9f720a7e1e00498c1a46f0bdbaba327d1",
+    "fixtureManifestHash": "1e21a6a62cfb7f58e70fed2c4197e6c69ed54648b6c51bb8d82b8cd4de0d3320",
     "headline": {
-      "jimpPeakRssBytes": 1265786880,
-      "memoryReductionPercent": 90.24431284988512,
-      "pureJsImagePeakRssBytes": 123486208,
+      "jimpPeakRssBytes": 1265872896,
+      "memoryReductionPercent": 90.15275795904236,
+      "pureJsImagePeakRssBytes": 124653568,
       "workflow": "24-megapixel northstar photo pipeline"
     },
-    "reportJson": "benchmark/results/public/web-codecs-2026-11-26T03-09-49-485Z.json",
-    "reportMarkdown": "benchmark/results/public/web-codecs-2026-11-26T03-09-49-485Z.md",
+    "reportJson": "benchmark/results/public/web-codecs-2026-11-27T13-07-40-398Z.json",
+    "reportMarkdown": "benchmark/results/public/web-codecs-2026-11-27T13-07-40-398Z.md",
     "statusCounts": {
       "pass": 143,
       "unsupported": 25
+    }
+  },
+  "gif": {
+    "charts": {
+      "speed": {
+        "height": 1926,
+        "src": "assets/gif-speed-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg",
+        "width": 2400
+      },
+      "memory": {
+        "height": 1926,
+        "src": "assets/gif-memory-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg",
+        "width": 2400
+      }
+    },
+    "createdAt": "2026-11-27T05:52:10.277Z",
+    "engineVersions": [
+      {
+        "id": "purejsimage",
+        "kind": "pure-javascript",
+        "version": "0.18.0 (workspace)"
+      },
+      {
+        "id": "purejsimage-wasm",
+        "kind": "webassembly",
+        "version": "0.18.0 (workspace WASM)"
+      },
+      {
+        "id": "jimp",
+        "kind": "pure-javascript",
+        "version": "1.7.0"
+      },
+      {
+        "id": "sharp",
+        "kind": "native",
+        "version": "0.35.5"
+      },
+      {
+        "id": "sharp-single-thread",
+        "kind": "native-single-thread",
+        "version": "0.35.5"
+      },
+      {
+        "id": "imagescript",
+        "kind": "pure-javascript",
+        "version": "4.0.0"
+      }
+    ],
+    "environment": {
+      "architecture": "x64",
+      "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+      "fingerprint": "35b6da6b07cd0cc542ff6eb4413fbe37ae30cccc1e30d2cd6866a82dc6863922",
+      "node": "v24.16.0",
+      "os": "Linux 7.0.0-43-generic",
+      "runner": "local",
+      "v8": "13.6.233.17-node.49"
+    },
+    "reportJson": "benchmark/results/public/gif-2026-11-27T05-52-10-277Z.json",
+    "reportMarkdown": "benchmark/results/public/gif-2026-11-27T05-52-10-277Z.md",
+    "statusCounts": {
+      "pass": 37,
+      "unsupported": 5
     }
   },
   "scientific": {

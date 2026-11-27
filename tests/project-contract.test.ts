@@ -189,12 +189,12 @@ describe('package contract', () => {
     )
     expect(
       pureJsImageEntryTargets.find(({ id }) => id === 'core-execution')?.maxMinifiedBytes,
-    ).toBe(84 * 1024)
+    ).toBe(87_000)
     expect(pureJsImageEntryTargets.find(({ id }) => id === 'scientific')).toMatchObject({
       name: 'Core + scientific platform',
       contents: expect.stringContaining('./src/scientific/index.ts'),
       baselineMinifiedBytes: 143_546,
-      maxMinifiedBytes: 217_000,
+      maxMinifiedBytes: 218_000,
     })
     const expectedReaderTargetIds = [
       ...capabilityManifest.scientificReaders.map(
@@ -289,6 +289,7 @@ describe('package contract', () => {
     expect(publicIndex.results.map(({ profile }) => profile)).toEqual([
       'competitors',
       'web-codecs',
+      'gif',
       'scientific-readers-baseline',
       'scientific-readers-scaling',
       'scientific-readers-range',

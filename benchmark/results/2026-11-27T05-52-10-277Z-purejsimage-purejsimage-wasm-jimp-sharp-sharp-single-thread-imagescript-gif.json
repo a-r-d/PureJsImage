@@ -1,0 +1,6548 @@
+{
+  "schemaVersion": 2,
+  "createdAt": "2026-11-27T05:52:10.277Z",
+  "profile": "gif",
+  "configuration": {
+    "engines": [
+      "purejsimage",
+      "purejsimage-wasm",
+      "jimp",
+      "sharp",
+      "sharp-single-thread",
+      "imagescript"
+    ],
+    "defaultRuns": 3,
+    "defaultWarmups": 1,
+    "isolatedProcessPerSample": true,
+    "isolatedStartupProcessPerEngine": true,
+    "inputFileReadTimed": false,
+    "outputValidationTimed": false,
+    "qualityMeasurementTimed": false,
+    "qualityMetric": "premultiplied-rgba-psnr-vs-independent-exact-area-reference",
+    "resizeKernelPolicy": {
+      "mode": "engine-defaults",
+      "purejsimage": "lanczos3",
+      "sharp": "lanczos3",
+      "jimp": "bilinear"
+    }
+  },
+  "environment": {
+    "platform": "linux",
+    "osName": "Linux",
+    "osRelease": "7.0.0-43-generic",
+    "architecture": "x64",
+    "node": "v24.16.0",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "logicalCpus": 16,
+    "totalMemoryBytes": 64920973312,
+    "processIsolation": true,
+    "runner": "local",
+    "fixtureCachePolicy": "Fixture bytes are read before the timed operation; isolated workers do not share decoded state.",
+    "virtualization": false,
+    "runCount": 3,
+    "warmupCount": 1,
+    "v8Version": "13.6.233.17-node.49",
+    "gitRevision": "9554ad176df06d6a6a2cc6db2771d03cfa437fd9",
+    "dirty": true,
+    "environmentFingerprint": "35b6da6b07cd0cc542ff6eb4413fbe37ae30cccc1e30d2cd6866a82dc6863922",
+    "fixtureManifestHash": "1e21a6a62cfb7f58e70fed2c4197e6c69ed54648b6c51bb8d82b8cd4de0d3320"
+  },
+  "fixtures": [
+    "animated-photo-480x270",
+    "animated-sticker-320",
+    "animated-gif-cc0",
+    "portrait-2400x3000",
+    "transparent-logo-1200x480"
+  ],
+  "results": [
+    {
+      "engine": "purejsimage",
+      "workflow": "gif-animated-resize",
+      "title": "Resize every frame of a 36-frame photographic GIF to 240 px wide",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 296.83027899999996,
+          "p95": 299.78540999999996,
+          "minimum": 296.18062900000007,
+          "maximum": 299.78540999999996
+        },
+        "cpuMilliseconds": {
+          "median": 391.313
+        },
+        "peakRssBytes": {
+          "median": 131284992,
+          "maximum": 132169728
+        },
+        "peakRssDeltaBytes": {
+          "median": 8146944,
+          "maximum": 8245248
+        },
+        "outputBytes": {
+          "median": 1272059
+        },
+        "finalExternalBytes": {
+          "median": 27587478
+        },
+        "finalArrayBuffersBytes": {
+          "median": 17673126
+        },
+        "output": {
+          "format": "gif",
+          "width": 240,
+          "height": 135,
+          "bytes": 1272059,
+          "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1272059,
+            "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+          },
+          "outputBytes": 1272059,
+          "wallMilliseconds": 296.83027899999996,
+          "cpuMilliseconds": 391.313,
+          "finalMemory": {
+            "rss": 130641920,
+            "heapTotal": 14102528,
+            "heapUsed": 10622664,
+            "external": 27587478,
+            "arrayBuffers": 17673126
+          },
+          "resourceMaxRssBytes": 150507520,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 131284992,
+          "peakRssDeltaBytes": 8245248,
+          "baselineMemory": {
+            "rss": 123039744,
+            "heapTotal": 10694656,
+            "heapUsed": 8680736,
+            "external": 19279070,
+            "arrayBuffers": 9364758
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1272059,
+            "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+          },
+          "outputBytes": 1272059,
+          "wallMilliseconds": 299.78540999999996,
+          "cpuMilliseconds": 396.178,
+          "finalMemory": {
+            "rss": 128843776,
+            "heapTotal": 14102528,
+            "heapUsed": 10370080,
+            "external": 27587478,
+            "arrayBuffers": 17673126
+          },
+          "resourceMaxRssBytes": 150630400,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 129757184,
+          "peakRssDeltaBytes": 7204864,
+          "baselineMemory": {
+            "rss": 122552320,
+            "heapTotal": 10694656,
+            "heapUsed": 8679152,
+            "external": 19279070,
+            "arrayBuffers": 9364758
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1272059,
+            "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+          },
+          "outputBytes": 1272059,
+          "wallMilliseconds": 296.18062900000007,
+          "cpuMilliseconds": 389.286,
+          "finalMemory": {
+            "rss": 131231744,
+            "heapTotal": 14102528,
+            "heapUsed": 10381736,
+            "external": 27801438,
+            "arrayBuffers": 17887086
+          },
+          "resourceMaxRssBytes": 152104960,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 132169728,
+          "peakRssDeltaBytes": 8146944,
+          "baselineMemory": {
+            "rss": 124022784,
+            "heapTotal": 10956800,
+            "heapUsed": 8678848,
+            "external": 19279070,
+            "arrayBuffers": 9364758
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage",
+      "workflow": "gif-animated-roundtrip",
+      "title": "Decode and re-encode every frame of a 36-frame photographic GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 319.106589,
+          "p95": 330.46088399999996,
+          "minimum": 318.482896,
+          "maximum": 330.46088399999996
+        },
+        "cpuMilliseconds": {
+          "median": 403.838
+        },
+        "peakRssBytes": {
+          "median": 125902848,
+          "maximum": 131182592
+        },
+        "peakRssDeltaBytes": {
+          "median": 9211904,
+          "maximum": 13037568
+        },
+        "outputBytes": {
+          "median": 4828168
+        },
+        "finalExternalBytes": {
+          "median": 33413533
+        },
+        "finalArrayBuffersBytes": {
+          "median": 23499181
+        },
+        "output": {
+          "format": "gif",
+          "width": 480,
+          "height": 270,
+          "bytes": 4828168,
+          "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4828168,
+            "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+          },
+          "outputBytes": 4828168,
+          "wallMilliseconds": 318.482896,
+          "cpuMilliseconds": 402.344,
+          "finalMemory": {
+            "rss": 125902848,
+            "heapTotal": 11481088,
+            "heapUsed": 8884656,
+            "external": 33413533,
+            "arrayBuffers": 23499181
+          },
+          "resourceMaxRssBytes": 153518080,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 125902848,
+          "peakRssDeltaBytes": 9211904,
+          "baselineMemory": {
+            "rss": 116690944,
+            "heapTotal": 9908224,
+            "heapUsed": 8369968,
+            "external": 19572511,
+            "arrayBuffers": 9658199
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4828168,
+            "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+          },
+          "outputBytes": 4828168,
+          "wallMilliseconds": 330.46088399999996,
+          "cpuMilliseconds": 424.208,
+          "finalMemory": {
+            "rss": 131182592,
+            "heapTotal": 13840384,
+            "heapUsed": 9847032,
+            "external": 37530505,
+            "arrayBuffers": 27616153
+          },
+          "resourceMaxRssBytes": 155590656,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 131182592,
+          "peakRssDeltaBytes": 13037568,
+          "baselineMemory": {
+            "rss": 118145024,
+            "heapTotal": 10432512,
+            "heapUsed": 8269368,
+            "external": 19572511,
+            "arrayBuffers": 9658199
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4828168,
+            "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+          },
+          "outputBytes": 4828168,
+          "wallMilliseconds": 319.106589,
+          "cpuMilliseconds": 403.838,
+          "finalMemory": {
+            "rss": 125771776,
+            "heapTotal": 11743232,
+            "heapUsed": 8884744,
+            "external": 33413533,
+            "arrayBuffers": 23499181
+          },
+          "resourceMaxRssBytes": 156344320,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 125771776,
+          "peakRssDeltaBytes": 8646656,
+          "baselineMemory": {
+            "rss": 117125120,
+            "heapTotal": 10432512,
+            "heapUsed": 8283960,
+            "external": 19572511,
+            "arrayBuffers": 9658199
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage",
+      "workflow": "gif-sticker-resize",
+      "title": "Resize every frame of a 24-frame transparent sticker GIF to 160 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 50.51577500000002,
+          "p95": 61.002792,
+          "minimum": 49.106323,
+          "maximum": 61.002792
+        },
+        "cpuMilliseconds": {
+          "median": 78.991
+        },
+        "peakRssBytes": {
+          "median": 114364416,
+          "maximum": 116051968
+        },
+        "peakRssDeltaBytes": {
+          "median": 8368128,
+          "maximum": 8810496
+        },
+        "outputBytes": {
+          "median": 54038
+        },
+        "finalExternalBytes": {
+          "median": 23346426
+        },
+        "finalArrayBuffersBytes": {
+          "median": 13432074
+        },
+        "output": {
+          "format": "gif",
+          "width": 160,
+          "height": 160,
+          "bytes": 54038,
+          "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 54038,
+            "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 54038,
+          "wallMilliseconds": 61.002792,
+          "cpuMilliseconds": 148.721,
+          "finalMemory": {
+            "rss": 115499008,
+            "heapTotal": 14364672,
+            "heapUsed": 11051320,
+            "external": 23448826,
+            "arrayBuffers": 13534474
+          },
+          "resourceMaxRssBytes": 131358720,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 116051968,
+          "peakRssDeltaBytes": 8810496,
+          "baselineMemory": {
+            "rss": 107241472,
+            "heapTotal": 10170368,
+            "heapUsed": 8393328,
+            "external": 10101283,
+            "arrayBuffers": 186971
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 54038,
+            "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 54038,
+          "wallMilliseconds": 50.51577500000002,
+          "cpuMilliseconds": 78.991,
+          "finalMemory": {
+            "rss": 109019136,
+            "heapTotal": 14102528,
+            "heapUsed": 10739440,
+            "external": 23346426,
+            "arrayBuffers": 13432074
+          },
+          "resourceMaxRssBytes": 124522496,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 109129728,
+          "peakRssDeltaBytes": 8368128,
+          "baselineMemory": {
+            "rss": 100761600,
+            "heapTotal": 10170368,
+            "heapUsed": 8416392,
+            "external": 10101283,
+            "arrayBuffers": 186971
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 54038,
+            "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 54038,
+          "wallMilliseconds": 49.106323,
+          "cpuMilliseconds": 62.781,
+          "finalMemory": {
+            "rss": 113586176,
+            "heapTotal": 13578240,
+            "heapUsed": 10723368,
+            "external": 23346426,
+            "arrayBuffers": 13432074
+          },
+          "resourceMaxRssBytes": 131235840,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 114364416,
+          "peakRssDeltaBytes": 6021120,
+          "baselineMemory": {
+            "rss": 108343296,
+            "heapTotal": 10170368,
+            "heapUsed": 8481992,
+            "external": 10101283,
+            "arrayBuffers": 186971
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage",
+      "workflow": "gif-cc0-resize",
+      "title": "Resize every frame of the 70-frame CC0 GIF to 100 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 59.47224399999999,
+          "p95": 62.19172200000003,
+          "minimum": 59.224417999999986,
+          "maximum": 62.19172200000003
+        },
+        "cpuMilliseconds": {
+          "median": 123.666
+        },
+        "peakRssBytes": {
+          "median": 114294784,
+          "maximum": 117219328
+        },
+        "peakRssDeltaBytes": {
+          "median": 10588160,
+          "maximum": 11259904
+        },
+        "outputBytes": {
+          "median": 22784
+        },
+        "finalExternalBytes": {
+          "median": 15918159
+        },
+        "finalArrayBuffersBytes": {
+          "median": 6003807
+        },
+        "output": {
+          "format": "gif",
+          "width": 100,
+          "height": 100,
+          "bytes": 22784,
+          "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 22784,
+            "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+          },
+          "outputBytes": 22784,
+          "wallMilliseconds": 59.47224399999999,
+          "cpuMilliseconds": 123.666,
+          "finalMemory": {
+            "rss": 113639424,
+            "heapTotal": 13578240,
+            "heapUsed": 9423208,
+            "external": 14208764,
+            "arrayBuffers": 4294412
+          },
+          "resourceMaxRssBytes": 129413120,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 114294784,
+          "peakRssDeltaBytes": 8388608,
+          "baselineMemory": {
+            "rss": 105906176,
+            "heapTotal": 10170368,
+            "heapUsed": 8400528,
+            "external": 10067733,
+            "arrayBuffers": 153421
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 22784,
+            "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+          },
+          "outputBytes": 22784,
+          "wallMilliseconds": 62.19172200000003,
+          "cpuMilliseconds": 128.586,
+          "finalMemory": {
+            "rss": 116314112,
+            "heapTotal": 14102528,
+            "heapUsed": 9651960,
+            "external": 16526799,
+            "arrayBuffers": 6612447
+          },
+          "resourceMaxRssBytes": 129490944,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 117219328,
+          "peakRssDeltaBytes": 11259904,
+          "baselineMemory": {
+            "rss": 105959424,
+            "heapTotal": 10694656,
+            "heapUsed": 8400712,
+            "external": 10067733,
+            "arrayBuffers": 153421
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 22784,
+            "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+          },
+          "outputBytes": 22784,
+          "wallMilliseconds": 59.224417999999986,
+          "cpuMilliseconds": 111.712,
+          "finalMemory": {
+            "rss": 107814912,
+            "heapTotal": 14102528,
+            "heapUsed": 9988432,
+            "external": 15918159,
+            "arrayBuffers": 6003807
+          },
+          "resourceMaxRssBytes": 123371520,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 108572672,
+          "peakRssDeltaBytes": 10588160,
+          "baselineMemory": {
+            "rss": 97984512,
+            "heapTotal": 10170368,
+            "heapUsed": 8400768,
+            "external": 10067733,
+            "arrayBuffers": 153421
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage",
+      "workflow": "gif-last-frame-png",
+      "title": "Composite the last of 36 photographic GIF frames to PNG",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 84.80789399999998,
+          "p95": 90.51458300000002,
+          "minimum": 84.63360900000004,
+          "maximum": 90.51458300000002
+        },
+        "cpuMilliseconds": {
+          "median": 111.568
+        },
+        "peakRssBytes": {
+          "median": 100454400,
+          "maximum": 100835328
+        },
+        "peakRssDeltaBytes": {
+          "median": 4317184,
+          "maximum": 4337664
+        },
+        "outputBytes": {
+          "median": 119830
+        },
+        "finalExternalBytes": {
+          "median": 18027731
+        },
+        "finalArrayBuffersBytes": {
+          "median": 8113379
+        },
+        "output": {
+          "format": "png",
+          "width": 480,
+          "height": 270,
+          "bytes": 119830,
+          "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119830,
+            "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+          },
+          "outputBytes": 119830,
+          "wallMilliseconds": 84.63360900000004,
+          "cpuMilliseconds": 111.568,
+          "finalMemory": {
+            "rss": 99926016,
+            "heapTotal": 13840384,
+            "heapUsed": 9600808,
+            "external": 18027731,
+            "arrayBuffers": 8113379
+          },
+          "resourceMaxRssBytes": 119336960,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 100835328,
+          "peakRssDeltaBytes": 4317184,
+          "baselineMemory": {
+            "rss": 96518144,
+            "heapTotal": 10170368,
+            "heapUsed": 8438464,
+            "external": 15292602,
+            "arrayBuffers": 5378290
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119830,
+            "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+          },
+          "outputBytes": 119830,
+          "wallMilliseconds": 90.51458300000002,
+          "cpuMilliseconds": 124.442,
+          "finalMemory": {
+            "rss": 99917824,
+            "heapTotal": 14102528,
+            "heapUsed": 9680624,
+            "external": 18027731,
+            "arrayBuffers": 8113379
+          },
+          "resourceMaxRssBytes": 120487936,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 100454400,
+          "peakRssDeltaBytes": 4337664,
+          "baselineMemory": {
+            "rss": 96116736,
+            "heapTotal": 9908224,
+            "heapUsed": 8442968,
+            "external": 15292602,
+            "arrayBuffers": 5378290
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119830,
+            "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+          },
+          "outputBytes": 119830,
+          "wallMilliseconds": 84.80789399999998,
+          "cpuMilliseconds": 110.531,
+          "finalMemory": {
+            "rss": 99487744,
+            "heapTotal": 13840384,
+            "heapUsed": 9630760,
+            "external": 18027731,
+            "arrayBuffers": 8113379
+          },
+          "resourceMaxRssBytes": 119443456,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 100118528,
+          "peakRssDeltaBytes": 4038656,
+          "baselineMemory": {
+            "rss": 96079872,
+            "heapTotal": 10170368,
+            "heapUsed": 8438608,
+            "external": 15292602,
+            "arrayBuffers": 5378290
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage",
+      "workflow": "jpeg-to-gif",
+      "title": "Resize a 2400x3000 photo to 800 px and write a 256-color GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 521.0981400000001,
+          "p95": 542.3800819999999,
+          "minimum": 513.180178,
+          "maximum": 542.3800819999999
+        },
+        "cpuMilliseconds": {
+          "median": 668.185
+        },
+        "peakRssBytes": {
+          "median": 127488000,
+          "maximum": 127791104
+        },
+        "peakRssDeltaBytes": {
+          "median": 14757888,
+          "maximum": 18116608
+        },
+        "outputBytes": {
+          "median": 504352
+        },
+        "finalExternalBytes": {
+          "median": 31549785
+        },
+        "finalArrayBuffersBytes": {
+          "median": 21635433
+        },
+        "output": {
+          "format": "gif",
+          "width": 800,
+          "height": 1000,
+          "bytes": 504352,
+          "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 504352,
+            "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+          },
+          "outputBytes": 504352,
+          "wallMilliseconds": 513.180178,
+          "cpuMilliseconds": 654.523,
+          "finalMemory": {
+            "rss": 126828544,
+            "heapTotal": 15675392,
+            "heapUsed": 11297584,
+            "external": 31548465,
+            "arrayBuffers": 21634113
+          },
+          "resourceMaxRssBytes": 138166272,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 127791104,
+          "peakRssDeltaBytes": 18116608,
+          "baselineMemory": {
+            "rss": 109674496,
+            "heapTotal": 11218944,
+            "heapUsed": 8967480,
+            "external": 18469724,
+            "arrayBuffers": 8555412
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 504352,
+            "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+          },
+          "outputBytes": 504352,
+          "wallMilliseconds": 521.0981400000001,
+          "cpuMilliseconds": 668.185,
+          "finalMemory": {
+            "rss": 126623744,
+            "heapTotal": 15675392,
+            "heapUsed": 11957056,
+            "external": 31549785,
+            "arrayBuffers": 21635433
+          },
+          "resourceMaxRssBytes": 141398016,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 127488000,
+          "peakRssDeltaBytes": 14757888,
+          "baselineMemory": {
+            "rss": 112730112,
+            "heapTotal": 10694656,
+            "heapUsed": 8967976,
+            "external": 18469724,
+            "arrayBuffers": 8555412
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 504352,
+            "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+          },
+          "outputBytes": 504352,
+          "wallMilliseconds": 542.3800819999999,
+          "cpuMilliseconds": 695.166,
+          "finalMemory": {
+            "rss": 125652992,
+            "heapTotal": 15675392,
+            "heapUsed": 11777336,
+            "external": 31549785,
+            "arrayBuffers": 21635433
+          },
+          "resourceMaxRssBytes": 141754368,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 126410752,
+          "peakRssDeltaBytes": 13733888,
+          "baselineMemory": {
+            "rss": 112676864,
+            "heapTotal": 10956800,
+            "heapUsed": 8968160,
+            "external": 18469724,
+            "arrayBuffers": 8555412
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage",
+      "workflow": "logo-to-gif",
+      "title": "Write the transparent 1200x480 logo as GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 18.451443000000012,
+          "p95": 19.28102100000001,
+          "minimum": 18.360905000000002,
+          "maximum": 19.28102100000001
+        },
+        "cpuMilliseconds": {
+          "median": 36.01
+        },
+        "peakRssBytes": {
+          "median": 102461440,
+          "maximum": 102502400
+        },
+        "peakRssDeltaBytes": {
+          "median": 4419584,
+          "maximum": 4452352
+        },
+        "outputBytes": {
+          "median": 59033
+        },
+        "finalExternalBytes": {
+          "median": 23398663
+        },
+        "finalArrayBuffersBytes": {
+          "median": 13484311
+        },
+        "output": {
+          "format": "gif",
+          "width": 1200,
+          "height": 480,
+          "bytes": 59033,
+          "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 18.451443000000012,
+          "cpuMilliseconds": 36.01,
+          "finalMemory": {
+            "rss": 101810176,
+            "heapTotal": 10432512,
+            "heapUsed": 9108280,
+            "external": 23398663,
+            "arrayBuffers": 13484311
+          },
+          "resourceMaxRssBytes": 121430016,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 102502400,
+          "peakRssDeltaBytes": 4362240,
+          "baselineMemory": {
+            "rss": 98140160,
+            "heapTotal": 10170368,
+            "heapUsed": 8507384,
+            "external": 10102322,
+            "arrayBuffers": 188010
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 19.28102100000001,
+          "cpuMilliseconds": 37.681,
+          "finalMemory": {
+            "rss": 101208064,
+            "heapTotal": 13578240,
+            "heapUsed": 8718480,
+            "external": 20669015,
+            "arrayBuffers": 10754663
+          },
+          "resourceMaxRssBytes": 120872960,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 102088704,
+          "peakRssDeltaBytes": 4419584,
+          "baselineMemory": {
+            "rss": 97669120,
+            "heapTotal": 9908224,
+            "heapUsed": 8507312,
+            "external": 10102322,
+            "arrayBuffers": 188010
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 18.360905000000002,
+          "cpuMilliseconds": 35.1,
+          "finalMemory": {
+            "rss": 101810176,
+            "heapTotal": 10694656,
+            "heapUsed": 9107944,
+            "external": 23398663,
+            "arrayBuffers": 13484311
+          },
+          "resourceMaxRssBytes": 120664064,
+          "engine": {
+            "id": "purejsimage",
+            "version": "0.18.0 (workspace)",
+            "kind": "pure-javascript",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 102461440,
+          "peakRssDeltaBytes": 4452352,
+          "baselineMemory": {
+            "rss": 98009088,
+            "heapTotal": 9908224,
+            "heapUsed": 8507384,
+            "external": 10102322,
+            "arrayBuffers": 188010
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "gif-animated-resize",
+      "title": "Resize every frame of a 36-frame photographic GIF to 240 px wide",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 293.73427999999996,
+          "p95": 299.43555299999997,
+          "minimum": 290.94574400000005,
+          "maximum": 299.43555299999997
+        },
+        "cpuMilliseconds": {
+          "median": 393.222
+        },
+        "peakRssBytes": {
+          "median": 130617344,
+          "maximum": 131252224
+        },
+        "peakRssDeltaBytes": {
+          "median": 7700480,
+          "maximum": 7933952
+        },
+        "outputBytes": {
+          "median": 1272059
+        },
+        "finalExternalBytes": {
+          "median": 28557863
+        },
+        "finalArrayBuffersBytes": {
+          "median": 18512439
+        },
+        "output": {
+          "format": "gif",
+          "width": 240,
+          "height": 135,
+          "bytes": 1272059,
+          "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1272059,
+            "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+          },
+          "outputBytes": 1272059,
+          "wallMilliseconds": 299.43555299999997,
+          "cpuMilliseconds": 393.222,
+          "finalMemory": {
+            "rss": 130265088,
+            "heapTotal": 14364672,
+            "heapUsed": 11002552,
+            "external": 27906132,
+            "arrayBuffers": 17860708
+          },
+          "resourceMaxRssBytes": 152203264,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 131252224,
+          "peakRssDeltaBytes": 7933952,
+          "baselineMemory": {
+            "rss": 123318272,
+            "heapTotal": 10956800,
+            "heapUsed": 8918408,
+            "external": 19410146,
+            "arrayBuffers": 9364762
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1272059,
+            "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+          },
+          "outputBytes": 1272059,
+          "wallMilliseconds": 293.73427999999996,
+          "cpuMilliseconds": 396.119,
+          "finalMemory": {
+            "rss": 129576960,
+            "heapTotal": 14102528,
+            "heapUsed": 11268016,
+            "external": 28557863,
+            "arrayBuffers": 18512439
+          },
+          "resourceMaxRssBytes": 150761472,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 129970176,
+          "peakRssDeltaBytes": 7340032,
+          "baselineMemory": {
+            "rss": 122630144,
+            "heapTotal": 10432512,
+            "heapUsed": 8917464,
+            "external": 19410146,
+            "arrayBuffers": 9364762
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1272059,
+            "sha256": "fec4775e2e36f2150894a9587ff990ba846ff4ba2f63f1903ff1c7e027bc5aa6"
+          },
+          "outputBytes": 1272059,
+          "wallMilliseconds": 290.94574400000005,
+          "cpuMilliseconds": 386.736,
+          "finalMemory": {
+            "rss": 129732608,
+            "heapTotal": 14364672,
+            "heapUsed": 11292264,
+            "external": 28660031,
+            "arrayBuffers": 18614607
+          },
+          "resourceMaxRssBytes": 151543808,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 130617344,
+          "peakRssDeltaBytes": 7700480,
+          "baselineMemory": {
+            "rss": 122916864,
+            "heapTotal": 10694656,
+            "heapUsed": 8918160,
+            "external": 19410146,
+            "arrayBuffers": 9364762
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "gif-animated-roundtrip",
+      "title": "Decode and re-encode every frame of a 36-frame photographic GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 319.56250100000005,
+          "p95": 324.710679,
+          "minimum": 284.59562600000004,
+          "maximum": 324.710679
+        },
+        "cpuMilliseconds": {
+          "median": 419.134
+        },
+        "peakRssBytes": {
+          "median": 141312000,
+          "maximum": 141455360
+        },
+        "peakRssDeltaBytes": {
+          "median": 7069696,
+          "maximum": 7086080
+        },
+        "outputBytes": {
+          "median": 4828168
+        },
+        "finalExternalBytes": {
+          "median": 38654227
+        },
+        "finalArrayBuffersBytes": {
+          "median": 28739875
+        },
+        "output": {
+          "format": "gif",
+          "width": 480,
+          "height": 270,
+          "bytes": 4828168,
+          "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4828168,
+            "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+          },
+          "outputBytes": 4828168,
+          "wallMilliseconds": 319.56250100000005,
+          "cpuMilliseconds": 419.134,
+          "finalMemory": {
+            "rss": 134844416,
+            "heapTotal": 14102528,
+            "heapUsed": 10196848,
+            "external": 38654227,
+            "arrayBuffers": 28739875
+          },
+          "resourceMaxRssBytes": 157446144,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 140234752,
+          "peakRssDeltaBytes": 7086080,
+          "baselineMemory": {
+            "rss": 133148672,
+            "heapTotal": 10170368,
+            "heapUsed": 8481968,
+            "external": 19572511,
+            "arrayBuffers": 9658199
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4828168,
+            "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+          },
+          "outputBytes": 4828168,
+          "wallMilliseconds": 324.710679,
+          "cpuMilliseconds": 420.954,
+          "finalMemory": {
+            "rss": 136134656,
+            "heapTotal": 14102528,
+            "heapUsed": 10073096,
+            "external": 37530505,
+            "arrayBuffers": 27616153
+          },
+          "resourceMaxRssBytes": 161722368,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 141455360,
+          "peakRssDeltaBytes": 4730880,
+          "baselineMemory": {
+            "rss": 136724480,
+            "heapTotal": 10170368,
+            "heapUsed": 8727272,
+            "external": 19572511,
+            "arrayBuffers": 9658199
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4828168,
+            "sha256": "3d45f5fbef93e8e5ee6088f937a2c6ff6b747e02a8bae5fd0ef1ac3e45d3535a"
+          },
+          "outputBytes": 4828168,
+          "wallMilliseconds": 284.59562600000004,
+          "cpuMilliseconds": 377.167,
+          "finalMemory": {
+            "rss": 135811072,
+            "heapTotal": 14364672,
+            "heapUsed": 10228504,
+            "external": 39317370,
+            "arrayBuffers": 29403018
+          },
+          "resourceMaxRssBytes": 158404608,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 141312000,
+          "peakRssDeltaBytes": 7069696,
+          "baselineMemory": {
+            "rss": 134242304,
+            "heapTotal": 10694656,
+            "heapUsed": 8716592,
+            "external": 19572511,
+            "arrayBuffers": 9658199
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "gif-sticker-resize",
+      "title": "Resize every frame of a 24-frame transparent sticker GIF to 160 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 43.554047,
+          "p95": 44.980954,
+          "minimum": 42.71473800000001,
+          "maximum": 44.980954
+        },
+        "cpuMilliseconds": {
+          "median": 73.169
+        },
+        "peakRssBytes": {
+          "median": 114192384,
+          "maximum": 114479104
+        },
+        "peakRssDeltaBytes": {
+          "median": 6082560,
+          "maximum": 7135232
+        },
+        "outputBytes": {
+          "median": 54038
+        },
+        "finalExternalBytes": {
+          "median": 13916890
+        },
+        "finalArrayBuffersBytes": {
+          "median": 3871466
+        },
+        "output": {
+          "format": "gif",
+          "width": 160,
+          "height": 160,
+          "bytes": 54038,
+          "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 54038,
+            "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 54038,
+          "wallMilliseconds": 42.71473800000001,
+          "cpuMilliseconds": 92.524,
+          "finalMemory": {
+            "rss": 113782784,
+            "heapTotal": 13840384,
+            "heapUsed": 10987360,
+            "external": 21493309,
+            "arrayBuffers": 11447885
+          },
+          "resourceMaxRssBytes": 134459392,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 114192384,
+          "peakRssDeltaBytes": 5652480,
+          "baselineMemory": {
+            "rss": 108539904,
+            "heapTotal": 10694656,
+            "heapUsed": 8720864,
+            "external": 10232359,
+            "arrayBuffers": 186975
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 54038,
+            "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 54038,
+          "wallMilliseconds": 43.554047,
+          "cpuMilliseconds": 72.75,
+          "finalMemory": {
+            "rss": 113639424,
+            "heapTotal": 13578240,
+            "heapUsed": 9056960,
+            "external": 13916890,
+            "arrayBuffers": 3871466
+          },
+          "resourceMaxRssBytes": 132788224,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 114479104,
+          "peakRssDeltaBytes": 6082560,
+          "baselineMemory": {
+            "rss": 108396544,
+            "heapTotal": 10432512,
+            "heapUsed": 8723344,
+            "external": 10232359,
+            "arrayBuffers": 186975
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 54038,
+            "sha256": "35452086b89663b1d620b53636d059fb8c9e0e583c91043ceadf21d1b56fd515",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 54038,
+          "wallMilliseconds": 44.980954,
+          "cpuMilliseconds": 73.169,
+          "finalMemory": {
+            "rss": 112807936,
+            "heapTotal": 13840384,
+            "heapUsed": 9095664,
+            "external": 13916890,
+            "arrayBuffers": 3871466
+          },
+          "resourceMaxRssBytes": 129572864,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 113520640,
+          "peakRssDeltaBytes": 7135232,
+          "baselineMemory": {
+            "rss": 106385408,
+            "heapTotal": 10432512,
+            "heapUsed": 8723176,
+            "external": 10232359,
+            "arrayBuffers": 186975
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "gif-cc0-resize",
+      "title": "Resize every frame of the 70-frame CC0 GIF to 100 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 54.80988400000001,
+          "p95": 55.35170700000003,
+          "minimum": 54.32494700000004,
+          "maximum": 55.35170700000003
+        },
+        "cpuMilliseconds": {
+          "median": 108.227
+        },
+        "peakRssBytes": {
+          "median": 115576832,
+          "maximum": 115806208
+        },
+        "peakRssDeltaBytes": {
+          "median": 9334784,
+          "maximum": 9506816
+        },
+        "outputBytes": {
+          "median": 22784
+        },
+        "finalExternalBytes": {
+          "median": 16404738
+        },
+        "finalArrayBuffersBytes": {
+          "median": 6359314
+        },
+        "output": {
+          "format": "gif",
+          "width": 100,
+          "height": 100,
+          "bytes": 22784,
+          "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 22784,
+            "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+          },
+          "outputBytes": 22784,
+          "wallMilliseconds": 55.35170700000003,
+          "cpuMilliseconds": 127.268,
+          "finalMemory": {
+            "rss": 114978816,
+            "heapTotal": 14102528,
+            "heapUsed": 10694776,
+            "external": 16115859,
+            "arrayBuffers": 6070435
+          },
+          "resourceMaxRssBytes": 130613248,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 115576832,
+          "peakRssDeltaBytes": 9117696,
+          "baselineMemory": {
+            "rss": 106459136,
+            "heapTotal": 10432512,
+            "heapUsed": 8642632,
+            "external": 10198809,
+            "arrayBuffers": 153425
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 22784,
+            "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+          },
+          "outputBytes": 22784,
+          "wallMilliseconds": 54.32494700000004,
+          "cpuMilliseconds": 108.227,
+          "finalMemory": {
+            "rss": 115122176,
+            "heapTotal": 14102528,
+            "heapUsed": 10892952,
+            "external": 16404738,
+            "arrayBuffers": 6359314
+          },
+          "resourceMaxRssBytes": 129744896,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 115806208,
+          "peakRssDeltaBytes": 9334784,
+          "baselineMemory": {
+            "rss": 106471424,
+            "heapTotal": 10432512,
+            "heapUsed": 8642704,
+            "external": 10198809,
+            "arrayBuffers": 153425
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 22784,
+            "sha256": "2ec7dc6db724667c15b11d871374af06f22a8e48fae25e5dd25a76ac027a19d9"
+          },
+          "outputBytes": 22784,
+          "wallMilliseconds": 54.80988400000001,
+          "cpuMilliseconds": 107.271,
+          "finalMemory": {
+            "rss": 114094080,
+            "heapTotal": 14102528,
+            "heapUsed": 10948672,
+            "external": 16562421,
+            "arrayBuffers": 6516997
+          },
+          "resourceMaxRssBytes": 132763648,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 114819072,
+          "peakRssDeltaBytes": 9506816,
+          "baselineMemory": {
+            "rss": 105312256,
+            "heapTotal": 10170368,
+            "heapUsed": 8642880,
+            "external": 10198809,
+            "arrayBuffers": 153425
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "gif-last-frame-png",
+      "title": "Composite the last of 36 photographic GIF frames to PNG",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 83.007654,
+          "p95": 84.74967899999996,
+          "minimum": 82.150755,
+          "maximum": 84.74967899999996
+        },
+        "cpuMilliseconds": {
+          "median": 106.829
+        },
+        "peakRssBytes": {
+          "median": 101900288,
+          "maximum": 103190528
+        },
+        "peakRssDeltaBytes": {
+          "median": 4395008,
+          "maximum": 5197824
+        },
+        "outputBytes": {
+          "median": 119830
+        },
+        "finalExternalBytes": {
+          "median": 18356495
+        },
+        "finalArrayBuffersBytes": {
+          "median": 8114463
+        },
+        "output": {
+          "format": "png",
+          "width": 480,
+          "height": 270,
+          "bytes": 119830,
+          "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119830,
+            "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+          },
+          "outputBytes": 119830,
+          "wallMilliseconds": 83.007654,
+          "cpuMilliseconds": 106.829,
+          "finalMemory": {
+            "rss": 100302848,
+            "heapTotal": 13578240,
+            "heapUsed": 9657112,
+            "external": 18355415,
+            "arrayBuffers": 8113383
+          },
+          "resourceMaxRssBytes": 120438784,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 100937728,
+          "peakRssDeltaBytes": 4173824,
+          "baselineMemory": {
+            "rss": 96763904,
+            "heapTotal": 10432512,
+            "heapUsed": 8635472,
+            "external": 15620286,
+            "arrayBuffers": 5378294
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119830,
+            "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+          },
+          "outputBytes": 119830,
+          "wallMilliseconds": 84.74967899999996,
+          "cpuMilliseconds": 107.61,
+          "finalMemory": {
+            "rss": 101027840,
+            "heapTotal": 13578240,
+            "heapUsed": 9403264,
+            "external": 18481087,
+            "arrayBuffers": 8239055
+          },
+          "resourceMaxRssBytes": 119721984,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 101900288,
+          "peakRssDeltaBytes": 5197824,
+          "baselineMemory": {
+            "rss": 96702464,
+            "heapTotal": 10170368,
+            "heapUsed": 8635472,
+            "external": 15620286,
+            "arrayBuffers": 5378294
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119830,
+            "sha256": "4e2707777656b5c90257b1f1830f1cbb136ce40b4655ef0effbadae216d87dcb"
+          },
+          "outputBytes": 119830,
+          "wallMilliseconds": 82.150755,
+          "cpuMilliseconds": 105.125,
+          "finalMemory": {
+            "rss": 102334464,
+            "heapTotal": 14102528,
+            "heapUsed": 9757608,
+            "external": 18356495,
+            "arrayBuffers": 8114463
+          },
+          "resourceMaxRssBytes": 123363328,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 103190528,
+          "peakRssDeltaBytes": 4395008,
+          "baselineMemory": {
+            "rss": 98795520,
+            "heapTotal": 10432512,
+            "heapUsed": 8635448,
+            "external": 15620286,
+            "arrayBuffers": 5378294
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "jpeg-to-gif",
+      "title": "Resize a 2400x3000 photo to 800 px and write a 256-color GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 244.619213,
+          "p95": 247.621268,
+          "minimum": 244.10160599999995,
+          "maximum": 247.621268
+        },
+        "cpuMilliseconds": {
+          "median": 306.926
+        },
+        "peakRssBytes": {
+          "median": 122376192,
+          "maximum": 126013440
+        },
+        "peakRssDeltaBytes": {
+          "median": 11444224,
+          "maximum": 16609280
+        },
+        "outputBytes": {
+          "median": 504352
+        },
+        "finalExternalBytes": {
+          "median": 32533185
+        },
+        "finalArrayBuffersBytes": {
+          "median": 21897937
+        },
+        "output": {
+          "format": "gif",
+          "width": 800,
+          "height": 1000,
+          "bytes": 504352,
+          "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 504352,
+            "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+          },
+          "outputBytes": 504352,
+          "wallMilliseconds": 244.619213,
+          "cpuMilliseconds": 304.29,
+          "finalMemory": {
+            "rss": 119148544,
+            "heapTotal": 14888960,
+            "heapUsed": 9632560,
+            "external": 31462506,
+            "arrayBuffers": 20827258
+          },
+          "resourceMaxRssBytes": 136310784,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 119885824,
+          "peakRssDeltaBytes": 10960896,
+          "baselineMemory": {
+            "rss": 108924928,
+            "heapTotal": 10956800,
+            "heapUsed": 9090040,
+            "external": 19190628,
+            "arrayBuffers": 8555420
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 504352,
+            "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+          },
+          "outputBytes": 504352,
+          "wallMilliseconds": 244.10160599999995,
+          "cpuMilliseconds": 306.926,
+          "finalMemory": {
+            "rss": 121679872,
+            "heapTotal": 14888960,
+            "heapUsed": 11524680,
+            "external": 32533185,
+            "arrayBuffers": 21897937
+          },
+          "resourceMaxRssBytes": 137703424,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 122376192,
+          "peakRssDeltaBytes": 11444224,
+          "baselineMemory": {
+            "rss": 110931968,
+            "heapTotal": 10956800,
+            "heapUsed": 9089568,
+            "external": 19190628,
+            "arrayBuffers": 8555420
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 504352,
+            "sha256": "23d2bda691c6c8bb6ef1c8136eed0de54e95b3569636ca98b0f791230eb2bc1c"
+          },
+          "outputBytes": 504352,
+          "wallMilliseconds": 247.621268,
+          "cpuMilliseconds": 308.38,
+          "finalMemory": {
+            "rss": 125263872,
+            "heapTotal": 14888960,
+            "heapUsed": 11853160,
+            "external": 32533185,
+            "arrayBuffers": 21897937
+          },
+          "resourceMaxRssBytes": 137707520,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 126013440,
+          "peakRssDeltaBytes": 16609280,
+          "baselineMemory": {
+            "rss": 109404160,
+            "heapTotal": 10956800,
+            "heapUsed": 9089616,
+            "external": 19190628,
+            "arrayBuffers": 8555420
+          }
+        }
+      ]
+    },
+    {
+      "engine": "purejsimage-wasm",
+      "workflow": "logo-to-gif",
+      "title": "Write the transparent 1200x480 logo as GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 17.909841,
+          "p95": 20.435022000000004,
+          "minimum": 17.450153,
+          "maximum": 20.435022000000004
+        },
+        "cpuMilliseconds": {
+          "median": 34.906
+        },
+        "peakRssBytes": {
+          "median": 100720640,
+          "maximum": 100802560
+        },
+        "peakRssDeltaBytes": {
+          "median": 4251648,
+          "maximum": 4354048
+        },
+        "outputBytes": {
+          "median": 59033
+        },
+        "finalExternalBytes": {
+          "median": 21500809
+        },
+        "finalArrayBuffersBytes": {
+          "median": 11324313
+        },
+        "output": {
+          "format": "gif",
+          "width": 1200,
+          "height": 480,
+          "bytes": 59033,
+          "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 20.435022000000004,
+          "cpuMilliseconds": 41.104,
+          "finalMemory": {
+            "rss": 99979264,
+            "heapTotal": 10956800,
+            "heapUsed": 9258752,
+            "external": 21500809,
+            "arrayBuffers": 11324313
+          },
+          "resourceMaxRssBytes": 121135104,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 100802560,
+          "peakRssDeltaBytes": 4231168,
+          "baselineMemory": {
+            "rss": 96571392,
+            "heapTotal": 10170368,
+            "heapUsed": 8716088,
+            "external": 10364470,
+            "arrayBuffers": 188014
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 17.909841,
+          "cpuMilliseconds": 34.906,
+          "finalMemory": {
+            "rss": 100036608,
+            "heapTotal": 10956800,
+            "heapUsed": 9247096,
+            "external": 21500809,
+            "arrayBuffers": 11324313
+          },
+          "resourceMaxRssBytes": 120348672,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 100720640,
+          "peakRssDeltaBytes": 4354048,
+          "baselineMemory": {
+            "rss": 96366592,
+            "heapTotal": 10170368,
+            "heapUsed": 8716368,
+            "external": 10364470,
+            "arrayBuffers": 188014
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "9546edd7fcb8452f68c34ab27a9b86977c035db4bc86cea32e82e0b9cbe20adf",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 17.450153,
+          "cpuMilliseconds": 33.762,
+          "finalMemory": {
+            "rss": 99397632,
+            "heapTotal": 10694656,
+            "heapUsed": 9247376,
+            "external": 21500809,
+            "arrayBuffers": 11324313
+          },
+          "resourceMaxRssBytes": 121274368,
+          "engine": {
+            "id": "purejsimage-wasm",
+            "version": "0.18.0 (workspace WASM)",
+            "kind": "webassembly",
+            "packageName": "purejsimage"
+          },
+          "peakRssBytes": 99979264,
+          "peakRssDeltaBytes": 4251648,
+          "baselineMemory": {
+            "rss": 95727616,
+            "heapTotal": 10432512,
+            "heapUsed": 8716200,
+            "external": 10364470,
+            "arrayBuffers": 188014
+          }
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "gif-animated-resize",
+      "title": "Resize every frame of a 36-frame photographic GIF to 240 px wide",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "unsupported",
+        "errors": [
+          "Jimp 1.7.0 decodes only the first GIF frame"
+        ]
+      },
+      "samples": [
+        {
+          "status": "unsupported",
+          "errors": [
+            "Jimp 1.7.0 decodes only the first GIF frame"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "gif-animated-roundtrip",
+      "title": "Decode and re-encode every frame of a 36-frame photographic GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "unsupported",
+        "errors": [
+          "Jimp 1.7.0 decodes only the first GIF frame"
+        ]
+      },
+      "samples": [
+        {
+          "status": "unsupported",
+          "errors": [
+            "Jimp 1.7.0 decodes only the first GIF frame"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "gif-sticker-resize",
+      "title": "Resize every frame of a 24-frame transparent sticker GIF to 160 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "unsupported",
+        "errors": [
+          "Jimp 1.7.0 decodes only the first GIF frame"
+        ]
+      },
+      "samples": [
+        {
+          "status": "unsupported",
+          "errors": [
+            "Jimp 1.7.0 decodes only the first GIF frame"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "gif-cc0-resize",
+      "title": "Resize every frame of the 70-frame CC0 GIF to 100 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "unsupported",
+        "errors": [
+          "Jimp 1.7.0 decodes only the first GIF frame"
+        ]
+      },
+      "samples": [
+        {
+          "status": "unsupported",
+          "errors": [
+            "Jimp 1.7.0 decodes only the first GIF frame"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "gif-last-frame-png",
+      "title": "Composite the last of 36 photographic GIF frames to PNG",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "unsupported",
+        "errors": [
+          "Jimp 1.7.0 decodes only the first GIF frame"
+        ]
+      },
+      "samples": [
+        {
+          "status": "unsupported",
+          "errors": [
+            "Jimp 1.7.0 decodes only the first GIF frame"
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "jpeg-to-gif",
+      "title": "Resize a 2400x3000 photo to 800 px and write a 256-color GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 5718.00891,
+          "p95": 5746.561804,
+          "minimum": 5689.023286,
+          "maximum": 5746.561804
+        },
+        "cpuMilliseconds": {
+          "median": 6259.193
+        },
+        "peakRssBytes": {
+          "median": 695107584,
+          "maximum": 702918656
+        },
+        "peakRssDeltaBytes": {
+          "median": 418349056,
+          "maximum": 428929024
+        },
+        "outputBytes": {
+          "median": 602232
+        },
+        "finalExternalBytes": {
+          "median": 31249076
+        },
+        "finalArrayBuffersBytes": {
+          "median": 21059603
+        },
+        "output": {
+          "format": "gif",
+          "width": 800,
+          "height": 1000,
+          "bytes": 602232,
+          "sha256": "693bd87ed0046ff1ded6f0fc0b8dd8b6bbc23bdde8bb6c5999379c993cee65a6"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 602232,
+            "sha256": "693bd87ed0046ff1ded6f0fc0b8dd8b6bbc23bdde8bb6c5999379c993cee65a6"
+          },
+          "outputBytes": 602232,
+          "wallMilliseconds": 5746.561804,
+          "cpuMilliseconds": 6259.193,
+          "finalMemory": {
+            "rss": 679768064,
+            "heapTotal": 357933056,
+            "heapUsed": 268585352,
+            "external": 31249076,
+            "arrayBuffers": 21059603
+          },
+          "resourceMaxRssBytes": 694448128,
+          "engine": {
+            "id": "jimp",
+            "version": "1.7.0",
+            "kind": "pure-javascript",
+            "packageName": "jimp"
+          },
+          "peakRssBytes": 695107584,
+          "peakRssDeltaBytes": 415383552,
+          "baselineMemory": {
+            "rss": 279724032,
+            "heapTotal": 16601088,
+            "heapUsed": 13779040,
+            "external": 15716860,
+            "arrayBuffers": 5527427
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 602232,
+            "sha256": "693bd87ed0046ff1ded6f0fc0b8dd8b6bbc23bdde8bb6c5999379c993cee65a6"
+          },
+          "outputBytes": 602232,
+          "wallMilliseconds": 5718.00891,
+          "cpuMilliseconds": 6229.766,
+          "finalMemory": {
+            "rss": 682147840,
+            "heapTotal": 364417024,
+            "heapUsed": 282803472,
+            "external": 31249076,
+            "arrayBuffers": 21059603
+          },
+          "resourceMaxRssBytes": 690667520,
+          "engine": {
+            "id": "jimp",
+            "version": "1.7.0",
+            "kind": "pure-javascript",
+            "packageName": "jimp"
+          },
+          "peakRssBytes": 691380224,
+          "peakRssDeltaBytes": 418349056,
+          "baselineMemory": {
+            "rss": 273031168,
+            "heapTotal": 16338944,
+            "heapUsed": 13775848,
+            "external": 15716860,
+            "arrayBuffers": 5527427
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 602232,
+            "sha256": "693bd87ed0046ff1ded6f0fc0b8dd8b6bbc23bdde8bb6c5999379c993cee65a6"
+          },
+          "outputBytes": 602232,
+          "wallMilliseconds": 5689.023286,
+          "cpuMilliseconds": 6320.298,
+          "finalMemory": {
+            "rss": 653348864,
+            "heapTotal": 335613952,
+            "heapUsed": 202583320,
+            "external": 28438290,
+            "arrayBuffers": 17275782
+          },
+          "resourceMaxRssBytes": 702107648,
+          "engine": {
+            "id": "jimp",
+            "version": "1.7.0",
+            "kind": "pure-javascript",
+            "packageName": "jimp"
+          },
+          "peakRssBytes": 702918656,
+          "peakRssDeltaBytes": 428929024,
+          "baselineMemory": {
+            "rss": 273989632,
+            "heapTotal": 16863232,
+            "heapUsed": 13778768,
+            "external": 15716860,
+            "arrayBuffers": 5527427
+          }
+        }
+      ]
+    },
+    {
+      "engine": "jimp",
+      "workflow": "logo-to-gif",
+      "title": "Write the transparent 1200x480 logo as GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 2185.028786,
+          "p95": 2185.2480050000004,
+          "minimum": 2178.2420330000004,
+          "maximum": 2185.2480050000004
+        },
+        "cpuMilliseconds": {
+          "median": 2366.298
+        },
+        "peakRssBytes": {
+          "median": 380215296,
+          "maximum": 380248064
+        },
+        "peakRssDeltaBytes": {
+          "median": 258494464,
+          "maximum": 259235840
+        },
+        "outputBytes": {
+          "median": 51327
+        },
+        "finalExternalBytes": {
+          "median": 20340333
+        },
+        "finalArrayBuffersBytes": {
+          "median": 10150860
+        },
+        "output": {
+          "format": "gif",
+          "width": 1200,
+          "height": 480,
+          "bytes": 51327,
+          "sha256": "270606a0b6d785414d2bf0d518f2f1377c04c96245bff6ca3baafbc0858ed7dd",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 51327,
+            "sha256": "270606a0b6d785414d2bf0d518f2f1377c04c96245bff6ca3baafbc0858ed7dd",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 51327,
+          "wallMilliseconds": 2178.2420330000004,
+          "cpuMilliseconds": 2370.021,
+          "finalMemory": {
+            "rss": 362504192,
+            "heapTotal": 254586880,
+            "heapUsed": 119160880,
+            "external": 20340333,
+            "arrayBuffers": 7699093
+          },
+          "resourceMaxRssBytes": 384741376,
+          "engine": {
+            "id": "jimp",
+            "version": "1.7.0",
+            "kind": "pure-javascript",
+            "packageName": "jimp"
+          },
+          "peakRssBytes": 380248064,
+          "peakRssDeltaBytes": 258494464,
+          "baselineMemory": {
+            "rss": 121753600,
+            "heapTotal": 16338944,
+            "heapUsed": 14308848,
+            "external": 10398488,
+            "arrayBuffers": 209055
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 51327,
+            "sha256": "270606a0b6d785414d2bf0d518f2f1377c04c96245bff6ca3baafbc0858ed7dd",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 51327,
+          "wallMilliseconds": 2185.2480050000004,
+          "cpuMilliseconds": 2351.131,
+          "finalMemory": {
+            "rss": 378658816,
+            "heapTotal": 271785984,
+            "heapUsed": 199392896,
+            "external": 20340333,
+            "arrayBuffers": 10150860
+          },
+          "resourceMaxRssBytes": 383188992,
+          "engine": {
+            "id": "jimp",
+            "version": "1.7.0",
+            "kind": "pure-javascript",
+            "packageName": "jimp"
+          },
+          "peakRssBytes": 379023360,
+          "peakRssDeltaBytes": 259235840,
+          "baselineMemory": {
+            "rss": 119787520,
+            "heapTotal": 16338944,
+            "heapUsed": 14307648,
+            "external": 10398488,
+            "arrayBuffers": 209055
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 51327,
+            "sha256": "270606a0b6d785414d2bf0d518f2f1377c04c96245bff6ca3baafbc0858ed7dd",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 51327,
+          "wallMilliseconds": 2185.028786,
+          "cpuMilliseconds": 2366.298,
+          "finalMemory": {
+            "rss": 379523072,
+            "heapTotal": 271785984,
+            "heapUsed": 199134176,
+            "external": 20340333,
+            "arrayBuffers": 10150860
+          },
+          "resourceMaxRssBytes": 385765376,
+          "engine": {
+            "id": "jimp",
+            "version": "1.7.0",
+            "kind": "pure-javascript",
+            "packageName": "jimp"
+          },
+          "peakRssBytes": 380215296,
+          "peakRssDeltaBytes": 257847296,
+          "baselineMemory": {
+            "rss": 122368000,
+            "heapTotal": 16338944,
+            "heapUsed": 14307792,
+            "external": 10398488,
+            "arrayBuffers": 209055
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "gif-animated-resize",
+      "title": "Resize every frame of a 36-frame photographic GIF to 240 px wide",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 3762.3901100000003,
+          "p95": 3785.195727,
+          "minimum": 3753.6850000000004,
+          "maximum": 3785.195727
+        },
+        "cpuMilliseconds": {
+          "median": 3852.148
+        },
+        "peakRssBytes": {
+          "median": 117850112,
+          "maximum": 119812096
+        },
+        "peakRssDeltaBytes": {
+          "median": 4919296,
+          "maximum": 5066752
+        },
+        "outputBytes": {
+          "median": 1220968
+        },
+        "finalExternalBytes": {
+          "median": 17273990
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4825977
+        },
+        "output": {
+          "format": "gif",
+          "width": 240,
+          "height": 135,
+          "bytes": 1220968,
+          "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1220968,
+            "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+          },
+          "outputBytes": 1220968,
+          "wallMilliseconds": 3762.3901100000003,
+          "cpuMilliseconds": 3831.047,
+          "finalMemory": {
+            "rss": 118939648,
+            "heapTotal": 9646080,
+            "heapUsed": 8098688,
+            "external": 17273990,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 125931520,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 119812096,
+          "peakRssDeltaBytes": 5066752,
+          "baselineMemory": {
+            "rss": 114745344,
+            "heapTotal": 9646080,
+            "heapUsed": 8011624,
+            "external": 16052944,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1220968,
+            "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+          },
+          "outputBytes": 1220968,
+          "wallMilliseconds": 3753.6850000000004,
+          "cpuMilliseconds": 3852.148,
+          "finalMemory": {
+            "rss": 117338112,
+            "heapTotal": 9908224,
+            "heapUsed": 8098760,
+            "external": 17273990,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 124645376,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 117800960,
+          "peakRssDeltaBytes": 4919296,
+          "baselineMemory": {
+            "rss": 112881664,
+            "heapTotal": 9908224,
+            "heapUsed": 8011696,
+            "external": 16052944,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1220968,
+            "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+          },
+          "outputBytes": 1220968,
+          "wallMilliseconds": 3785.195727,
+          "cpuMilliseconds": 3863.82,
+          "finalMemory": {
+            "rss": 117321728,
+            "heapTotal": 9646080,
+            "heapUsed": 8098688,
+            "external": 17273990,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 124694528,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 117850112,
+          "peakRssDeltaBytes": 4591616,
+          "baselineMemory": {
+            "rss": 113258496,
+            "heapTotal": 9646080,
+            "heapUsed": 8011624,
+            "external": 16052944,
+            "arrayBuffers": 4825939
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "gif-animated-roundtrip",
+      "title": "Decode and re-encode every frame of a 36-frame photographic GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 1630.0533369999998,
+          "p95": 1632.4154589999998,
+          "minimum": 1620.6454959999999,
+          "maximum": 1632.4154589999998
+        },
+        "cpuMilliseconds": {
+          "median": 1630.822
+        },
+        "peakRssBytes": {
+          "median": 134709248,
+          "maximum": 138096640
+        },
+        "peakRssDeltaBytes": {
+          "median": 13615104,
+          "maximum": 13676544
+        },
+        "outputBytes": {
+          "median": 4796600
+        },
+        "finalExternalBytes": {
+          "median": 24425254
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4825977
+        },
+        "output": {
+          "format": "gif",
+          "width": 480,
+          "height": 270,
+          "bytes": 4796600,
+          "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4796600,
+            "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+          },
+          "outputBytes": 4796600,
+          "wallMilliseconds": 1620.6454959999999,
+          "cpuMilliseconds": 1623.409,
+          "finalMemory": {
+            "rss": 133808128,
+            "heapTotal": 9646080,
+            "heapUsed": 8094488,
+            "external": 24425254,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 133808128,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 134508544,
+          "peakRssDeltaBytes": 13676544,
+          "baselineMemory": {
+            "rss": 120832000,
+            "heapTotal": 9646080,
+            "heapUsed": 8007896,
+            "external": 19628576,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4796600,
+            "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+          },
+          "outputBytes": 4796600,
+          "wallMilliseconds": 1632.4154589999998,
+          "cpuMilliseconds": 1633.929,
+          "finalMemory": {
+            "rss": 137588736,
+            "heapTotal": 9646080,
+            "heapUsed": 8094488,
+            "external": 24425254,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 137588736,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 138096640,
+          "peakRssDeltaBytes": 13615104,
+          "baselineMemory": {
+            "rss": 124481536,
+            "heapTotal": 9646080,
+            "heapUsed": 8007896,
+            "external": 19628576,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4796600,
+            "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+          },
+          "outputBytes": 4796600,
+          "wallMilliseconds": 1630.0533369999998,
+          "cpuMilliseconds": 1630.822,
+          "finalMemory": {
+            "rss": 134209536,
+            "heapTotal": 9646080,
+            "heapUsed": 8094488,
+            "external": 24425254,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 134209536,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 134709248,
+          "peakRssDeltaBytes": 13606912,
+          "baselineMemory": {
+            "rss": 121102336,
+            "heapTotal": 9646080,
+            "heapUsed": 8007896,
+            "external": 19628576,
+            "arrayBuffers": 4825939
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "gif-sticker-resize",
+      "title": "Resize every frame of a 24-frame transparent sticker GIF to 160 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 59.44085199999998,
+          "p95": 59.70508399999997,
+          "minimum": 58.79064599999998,
+          "maximum": 59.70508399999997
+        },
+        "cpuMilliseconds": {
+          "median": 81.751
+        },
+        "peakRssBytes": {
+          "median": 106156032,
+          "maximum": 110309376
+        },
+        "peakRssDeltaBytes": {
+          "median": 3928064,
+          "maximum": 4517888
+        },
+        "outputBytes": {
+          "median": 42586
+        },
+        "finalExternalBytes": {
+          "median": 10220128
+        },
+        "finalArrayBuffersBytes": {
+          "median": 128879
+        },
+        "output": {
+          "format": "gif",
+          "width": 160,
+          "height": 160,
+          "bytes": 42586,
+          "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 42586,
+            "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 42586,
+          "wallMilliseconds": 59.70508399999997,
+          "cpuMilliseconds": 82.11,
+          "finalMemory": {
+            "rss": 105553920,
+            "heapTotal": 9646080,
+            "heapUsed": 8091736,
+            "external": 10220128,
+            "arrayBuffers": 128879
+          },
+          "resourceMaxRssBytes": 113795072,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 106156032,
+          "peakRssDeltaBytes": 3878912,
+          "baselineMemory": {
+            "rss": 102277120,
+            "heapTotal": 9646080,
+            "heapUsed": 8004896,
+            "external": 10177464,
+            "arrayBuffers": 128841
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 42586,
+            "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 42586,
+          "wallMilliseconds": 59.44085199999998,
+          "cpuMilliseconds": 81.751,
+          "finalMemory": {
+            "rss": 105246720,
+            "heapTotal": 9646080,
+            "heapUsed": 8091880,
+            "external": 10220128,
+            "arrayBuffers": 128879
+          },
+          "resourceMaxRssBytes": 113496064,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 106029056,
+          "peakRssDeltaBytes": 3928064,
+          "baselineMemory": {
+            "rss": 102100992,
+            "heapTotal": 9646080,
+            "heapUsed": 8005040,
+            "external": 10177464,
+            "arrayBuffers": 128841
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 42586,
+            "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 42586,
+          "wallMilliseconds": 58.79064599999998,
+          "cpuMilliseconds": 81.463,
+          "finalMemory": {
+            "rss": 109330432,
+            "heapTotal": 9646080,
+            "heapUsed": 8091736,
+            "external": 10220128,
+            "arrayBuffers": 128879
+          },
+          "resourceMaxRssBytes": 117190656,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 110309376,
+          "peakRssDeltaBytes": 4517888,
+          "baselineMemory": {
+            "rss": 105791488,
+            "heapTotal": 9646080,
+            "heapUsed": 8004896,
+            "external": 10177464,
+            "arrayBuffers": 128841
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "gif-cc0-resize",
+      "title": "Resize every frame of the 70-frame CC0 GIF to 100 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 84.852239,
+          "p95": 85.05529700000002,
+          "minimum": 84.58712,
+          "maximum": 85.05529700000002
+        },
+        "cpuMilliseconds": {
+          "median": 101.835
+        },
+        "peakRssBytes": {
+          "median": 101953536,
+          "maximum": 102473728
+        },
+        "peakRssDeltaBytes": {
+          "median": 1675264,
+          "maximum": 2113536
+        },
+        "outputBytes": {
+          "median": 71267
+        },
+        "finalExternalBytes": {
+          "median": 10275194
+        },
+        "finalArrayBuffersBytes": {
+          "median": 126583
+        },
+        "output": {
+          "format": "gif",
+          "width": 100,
+          "height": 100,
+          "bytes": 71267,
+          "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 71267,
+            "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+          },
+          "outputBytes": 71267,
+          "wallMilliseconds": 84.58712,
+          "cpuMilliseconds": 101.835,
+          "finalMemory": {
+            "rss": 101670912,
+            "heapTotal": 9646080,
+            "heapUsed": 8091872,
+            "external": 10275194,
+            "arrayBuffers": 126583
+          },
+          "resourceMaxRssBytes": 111886336,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 102473728,
+          "peakRssDeltaBytes": 2113536,
+          "baselineMemory": {
+            "rss": 100360192,
+            "heapTotal": 9646080,
+            "heapUsed": 8005032,
+            "external": 10203849,
+            "arrayBuffers": 126545
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 71267,
+            "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+          },
+          "outputBytes": 71267,
+          "wallMilliseconds": 84.852239,
+          "cpuMilliseconds": 101.832,
+          "finalMemory": {
+            "rss": 100573184,
+            "heapTotal": 9646080,
+            "heapUsed": 8091800,
+            "external": 10275194,
+            "arrayBuffers": 126583
+          },
+          "resourceMaxRssBytes": 111386624,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 101609472,
+          "peakRssDeltaBytes": 1560576,
+          "baselineMemory": {
+            "rss": 100048896,
+            "heapTotal": 9646080,
+            "heapUsed": 8004960,
+            "external": 10203849,
+            "arrayBuffers": 126545
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 71267,
+            "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+          },
+          "outputBytes": 71267,
+          "wallMilliseconds": 85.05529700000002,
+          "cpuMilliseconds": 102.17,
+          "finalMemory": {
+            "rss": 101064704,
+            "heapTotal": 9646080,
+            "heapUsed": 8091728,
+            "external": 10275194,
+            "arrayBuffers": 126583
+          },
+          "resourceMaxRssBytes": 111759360,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 101953536,
+          "peakRssDeltaBytes": 1675264,
+          "baselineMemory": {
+            "rss": 100278272,
+            "heapTotal": 9646080,
+            "heapUsed": 8004888,
+            "external": 10203849,
+            "arrayBuffers": 126545
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "gif-last-frame-png",
+      "title": "Composite the last of 36 photographic GIF frames to PNG",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 45.06356199999999,
+          "p95": 45.118551999999994,
+          "minimum": 44.683784,
+          "maximum": 45.118551999999994
+        },
+        "cpuMilliseconds": {
+          "median": 45.188
+        },
+        "peakRssBytes": {
+          "median": 108474368,
+          "maximum": 111951872
+        },
+        "peakRssDeltaBytes": {
+          "median": 3276800,
+          "maximum": 3661824
+        },
+        "outputBytes": {
+          "median": 170681
+        },
+        "finalExternalBytes": {
+          "median": 15173416
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4825977
+        },
+        "output": {
+          "format": "png",
+          "width": 480,
+          "height": 270,
+          "bytes": 170681,
+          "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 170681,
+            "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+          },
+          "outputBytes": 170681,
+          "wallMilliseconds": 44.683784,
+          "cpuMilliseconds": 44.715,
+          "finalMemory": {
+            "rss": 107556864,
+            "heapTotal": 9908224,
+            "heapUsed": 8093360,
+            "external": 15173416,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 116555776,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 108474368,
+          "peakRssDeltaBytes": 3276800,
+          "baselineMemory": {
+            "rss": 105197568,
+            "heapTotal": 9908224,
+            "heapUsed": 8007264,
+            "external": 15002657,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 170681,
+            "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+          },
+          "outputBytes": 170681,
+          "wallMilliseconds": 45.118551999999994,
+          "cpuMilliseconds": 45.188,
+          "finalMemory": {
+            "rss": 107343872,
+            "heapTotal": 9646080,
+            "heapUsed": 8093360,
+            "external": 15173416,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 116232192,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 108113920,
+          "peakRssDeltaBytes": 3260416,
+          "baselineMemory": {
+            "rss": 104853504,
+            "heapTotal": 9646080,
+            "heapUsed": 8007264,
+            "external": 15002657,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 170681,
+            "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+          },
+          "outputBytes": 170681,
+          "wallMilliseconds": 45.06356199999999,
+          "cpuMilliseconds": 45.189,
+          "finalMemory": {
+            "rss": 110911488,
+            "heapTotal": 9908224,
+            "heapUsed": 8093360,
+            "external": 15173416,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 119554048,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 111951872,
+          "peakRssDeltaBytes": 3661824,
+          "baselineMemory": {
+            "rss": 108290048,
+            "heapTotal": 9908224,
+            "heapUsed": 8007264,
+            "external": 15002657,
+            "arrayBuffers": 4825939
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "jpeg-to-gif",
+      "title": "Resize a 2400x3000 photo to 800 px and write a 256-color GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 958.1723459999998,
+          "p95": 960.0301939999997,
+          "minimum": 954.3664670000001,
+          "maximum": 960.0301939999997
+        },
+        "cpuMilliseconds": {
+          "median": 958.54
+        },
+        "peakRssBytes": {
+          "median": 159260672,
+          "maximum": 159637504
+        },
+        "peakRssDeltaBytes": {
+          "median": 34471936,
+          "maximum": 34705408
+        },
+        "outputBytes": {
+          "median": 545113
+        },
+        "finalExternalBytes": {
+          "median": 15674037
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4577734
+        },
+        "output": {
+          "format": "gif",
+          "width": 800,
+          "height": 1000,
+          "bytes": 545113,
+          "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 545113,
+            "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+          },
+          "outputBytes": 545113,
+          "wallMilliseconds": 954.3664670000001,
+          "cpuMilliseconds": 955.358,
+          "finalMemory": {
+            "rss": 159141888,
+            "heapTotal": 9646080,
+            "heapUsed": 8097632,
+            "external": 15674037,
+            "arrayBuffers": 4577734
+          },
+          "resourceMaxRssBytes": 159141888,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 159637504,
+          "peakRssDeltaBytes": 34705408,
+          "baselineMemory": {
+            "rss": 124932096,
+            "heapTotal": 9646080,
+            "heapUsed": 8011744,
+            "external": 15128846,
+            "arrayBuffers": 4577696
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 545113,
+            "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+          },
+          "outputBytes": 545113,
+          "wallMilliseconds": 960.0301939999997,
+          "cpuMilliseconds": 961.209,
+          "finalMemory": {
+            "rss": 159260672,
+            "heapTotal": 9908224,
+            "heapUsed": 8097560,
+            "external": 15674037,
+            "arrayBuffers": 4577734
+          },
+          "resourceMaxRssBytes": 159260672,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 159260672,
+          "peakRssDeltaBytes": 34471936,
+          "baselineMemory": {
+            "rss": 124788736,
+            "heapTotal": 9908224,
+            "heapUsed": 8011672,
+            "external": 15128846,
+            "arrayBuffers": 4577696
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 545113,
+            "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+          },
+          "outputBytes": 545113,
+          "wallMilliseconds": 958.1723459999998,
+          "cpuMilliseconds": 958.54,
+          "finalMemory": {
+            "rss": 152305664,
+            "heapTotal": 9646080,
+            "heapUsed": 8097560,
+            "external": 15674037,
+            "arrayBuffers": 4577734
+          },
+          "resourceMaxRssBytes": 152305664,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 152424448,
+          "peakRssDeltaBytes": 28954624,
+          "baselineMemory": {
+            "rss": 123469824,
+            "heapTotal": 9646080,
+            "heapUsed": 8011672,
+            "external": 15128846,
+            "arrayBuffers": 4577696
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp",
+      "workflow": "logo-to-gif",
+      "title": "Write the transparent 1200x480 logo as GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 38.995003,
+          "p95": 39.447766,
+          "minimum": 38.76536300000001,
+          "maximum": 39.447766
+        },
+        "cpuMilliseconds": {
+          "median": 39.524
+        },
+        "peakRssBytes": {
+          "median": 129933312,
+          "maximum": 132513792
+        },
+        "peakRssDeltaBytes": {
+          "median": 20017152,
+          "maximum": 21147648
+        },
+        "outputBytes": {
+          "median": 59033
+        },
+        "finalExternalBytes": {
+          "median": 10182354
+        },
+        "finalArrayBuffersBytes": {
+          "median": 58211
+        },
+        "output": {
+          "format": "gif",
+          "width": 1200,
+          "height": 480,
+          "bytes": 59033,
+          "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 38.76536300000001,
+          "cpuMilliseconds": 39.249,
+          "finalMemory": {
+            "rss": 131633152,
+            "heapTotal": 9908224,
+            "heapUsed": 8086408,
+            "external": 10182354,
+            "arrayBuffers": 58211
+          },
+          "resourceMaxRssBytes": 131633152,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 132513792,
+          "peakRssDeltaBytes": 20017152,
+          "baselineMemory": {
+            "rss": 112496640,
+            "heapTotal": 9908224,
+            "heapUsed": 8001216,
+            "external": 10123243,
+            "arrayBuffers": 58173
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 39.447766,
+          "cpuMilliseconds": 39.847,
+          "finalMemory": {
+            "rss": 129232896,
+            "heapTotal": 9646080,
+            "heapUsed": 8086480,
+            "external": 10182354,
+            "arrayBuffers": 58211
+          },
+          "resourceMaxRssBytes": 129232896,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 129933312,
+          "peakRssDeltaBytes": 21147648,
+          "baselineMemory": {
+            "rss": 108785664,
+            "heapTotal": 9646080,
+            "heapUsed": 8001288,
+            "external": 10123243,
+            "arrayBuffers": 58173
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 38.995003,
+          "cpuMilliseconds": 39.524,
+          "finalMemory": {
+            "rss": 128438272,
+            "heapTotal": 9646080,
+            "heapUsed": 8086480,
+            "external": 10182354,
+            "arrayBuffers": 58211
+          },
+          "resourceMaxRssBytes": 128438272,
+          "engine": {
+            "id": "sharp",
+            "version": "0.35.5",
+            "kind": "native",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 129073152,
+          "peakRssDeltaBytes": 19902464,
+          "baselineMemory": {
+            "rss": 109170688,
+            "heapTotal": 9646080,
+            "heapUsed": 8001288,
+            "external": 10123243,
+            "arrayBuffers": 58173
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "gif-animated-resize",
+      "title": "Resize every frame of a 36-frame photographic GIF to 240 px wide",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 3753.440914,
+          "p95": 3779.307502,
+          "minimum": 3746.7466959999997,
+          "maximum": 3779.307502
+        },
+        "cpuMilliseconds": {
+          "median": 3825.402
+        },
+        "peakRssBytes": {
+          "median": 117907456,
+          "maximum": 117940224
+        },
+        "peakRssDeltaBytes": {
+          "median": 4521984,
+          "maximum": 5124096
+        },
+        "outputBytes": {
+          "median": 1220968
+        },
+        "finalExternalBytes": {
+          "median": 17273990
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4825977
+        },
+        "output": {
+          "format": "gif",
+          "width": 240,
+          "height": 135,
+          "bytes": 1220968,
+          "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1220968,
+            "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+          },
+          "outputBytes": 1220968,
+          "wallMilliseconds": 3779.307502,
+          "cpuMilliseconds": 3852.297,
+          "finalMemory": {
+            "rss": 117481472,
+            "heapTotal": 9646080,
+            "heapUsed": 8106392,
+            "external": 17273990,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 124719104,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 117940224,
+          "peakRssDeltaBytes": 4521984,
+          "baselineMemory": {
+            "rss": 113418240,
+            "heapTotal": 9646080,
+            "heapUsed": 8019264,
+            "external": 16052944,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1220968,
+            "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+          },
+          "outputBytes": 1220968,
+          "wallMilliseconds": 3746.7466959999997,
+          "cpuMilliseconds": 3818.19,
+          "finalMemory": {
+            "rss": 117563392,
+            "heapTotal": 9646080,
+            "heapUsed": 8106392,
+            "external": 17273990,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 124993536,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 117907456,
+          "peakRssDeltaBytes": 4407296,
+          "baselineMemory": {
+            "rss": 113500160,
+            "heapTotal": 9646080,
+            "heapUsed": 8019264,
+            "external": 16052944,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1220968,
+            "sha256": "079652d9d7c3fa9822b7401c075b8edaa7915fa43ca3b412455711c1c80e02c1"
+          },
+          "outputBytes": 1220968,
+          "wallMilliseconds": 3753.440914,
+          "cpuMilliseconds": 3825.402,
+          "finalMemory": {
+            "rss": 117182464,
+            "heapTotal": 9646080,
+            "heapUsed": 8106392,
+            "external": 17273990,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 124645376,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 117850112,
+          "peakRssDeltaBytes": 5124096,
+          "baselineMemory": {
+            "rss": 112726016,
+            "heapTotal": 9646080,
+            "heapUsed": 8019264,
+            "external": 16052944,
+            "arrayBuffers": 4825939
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "gif-animated-roundtrip",
+      "title": "Decode and re-encode every frame of a 36-frame photographic GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 1640.397247,
+          "p95": 1666.182638,
+          "minimum": 1630.5213119999999,
+          "maximum": 1666.182638
+        },
+        "cpuMilliseconds": {
+          "median": 1642.371
+        },
+        "peakRssBytes": {
+          "median": 135127040,
+          "maximum": 135135232
+        },
+        "peakRssDeltaBytes": {
+          "median": 13877248,
+          "maximum": 13975552
+        },
+        "outputBytes": {
+          "median": 4796600
+        },
+        "finalExternalBytes": {
+          "median": 24425254
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4825977
+        },
+        "output": {
+          "format": "gif",
+          "width": 480,
+          "height": 270,
+          "bytes": 4796600,
+          "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4796600,
+            "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+          },
+          "outputBytes": 4796600,
+          "wallMilliseconds": 1630.5213119999999,
+          "cpuMilliseconds": 1632.956,
+          "finalMemory": {
+            "rss": 134258688,
+            "heapTotal": 9646080,
+            "heapUsed": 8102384,
+            "external": 24425254,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 134258688,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 135127040,
+          "peakRssDeltaBytes": 13975552,
+          "baselineMemory": {
+            "rss": 121151488,
+            "heapTotal": 9646080,
+            "heapUsed": 8015728,
+            "external": 19628576,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4796600,
+            "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+          },
+          "outputBytes": 4796600,
+          "wallMilliseconds": 1666.182638,
+          "cpuMilliseconds": 1669.25,
+          "finalMemory": {
+            "rss": 134369280,
+            "heapTotal": 9646080,
+            "heapUsed": 8102432,
+            "external": 24425254,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 134369280,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 135135232,
+          "peakRssDeltaBytes": 13742080,
+          "baselineMemory": {
+            "rss": 121393152,
+            "heapTotal": 9646080,
+            "heapUsed": 8015776,
+            "external": 19628576,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4796600,
+            "sha256": "dd5f6c843ad30572c37a0478c0dc3b21bb27ecc32646f22cc36af5c3d91a208f"
+          },
+          "outputBytes": 4796600,
+          "wallMilliseconds": 1640.397247,
+          "cpuMilliseconds": 1642.371,
+          "finalMemory": {
+            "rss": 133902336,
+            "heapTotal": 9646080,
+            "heapUsed": 8102360,
+            "external": 24425254,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 133902336,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 134803456,
+          "peakRssDeltaBytes": 13877248,
+          "baselineMemory": {
+            "rss": 120926208,
+            "heapTotal": 9646080,
+            "heapUsed": 8015704,
+            "external": 19628576,
+            "arrayBuffers": 4825939
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "gif-sticker-resize",
+      "title": "Resize every frame of a 24-frame transparent sticker GIF to 160 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 59.04987900000003,
+          "p95": 59.05966699999999,
+          "minimum": 58.659797999999995,
+          "maximum": 59.05966699999999
+        },
+        "cpuMilliseconds": {
+          "median": 81.345
+        },
+        "peakRssBytes": {
+          "median": 106569728,
+          "maximum": 106790912
+        },
+        "peakRssDeltaBytes": {
+          "median": 3923968,
+          "maximum": 3952640
+        },
+        "outputBytes": {
+          "median": 42586
+        },
+        "finalExternalBytes": {
+          "median": 10220128
+        },
+        "finalArrayBuffersBytes": {
+          "median": 128879
+        },
+        "output": {
+          "format": "gif",
+          "width": 160,
+          "height": 160,
+          "bytes": 42586,
+          "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 42586,
+            "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 42586,
+          "wallMilliseconds": 58.659797999999995,
+          "cpuMilliseconds": 81.14,
+          "finalMemory": {
+            "rss": 105017344,
+            "heapTotal": 9646080,
+            "heapUsed": 8099368,
+            "external": 10220128,
+            "arrayBuffers": 128879
+          },
+          "resourceMaxRssBytes": 115167232,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 105992192,
+          "peakRssDeltaBytes": 2285568,
+          "baselineMemory": {
+            "rss": 103706624,
+            "heapTotal": 9646080,
+            "heapUsed": 8012464,
+            "external": 10177464,
+            "arrayBuffers": 128841
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 42586,
+            "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 42586,
+          "wallMilliseconds": 59.04987900000003,
+          "cpuMilliseconds": 81.345,
+          "finalMemory": {
+            "rss": 105660416,
+            "heapTotal": 9908224,
+            "heapUsed": 8099440,
+            "external": 10220128,
+            "arrayBuffers": 128879
+          },
+          "resourceMaxRssBytes": 114319360,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 106569728,
+          "peakRssDeltaBytes": 3923968,
+          "baselineMemory": {
+            "rss": 102645760,
+            "heapTotal": 9908224,
+            "heapUsed": 8012536,
+            "external": 10177464,
+            "arrayBuffers": 128841
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 42586,
+            "sha256": "d06e8cdf7c9ba091e63d62147b8de5113654a01fcea50d3a7a94f60b3592f6cb",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 42586,
+          "wallMilliseconds": 59.05966699999999,
+          "cpuMilliseconds": 81.723,
+          "finalMemory": {
+            "rss": 105984000,
+            "heapTotal": 9646080,
+            "heapUsed": 8099368,
+            "external": 10220128,
+            "arrayBuffers": 128879
+          },
+          "resourceMaxRssBytes": 114413568,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 106790912,
+          "peakRssDeltaBytes": 3952640,
+          "baselineMemory": {
+            "rss": 102838272,
+            "heapTotal": 9646080,
+            "heapUsed": 8012464,
+            "external": 10177464,
+            "arrayBuffers": 128841
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "gif-cc0-resize",
+      "title": "Resize every frame of the 70-frame CC0 GIF to 100 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 85.25200900000002,
+          "p95": 85.363675,
+          "minimum": 84.86429999999999,
+          "maximum": 85.363675
+        },
+        "cpuMilliseconds": {
+          "median": 102.161
+        },
+        "peakRssBytes": {
+          "median": 102789120,
+          "maximum": 106237952
+        },
+        "peakRssDeltaBytes": {
+          "median": 2285568,
+          "maximum": 2433024
+        },
+        "outputBytes": {
+          "median": 71267
+        },
+        "finalExternalBytes": {
+          "median": 10275194
+        },
+        "finalArrayBuffersBytes": {
+          "median": 126583
+        },
+        "output": {
+          "format": "gif",
+          "width": 100,
+          "height": 100,
+          "bytes": 71267,
+          "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 71267,
+            "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+          },
+          "outputBytes": 71267,
+          "wallMilliseconds": 85.363675,
+          "cpuMilliseconds": 102.161,
+          "finalMemory": {
+            "rss": 101683200,
+            "heapTotal": 9646080,
+            "heapUsed": 8099360,
+            "external": 10275194,
+            "arrayBuffers": 126583
+          },
+          "resourceMaxRssBytes": 111853568,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 102674432,
+          "peakRssDeltaBytes": 2433024,
+          "baselineMemory": {
+            "rss": 100241408,
+            "heapTotal": 9646080,
+            "heapUsed": 8012456,
+            "external": 10203849,
+            "arrayBuffers": 126545
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 71267,
+            "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+          },
+          "outputBytes": 71267,
+          "wallMilliseconds": 85.25200900000002,
+          "cpuMilliseconds": 102.433,
+          "finalMemory": {
+            "rss": 105492480,
+            "heapTotal": 9646080,
+            "heapUsed": 8099360,
+            "external": 10275194,
+            "arrayBuffers": 126583
+          },
+          "resourceMaxRssBytes": 115437568,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 106237952,
+          "peakRssDeltaBytes": 2187264,
+          "baselineMemory": {
+            "rss": 104050688,
+            "heapTotal": 9646080,
+            "heapUsed": 8012456,
+            "external": 10203849,
+            "arrayBuffers": 126545
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 71267,
+            "sha256": "5c928e4774c1c231eb76c4ebb8ba9fbf95296769b49a325b1ff5b322cc73975c"
+          },
+          "outputBytes": 71267,
+          "wallMilliseconds": 84.86429999999999,
+          "cpuMilliseconds": 101.84,
+          "finalMemory": {
+            "rss": 102207488,
+            "heapTotal": 9646080,
+            "heapUsed": 8099360,
+            "external": 10275194,
+            "arrayBuffers": 126583
+          },
+          "resourceMaxRssBytes": 112173056,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 102789120,
+          "peakRssDeltaBytes": 2285568,
+          "baselineMemory": {
+            "rss": 100503552,
+            "heapTotal": 9646080,
+            "heapUsed": 8012456,
+            "external": 10203849,
+            "arrayBuffers": 126545
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "gif-last-frame-png",
+      "title": "Composite the last of 36 photographic GIF frames to PNG",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 44.79923200000002,
+          "p95": 45.31196700000001,
+          "minimum": 44.448015,
+          "maximum": 45.31196700000001
+        },
+        "cpuMilliseconds": {
+          "median": 44.817
+        },
+        "peakRssBytes": {
+          "median": 108097536,
+          "maximum": 108187648
+        },
+        "peakRssDeltaBytes": {
+          "median": 3280896,
+          "maximum": 3698688
+        },
+        "outputBytes": {
+          "median": 170681
+        },
+        "finalExternalBytes": {
+          "median": 15173416
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4825977
+        },
+        "output": {
+          "format": "png",
+          "width": 480,
+          "height": 270,
+          "bytes": 170681,
+          "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 170681,
+            "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+          },
+          "outputBytes": 170681,
+          "wallMilliseconds": 44.448015,
+          "cpuMilliseconds": 44.568,
+          "finalMemory": {
+            "rss": 107581440,
+            "heapTotal": 9646080,
+            "heapUsed": 8100992,
+            "external": 15173416,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 117035008,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 108097536,
+          "peakRssDeltaBytes": 2744320,
+          "baselineMemory": {
+            "rss": 105353216,
+            "heapTotal": 9646080,
+            "heapUsed": 8014832,
+            "external": 15002657,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 170681,
+            "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+          },
+          "outputBytes": 170681,
+          "wallMilliseconds": 45.31196700000001,
+          "cpuMilliseconds": 45.543,
+          "finalMemory": {
+            "rss": 105304064,
+            "heapTotal": 9908224,
+            "heapUsed": 8100992,
+            "external": 15173416,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 114663424,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 106356736,
+          "peakRssDeltaBytes": 3280896,
+          "baselineMemory": {
+            "rss": 103075840,
+            "heapTotal": 9908224,
+            "heapUsed": 8014832,
+            "external": 15002657,
+            "arrayBuffers": 4825939
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 170681,
+            "sha256": "722a7b8a4a990005a8bfe02d5c84e640da7fe755416b42486fc9dca964ea9cdf"
+          },
+          "outputBytes": 170681,
+          "wallMilliseconds": 44.79923200000002,
+          "cpuMilliseconds": 44.817,
+          "finalMemory": {
+            "rss": 107110400,
+            "heapTotal": 9646080,
+            "heapUsed": 8100992,
+            "external": 15173416,
+            "arrayBuffers": 4825977
+          },
+          "resourceMaxRssBytes": 116269056,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 108187648,
+          "peakRssDeltaBytes": 3698688,
+          "baselineMemory": {
+            "rss": 104488960,
+            "heapTotal": 9646080,
+            "heapUsed": 8014832,
+            "external": 15002657,
+            "arrayBuffers": 4825939
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "jpeg-to-gif",
+      "title": "Resize a 2400x3000 photo to 800 px and write a 256-color GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 950.1724970000002,
+          "p95": 955.6124810000001,
+          "minimum": 946.555856,
+          "maximum": 955.6124810000001
+        },
+        "cpuMilliseconds": {
+          "median": 951.122
+        },
+        "peakRssBytes": {
+          "median": 154030080,
+          "maximum": 154574848
+        },
+        "peakRssDeltaBytes": {
+          "median": 28966912,
+          "maximum": 29933568
+        },
+        "outputBytes": {
+          "median": 545113
+        },
+        "finalExternalBytes": {
+          "median": 15674037
+        },
+        "finalArrayBuffersBytes": {
+          "median": 4577734
+        },
+        "output": {
+          "format": "gif",
+          "width": 800,
+          "height": 1000,
+          "bytes": 545113,
+          "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 545113,
+            "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+          },
+          "outputBytes": 545113,
+          "wallMilliseconds": 955.6124810000001,
+          "cpuMilliseconds": 956.919,
+          "finalMemory": {
+            "rss": 154030080,
+            "heapTotal": 9646080,
+            "heapUsed": 8105208,
+            "external": 15674037,
+            "arrayBuffers": 4577734
+          },
+          "resourceMaxRssBytes": 154030080,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 154030080,
+          "peakRssDeltaBytes": 28966912,
+          "baselineMemory": {
+            "rss": 125063168,
+            "heapTotal": 9646080,
+            "heapUsed": 8019256,
+            "external": 15128846,
+            "arrayBuffers": 4577696
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 545113,
+            "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+          },
+          "outputBytes": 545113,
+          "wallMilliseconds": 950.1724970000002,
+          "cpuMilliseconds": 951.122,
+          "finalMemory": {
+            "rss": 153890816,
+            "heapTotal": 9646080,
+            "heapUsed": 8105192,
+            "external": 15674037,
+            "arrayBuffers": 4577734
+          },
+          "resourceMaxRssBytes": 153890816,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 153890816,
+          "peakRssDeltaBytes": 28835840,
+          "baselineMemory": {
+            "rss": 125054976,
+            "heapTotal": 9646080,
+            "heapUsed": 8019240,
+            "external": 15128846,
+            "arrayBuffers": 4577696
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 545113,
+            "sha256": "85828d27172fdbe495da2b2c8d13c92539e240507028f890c5f4b3784373417f"
+          },
+          "outputBytes": 545113,
+          "wallMilliseconds": 946.555856,
+          "cpuMilliseconds": 947.737,
+          "finalMemory": {
+            "rss": 153477120,
+            "heapTotal": 9908224,
+            "heapUsed": 8105192,
+            "external": 15674037,
+            "arrayBuffers": 4577734
+          },
+          "resourceMaxRssBytes": 153477120,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 154574848,
+          "peakRssDeltaBytes": 29933568,
+          "baselineMemory": {
+            "rss": 124641280,
+            "heapTotal": 9908224,
+            "heapUsed": 8019240,
+            "external": 15128846,
+            "arrayBuffers": 4577696
+          }
+        }
+      ]
+    },
+    {
+      "engine": "sharp-single-thread",
+      "workflow": "logo-to-gif",
+      "title": "Write the transparent 1200x480 logo as GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 39.29953400000002,
+          "p95": 50.151861999999994,
+          "minimum": 39.25653799999998,
+          "maximum": 50.151861999999994
+        },
+        "cpuMilliseconds": {
+          "median": 39.81
+        },
+        "peakRssBytes": {
+          "median": 130371584,
+          "maximum": 132349952
+        },
+        "peakRssDeltaBytes": {
+          "median": 19898368,
+          "maximum": 20926464
+        },
+        "outputBytes": {
+          "median": 59033
+        },
+        "finalExternalBytes": {
+          "median": 10182354
+        },
+        "finalArrayBuffersBytes": {
+          "median": 58211
+        },
+        "output": {
+          "format": "gif",
+          "width": 1200,
+          "height": 480,
+          "bytes": 59033,
+          "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 39.25653799999998,
+          "cpuMilliseconds": 39.697,
+          "finalMemory": {
+            "rss": 131686400,
+            "heapTotal": 9646080,
+            "heapUsed": 8094272,
+            "external": 10182354,
+            "arrayBuffers": 58211
+          },
+          "resourceMaxRssBytes": 131686400,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 132349952,
+          "peakRssDeltaBytes": 19800064,
+          "baselineMemory": {
+            "rss": 112549888,
+            "heapTotal": 9646080,
+            "heapUsed": 8009024,
+            "external": 10123243,
+            "arrayBuffers": 58173
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 50.151861999999994,
+          "cpuMilliseconds": 50.683,
+          "finalMemory": {
+            "rss": 127946752,
+            "heapTotal": 9908224,
+            "heapUsed": 8094272,
+            "external": 10182354,
+            "arrayBuffers": 58211
+          },
+          "resourceMaxRssBytes": 127946752,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 128577536,
+          "peakRssDeltaBytes": 19898368,
+          "baselineMemory": {
+            "rss": 108679168,
+            "heapTotal": 9908224,
+            "heapUsed": 8009024,
+            "external": 10123243,
+            "arrayBuffers": 58173
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59033,
+            "sha256": "01dc9e798741e02ebb94fad89740af12ba6060cb01ddb387eec0906ee37c5374",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59033,
+          "wallMilliseconds": 39.29953400000002,
+          "cpuMilliseconds": 39.81,
+          "finalMemory": {
+            "rss": 129892352,
+            "heapTotal": 9908224,
+            "heapUsed": 8094272,
+            "external": 10182354,
+            "arrayBuffers": 58211
+          },
+          "resourceMaxRssBytes": 129892352,
+          "engine": {
+            "id": "sharp-single-thread",
+            "version": "0.35.5",
+            "kind": "native-single-thread",
+            "packageName": "sharp"
+          },
+          "peakRssBytes": 130371584,
+          "peakRssDeltaBytes": 20926464,
+          "baselineMemory": {
+            "rss": 109445120,
+            "heapTotal": 9908224,
+            "heapUsed": 8009024,
+            "external": 10123243,
+            "arrayBuffers": 58173
+          }
+        }
+      ]
+    },
+    {
+      "engine": "imagescript",
+      "workflow": "gif-animated-resize",
+      "title": "Resize every frame of a 36-frame photographic GIF to 240 px wide",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 368.02370599999995,
+          "p95": 373.23596599999996,
+          "minimum": 360.417112,
+          "maximum": 373.23596599999996
+        },
+        "cpuMilliseconds": {
+          "median": 463.151
+        },
+        "peakRssBytes": {
+          "median": 162197504,
+          "maximum": 162725888
+        },
+        "peakRssDeltaBytes": {
+          "median": 5120000,
+          "maximum": 5349376
+        },
+        "outputBytes": {
+          "median": 1167525
+        },
+        "finalExternalBytes": {
+          "median": 31730212
+        },
+        "finalArrayBuffersBytes": {
+          "median": 21577531
+        },
+        "output": {
+          "format": "gif",
+          "width": 240,
+          "height": 135,
+          "bytes": 1167525,
+          "sha256": "8ea5c268b58e8b3dddfa686029146717ef38fe3b0d5e21808f3db5f9a162438c"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1167525,
+            "sha256": "8ea5c268b58e8b3dddfa686029146717ef38fe3b0d5e21808f3db5f9a162438c"
+          },
+          "outputBytes": 1167525,
+          "wallMilliseconds": 368.02370599999995,
+          "cpuMilliseconds": 463.151,
+          "finalMemory": {
+            "rss": 161566720,
+            "heapTotal": 18227200,
+            "heapUsed": 12762384,
+            "external": 31773108,
+            "arrayBuffers": 21620427
+          },
+          "resourceMaxRssBytes": 184479744,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 162197504,
+          "peakRssDeltaBytes": 5349376,
+          "baselineMemory": {
+            "rss": 156848128,
+            "heapTotal": 14295040,
+            "heapUsed": 12137712,
+            "external": 16546140,
+            "arrayBuffers": 6393499
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1167525,
+            "sha256": "8ea5c268b58e8b3dddfa686029146717ef38fe3b0d5e21808f3db5f9a162438c"
+          },
+          "outputBytes": 1167525,
+          "wallMilliseconds": 360.417112,
+          "cpuMilliseconds": 447.326,
+          "finalMemory": {
+            "rss": 162283520,
+            "heapTotal": 17702912,
+            "heapUsed": 12562104,
+            "external": 31730212,
+            "arrayBuffers": 21577531
+          },
+          "resourceMaxRssBytes": 182751232,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 162725888,
+          "peakRssDeltaBytes": 4898816,
+          "baselineMemory": {
+            "rss": 157827072,
+            "heapTotal": 14032896,
+            "heapUsed": 12143968,
+            "external": 16546140,
+            "arrayBuffers": 6393499
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 240,
+            "height": 135,
+            "bytes": 1167525,
+            "sha256": "8ea5c268b58e8b3dddfa686029146717ef38fe3b0d5e21808f3db5f9a162438c"
+          },
+          "outputBytes": 1167525,
+          "wallMilliseconds": 373.23596599999996,
+          "cpuMilliseconds": 476.552,
+          "finalMemory": {
+            "rss": 160186368,
+            "heapTotal": 18227200,
+            "heapUsed": 12510320,
+            "external": 30661700,
+            "arrayBuffers": 20509019
+          },
+          "resourceMaxRssBytes": 180011008,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 160849920,
+          "peakRssDeltaBytes": 5120000,
+          "baselineMemory": {
+            "rss": 155729920,
+            "heapTotal": 14819328,
+            "heapUsed": 12123864,
+            "external": 16546140,
+            "arrayBuffers": 6393499
+          }
+        }
+      ]
+    },
+    {
+      "engine": "imagescript",
+      "workflow": "gif-animated-roundtrip",
+      "title": "Decode and re-encode every frame of a 36-frame photographic GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 381.62118999999996,
+          "p95": 392.06627500000013,
+          "minimum": 381.2273060000001,
+          "maximum": 392.06627500000013
+        },
+        "cpuMilliseconds": {
+          "median": 490.653
+        },
+        "peakRssBytes": {
+          "median": 215797760,
+          "maximum": 215887872
+        },
+        "peakRssDeltaBytes": {
+          "median": 34471936,
+          "maximum": 35868672
+        },
+        "outputBytes": {
+          "median": 4776941
+        },
+        "finalExternalBytes": {
+          "median": 127845965
+        },
+        "finalArrayBuffersBytes": {
+          "median": 117693284
+        },
+        "output": {
+          "format": "gif",
+          "width": 480,
+          "height": 270,
+          "bytes": 4776941,
+          "sha256": "2775d519af1c212dc6c5f56574d69d93283f9a5a2b3aab8ca0d7b73702895af6"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4776941,
+            "sha256": "2775d519af1c212dc6c5f56574d69d93283f9a5a2b3aab8ca0d7b73702895af6"
+          },
+          "outputBytes": 4776941,
+          "wallMilliseconds": 392.06627500000013,
+          "cpuMilliseconds": 504.019,
+          "finalMemory": {
+            "rss": 213159936,
+            "heapTotal": 17440768,
+            "heapUsed": 11939200,
+            "external": 78683750,
+            "arrayBuffers": 68531069
+          },
+          "resourceMaxRssBytes": 218484736,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 213716992,
+          "peakRssDeltaBytes": 30396416,
+          "baselineMemory": {
+            "rss": 183320576,
+            "heapTotal": 14295040,
+            "heapUsed": 11406832,
+            "external": 20155556,
+            "arrayBuffers": 10002915
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4776941,
+            "sha256": "2775d519af1c212dc6c5f56574d69d93283f9a5a2b3aab8ca0d7b73702895af6"
+          },
+          "outputBytes": 4776941,
+          "wallMilliseconds": 381.2273060000001,
+          "cpuMilliseconds": 490.653,
+          "finalMemory": {
+            "rss": 215797760,
+            "heapTotal": 17440768,
+            "heapUsed": 13473128,
+            "external": 127977037,
+            "arrayBuffers": 117824356
+          },
+          "resourceMaxRssBytes": 215797760,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 215797760,
+          "peakRssDeltaBytes": 34471936,
+          "baselineMemory": {
+            "rss": 181325824,
+            "heapTotal": 13770752,
+            "heapUsed": 11393064,
+            "external": 20155556,
+            "arrayBuffers": 10002915
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 480,
+            "height": 270,
+            "bytes": 4776941,
+            "sha256": "2775d519af1c212dc6c5f56574d69d93283f9a5a2b3aab8ca0d7b73702895af6"
+          },
+          "outputBytes": 4776941,
+          "wallMilliseconds": 381.62118999999996,
+          "cpuMilliseconds": 488.927,
+          "finalMemory": {
+            "rss": 215887872,
+            "heapTotal": 17965056,
+            "heapUsed": 13459976,
+            "external": 127845965,
+            "arrayBuffers": 117693284
+          },
+          "resourceMaxRssBytes": 220073984,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 215887872,
+          "peakRssDeltaBytes": 35868672,
+          "baselineMemory": {
+            "rss": 180019200,
+            "heapTotal": 14295040,
+            "heapUsed": 11403192,
+            "external": 20155556,
+            "arrayBuffers": 10002915
+          }
+        }
+      ]
+    },
+    {
+      "engine": "imagescript",
+      "workflow": "gif-sticker-resize",
+      "title": "Resize every frame of a 24-frame transparent sticker GIF to 160 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 69.70779699999997,
+          "p95": 70.21583500000003,
+          "minimum": 68.579879,
+          "maximum": 70.21583500000003
+        },
+        "cpuMilliseconds": {
+          "median": 133.876
+        },
+        "peakRssBytes": {
+          "median": 184524800,
+          "maximum": 185716736
+        },
+        "peakRssDeltaBytes": {
+          "median": 8499200,
+          "maximum": 10440704
+        },
+        "outputBytes": {
+          "median": 56371
+        },
+        "finalExternalBytes": {
+          "median": 43469274
+        },
+        "finalArrayBuffersBytes": {
+          "median": 33316593
+        },
+        "output": {
+          "format": "gif",
+          "width": 160,
+          "height": 160,
+          "bytes": 56371,
+          "sha256": "6466e7c03ce63bb1561f235067592519176d3123b808eade7bbb874e2f596aa4",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 56371,
+            "sha256": "6466e7c03ce63bb1561f235067592519176d3123b808eade7bbb874e2f596aa4",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 56371,
+          "wallMilliseconds": 70.21583500000003,
+          "cpuMilliseconds": 133.876,
+          "finalMemory": {
+            "rss": 184020992,
+            "heapTotal": 18227200,
+            "heapUsed": 12601856,
+            "external": 43469274,
+            "arrayBuffers": 33316593
+          },
+          "resourceMaxRssBytes": 192491520,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 184524800,
+          "peakRssDeltaBytes": 8499200,
+          "baselineMemory": {
+            "rss": 176025600,
+            "heapTotal": 14295040,
+            "heapUsed": 11993160,
+            "external": 10803424,
+            "arrayBuffers": 650783
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 56371,
+            "sha256": "6466e7c03ce63bb1561f235067592519176d3123b808eade7bbb874e2f596aa4",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 56371,
+          "wallMilliseconds": 69.70779699999997,
+          "cpuMilliseconds": 131.916,
+          "finalMemory": {
+            "rss": 185106432,
+            "heapTotal": 18227200,
+            "heapUsed": 12601920,
+            "external": 43469274,
+            "arrayBuffers": 33316593
+          },
+          "resourceMaxRssBytes": 191918080,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 185716736,
+          "peakRssDeltaBytes": 10440704,
+          "baselineMemory": {
+            "rss": 175276032,
+            "heapTotal": 14295040,
+            "heapUsed": 11993720,
+            "external": 10803424,
+            "arrayBuffers": 650783
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 160,
+            "height": 160,
+            "bytes": 56371,
+            "sha256": "6466e7c03ce63bb1561f235067592519176d3123b808eade7bbb874e2f596aa4",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 56371,
+          "wallMilliseconds": 68.579879,
+          "cpuMilliseconds": 138.643,
+          "finalMemory": {
+            "rss": 182501376,
+            "heapTotal": 17702912,
+            "heapUsed": 11872608,
+            "external": 43469274,
+            "arrayBuffers": 33316593
+          },
+          "resourceMaxRssBytes": 194805760,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 183242752,
+          "peakRssDeltaBytes": 7819264,
+          "baselineMemory": {
+            "rss": 175423488,
+            "heapTotal": 13508608,
+            "heapUsed": 11964400,
+            "external": 10803424,
+            "arrayBuffers": 650783
+          }
+        }
+      ]
+    },
+    {
+      "engine": "imagescript",
+      "workflow": "gif-cc0-resize",
+      "title": "Resize every frame of the 70-frame CC0 GIF to 100 px",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 72.30787500000002,
+          "p95": 73.07463899999999,
+          "minimum": 72.25658500000003,
+          "maximum": 73.07463899999999
+        },
+        "cpuMilliseconds": {
+          "median": 123.762
+        },
+        "peakRssBytes": {
+          "median": 198221824,
+          "maximum": 198594560
+        },
+        "peakRssDeltaBytes": {
+          "median": 98578432,
+          "maximum": 99332096
+        },
+        "outputBytes": {
+          "median": 40413
+        },
+        "finalExternalBytes": {
+          "median": 30459574
+        },
+        "finalArrayBuffersBytes": {
+          "median": 20306893
+        },
+        "output": {
+          "format": "gif",
+          "width": 100,
+          "height": 100,
+          "bytes": 40413,
+          "sha256": "1431e27b2c412636ed102b067b1ad7d4211187fa8f5bcf983ff1b83157a99615"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 40413,
+            "sha256": "1431e27b2c412636ed102b067b1ad7d4211187fa8f5bcf983ff1b83157a99615"
+          },
+          "outputBytes": 40413,
+          "wallMilliseconds": 72.30787500000002,
+          "cpuMilliseconds": 123.762,
+          "finalMemory": {
+            "rss": 194289664,
+            "heapTotal": 17440768,
+            "heapUsed": 11594240,
+            "external": 32559054,
+            "arrayBuffers": 22406373
+          },
+          "resourceMaxRssBytes": 215109632,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 194736128,
+          "peakRssDeltaBytes": 94949376,
+          "baselineMemory": {
+            "rss": 99786752,
+            "heapTotal": 14032896,
+            "heapUsed": 11985744,
+            "external": 10719634,
+            "arrayBuffers": 566993
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 40413,
+            "sha256": "1431e27b2c412636ed102b067b1ad7d4211187fa8f5bcf983ff1b83157a99615"
+          },
+          "outputBytes": 40413,
+          "wallMilliseconds": 72.25658500000003,
+          "cpuMilliseconds": 123.231,
+          "finalMemory": {
+            "rss": 197685248,
+            "heapTotal": 17440768,
+            "heapUsed": 11574712,
+            "external": 30459574,
+            "arrayBuffers": 20306893
+          },
+          "resourceMaxRssBytes": 216997888,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 198221824,
+          "peakRssDeltaBytes": 98578432,
+          "baselineMemory": {
+            "rss": 99643392,
+            "heapTotal": 13770752,
+            "heapUsed": 11985552,
+            "external": 10719634,
+            "arrayBuffers": 566993
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 100,
+            "height": 100,
+            "bytes": 40413,
+            "sha256": "1431e27b2c412636ed102b067b1ad7d4211187fa8f5bcf983ff1b83157a99615"
+          },
+          "outputBytes": 40413,
+          "wallMilliseconds": 73.07463899999999,
+          "cpuMilliseconds": 125.217,
+          "finalMemory": {
+            "rss": 197959680,
+            "heapTotal": 17702912,
+            "heapUsed": 11574824,
+            "external": 30459574,
+            "arrayBuffers": 20306893
+          },
+          "resourceMaxRssBytes": 216125440,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 198594560,
+          "peakRssDeltaBytes": 99332096,
+          "baselineMemory": {
+            "rss": 99262464,
+            "heapTotal": 14032896,
+            "heapUsed": 11985600,
+            "external": 10719634,
+            "arrayBuffers": 566993
+          }
+        }
+      ]
+    },
+    {
+      "engine": "imagescript",
+      "workflow": "gif-last-frame-png",
+      "title": "Composite the last of 36 photographic GIF frames to PNG",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 111.20491199999998,
+          "p95": 111.37400399999996,
+          "minimum": 103.35412400000001,
+          "maximum": 111.37400399999996
+        },
+        "cpuMilliseconds": {
+          "median": 147.388
+        },
+        "peakRssBytes": {
+          "median": 135888896,
+          "maximum": 136044544
+        },
+        "peakRssDeltaBytes": {
+          "median": 36073472,
+          "maximum": 36732928
+        },
+        "outputBytes": {
+          "median": 119682
+        },
+        "finalExternalBytes": {
+          "median": 16646593
+        },
+        "finalArrayBuffersBytes": {
+          "median": 6493912
+        },
+        "output": {
+          "format": "png",
+          "width": 480,
+          "height": 270,
+          "bytes": 119682,
+          "sha256": "4d837d9dae730b2e756e74a43c416cafbf0cf5320457d9036dd8881e05f31f04"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119682,
+            "sha256": "4d837d9dae730b2e756e74a43c416cafbf0cf5320457d9036dd8881e05f31f04"
+          },
+          "outputBytes": 119682,
+          "wallMilliseconds": 111.37400399999996,
+          "cpuMilliseconds": 147.388,
+          "finalMemory": {
+            "rss": 130678784,
+            "heapTotal": 17178624,
+            "heapUsed": 12967792,
+            "external": 16646593,
+            "arrayBuffers": 6493912
+          },
+          "resourceMaxRssBytes": 151629824,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 136044544,
+          "peakRssDeltaBytes": 36732928,
+          "baselineMemory": {
+            "rss": 99311616,
+            "heapTotal": 13770752,
+            "heapUsed": 11754632,
+            "external": 15498297,
+            "arrayBuffers": 5345656
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119682,
+            "sha256": "4d837d9dae730b2e756e74a43c416cafbf0cf5320457d9036dd8881e05f31f04"
+          },
+          "outputBytes": 119682,
+          "wallMilliseconds": 103.35412400000001,
+          "cpuMilliseconds": 143.074,
+          "finalMemory": {
+            "rss": 129953792,
+            "heapTotal": 17178624,
+            "heapUsed": 12986136,
+            "external": 16646593,
+            "arrayBuffers": 6493912
+          },
+          "resourceMaxRssBytes": 152436736,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 135168000,
+          "peakRssDeltaBytes": 35176448,
+          "baselineMemory": {
+            "rss": 99991552,
+            "heapTotal": 13770752,
+            "heapUsed": 11754744,
+            "external": 15498297,
+            "arrayBuffers": 5345656
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "png",
+            "width": 480,
+            "height": 270,
+            "bytes": 119682,
+            "sha256": "4d837d9dae730b2e756e74a43c416cafbf0cf5320457d9036dd8881e05f31f04"
+          },
+          "outputBytes": 119682,
+          "wallMilliseconds": 111.20491199999998,
+          "cpuMilliseconds": 149.052,
+          "finalMemory": {
+            "rss": 130453504,
+            "heapTotal": 17178624,
+            "heapUsed": 13558488,
+            "external": 16646593,
+            "arrayBuffers": 6493912
+          },
+          "resourceMaxRssBytes": 151633920,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 135888896,
+          "peakRssDeltaBytes": 36073472,
+          "baselineMemory": {
+            "rss": 99815424,
+            "heapTotal": 13508608,
+            "heapUsed": 11754840,
+            "external": 15498297,
+            "arrayBuffers": 5345656
+          }
+        }
+      ]
+    },
+    {
+      "engine": "imagescript",
+      "workflow": "jpeg-to-gif",
+      "title": "Resize a 2400x3000 photo to 800 px and write a 256-color GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 559.54413,
+          "p95": 574.30606,
+          "minimum": 559.3842579999999,
+          "maximum": 574.30606
+        },
+        "cpuMilliseconds": {
+          "median": 706.075
+        },
+        "peakRssBytes": {
+          "median": 162996224,
+          "maximum": 184573952
+        },
+        "peakRssDeltaBytes": {
+          "median": 38526976,
+          "maximum": 59277312
+        },
+        "outputBytes": {
+          "median": 462124
+        },
+        "finalExternalBytes": {
+          "median": 55836145
+        },
+        "finalArrayBuffersBytes": {
+          "median": 45683464
+        },
+        "output": {
+          "format": "gif",
+          "width": 800,
+          "height": 1000,
+          "bytes": 462124,
+          "sha256": "96c774f0ca158bef30052c6c68e4d35a978d3efb15e868a008e1a71ce24e4e32"
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 462124,
+            "sha256": "96c774f0ca158bef30052c6c68e4d35a978d3efb15e868a008e1a71ce24e4e32"
+          },
+          "outputBytes": 462124,
+          "wallMilliseconds": 574.30606,
+          "cpuMilliseconds": 735.585,
+          "finalMemory": {
+            "rss": 162070528,
+            "heapTotal": 17702912,
+            "heapUsed": 12092800,
+            "external": 55772657,
+            "arrayBuffers": 45619976
+          },
+          "resourceMaxRssBytes": 178802688,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 162996224,
+          "peakRssDeltaBytes": 38526976,
+          "baselineMemory": {
+            "rss": 124469248,
+            "heapTotal": 13770752,
+            "heapUsed": 12007344,
+            "external": 15592496,
+            "arrayBuffers": 5439855
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 462124,
+            "sha256": "96c774f0ca158bef30052c6c68e4d35a978d3efb15e868a008e1a71ce24e4e32"
+          },
+          "outputBytes": 462124,
+          "wallMilliseconds": 559.3842579999999,
+          "cpuMilliseconds": 706.075,
+          "finalMemory": {
+            "rss": 161902592,
+            "heapTotal": 17702912,
+            "heapUsed": 12473864,
+            "external": 55836145,
+            "arrayBuffers": 45683464
+          },
+          "resourceMaxRssBytes": 178749440,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 162471936,
+          "peakRssDeltaBytes": 38187008,
+          "baselineMemory": {
+            "rss": 124284928,
+            "heapTotal": 13770752,
+            "heapUsed": 12006776,
+            "external": 15592496,
+            "arrayBuffers": 5439855
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 800,
+            "height": 1000,
+            "bytes": 462124,
+            "sha256": "96c774f0ca158bef30052c6c68e4d35a978d3efb15e868a008e1a71ce24e4e32"
+          },
+          "outputBytes": 462124,
+          "wallMilliseconds": 559.54413,
+          "cpuMilliseconds": 700.538,
+          "finalMemory": {
+            "rss": 183885824,
+            "heapTotal": 18751488,
+            "heapUsed": 13274800,
+            "external": 75220089,
+            "arrayBuffers": 65067408
+          },
+          "resourceMaxRssBytes": 183885824,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 184573952,
+          "peakRssDeltaBytes": 59277312,
+          "baselineMemory": {
+            "rss": 125296640,
+            "heapTotal": 14295040,
+            "heapUsed": 12030488,
+            "external": 15592496,
+            "arrayBuffers": 5439855
+          }
+        }
+      ]
+    },
+    {
+      "engine": "imagescript",
+      "workflow": "logo-to-gif",
+      "title": "Write the transparent 1200x480 logo as GIF",
+      "runs": 3,
+      "warmups": 1,
+      "summary": {
+        "status": "pass",
+        "samples": 3,
+        "successfulSamples": 3,
+        "wallMilliseconds": {
+          "median": 21.49192500000001,
+          "p95": 23.38527499999998,
+          "minimum": 21.13820599999997,
+          "maximum": 23.38527499999998
+        },
+        "cpuMilliseconds": {
+          "median": 40.163
+        },
+        "peakRssBytes": {
+          "median": 107745280,
+          "maximum": 107843584
+        },
+        "peakRssDeltaBytes": {
+          "median": 3260416,
+          "maximum": 3305472
+        },
+        "outputBytes": {
+          "median": 59048
+        },
+        "finalExternalBytes": {
+          "median": 23450066
+        },
+        "finalArrayBuffersBytes": {
+          "median": 13297385
+        },
+        "output": {
+          "format": "gif",
+          "width": 1200,
+          "height": 480,
+          "bytes": 59048,
+          "sha256": "f68b7d147b0a45fcbb6a6a13110dd0aaa76514ca0c6526c90b6b575f4952dae2",
+          "corner": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 0
+          }
+        },
+        "errors": []
+      },
+      "samples": [
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59048,
+            "sha256": "f68b7d147b0a45fcbb6a6a13110dd0aaa76514ca0c6526c90b6b575f4952dae2",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59048,
+          "wallMilliseconds": 21.49192500000001,
+          "cpuMilliseconds": 40.163,
+          "finalMemory": {
+            "rss": 106975232,
+            "heapTotal": 13770752,
+            "heapUsed": 12042704,
+            "external": 23450066,
+            "arrayBuffers": 13297385
+          },
+          "resourceMaxRssBytes": 120012800,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 107352064,
+          "peakRssDeltaBytes": 3260416,
+          "baselineMemory": {
+            "rss": 104091648,
+            "heapTotal": 13508608,
+            "heapUsed": 11713128,
+            "external": 10669897,
+            "arrayBuffers": 517256
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59048,
+            "sha256": "f68b7d147b0a45fcbb6a6a13110dd0aaa76514ca0c6526c90b6b575f4952dae2",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59048,
+          "wallMilliseconds": 23.38527499999998,
+          "cpuMilliseconds": 44.111,
+          "finalMemory": {
+            "rss": 107290624,
+            "heapTotal": 13770752,
+            "heapUsed": 12048192,
+            "external": 23450066,
+            "arrayBuffers": 13297385
+          },
+          "resourceMaxRssBytes": 119857152,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 107843584,
+          "peakRssDeltaBytes": 3305472,
+          "baselineMemory": {
+            "rss": 104538112,
+            "heapTotal": 13770752,
+            "heapUsed": 11713064,
+            "external": 10669897,
+            "arrayBuffers": 517256
+          }
+        },
+        {
+          "status": "pass",
+          "errors": [],
+          "output": {
+            "format": "gif",
+            "width": 1200,
+            "height": 480,
+            "bytes": 59048,
+            "sha256": "f68b7d147b0a45fcbb6a6a13110dd0aaa76514ca0c6526c90b6b575f4952dae2",
+            "corner": {
+              "red": 0,
+              "green": 0,
+              "blue": 0,
+              "alpha": 0
+            }
+          },
+          "outputBytes": 59048,
+          "wallMilliseconds": 21.13820599999997,
+          "cpuMilliseconds": 39.887,
+          "finalMemory": {
+            "rss": 107126784,
+            "heapTotal": 14295040,
+            "heapUsed": 12042768,
+            "external": 23450066,
+            "arrayBuffers": 13297385
+          },
+          "resourceMaxRssBytes": 120033280,
+          "engine": {
+            "id": "imagescript",
+            "version": "4.0.0",
+            "kind": "pure-javascript",
+            "packageName": "imagescript"
+          },
+          "peakRssBytes": 107745280,
+          "peakRssDeltaBytes": 3239936,
+          "baselineMemory": {
+            "rss": 104505344,
+            "heapTotal": 14032896,
+            "heapUsed": 11713192,
+            "external": 10669897,
+            "arrayBuffers": 517256
+          }
+        }
+      ]
+    }
+  ],
+  "startup": [
+    {
+      "engine": {
+        "id": "purejsimage",
+        "version": "0.18.0 (workspace)",
+        "kind": "pure-javascript",
+        "packageName": "purejsimage"
+      },
+      "importMilliseconds": 25.83504699999999,
+      "rssAfterImportBytes": 98234368,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.8740039999999993,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 468.349448,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 9552393,
+        "packages": [
+          "purejsimage@0.18.0"
+        ],
+        "productionPackageCount": 1
+      }
+    },
+    {
+      "engine": {
+        "id": "purejsimage-wasm",
+        "version": "0.18.0 (workspace WASM)",
+        "kind": "webassembly",
+        "packageName": "purejsimage"
+      },
+      "importMilliseconds": 31.361407,
+      "rssAfterImportBytes": 98111488,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.9215440000000115,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 140.72800399999997,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 9552393,
+        "packages": [
+          "purejsimage@0.18.0"
+        ],
+        "productionPackageCount": 1
+      }
+    },
+    {
+      "engine": {
+        "id": "jimp",
+        "version": "1.7.0",
+        "kind": "pure-javascript",
+        "packageName": "jimp"
+      },
+      "importMilliseconds": 90.297594,
+      "rssAfterImportBytes": 102686720,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 2330.834804,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 1355.502998,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 32692351,
+        "packages": [
+          "@borewit/text-codec@0.2.3",
+          "@jimp/core@1.7.0",
+          "@jimp/diff@1.7.0",
+          "@jimp/file-ops@1.7.0",
+          "@jimp/js-bmp@1.7.0",
+          "@jimp/js-gif@1.7.0",
+          "@jimp/js-jpeg@1.7.0",
+          "@jimp/js-png@1.7.0",
+          "@jimp/js-tiff@1.7.0",
+          "@jimp/plugin-blit@1.7.0",
+          "@jimp/plugin-blur@1.7.0",
+          "@jimp/plugin-circle@1.7.0",
+          "@jimp/plugin-color@1.7.0",
+          "@jimp/plugin-contain@1.7.0",
+          "@jimp/plugin-cover@1.7.0",
+          "@jimp/plugin-crop@1.7.0",
+          "@jimp/plugin-displace@1.7.0",
+          "@jimp/plugin-dither@1.7.0",
+          "@jimp/plugin-fisheye@1.7.0",
+          "@jimp/plugin-flip@1.7.0",
+          "@jimp/plugin-hash@1.7.0",
+          "@jimp/plugin-mask@1.7.0",
+          "@jimp/plugin-print@1.7.0",
+          "@jimp/plugin-quantize@1.7.0",
+          "@jimp/plugin-resize@1.7.0",
+          "@jimp/plugin-rotate@1.7.0",
+          "@jimp/plugin-threshold@1.7.0",
+          "@jimp/types@1.7.0",
+          "@jimp/utils@1.7.0",
+          "@tokenizer/inflate@0.4.1",
+          "@tokenizer/token@0.3.0",
+          "@types/node@16.9.1",
+          "any-base@1.1.0",
+          "await-to-js@3.0.0",
+          "bmp-ts@1.0.9",
+          "debug@4.4.3",
+          "exif-parser@0.1.12",
+          "file-type@21.3.4",
+          "gifwrap@0.10.1",
+          "ieee754@1.2.1",
+          "image-q@4.0.0",
+          "jimp@1.7.0",
+          "jpeg-js@0.4.4",
+          "mime@3.0.0",
+          "ms@2.1.3",
+          "omggif@1.0.10",
+          "pako@1.0.11",
+          "parse-bmfont-ascii@1.0.6",
+          "parse-bmfont-binary@1.0.6",
+          "parse-bmfont-xml@1.1.6",
+          "pixelmatch@5.3.0",
+          "pngjs@6.0.0",
+          "pngjs@7.0.0",
+          "sax@1.6.1",
+          "simple-xml-to-json@1.2.7",
+          "strtok3@10.8.0",
+          "tinycolor2@1.6.0",
+          "token-types@6.2.0",
+          "uint8array-extras@1.6.0",
+          "utif2@4.1.0",
+          "xml-parse-from-string@1.0.1",
+          "xml2js@0.5.0",
+          "xmlbuilder@11.0.1",
+          "zod@4.6.7"
+        ],
+        "productionPackageCount": 64
+      }
+    },
+    {
+      "engine": {
+        "id": "sharp",
+        "version": "0.35.5",
+        "kind": "native",
+        "packageName": "sharp"
+      },
+      "importMilliseconds": 26.023191999999995,
+      "rssAfterImportBytes": 99319808,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.7311789999999974,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 66.944902,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 20301173,
+        "packages": [
+          "@img/colour@1.1.0",
+          "@img/sharp-libvips-linux-x64@1.3.4",
+          "@img/sharp-linux-x64@0.35.5",
+          "detect-libc@2.1.2",
+          "semver@7.8.5",
+          "sharp@0.35.5"
+        ],
+        "productionPackageCount": 6
+      }
+    },
+    {
+      "engine": {
+        "id": "sharp-single-thread",
+        "version": "0.35.5",
+        "kind": "native-single-thread",
+        "packageName": "sharp"
+      },
+      "importMilliseconds": 25.225384000000005,
+      "rssAfterImportBytes": 99377152,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1.7502720000000096,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 67.022878,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 20301173,
+        "packages": [
+          "@img/colour@1.1.0",
+          "@img/sharp-libvips-linux-x64@1.3.4",
+          "@img/sharp-linux-x64@0.35.5",
+          "detect-libc@2.1.2",
+          "semver@7.8.5",
+          "sharp@0.35.5"
+        ],
+        "productionPackageCount": 6
+      }
+    },
+    {
+      "engine": {
+        "id": "imagescript",
+        "version": "4.0.0",
+        "kind": "pure-javascript",
+        "packageName": "imagescript"
+      },
+      "importMilliseconds": 79.23609099999999,
+      "rssAfterImportBytes": 99463168,
+      "firstMetadata": {
+        "status": "pass",
+        "wallMilliseconds": 1023.45574,
+        "errors": []
+      },
+      "firstResize": {
+        "status": "pass",
+        "wallMilliseconds": 575.3458129999999,
+        "errors": []
+      },
+      "footprint": {
+        "bytes": 2570430,
+        "packages": [
+          "imagescript@4.0.0"
+        ],
+        "productionPackageCount": 1
+      }
+    }
+  ]
+}

@@ -7,6 +7,9 @@ repeat a dead end without new evidence.
 
 ## Current state
 
+- TypeScript TIFF to JPEG had slowed about 5% since `4e4a22e0` through V8 deoptimizations after the executor moved its stage loop into a shared helper; restoring the inline loop for still images measured −3.1% in a same-path A/B with no change elsewhere. The runner now also works in checkouts whose `node_modules` is an ignored directory. [Bisect and fix](#typescript-tiff-slowdown-and-the-executor-stage-loop-november-27)
+
+- The hillclimb runner now runs base and candidate from one shared path. Running the candidate from the checkout and the base from a deeper worktree had made identical code read 10% to 16% worse on the candidate side (`png-to-jpeg` wall, `webp-animated-resize` peak RSS). After the fix, A/A runs on the three affected workloads came back within 1% on peak RSS, and png-to-jpeg wall stayed within its own two-mode noise. [Cause, probes and A/A results](#hillclimb-runner-path-bias-november-27)
 - Round twelve merged against pinned `583071116e4a`: transparent PNG resize −58.7% on WASM (10.98 ms, Sharp single-thread 11.6 ms) and −6.5% on TypeScript, large WebP resize −11.6% (92 ms), JPEG resize −6.6% (113 ms), EXIF orientation −14.4%, MMS JPEG −5.2%. The lossy WebP encoder adds a loop filter, two segments, learned coefficient probabilities and skip flags: BD-rate −10.5%/−16.8% (PSNR/SSIM) on photos and −20.5%/−23.0% on graphics, and it encodes faster. [Merged measurements](#round-twelve-integration-november-27)
 
 - Round twelve JPEG WASM resize against pinned `583071116e4a494ea3c176bce5e771ec8be5248d` took 124.36 → 115.17 ms, 7.31% faster paired across 21/21 trials. Target median peak RSS rose 0.64%, and the maximum increase on the eight requested neighbors was 1.07%. The final seven-run WASM/Sharp single-thread comparison was 125.66/80.23 ms. [JPEG qualification and controls](#round-twelve-jpeg-qualification)
@@ -9628,7 +9631,7 @@ The four round twelve branches (smaller lossy WebP output, WASM JPEG decode and 
 
 ### Runner bias on three workloads (A/A control)
 
-Three merged results looked like regressions: WASM `png-resize-1000` peak RSS +15.7%, TypeScript `png-to-jpeg` wall +12.7%, and TypeScript `webp-animated-resize` peak RSS +9.6%. A clean worktree at `583071116e4a` compared against itself with the same runner reproduced all three: `png-resize-1000` WASM RSS 120.0 → 139.3 MB (+16.1%), `png-to-jpeg` TypeScript 26.37 → 29.50 ms (+11.9%), and `webp-animated-resize` TypeScript RSS 127.3 → 142.1 MB (+11.6%). Each agent's branch alone measured within that bias (+11.1%, +11.1% to +12.1%, and +9.3%). The candidate side of the runner carries this offset for these workloads with identical code, so these are not regressions. The runner bias itself still needs a fix.
+Three merged results looked like regressions: WASM `png-resize-1000` peak RSS +15.7%, TypeScript `png-to-jpeg` wall +12.7%, and TypeScript `webp-animated-resize` peak RSS +9.6%. A clean worktree at `583071116e4a` compared against itself with the same runner reproduced all three: `png-resize-1000` WASM RSS 120.0 → 139.3 MB (+16.1%), `png-to-jpeg` TypeScript 26.37 → 29.50 ms (+11.9%), and `webp-animated-resize` TypeScript RSS 127.3 → 142.1 MB (+11.6%). Each agent's branch alone measured within that bias (+11.1%, +11.1% to +12.1%, and +9.3%). The candidate side of the runner carries this offset for these workloads with identical code, so these are not regressions. The cause was the different checkout paths of the two sides; see [Hillclimb runner path bias](#hillclimb-runner-path-bias-november-27) for the fix and the A/A results after it.
 
 ### Merged WASM engine against Sharp single-thread
 
@@ -9642,3 +9645,92 @@ Seven runs each with `node benchmark/run.ts --engines purejsimage-wasm,sharp-sin
 | northstar-photo-pipeline | 294.4 ms | 424.7 ms | 109.3 MiB | 183.5 MiB |
 | jpeg-resize-1200 | 112.7 ms | 67.7 ms | 97.3 MiB | 131.1 MiB |
 | webp-large-resize-jpeg | 91.8 ms | 52.4 ms | 89.6 MiB | 123.6 MiB |
+
+## Hillclimb runner path bias, November 27
+
+Round twelve found three regressions that an A/A run at `583071116e4a` also showed (see [Runner bias on three workloads](#runner-bias-on-three-workloads-aa-control)). The cause was the runner. It ran the candidate from the checkout and the base from `<checkout>/.tmp/hillclimb/<timestamp>/base-worktree`, a path 54 characters longer. Some workloads have two timing or memory modes in identical code, and the shorter checkout path made the harness worker land in the slower mode more often. The runner now runs both sides from one path. The harness, worker, sampling, warmup and statistics did not change.
+
+### Reproduction
+
+Clean worktree at `9554ad17` under `.claude/worktrees/` (an 80-character path), `node_modules` linked to the main checkout, corpus files hard-linked, `--base-ref 9554ad17`, 15 pairs, fccidapi workers paused. The slower-mode column counts trials in the slower mode, base then candidate.
+
+| Engine | Workload | Base → candidate median | Delta | Paired | Slower mode | Verdict |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| TypeScript | png-to-jpeg | 26.23 → 29.63 ms | +12.97% wall | +11.00% | 4/15, 13/15 | rejected |
+| TypeScript | webp-animated-resize (profile `webp`) | 117.1 → 133.1 MiB | +13.69% peak RSS | +3.43% | 2/15, 9/15 | rejected |
+| WASM | png-resize-1000 | 123.5 → 123.9 MiB | +0.33% peak RSS | +6.01% | | neutral |
+
+png-resize-1000 on WASM did not reproduce at this commit. Its peak RSS spread over about 111, 124 and 133 MiB on both sides.
+
+### Two modes in identical code
+
+- png-to-jpeg on TypeScript takes about 26 ms or about 29.5 ms. Slow runs use about 4 ms more CPU and end with about 2.9 MiB more external memory (ArrayBuffers 4.0 against 1.9 MiB). `--trace-gc` shows the same one or two 0.2 ms scavenges in both modes. The trials below count a final external memory above 12.5 MiB as the slow mode.
+- webp-animated-resize on TypeScript settles after warmup at about 108 MiB or at 126 to 128 MiB RSS, with the same V8 heap (heapTotal 11 to 12 MiB). The high mode is native memory left over from the warmup, and it carries through to the peak.
+
+### Finding the cause
+
+All counts are png-to-jpeg slow-mode trials.
+
+- A runner variant that pointed both sides at the same directory removed the bias. Same session, 21 pairs each: unchanged layout 8/21 base and 15/21 candidate (+9.46% wall); both sides in the checkout 11/21 and 8/21; both sides in the base worktree 10/21 and 4/21.
+- The runner's `-base` and `-candidate` output directory names, with both sides in one directory, gave 24/30 and 24/30. The size of the environment does not matter.
+- Harness runs in rotating order, 40 per directory: the 80-character checkout 25, 31 and 31 of 40 in three sessions. Three fresh worktrees with 79, 80 and 81 character paths: 32, 34 and 25 of 40. Paths of 111 to 134 characters, under `.tmp` or not: 15, 16, 16 and 23 of 40. Adding a `node_modules` link (18 of 40) or hard-linked corpus files (15 of 40) to a base-style worktree did not move it toward the short-path rate. The built `dist` output was byte-identical in every tree.
+- A standalone script with the worker's warmup, settle step and measured run, without the harness, had 6 of 30 slow runs from both an 80 and a 134 character path. The path changes the mode only inside the harness worker. We did not find which step the path changes.
+
+### Fix
+
+`benchmark/hillclimb/run.ts` and the new `benchmark/hillclimb/trees.ts`:
+
+1. Record the working tree as a commit: `git add --all` into a copy of the checkout's index, then `write-tree` and `commit-tree`. The checkout's index, HEAD, branches and stash do not change. A `node_modules` link is left out, because the `node_modules/` ignore rule does not match a link.
+2. Create `candidate-worktree` from that commit and `base-worktree` from `--base-ref`, link the checkout's corpus files into both, copy the candidate's harness over the base as before, and build both.
+3. For each trial, rename that side's tree to `trial-worktree`, run the harness there, and rename it back.
+
+The report adds `candidateSnapshotRevision`. The runner no longer builds the checkout's `dist`. `tests/benchmark-hillclimb-trees.test.ts` covers the snapshot and the shared trial path.
+
+### A/A after the fix
+
+Same worktree and settings, with only the runner files changed.
+
+| Engine | Workload | Pairs | Base → candidate median | Delta | Paired | Slower mode | Verdict |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| TypeScript | png-to-jpeg | 15 | 27.31 → 26.22 ms | −3.98% wall | −1.84% | 5/15, 4/15 | incomparable (CV 15.2/23.1%) |
+| TypeScript | png-to-jpeg | 21 | 26.31 → 26.17 ms | −0.53% wall | −0.20% | 7/21, 5/21 | neutral |
+| TypeScript | png-to-jpeg | 21 | 27.38 → 26.28 ms | −4.02% wall | −1.26% | 12/21, 6/21 | incomparable |
+| TypeScript | png-to-jpeg | 21 | 26.25 → 26.49 ms | +0.92% wall | +0.88% | 8/21, 9/21 | incomparable |
+| TypeScript | png-to-jpeg | 21 | 26.21 → 26.34 ms | +0.48% wall | +0.19% | 7/21, 5/21 | neutral |
+| WASM | png-resize-1000 | 15 | 113.4 → 113.2 MiB | −0.16% peak RSS | +0.03% | | neutral, wall +0.90% |
+| TypeScript | webp-animated-resize (profile `webp`) | 15 | 117.5 → 117.6 MiB | +0.05% peak RSS | +0.06% | 2/15, 4/15 | neutral, wall −0.17% |
+
+Over the five png-to-jpeg runs, the slow mode held 39 of 99 base trials and 29 of 99 candidate trials. Before the fix it held 12 of 36 and 28 of 36. The remaining spread changes sign between runs.
+
+### What is left
+
+png-to-jpeg on TypeScript still has two wall-time modes about 13% apart, and the share of slow runs moved with host load from about 25% to 80% in this session. With 15 to 21 pairs its median can move about 4% either way, and the runner marks it incomparable when CV is above 10%. For this workload, use 21 or more pairs, read the paired delta, and repeat a borderline result. Finding the source of the two modes inside the library is open work. The PNG decoder's async zlib stream on the libuv thread pool is one timing-dependent step to check first.
+
+### Runner fix for checkouts with an installed node_modules
+
+The first runner version named `node_modules` in its `git add` pathspec to keep a linked `node_modules` out of the candidate snapshot. Git rejects that pathspec when `node_modules` is an ignored directory, which is the normal case in the main checkout, so every run there failed before measuring. The runner now adds the working tree without naming `node_modules` and then removes any `node_modules` entry from its temporary index. A new test in `tests/benchmark-hillclimb-trees.test.ts` snapshots a repository whose `node_modules` is an ignored directory.
+
+## TypeScript TIFF slowdown and the executor stage loop, November 27
+
+The refreshed `web-codecs` run flagged TypeScript `tiff-large-resize-jpeg` (+10.3%), `webp-lossless-alpha-png` (+10.5%) and `png-to-jpeg` (+13.2%) against the published snapshot from `4e4a22e0`, while Sharp (+0.3% median) and Jimp (+1.6%) stayed flat. A bisect from one fixed worktree path, 15 runs per point and a forward and a reverse pass over eight commits, showed:
+
+| Workload (TypeScript) | `4e4a22e0` | `60a431a1` | `74d103be` | `7632bdcc` | `9554ad17` |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| tiff-large-resize-jpeg | 56.11–56.35 ms | 56.26–56.35 | 59.11–59.34 | 60.70–61.49 | 60.49–66.32 |
+| webp-lossless-alpha-png | 36.50–36.76 ms | 37.51–37.90 | 37.11–37.74 | 37.51–37.83 | 37.85–38.04 |
+| png-to-jpeg | 29.32–30.24 ms | 29.31–30.01 | 29.24–29.43 | 29.75–32.53 | 29.10–29.27 |
+
+Only the TIFF workload moved beyond drift. A standalone loop over the built `dist` gave 51.1 ms at `60a431a1`, 53.0 ms at `74d103be` and 53.5 ms at `9554ad17`. CPU profiles put the whole difference in the JPEG encoder's `#encodeRows` (307 → 460 ms over 65 images), and `dist/codecs/jpeg-encode.js` was byte-identical between the two builds. With `--trace-deopt`, the slower build showed ten "embedded weak objects cleared" deoptimizations of the JPEG encoder and TIFF reader functions and re-optimized them. `74d103be` had moved the executor's stage loop into the shared `applyStages` helper for animation.
+
+Restoring the inline stage loop in `executePipeline` (keeping `applyStages` for animation, and passing `context.resizeAccelerator`) brought the standalone loop back to 51.2–52.1 ms. A same-path A/B of two built `dist` folders, three alternating rounds of 11 runs each:
+
+| Engine | Workload | Base median | Fix median | Change |
+| --- | --- | ---: | ---: | ---: |
+| TypeScript | tiff-large-resize-jpeg | 67.3 ms (67.2–67.4) | 65.2 ms (65.1–65.3) | −3.1% |
+| TypeScript | jpeg-resize-1200 | 448.5 ms | 446.9 ms | −0.4% |
+| TypeScript | northstar-photo-pipeline | 674.4 ms | 673.4 ms | −0.1% |
+| TypeScript | avif-fox-resize-jpeg | 293.0 ms | 297.1 ms | +1.4% |
+| WASM | jpeg-resize-1200 | 112.3 ms | 112.6 ms | +0.3% |
+| WASM | tiff-large-resize-jpeg | 46.9 ms | 46.0 ms | −1.9% |
+
+The same TypeScript TIFF build measured 56.6 ms when run from the worktree's own `dist` and 65–67 ms from a scratch folder, so this workload also carries the path sensitivity described above; the earlier ±10% swings were mostly that. The inline loop is retained as a small, consistent gain with a comment in `src/executor.ts`. Two side findings: the first try copied the loop from `4e4a22e0`, which predates the resize accelerator, and the WASM engine's `jpeg-resize-1200` then took 195 ms instead of 113 ms; and on TIFF the WASM resize accelerator is slower than TypeScript resize (about 50.6 ms against 43.0 ms for the WASM engine with and without it), which is worth a follow-up.

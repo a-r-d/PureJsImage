@@ -2,9 +2,9 @@
 import BenchmarkClusterNav from '../components/BenchmarkClusterNav.astro'
 import BenchmarkGallery from '../components/BenchmarkGallery.astro'
 import TableWrap from '../components/TableWrap.astro'
-import SiteLayout from '../layouts/SiteLayout.astro'
 import documentation from '../data/documentation-data.json'
 import packageMetrics from '../data/package-metrics.json'
+import SiteLayout from '../layouts/SiteLayout.astro'
 
 const mib = (bytes: number): string => `${(bytes / 1024 / 1024).toFixed(1)} MiB`
 const kib = (bytes: number): string => `${(bytes / 1024).toFixed(1)} KiB`
@@ -46,6 +46,31 @@ const webCodecCharts = [
     caption: `Environment: ${ordinaryEnvironment}. RSS includes the Node.js runtime and native allocations.`,
     width: documentation.ordinary.charts.memory.width,
     height: documentation.ordinary.charts.memory.height,
+  },
+] as const
+const gifEnvironment = `${documentation.gif.environment.os}, ${documentation.gif.environment.architecture}, Node ${documentation.gif.environment.node}, ${documentation.gif.environment.cpu}`
+const gifCharts = [
+  {
+    id: 'speed',
+    tab: 'Speed',
+    title: 'GIF speed',
+    explanation: 'Median wall time · logarithmic scale · lower is better',
+    src: documentation.gif.charts.speed.src,
+    alt: 'GIF speed chart from the current validated GIF benchmark profile',
+    caption: `Environment: ${gifEnvironment}. Timings include palette building, dithering, and GIF encoding.`,
+    width: documentation.gif.charts.speed.width,
+    height: documentation.gif.charts.speed.height,
+  },
+  {
+    id: 'memory',
+    tab: 'Peak memory',
+    title: 'GIF peak memory',
+    explanation: 'Absolute process peak RSS · lower is better',
+    src: documentation.gif.charts.memory.src,
+    alt: 'GIF peak memory chart from the current validated GIF benchmark profile',
+    caption: `Environment: ${gifEnvironment}. RSS includes the Node.js runtime and native allocations.`,
+    width: documentation.gif.charts.memory.width,
+    height: documentation.gif.charts.memory.height,
   },
 ] as const
 const scientificCaption = `Generated from the ${date(documentation.scientific.competitors.createdAt)} scientific competitor artifact. Each SVG records scale direction, environment, engine class, unsupported rows, and material input-copy differences.`
@@ -216,6 +241,38 @@ const installedBytes = (entry: (typeof packageMetrics.targets)[number]): number 
             href={github(documentation.ordinary.reportMarkdown) ?? '#'}
             target="_blank"
             rel="noreferrer">Current web codec benchmark report →</a
+          >
+        </p>
+      </div>
+    </section>
+
+    <section class="section tint" id="gif-benchmarks">
+      <div class="container">
+        <div class="proof-heading">
+          <div>
+            <p class="section-label">GIF benchmarks</p>
+            <h2>Animated and still GIF speed and peak memory.</h2>
+          </div>
+          <p>
+            The {date(documentation.gif.createdAt)} GIF profile recorded {
+              documentation.gif.statusCounts.pass
+            } validated passes and {documentation.gif.statusCounts.unsupported} explicit unsupported
+            rows against Sharp/libvips, ImageScript, and Jimp. It resizes every frame of animated
+            GIFs, re-encodes a 36-frame GIF, composites the last frame to PNG, and writes GIF from a
+            JPEG photo and a transparent logo.
+          </p>
+        </div>
+        <p class="section-note">
+          Validation decodes every output frame. GIF workflows have no PSNR reference, so this
+          profile has no quality chart.
+        </p>
+        <BenchmarkGallery id="gif" legend="Choose a GIF benchmark chart" charts={gifCharts} />
+        <p>
+          <a
+            class="text-link"
+            href={github(documentation.gif.reportMarkdown) ?? '#'}
+            target="_blank"
+            rel="noreferrer">Current GIF benchmark report →</a
           >
         </p>
       </div>

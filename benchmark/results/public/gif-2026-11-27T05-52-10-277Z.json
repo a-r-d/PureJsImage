@@ -1,0 +1,402 @@
+{
+  "schemaVersion": 1,
+  "profile": "gif",
+  "publicationValidationStatus": "passed",
+  "validationStatus": "passed",
+  "source": {
+    "eligibleForDocumentationHeadlines": false,
+    "resultIndex": "benchmark/results/result-index-2026-11-27T13-07-57-089Z.json",
+    "resultPaths": [
+      "benchmark/results/2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.json",
+      "benchmark/results/2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.md"
+    ],
+    "validationStatus": "passed"
+  },
+  "data": {
+    "charts": {
+      "speed": "benchmark/results/gif-speed-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg",
+      "memory": "benchmark/results/gif-memory-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg"
+    },
+    "createdAt": "2026-11-27T05:52:10.277Z",
+    "engines": [
+      {
+        "id": "purejsimage",
+        "kind": "pure-javascript",
+        "version": "0.18.0 (workspace)"
+      },
+      {
+        "id": "purejsimage-wasm",
+        "kind": "webassembly",
+        "version": "0.18.0 (workspace WASM)"
+      },
+      {
+        "id": "jimp",
+        "kind": "pure-javascript",
+        "version": "1.7.0"
+      },
+      {
+        "id": "sharp",
+        "kind": "native",
+        "version": "0.35.5"
+      },
+      {
+        "id": "sharp-single-thread",
+        "kind": "native-single-thread",
+        "version": "0.35.5"
+      },
+      {
+        "id": "imagescript",
+        "kind": "pure-javascript",
+        "version": "4.0.0"
+      }
+    ],
+    "environment": {
+      "architecture": "x64",
+      "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+      "fingerprint": "35b6da6b07cd0cc542ff6eb4413fbe37ae30cccc1e30d2cd6866a82dc6863922",
+      "node": "v24.16.0",
+      "os": "Linux 7.0.0-43-generic",
+      "runner": "local",
+      "v8": "13.6.233.17-node.49"
+    },
+    "fixtureManifestHash": "1e21a6a62cfb7f58e70fed2c4197e6c69ed54648b6c51bb8d82b8cd4de0d3320",
+    "results": [
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 131284992,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 296.83027899999996,
+        "workflow": "gif-animated-resize"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 125902848,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 319.106589,
+        "workflow": "gif-animated-roundtrip"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 114364416,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 50.51577500000002,
+        "workflow": "gif-sticker-resize"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 114294784,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 59.47224399999999,
+        "workflow": "gif-cc0-resize"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 100454400,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 84.80789399999998,
+        "workflow": "gif-last-frame-png"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 127488000,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 521.0981400000001,
+        "workflow": "jpeg-to-gif"
+      },
+      {
+        "engine": "purejsimage",
+        "peakRssBytes": 102461440,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 18.451443000000012,
+        "workflow": "logo-to-gif"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 130617344,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 293.73427999999996,
+        "workflow": "gif-animated-resize"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 141312000,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 319.56250100000005,
+        "workflow": "gif-animated-roundtrip"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 114192384,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 43.554047,
+        "workflow": "gif-sticker-resize"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 115576832,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 54.80988400000001,
+        "workflow": "gif-cc0-resize"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 101900288,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 83.007654,
+        "workflow": "gif-last-frame-png"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 122376192,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 244.619213,
+        "workflow": "jpeg-to-gif"
+      },
+      {
+        "engine": "purejsimage-wasm",
+        "peakRssBytes": 100720640,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 17.909841,
+        "workflow": "logo-to-gif"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "gif-animated-resize"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "gif-animated-roundtrip"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "gif-sticker-resize"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "gif-cc0-resize"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": null,
+        "quality": null,
+        "status": "unsupported",
+        "wallMilliseconds": null,
+        "workflow": "gif-last-frame-png"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 695107584,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 5718.00891,
+        "workflow": "jpeg-to-gif"
+      },
+      {
+        "engine": "jimp",
+        "peakRssBytes": 380215296,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 2185.028786,
+        "workflow": "logo-to-gif"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 117850112,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3762.3901100000003,
+        "workflow": "gif-animated-resize"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 134709248,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 1630.0533369999998,
+        "workflow": "gif-animated-roundtrip"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 106156032,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 59.44085199999998,
+        "workflow": "gif-sticker-resize"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 101953536,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 84.852239,
+        "workflow": "gif-cc0-resize"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 108474368,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 45.06356199999999,
+        "workflow": "gif-last-frame-png"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 159260672,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 958.1723459999998,
+        "workflow": "jpeg-to-gif"
+      },
+      {
+        "engine": "sharp",
+        "peakRssBytes": 129933312,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 38.995003,
+        "workflow": "logo-to-gif"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 117907456,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 3753.440914,
+        "workflow": "gif-animated-resize"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 135127040,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 1640.397247,
+        "workflow": "gif-animated-roundtrip"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 106569728,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 59.04987900000003,
+        "workflow": "gif-sticker-resize"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 102789120,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 85.25200900000002,
+        "workflow": "gif-cc0-resize"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 108097536,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 44.79923200000002,
+        "workflow": "gif-last-frame-png"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 154030080,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 950.1724970000002,
+        "workflow": "jpeg-to-gif"
+      },
+      {
+        "engine": "sharp-single-thread",
+        "peakRssBytes": 130371584,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 39.29953400000002,
+        "workflow": "logo-to-gif"
+      },
+      {
+        "engine": "imagescript",
+        "peakRssBytes": 162197504,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 368.02370599999995,
+        "workflow": "gif-animated-resize"
+      },
+      {
+        "engine": "imagescript",
+        "peakRssBytes": 215797760,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 381.62118999999996,
+        "workflow": "gif-animated-roundtrip"
+      },
+      {
+        "engine": "imagescript",
+        "peakRssBytes": 184524800,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 69.70779699999997,
+        "workflow": "gif-sticker-resize"
+      },
+      {
+        "engine": "imagescript",
+        "peakRssBytes": 198221824,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 72.30787500000002,
+        "workflow": "gif-cc0-resize"
+      },
+      {
+        "engine": "imagescript",
+        "peakRssBytes": 135888896,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 111.20491199999998,
+        "workflow": "gif-last-frame-png"
+      },
+      {
+        "engine": "imagescript",
+        "peakRssBytes": 162996224,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 559.54413,
+        "workflow": "jpeg-to-gif"
+      },
+      {
+        "engine": "imagescript",
+        "peakRssBytes": 107745280,
+        "quality": null,
+        "status": "pass",
+        "wallMilliseconds": 21.49192500000001,
+        "workflow": "logo-to-gif"
+      }
+    ]
+  }
+}

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1926" viewBox="0 0 2400 1926" role="img" aria-labelledby="title subtitle">
+    <title id="title">GIF and animated GIF memory</title>
+    <rect width="2400" height="1926" fill="#f8fafc" />
+    <style>
+      text { font-family: Inter, Arial, sans-serif; fill: #172033; }
+      .title { font-size: 56px; font-weight: 750; }
+      .subtitle { font-size: 28px; fill: #526077; }
+      .legend { font-size: 20px; font-weight: 650; }
+      .tick { font-size: 19px; fill: #64748b; }
+      .workflow { font-size: 24px; font-weight: 750; }
+      .engine { font-size: 18px; fill: #40506a; }
+      .value { font-size: 17px; font-weight: 700; fill: #273449; }
+      .unsupported { font-size: 17px; font-weight: 700; fill: #94a3b8; }
+      .footer { font-size: 20px; fill: #526077; }
+      .source { font-size: 18px; fill: #718096; }
+    </style>
+    <text x="54" y="78" class="title" id="heading">GIF and animated GIF memory</text>
+    <text x="54" y="124" class="subtitle" id="subtitle">Median absolute peak RSS · linear scale · lower is better</text>
+    <text x="54" y="168" class="source">Validated gif profile · 2026-11-27 · linux x64 · v24.16.0</text>
+    <rect x="54" y="214" width="24" height="24" rx="5" fill="#2563eb" />
+        <text x="90" y="233" class="legend">PureJsImage · pure JS</text>
+<rect x="834" y="214" width="24" height="24" rx="5" fill="#c026d3" />
+        <text x="870" y="233" class="legend">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+<rect x="1614" y="214" width="24" height="24" rx="5" fill="#7c3aed" />
+        <text x="1650" y="233" class="legend">Jimp · pure JS</text>
+<rect x="54" y="252" width="24" height="24" rx="5" fill="#ea580c" />
+        <text x="90" y="271" class="legend">Sharp · native/libvips</text>
+<rect x="834" y="252" width="24" height="24" rx="5" fill="#dc2626" />
+        <text x="870" y="271" class="legend">Sharp 1 thread · native/libvips</text>
+<rect x="1614" y="252" width="24" height="24" rx="5" fill="#ca8a04" />
+        <text x="1650" y="271" class="legend">ImageScript · pure JS</text>
+    <line x1="760" y1="330" x2="760" y2="1738" stroke="#dbe3ef" stroke-width="2" />
+        <text x="760" y="314" text-anchor="middle" class="tick">0</text>
+<line x1="1125" y1="330" x2="1125" y2="1738" stroke="#dbe3ef" stroke-width="2" />
+        <text x="1125" y="314" text-anchor="middle" class="tick">200</text>
+<line x1="1490" y1="330" x2="1490" y2="1738" stroke="#dbe3ef" stroke-width="2" />
+        <text x="1490" y="314" text-anchor="middle" class="tick">400</text>
+<line x1="1855" y1="330" x2="1855" y2="1738" stroke="#dbe3ef" stroke-width="2" />
+        <text x="1855" y="314" text-anchor="middle" class="tick">600</text>
+<line x1="2220" y1="330" x2="2220" y2="1738" stroke="#dbe3ef" stroke-width="2" />
+        <text x="2220" y="314" text-anchor="middle" class="tick">800</text>
+    <text x="54" y="369" class="workflow">36-frame GIF resize</text>
+        <line x1="54" y1="537" x2="2328" y2="537" stroke="#e8edf5" stroke-width="2" />
+        <text x="730" y="395" text-anchor="end" class="engine">PureJsImage · pure JS</text>
+            <rect x="760" y="380" width="228.49570312499998" height="19" rx="4" fill="#2563eb" />
+            <text x="1000.495703125" y="395" class="value">125.2 MiB</text>
+<text x="730" y="421" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+            <rect x="760" y="406" width="227.33369140624995" height="19" rx="4" fill="#c026d3" />
+            <text x="999.33369140625" y="421" class="value">124.6 MiB</text>
+<text x="730" y="447" text-anchor="end" class="engine">Jimp · pure JS</text>
+              <text x="772" y="447" class="unsupported">unsupported</text>
+<text x="730" y="473" text-anchor="end" class="engine">Sharp · native/libvips</text>
+            <rect x="760" y="458" width="205.11289062499998" height="19" rx="4" fill="#ea580c" />
+            <text x="977.112890625" y="473" class="value">112.4 MiB</text>
+<text x="730" y="499" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
+            <rect x="760" y="484" width="205.21269531250005" height="19" rx="4" fill="#dc2626" />
+            <text x="977.2126953125" y="499" class="value">112.4 MiB</text>
+<text x="730" y="525" text-anchor="end" class="engine">ImageScript · pure JS</text>
+            <rect x="760" y="510" width="282.29755859374995" height="19" rx="4" fill="#ca8a04" />
+            <text x="1054.29755859375" y="525" class="value">154.7 MiB</text>
+<text x="54" y="571" class="workflow">36-frame GIF round trip</text>
+        <line x1="54" y1="739" x2="2328" y2="739" stroke="#e8edf5" stroke-width="2" />
+        <text x="730" y="597" text-anchor="end" class="engine">PureJsImage · pure JS</text>
+            <rect x="760" y="582" width="219.12832031250002" height="19" rx="4" fill="#2563eb" />
+            <text x="991.1283203125" y="597" class="value">120.1 MiB</text>
+<text x="730" y="623" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+            <rect x="760" y="608" width="245.947265625" height="19" rx="4" fill="#c026d3" />
+            <text x="1017.947265625" y="623" class="value">134.8 MiB</text>
+<text x="730" y="649" text-anchor="end" class="engine">Jimp · pure JS</text>
+              <text x="772" y="649" class="unsupported">unsupported</text>
+<text x="730" y="675" text-anchor="end" class="engine">Sharp · native/libvips</text>
+            <rect x="760" y="660" width="234.45546875000002" height="19" rx="4" fill="#ea580c" />
+            <text x="1006.45546875" y="675" class="value">128.5 MiB</text>
+<text x="730" y="701" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
+            <rect x="760" y="686" width="235.1826171875" height="19" rx="4" fill="#dc2626" />
+            <text x="1007.1826171875" y="701" class="value">128.9 MiB</text>
+<text x="730" y="727" text-anchor="end" class="engine">ImageScript · pure JS</text>
+            <rect x="760" y="712" width="375.58642578125" height="19" rx="4" fill="#ca8a04" />
+            <text x="1147.58642578125" y="727" class="value">205.8 MiB</text>
+<text x="54" y="773" class="workflow">Transparent sticker GIF resize</text>
+        <line x1="54" y1="941" x2="2328" y2="941" stroke="#e8edf5" stroke-width="2" />
+        <text x="730" y="799" text-anchor="end" class="engine">PureJsImage · pure JS</text>
+            <rect x="760" y="784" width="199.04619140625005" height="19" rx="4" fill="#2563eb" />
+            <text x="971.04619140625" y="799" class="value">109.1 MiB</text>
+<text x="730" y="825" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+            <rect x="760" y="810" width="198.74677734374995" height="19" rx="4" fill="#c026d3" />
+            <text x="970.74677734375" y="825" class="value">108.9 MiB</text>
+<text x="730" y="851" text-anchor="end" class="engine">Jimp · pure JS</text>
+              <text x="772" y="851" class="unsupported">unsupported</text>
+<text x="730" y="877" text-anchor="end" class="engine">Sharp · native/libvips</text>
+            <rect x="760" y="862" width="184.75986328124998" height="19" rx="4" fill="#ea580c" />
+            <text x="956.75986328125" y="877" class="value">101.2 MiB</text>
+<text x="730" y="903" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
+            <rect x="760" y="888" width="185.47988281250002" height="19" rx="4" fill="#dc2626" />
+            <text x="957.4798828125" y="903" class="value">101.6 MiB</text>
+<text x="730" y="929" text-anchor="end" class="engine">ImageScript · pure JS</text>
+            <rect x="760" y="914" width="321.1572265625" height="19" rx="4" fill="#ca8a04" />
+            <text x="1093.1572265625" y="929" class="value">176.0 MiB</text>
+<text x="54" y="975" class="workflow">70-frame GIF resize</text>
+        <line x1="54" y1="1143" x2="2328" y2="1143" stroke="#e8edf5" stroke-width="2" />
+        <text x="730" y="1001" text-anchor="end" class="engine">PureJsImage · pure JS</text>
+            <rect x="760" y="986" width="198.92499999999995" height="19" rx="4" fill="#2563eb" />
+            <text x="970.925" y="1001" class="value">109.0 MiB</text>
+<text x="730" y="1027" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+            <rect x="760" y="1012" width="201.15634765624998" height="19" rx="4" fill="#c026d3" />
+            <text x="973.15634765625" y="1027" class="value">110.2 MiB</text>
+<text x="730" y="1053" text-anchor="end" class="engine">Jimp · pure JS</text>
+              <text x="772" y="1053" class="unsupported">unsupported</text>
+<text x="730" y="1079" text-anchor="end" class="engine">Sharp · native/libvips</text>
+            <rect x="760" y="1064" width="177.44560546875005" height="19" rx="4" fill="#ea580c" />
+            <text x="949.44560546875" y="1079" class="value">97.2 MiB</text>
+<text x="730" y="1105" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
+            <rect x="760" y="1090" width="178.89990234375" height="19" rx="4" fill="#dc2626" />
+            <text x="950.89990234375" y="1105" class="value">98.0 MiB</text>
+<text x="730" y="1131" text-anchor="end" class="engine">ImageScript · pure JS</text>
+            <rect x="760" y="1116" width="344.99628906249995" height="19" rx="4" fill="#ca8a04" />
+            <text x="1116.9962890625" y="1131" class="value">189.0 MiB</text>
+<text x="54" y="1177" class="workflow">Last GIF frame → PNG</text>
+        <line x1="54" y1="1345" x2="2328" y2="1345" stroke="#e8edf5" stroke-width="2" />
+        <text x="730" y="1203" text-anchor="end" class="engine">PureJsImage · pure JS</text>
+            <rect x="760" y="1188" width="174.83642578125" height="19" rx="4" fill="#2563eb" />
+            <text x="946.83642578125" y="1203" class="value">95.8 MiB</text>
+<text x="730" y="1229" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+            <rect x="760" y="1214" width="177.35292968750002" height="19" rx="4" fill="#c026d3" />
+            <text x="949.3529296875" y="1229" class="value">97.2 MiB</text>
+<text x="730" y="1255" text-anchor="end" class="engine">Jimp · pure JS</text>
+              <text x="772" y="1255" class="unsupported">unsupported</text>
+<text x="730" y="1281" text-anchor="end" class="engine">Sharp · native/libvips</text>
+            <rect x="760" y="1266" width="188.79482421875002" height="19" rx="4" fill="#ea580c" />
+            <text x="960.79482421875" y="1281" class="value">103.4 MiB</text>
+<text x="730" y="1307" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
+            <rect x="760" y="1292" width="188.13896484375005" height="19" rx="4" fill="#dc2626" />
+            <text x="960.13896484375" y="1307" class="value">103.1 MiB</text>
+<text x="730" y="1333" text-anchor="end" class="engine">ImageScript · pure JS</text>
+            <rect x="760" y="1318" width="236.50859375000005" height="19" rx="4" fill="#ca8a04" />
+            <text x="1008.50859375" y="1333" class="value">129.6 MiB</text>
+<text x="54" y="1379" class="workflow">JPEG resize → GIF</text>
+        <line x1="54" y1="1547" x2="2328" y2="1547" stroke="#e8edf5" stroke-width="2" />
+        <text x="730" y="1405" text-anchor="end" class="engine">PureJsImage · pure JS</text>
+            <rect x="760" y="1390" width="221.88720703125" height="19" rx="4" fill="#2563eb" />
+            <text x="993.88720703125" y="1405" class="value">121.6 MiB</text>
+<text x="730" y="1431" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+            <rect x="760" y="1416" width="212.99033203124998" height="19" rx="4" fill="#c026d3" />
+            <text x="984.99033203125" y="1431" class="value">116.7 MiB</text>
+<text x="730" y="1457" text-anchor="end" class="engine">Jimp · pure JS</text>
+            <rect x="760" y="1442" width="1209.80390625" height="19" rx="4" fill="#7c3aed" />
+            <text x="1981.80390625" y="1457" class="value">662.9 MiB</text>
+<text x="730" y="1483" text-anchor="end" class="engine">Sharp · native/libvips</text>
+            <rect x="760" y="1468" width="277.1861328125001" height="19" rx="4" fill="#ea580c" />
+            <text x="1049.1861328125" y="1483" class="value">151.9 MiB</text>
+<text x="730" y="1509" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
+            <rect x="760" y="1494" width="268.08251953125" height="19" rx="4" fill="#dc2626" />
+            <text x="1040.08251953125" y="1509" class="value">146.9 MiB</text>
+<text x="730" y="1535" text-anchor="end" class="engine">ImageScript · pure JS</text>
+            <rect x="760" y="1520" width="283.68769531249995" height="19" rx="4" fill="#ca8a04" />
+            <text x="1055.6876953125" y="1535" class="value">155.4 MiB</text>
+<text x="54" y="1581" class="workflow">Transparent logo → GIF</text>
+        <line x1="54" y1="1749" x2="2328" y2="1749" stroke="#e8edf5" stroke-width="2" />
+        <text x="730" y="1607" text-anchor="end" class="engine">PureJsImage · pure JS</text>
+            <rect x="760" y="1592" width="178.32958984375" height="19" rx="4" fill="#2563eb" />
+            <text x="950.32958984375" y="1607" class="value">97.7 MiB</text>
+<text x="730" y="1633" text-anchor="end" class="engine">PureJsImage · WASM opt-in (JPEG/PNG/WebP)</text>
+            <rect x="760" y="1618" width="175.2998046875" height="19" rx="4" fill="#c026d3" />
+            <text x="947.2998046875" y="1633" class="value">96.1 MiB</text>
+<text x="730" y="1659" text-anchor="end" class="engine">Jimp · pure JS</text>
+            <rect x="760" y="1644" width="661.7478515625" height="19" rx="4" fill="#7c3aed" />
+            <text x="1433.7478515625" y="1659" class="value">362.6 MiB</text>
+<text x="730" y="1685" text-anchor="end" class="engine">Sharp · native/libvips</text>
+            <rect x="760" y="1670" width="226.14316406249998" height="19" rx="4" fill="#ea580c" />
+            <text x="998.1431640625" y="1685" class="value">123.9 MiB</text>
+<text x="730" y="1711" text-anchor="end" class="engine">Sharp 1 thread · native/libvips</text>
+            <rect x="760" y="1696" width="226.90595703124995" height="19" rx="4" fill="#dc2626" />
+            <text x="998.90595703125" y="1711" class="value">124.3 MiB</text>
+<text x="730" y="1737" text-anchor="end" class="engine">ImageScript · pure JS</text>
+            <rect x="760" y="1722" width="187.52587890625" height="19" rx="4" fill="#ca8a04" />
+            <text x="959.52587890625" y="1737" class="value">102.8 MiB</text>
+    <text x="54" y="1836" class="footer">Absolute process RSS from isolated workers. PureJsImage WASM accelerates JPEG, PNG, and resize steps; GIF decoding, palettes, dithering, and GIF encoding run in TypeScript on both PureJsImage engines.</text>
+    <text x="54" y="1876" class="source">Source: 2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.json · Unsupported rows are explicit; only validated outputs contribute performance bars.</text>
+  </svg>

@@ -263,8 +263,25 @@ another web profile, such as `standard`, `transforms` or `webp`:
 npm run bench:hillclimb -- --suite web --profile transforms --workload transform-arbitrary-angle-jpeg --goal speed --base-ref origin/main
 ```
 
-The runner creates a temporary base worktree, builds both revisions with the current Node runtime,
-and alternates base and candidate one-sample harness runs. Seven paired trials are used by default.
+The runner copies the working tree, including uncommitted changes and untracked files that git does
+not ignore, into a temporary candidate worktree. It creates a temporary base worktree at
+`--base-ref`, builds both with the current Node runtime, and alternates base and candidate
+one-sample harness runs. Before each run it moves that side's tree to the same `trial-worktree`
+path, so both sides load the library, harness and fixtures from one absolute path. The runner does
+not build or change the checkout itself, and edits made after it starts do not affect the run.
+
+Both sides must run from the same path. When the candidate ran from the checkout and the base from
+a deeper worktree path, identical code measured 10% to 16% worse on the candidate side for
+`png-to-jpeg` wall time and `webp-animated-resize` peak RSS. Those workloads have two timing or
+memory modes, and the path changed how often the worker landed in the slower one. The cause and the
+A/A results are in "Hillclimb runner path bias" in [`optimization-log.md`](./optimization-log.md).
+To check the runner itself, compare a clean commit with itself:
+
+```sh
+npm run bench:hillclimb -- --suite web --workload png-to-jpeg --base-ref HEAD --trials 21
+```
+
+Seven paired trials are used by default.
 It compares raw correctness and performance samples, path-independent fixture and
 commit-independent environment fingerprints, protected source/output metrics, median, MAD, IQR,
 coefficient of variation, and paired deltas. Exploratory JSON and Markdown stay under the ignored

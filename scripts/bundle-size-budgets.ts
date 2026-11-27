@@ -21,7 +21,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // sampler and the four-tap RGBA resize path.
   // 2026-11-26: raised from 80 KiB to 84 KiB, owner approved, for the animated GIF pipeline path
   // in the executor and the GIF and ICO encode operations.
-  'core-execution': { maxMinifiedBytes: 84 * 1024 },
+  // 2026-11-27: raised from 86,016 to 87,000 bytes, owner approved, for the still-image stage
+  // loop kept separate from the animation helper in the executor.
+  'core-execution': { maxMinifiedBytes: 87_000 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // Owner approved campaign ceiling increases on 2026-10-10. Report sizes; they are not promotion gates.
   // 2026-11-20: raised to fit the libjxl-derived effort-7 encoder (about 25.5 KB), owner approved.
@@ -42,7 +44,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-25: raised to 662,000 bytes, owner approved, for the same rotation and resize paths.
   // 2026-11-26: raised to 667,000 bytes, owner approved, for the same animated GIF pipeline path.
   // 2026-11-26: raised to 668,000 bytes, owner approved, for the Node zlib PNG inflate path.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 668_000 },
+  // 2026-11-27: raised to 669,000 bytes, owner approved, for the still-image executor stage loop.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 669_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.
@@ -58,7 +61,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-26: raised to 212,000 bytes, owner approved, for the shared-read RGBA Lanczos resize.
   // 2026-11-26: raised to 216,000 bytes, owner approved, for the same animated GIF pipeline path.
   // 2026-11-26: raised to 217,000 bytes, owner approved, for the Node zlib PNG inflate path.
-  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 217_000 },
+  // 2026-11-27: raised to 218,000 bytes, owner approved, for the still-image executor stage loop.
+  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 218_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
   'scientific-reader-gsf': { baselineMinifiedBytes: 37_864, maxMinifiedBytes: 50_000 },

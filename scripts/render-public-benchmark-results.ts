@@ -196,13 +196,19 @@ const ordinarySnapshot = async (entry: SourceEntry) => {
   const sourceStem = basename(sourcePath, '.json')
   const charts = Object.fromEntries(
     await Promise.all(
-      ['speed', 'quality', 'memory'].map(async (metric) => {
-        const chartPrefix = entry.profile === 'web-codecs' ? 'web-codecs' : 'competitors'
-        const svgPath = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.svg`
-        const pngPath = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.png`
-        const path = (await exists(join(repositoryDirectory, svgPath))) ? svgPath : pngPath
-        return [metric, path] as const
-      }),
+      // GIF workflows have no PSNR reference, so that profile has no quality chart.
+      (entry.profile === 'gif' ? ['speed', 'memory'] : ['speed', 'quality', 'memory']).map(
+        async (metric) => {
+          const chartPrefix =
+            entry.profile === 'web-codecs' || entry.profile === 'gif'
+              ? entry.profile
+              : 'competitors'
+          const svgPath = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.svg`
+          const pngPath = `benchmark/results/${chartPrefix}-${metric}-${sourceStem}.png`
+          const path = (await exists(join(repositoryDirectory, svgPath))) ? svgPath : pngPath
+          return [metric, path] as const
+        },
+      ),
     ),
   )
   for (const path of Object.values(charts)) {
@@ -534,6 +540,7 @@ const writePublicResults = async (): Promise<void> => {
   const definitions = [
     { profile: 'competitors', build: ordinarySnapshot, headline: true },
     { profile: 'web-codecs', build: ordinarySnapshot, headline: true },
+    { profile: 'gif', build: ordinarySnapshot, headline: false },
     { profile: 'scientific-readers-baseline', build: scientificSnapshot, headline: true },
     { profile: 'scientific-readers-scaling', build: scientificScalingSnapshot, headline: true },
     { profile: 'scientific-readers-range', build: rangeSnapshot, headline: false },

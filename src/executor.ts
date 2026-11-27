@@ -799,20 +799,114 @@ export const executePipeline = async (
       if (options.evidence !== undefined)
         blocks = instrumentOperationBlocks(blocks, options.evidence, 'window')
     }
-    const staged = applyStages(
-      { blocks, width, height, pixelFormat, colorSemantics, sampleBitDepths },
-      output.stages,
-      !output.window && decoder.opaqueRgba8 === true,
-      sourceOrientation,
-      context,
-      options,
-    )
-    blocks = staged.blocks
-    width = staged.width
-    height = staged.height
-    pixelFormat = staged.pixelFormat
-    colorSemantics = staged.colorSemantics
-    sampleBitDepths = staged.sampleBitDepths
+    // This loop repeats `applyStages` on purpose. Calling the shared helper here made the
+    // TypeScript TIFF-to-JPEG workflow about 5% slower, because V8 discarded and recompiled the
+    // JPEG encoder and TIFF reader code; the per-row code itself is the same.
+    for (const operation of output.stages) {
+      if (operation.type === 'encode' || operation.type === 'window') continue
+      if (!transformAcceptsPixelFormat(operation, pixelFormat)) {
+        throw unsupportedOperation(`${operation.type} does not support ${pixelFormat} pixels`)
+      }
+      if (operation.type === 'convertPixelFormat') {
+        blocks = convertPixelBlocks(
+          blocks,
+          pixelFormat,
+          operation.options,
+          options,
+          sampleBitDepths,
+        )
+        pixelFormat = operation.options.format
+        sampleBitDepths = undefined
+        colorSemantics = convertedPixelColorSemantics(colorSemantics, pixelFormat)
+      } else if (operation.type === 'lut') {
+        blocks = applyLutPixelBlocks(blocks, pixelFormat, operation.options, options)
+        pixelFormat = operation.options.format
+        sampleBitDepths = undefined
+      } else if (operation.type === 'crop') {
+        validateCrop(width, height, operation)
+        blocks = cropPixelBlocks(blocks, width, height, pixelFormat, operation)
+        width = operation.width
+        height = operation.height
+      } else if (operation.type === 'resize') {
+        const resize = createResizeTransform(
+          width,
+          height,
+          pixelFormat,
+          operation,
+          colorSemantics,
+          sampleBitDepths,
+          !output.window && operation === output.stages[0] && decoder.opaqueRgba8 === true,
+          context.resizeAccelerator,
+        )
+        width = resize.width
+        height = resize.height
+        if (sampleBitDepths && resize.pixelFormat !== pixelFormat) {
+          const depths = sampleBitDepths
+          const sourceGray = pixelFormat.startsWith('gray')
+          const storage = pixelStorage(resize.pixelFormat)
+          sampleBitDepths = Array.from({ length: storage.channels }, (_, channel) =>
+            channel === 3
+              ? storage.bytesPerSample * 8
+              : (depths[sourceGray ? 0 : channel] ?? storage.bytesPerSample * 8),
+          )
+        }
+        pixelFormat = resize.pixelFormat
+        colorSemantics = resizedPixelColorSemantics(colorSemantics, pixelFormat)
+        blocks = resize.apply(blocks)
+      } else if (operation.type === 'autoOrient') {
+        const orientation = createOrientationTransform(
+          width,
+          height,
+          pixelFormat,
+          sourceOrientation,
+          context.runtime,
+        )
+        width = orientation.width
+        height = orientation.height
+        blocks = orientation.apply(blocks)
+      } else if (operation.type === 'flip' || operation.type === 'flop') {
+        const orientation = createOrientationTransform(
+          width,
+          height,
+          pixelFormat,
+          operation.type === 'flip' ? 4 : 2,
+          context.runtime,
+        )
+        blocks = orientation.apply(blocks)
+      } else if (operation.type === 'rotate') {
+        const degrees = normalizedRotation(operation.degrees)
+        if (degrees === 0) continue
+        if (degrees === 90 || degrees === 180 || degrees === 270) {
+          const orientation = createOrientationTransform(
+            width,
+            height,
+            pixelFormat,
+            degrees === 90 ? 6 : degrees === 180 ? 3 : 8,
+            context.runtime,
+          )
+          width = orientation.width
+          height = orientation.height
+          blocks = orientation.apply(blocks)
+        } else {
+          const rotation = createRotationTransform(
+            width,
+            height,
+            pixelFormat,
+            degrees,
+            operation.options.background,
+            context.runtime,
+          )
+          width = rotation.width
+          height = rotation.height
+          pixelFormat = rotation.pixelFormat
+          blocks = rotation.apply(blocks)
+        }
+      }
+      if (options.evidence !== undefined)
+        blocks = instrumentOperationBlocks(blocks, options.evidence, operation.type)
+      throwIfAborted(options.signal)
+      validateImageDimensions(width, height, 1, context.limits)
+    }
     validateImageDimensions(width, height, 1, context.limits)
 
     if (!outputCodec.encoderPixelFormats?.includes(pixelFormat)) {

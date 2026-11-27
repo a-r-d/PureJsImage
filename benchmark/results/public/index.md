@@ -1,11 +1,12 @@
 # Public benchmark result index
 
-Generated from `benchmark/results/result-index-2026-11-26T03-10-03-492Z.json`.
+Generated from `benchmark/results/result-index-2026-11-27T13-08-22-217Z.json`.
 
 | Profile | Date | Validation | Headline eligible | JSON | Markdown |
 | --- | --- | --- | --- | --- | --- |
-| competitors | 2026-08-16T03:13:22.290Z | passed | yes | [JSON](./competitors-2026-08-16T03-13-22-290Z.json) | [Markdown](./competitors-2026-08-16T03-13-22-290Z.md) |
-| web-codecs | 2026-11-26T03:09:49.485Z | passed | yes | [JSON](./web-codecs-2026-11-26T03-09-49-485Z.json) | [Markdown](./web-codecs-2026-11-26T03-09-49-485Z.md) |
+| competitors | 2026-11-27T05:49:04.257Z | passed | yes | [JSON](./competitors-2026-11-27T05-49-04-257Z.json) | [Markdown](./competitors-2026-11-27T05-49-04-257Z.md) |
+| web-codecs | 2026-11-27T13:07:40.398Z | passed | yes | [JSON](./web-codecs-2026-11-27T13-07-40-398Z.json) | [Markdown](./web-codecs-2026-11-27T13-07-40-398Z.md) |
+| gif | 2026-11-27T05:52:10.277Z | passed | no | [JSON](./gif-2026-11-27T05-52-10-277Z.json) | [Markdown](./gif-2026-11-27T05-52-10-277Z.md) |
 | scientific-readers-baseline | 2026-08-16T21:15:45.206Z | passed | yes | [JSON](./scientific-readers-baseline-2026-08-16T21-15-45-206Z.json) | [Markdown](./scientific-readers-baseline-2026-08-16T21-15-45-206Z.md) |
 | scientific-readers-scaling | 2026-08-17T23:14:03.564Z | passed | yes | [JSON](./scientific-readers-scaling-2026-08-17T23-14-03-564Z.json) | [Markdown](./scientific-readers-scaling-2026-08-17T23-14-03-564Z.md) |
 | scientific-readers-range | 2026-08-17T23:07:11.065Z | passed | no | [JSON](./scientific-readers-range-2026-08-17T23-07-11-065Z.json) | [Markdown](./scientific-readers-range-2026-08-17T23-07-11-065Z.md) |

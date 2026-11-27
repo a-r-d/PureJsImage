@@ -1,4 +1,3 @@
-import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { copyFile, mkdir, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
@@ -7,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { workloadsForScientificProfile } from '../scientific-readers/workloads.ts'
 import { workflowsForProfile } from '../workflows.ts'
 import { compareHillclimbTrials, type HillclimbGoal, type HillclimbTrial } from './compare.ts'
+import { checkedCommand, runCommand, runInTrialDirectory, snapshotWorkingTree } from './trees.ts'
 
 type Suite = 'scientific' | 'web'
 type WebEngine = 'purejsimage' | 'purejsimage-wasm'
@@ -28,14 +28,9 @@ interface Options {
   readonly allowedProtectedMetricRegressions: readonly string[]
 }
 
-interface CommandResult {
-  readonly code: number
-  readonly stdout: string
-  readonly stderr: string
-}
-
 interface TrialContext {
   readonly label: 'base' | 'candidate'
+  /** Where the prepared tree waits between trials. Each trial runs it from the shared trial path. */
   readonly directory: string
   readonly revision: string
   readonly dirty: boolean
@@ -116,41 +111,6 @@ const parseOptions = (): Options => {
         .filter(Boolean),
     ),
   })
-}
-
-const runCommand = (
-  command: string,
-  args: readonly string[],
-  options: { readonly cwd: string; readonly env?: NodeJS.ProcessEnv },
-): Promise<CommandResult> =>
-  new Promise((resolveCommand, reject) => {
-    const child = spawn(command, args, {
-      cwd: options.cwd,
-      env: options.env ?? process.env,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    let stdout = ''
-    let stderr = ''
-    child.stdout.on('data', (chunk: Buffer) => {
-      stdout += chunk.toString()
-    })
-    child.stderr.on('data', (chunk: Buffer) => {
-      stderr += chunk.toString()
-    })
-    child.on('error', reject)
-    child.on('exit', (code) => resolveCommand({ code: code ?? 1, stdout, stderr }))
-  })
-
-const checkedCommand = async (
-  command: string,
-  args: readonly string[],
-  cwd: string,
-): Promise<string> => {
-  const result = await runCommand(command, args, { cwd })
-  if (result.code !== 0) {
-    throw new Error(`${command} ${args.join(' ')} failed: ${result.stderr.trim()}`)
-  }
-  return result.stdout.trim()
 }
 
 const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -378,21 +338,24 @@ const runTrial = async (
   options: Options,
   workload: string,
   context: TrialContext,
+  trialDirectory: string,
   rawDirectory: string,
   trial: string,
 ): Promise<HillclimbTrial> => {
   const outputDirectory = join(rawDirectory, `${trial}-${context.label}`)
   await mkdir(outputDirectory, { recursive: true })
-  const result = await runCommand(process.execPath, harnessArguments(options, workload, trial), {
-    cwd: context.directory,
-    env: {
-      ...process.env,
-      PUREJSIMAGE_BENCHMARK_GIT_COMMIT: context.revision,
-      PUREJSIMAGE_BENCHMARK_GIT_DIRTY: String(context.dirty),
-      PUREJSIMAGE_BENCHMARK_OUTPUT_DIRECTORY: outputDirectory,
-      PUREJSIMAGE_ENTRY: './dist/index.js',
-    },
-  })
+  const result = await runInTrialDirectory(context.directory, trialDirectory, () =>
+    runCommand(process.execPath, harnessArguments(options, workload, trial), {
+      cwd: trialDirectory,
+      env: {
+        ...process.env,
+        PUREJSIMAGE_BENCHMARK_GIT_COMMIT: context.revision,
+        PUREJSIMAGE_BENCHMARK_GIT_DIRTY: String(context.dirty),
+        PUREJSIMAGE_BENCHMARK_OUTPUT_DIRECTORY: outputDirectory,
+        PUREJSIMAGE_ENTRY: './dist/index.js',
+      },
+    }),
+  )
   let path: string
   let parsed: HillclimbTrial
   try {
@@ -538,6 +501,7 @@ const surveyWorkloads = (options: Options): readonly string[] =>
 const selectWorkload = async (
   options: Options,
   candidate: TrialContext,
+  trialDirectory: string,
   rawDirectory: string,
 ): Promise<{ readonly workload: string; readonly reason: string }> => {
   if (options.workload !== undefined)
@@ -546,7 +510,14 @@ const selectWorkload = async (
   if (fresh !== undefined) return fresh
   const surveyed: { readonly workload: string; readonly metric: number }[] = []
   for (const workload of surveyWorkloads(options)) {
-    const result = await runTrial(options, workload, candidate, rawDirectory, `survey-${workload}`)
+    const result = await runTrial(
+      options,
+      workload,
+      candidate,
+      trialDirectory,
+      rawDirectory,
+      `survey-${workload}`,
+    )
     surveyed.push({
       workload,
       metric: options.goal === 'speed' ? result.wallMilliseconds : result.peakRssBytes,
@@ -579,18 +550,18 @@ const overlayHarness = async (suite: Suite, baseDirectory: string): Promise<void
   }
 }
 
-const shareFixtureBytes = async (suite: Suite, baseDirectory: string): Promise<void> => {
-  const candidatePath =
+const shareFixtureBytes = async (suite: Suite, treeDirectory: string): Promise<void> => {
+  const checkoutPath =
     suite === 'web'
       ? join(repositoryDirectory, 'benchmark', 'corpus', 'files')
       : join(repositoryDirectory, 'benchmark', 'scientific-readers', '.tmp')
-  const basePath =
+  const treePath =
     suite === 'web'
-      ? join(baseDirectory, 'benchmark', 'corpus', 'files')
-      : join(baseDirectory, 'benchmark', 'scientific-readers', '.tmp')
-  await mkdir(candidatePath, { recursive: true })
-  await rm(basePath, { recursive: true, force: true })
-  await symlink(candidatePath, basePath, 'dir')
+      ? join(treeDirectory, 'benchmark', 'corpus', 'files')
+      : join(treeDirectory, 'benchmark', 'scientific-readers', '.tmp')
+  await mkdir(checkoutPath, { recursive: true })
+  await rm(treePath, { recursive: true, force: true })
+  await symlink(checkoutPath, treePath, 'dir')
 }
 
 const format = (value: number): string => value.toFixed(2)
@@ -623,7 +594,13 @@ const main = async (): Promise<void> => {
     createdAt.replaceAll(/[:.]/gu, '-'),
   )
   const rawDirectory = join(runDirectory, 'raw')
+  // Base and candidate both run from trialDirectory, one at a time. Running the candidate from
+  // the checkout and the base from a deeper worktree path biased some workloads by 10 to 16% with
+  // identical code. See "Hillclimb runner path bias" in benchmark/optimization-log.md.
   const baseDirectory = join(runDirectory, 'base-worktree')
+  const candidateDirectory = join(runDirectory, 'candidate-worktree')
+  const trialDirectory = join(runDirectory, 'trial-worktree')
+  const snapshotIndexPath = join(runDirectory, 'candidate.index')
   await mkdir(rawDirectory, { recursive: true })
   const candidateRevision = await checkedCommand('git', ['rev-parse', 'HEAD'], repositoryDirectory)
   const baseRevision = await checkedCommand(
@@ -633,23 +610,32 @@ const main = async (): Promise<void> => {
   )
   const candidateDirty =
     (await checkedCommand('git', ['status', '--porcelain'], repositoryDirectory)).length > 0
-  let worktreeCreated = false
+  const worktrees: string[] = []
   try {
-    await checkedCommand(
-      'git',
-      ['worktree', 'add', '--detach', baseDirectory, baseRevision],
+    const candidateSnapshotRevision = await snapshotWorkingTree(
       repositoryDirectory,
+      snapshotIndexPath,
     )
-    worktreeCreated = true
+    for (const [directory, revision] of [
+      [baseDirectory, baseRevision],
+      [candidateDirectory, candidateSnapshotRevision],
+    ] as const) {
+      await checkedCommand(
+        'git',
+        ['worktree', 'add', '--detach', directory, revision],
+        repositoryDirectory,
+      )
+      worktrees.push(directory)
+      await shareFixtureBytes(options.suite, directory)
+    }
     await overlayHarness(options.suite, baseDirectory)
-    await shareFixtureBytes(options.suite, baseDirectory)
     process.stdout.write('Building candidate with the current Node runtime.\n')
-    await checkedCommand('npm', ['run', 'build'], repositoryDirectory)
+    await checkedCommand('npm', ['run', 'build'], candidateDirectory)
     process.stdout.write('Building base with the current Node runtime.\n')
     await checkedCommand('npm', ['run', 'build'], baseDirectory)
     const candidate: TrialContext = {
       label: 'candidate',
-      directory: repositoryDirectory,
+      directory: candidateDirectory,
       revision: candidateRevision,
       dirty: candidateDirty,
     }
@@ -659,7 +645,7 @@ const main = async (): Promise<void> => {
       revision: baseRevision,
       dirty: false,
     }
-    const selection = await selectWorkload(options, candidate, rawDirectory)
+    const selection = await selectWorkload(options, candidate, trialDirectory, rawDirectory)
     process.stdout.write(`Selected ${selection.workload}: ${selection.reason}.\n`)
     const baseTrials: HillclimbTrial[] = []
     const candidateTrials: HillclimbTrial[] = []
@@ -676,6 +662,7 @@ const main = async (): Promise<void> => {
             options,
             selection.workload,
             context,
+            trialDirectory,
             rawDirectory,
             `trial-${String(index + 1).padStart(2, '0')}`,
           ),
@@ -709,6 +696,7 @@ const main = async (): Promise<void> => {
       baseRevision,
       candidateRevision,
       candidateDirty,
+      candidateSnapshotRevision,
       nodeVersion: process.version,
       trials: options.trials,
       warmups: options.warmups,
@@ -728,8 +716,8 @@ const main = async (): Promise<void> => {
     console.log(`Markdown: ${relative(repositoryDirectory, markdownPath)}`)
     process.exitCode = comparison.exitCode
   } finally {
-    if (worktreeCreated) {
-      const cleanup = await runCommand('git', ['worktree', 'remove', '--force', baseDirectory], {
+    for (const directory of worktrees) {
+      const cleanup = await runCommand('git', ['worktree', 'remove', '--force', directory], {
         cwd: repositoryDirectory,
       })
       if (cleanup.code !== 0) {
@@ -737,6 +725,7 @@ const main = async (): Promise<void> => {
         if (process.exitCode === undefined || process.exitCode === 0) process.exitCode = 2
       }
     }
+    await rm(snapshotIndexPath, { force: true })
   }
 }
 

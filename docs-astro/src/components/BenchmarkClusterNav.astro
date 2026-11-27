@@ -1,6 +1,6 @@
 ---
 interface Props {
-  readonly current: 'web-codecs' | 'scientific-charts' | 'reader-tables'
+  readonly current: 'web-codecs' | 'gif-charts' | 'scientific-charts' | 'reader-tables'
 }
 
 const { current } = Astro.props
@@ -11,6 +11,11 @@ const items = [
     id: 'web-codecs',
     href: 'performance/',
     label: 'Web codec charts',
+  },
+  {
+    id: 'gif-charts',
+    href: 'performance/#gif-benchmarks',
+    label: 'GIF charts',
   },
   {
     id: 'scientific-charts',

@@ -60,10 +60,13 @@ npm run bench:hillclimb -- --suite web --profile transforms --workload transform
 npm run bench:hillclimb -- --suite scientific --workload scaling-tiff-large-warm-regions --goal speed --base-ref origin/main
 ```
 
-The runner creates a temporary base worktree, builds both revisions with the same
-Node runtime, measures PureJsImage only, uses seven trials by default, alternates
-base-first and candidate-first pairs, and writes raw JSON plus concise JSON and
-Markdown under `.tmp/hillclimb/`. It compares the dirty working tree against
+The runner copies the working tree into a temporary candidate worktree, creates a
+temporary base worktree, builds both with the same Node runtime, measures
+PureJsImage only, uses seven trials by default, alternates base-first and
+candidate-first pairs, and writes raw JSON plus concise JSON and Markdown under
+`.tmp/hillclimb/`. Each trial moves its tree to one shared `trial-worktree`
+path, because a different checkout path alone shifted some workloads by 10% to
+16%. It compares the dirty working tree, as it was when the run started, against
 `--base-ref`. It never commits results or updates public documentation.
 
 For a small-gain confirmation, raise the sample count with `--trials 15` or

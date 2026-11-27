@@ -653,8 +653,11 @@ const scientificPath = jsonResultPath(scientificEntry)
 const scientificScalingPath = jsonResultPath(scientificScalingEntry)
 const rangePath = jsonResultPath(rangeEntry)
 const scientificCompetitorPath = jsonResultPath(scientificCompetitorEntry)
+const gifEntry = latestEntry(resultIndex, 'gif')
+const gifPath = jsonResultPath(gifEntry)
 for (const path of [
   ordinaryPath,
+  gifPath,
   scientificPath,
   scientificScalingPath,
   rangePath,
@@ -671,6 +674,7 @@ const [
   scientificScalingValue,
   rangeValue,
   competitorValue,
+  gifValue,
 ] = await Promise.all([
   readCapabilityManifest(),
   readJson(join(repositoryDirectory, 'benchmark/generated/package-metrics.json')),
@@ -679,9 +683,11 @@ const [
   readJson(scientificScalingPath),
   readJson(rangePath),
   readJson(scientificCompetitorPath),
+  readJson(gifPath),
 ])
 const packageMetrics = parsePackageMetrics(packageMetricsValue)
 const ordinary = parseOrdinaryReport(ordinaryValue, ordinaryPath)
+const gif = parseOrdinaryReport(gifValue, gifPath)
 const scientific = parseScientificReport(scientificValue, scientificPath)
 const scientificScaling = parseScientificScalingReport(
   scientificScalingValue,
@@ -742,20 +748,33 @@ const svgDimensions = (source: string, markup: string): { width: number; height:
   return { width, height }
 }
 
-const ordinaryCharts = await Promise.all(
-  ['speed', 'quality', 'memory'].map(async (metric) => {
-    const source = join(
-      repositoryDirectory,
-      stringValue(ordinary.charts[metric], `ordinary.charts.${metric}`),
-    )
-    if (!(await pathExists(source))) throw new Error(`Chart references missing result: ${source}`)
-    const filename = basename(source)
-    const dimensions = filename.endsWith('.svg')
-      ? svgDimensions(source, await readFile(source, 'utf8'))
-      : { width: 2400, height: 1510 }
-    return { filename, metric, source, ...dimensions }
-  }),
-)
+const snapshotCharts = (
+  snapshot: { readonly charts: Readonly<Record<string, unknown>> },
+  label: string,
+  metrics: readonly string[],
+) =>
+  Promise.all(
+    metrics.map(async (metric) => {
+      const source = join(
+        repositoryDirectory,
+        stringValue(snapshot.charts[metric], `${label}.charts.${metric}`),
+      )
+      if (!(await pathExists(source))) throw new Error(`Chart references missing result: ${source}`)
+      const filename = basename(source)
+      const dimensions = filename.endsWith('.svg')
+        ? svgDimensions(source, await readFile(source, 'utf8'))
+        : { width: 2400, height: 1510 }
+      return { filename, metric, source, ...dimensions }
+    }),
+  )
+
+const ordinaryCharts = await snapshotCharts(ordinary, 'ordinary', ['speed', 'quality', 'memory'])
+// GIF workflows have no PSNR reference, so the GIF snapshot has speed and memory charts only.
+const gifCharts = await snapshotCharts(gif, 'gif', ['speed', 'memory'])
+const gifCounts = gif.results.reduce<Record<string, number>>((counts, result) => {
+  counts[result.status] = (counts[result.status] ?? 0) + 1
+  return counts
+}, {})
 
 const sharedWorkloadCandidates = [
   'tiff-window',
@@ -1070,6 +1089,20 @@ const documentation = {
     reportMarkdown: ordinaryEntry.resultPaths.find((path) => path.endsWith('.md')) ?? null,
     statusCounts: ordinaryCounts,
   },
+  gif: {
+    charts: Object.fromEntries(
+      gifCharts.map(({ filename, height, metric, width }) => [
+        metric,
+        { height, src: `assets/${filename}`, width },
+      ]),
+    ),
+    createdAt: gif.createdAt,
+    engineVersions: gif.startup,
+    environment: gif.environment,
+    reportJson: portablePath(gifPath),
+    reportMarkdown: gifEntry.resultPaths.find((path) => path.endsWith('.md')) ?? null,
+    statusCounts: { pass: gifCounts.pass ?? 0, unsupported: gifCounts.unsupported ?? 0 },
+  },
   scientific: {
     baseline: {
       createdAt: scientific.createdAt,
@@ -1197,6 +1230,8 @@ const benchmarkBlock = [
   '',
   `**Web codec benchmarks (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} passing cases, ${ordinaryCounts.unsupported ?? 0} unsupported cases, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the ${documentation.ordinary.headline.workflow.replace('northstar ', '')}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
   '',
+  `**GIF benchmarks (${gif.createdAt.slice(0, 10)}):** ${gifCounts.pass ?? 0} passing cases and ${gifCounts.unsupported ?? 0} unsupported cases across ${new Set(gif.results.map(({ workflow }) => workflow)).size} animated and still GIF workflows, compared with Sharp, ImageScript, and Jimp. [GIF charts](https://purejsimage.com/performance/#gif-benchmarks).`,
+  '',
   `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup checks passed across ${new Set(scientific.results.map(({ readerId }) => readerId)).size} readers in that snapshot. Separate tests of medium and large datasets checked ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} had a coefficient of variation below 10%; the rest are marked noisy in the report. Results include time to first data, operation time, peak memory, requests and bytes read, extra data fetched, startup time and output checks.`,
   '',
   crossEnvironmentDisclaimer === null ? '' : `> ${crossEnvironmentDisclaimer}`,
@@ -1299,7 +1334,7 @@ const compareOrWrite = async (
 
 await compareOrWrite(dataPath, expectedData, true)
 await compareOrWrite(readmePath, expectedReadme)
-for (const chart of ordinaryCharts) {
+for (const chart of [...ordinaryCharts, ...gifCharts]) {
   await compareOrWrite(join(publicAssetsDirectory, chart.filename), await readFile(chart.source))
 }
 for (const chart of scientificCharts) {
@@ -1315,7 +1350,7 @@ if (checkOnly && stale.length > 0) {
 if (!checkOnly) {
   console.log(`Wrote ${portablePath(dataPath)}`)
   console.log(`Updated ${portablePath(readmePath)}`)
-  for (const chart of [...ordinaryCharts, ...scientificCharts]) {
+  for (const chart of [...ordinaryCharts, ...gifCharts, ...scientificCharts]) {
     console.log(`Wrote docs-astro/public/assets/${chart.filename}`)
   }
   for (const asset of readmeAssets) {

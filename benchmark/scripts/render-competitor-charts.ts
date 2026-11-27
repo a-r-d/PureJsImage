@@ -12,8 +12,8 @@ const argument = (name: string): string | undefined => {
 }
 
 const profile = argument('profile') ?? 'competitors'
-if (profile !== 'competitors' && profile !== 'web-codecs') {
-  throw new Error(`Chart profile must be competitors or web-codecs, received ${profile}`)
+if (profile !== 'competitors' && profile !== 'web-codecs' && profile !== 'gif') {
+  throw new Error(`Chart profile must be competitors, web-codecs or gif, received ${profile}`)
 }
 
 const latestCompetitorReport = async (): Promise<string> => {
@@ -48,7 +48,7 @@ const positionalReport = process.argv
   .find((value, index, values) => !value.startsWith('--') && values[index - 1] !== '--profile')
 const reportPath = argument('report') ?? positionalReport ?? (await latestCompetitorReport())
 
-const engines = [
+const allEngines = [
   { id: 'purejsimage', label: 'PureJsImage · pure JS', color: '#2563eb' },
   {
     id: 'purejsimage-wasm',
@@ -66,6 +66,18 @@ const engines = [
   { id: 'imagescript', label: 'ImageScript · pure JS', color: '#ca8a04' },
   { id: 'jsquash', label: 'jSquash · WebAssembly', color: '#0891b2' },
 ] as const
+
+// image-js and jSquash have no GIF encoder, so the GIF profile runs without them.
+const gifEngineIds: ReadonlySet<string> = new Set([
+  'purejsimage',
+  'purejsimage-wasm',
+  'jimp',
+  'sharp',
+  'sharp-single-thread',
+  'imagescript',
+])
+const engines =
+  profile === 'gif' ? allEngines.filter((engine) => gifEngineIds.has(engine.id)) : allEngines
 
 const competitorWorkflowCandidates = [
   { id: 'metadata-jpeg-large', label: 'Large JPEG metadata' },
@@ -94,8 +106,24 @@ const webCodecWorkflowCandidates = [
   { id: 'jpeg-to-avif', label: 'JPEG → AVIF' },
 ] as const
 
+const gifWorkflowCandidates = [
+  { id: 'gif-animated-resize', label: '36-frame GIF resize' },
+  { id: 'gif-animated-roundtrip', label: '36-frame GIF round trip' },
+  { id: 'gif-sticker-resize', label: 'Transparent sticker GIF resize' },
+  { id: 'gif-cc0-resize', label: '70-frame GIF resize' },
+  { id: 'gif-last-frame-png', label: 'Last GIF frame → PNG' },
+  { id: 'jpeg-to-gif', label: 'JPEG resize → GIF' },
+  { id: 'logo-to-gif', label: 'Transparent logo → GIF' },
+] as const
+
 const workflowCandidates =
-  profile === 'web-codecs' ? webCodecWorkflowCandidates : competitorWorkflowCandidates
+  profile === 'web-codecs'
+    ? webCodecWorkflowCandidates
+    : profile === 'gif'
+      ? gifWorkflowCandidates
+      : competitorWorkflowCandidates
+// GIF workflows have no PSNR reference, so that profile renders speed and memory only.
+const renderQuality = profile !== 'gif'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
@@ -173,7 +201,7 @@ const qualityWorkflows = performanceWorkflows.filter((workflow) => {
   )
   return profile === 'competitors' ? measured.length === engines.length : measured.length >= 2
 })
-if (qualityWorkflows.length === 0) {
+if (renderQuality && qualityWorkflows.length === 0) {
   throw new Error('No workflow reported quality for every chart engine')
 }
 const finiteQualityValues = qualityWorkflows.flatMap((workflow) =>
@@ -182,9 +210,15 @@ const finiteQualityValues = qualityWorkflows.flatMap((workflow) =>
     return typeof quality === 'number' ? [quality] : []
   }),
 )
-if (finiteQualityValues.length === 0) throw new Error('No finite quality values are available')
-const qualityMinimum = Math.max(0, Math.floor(Math.min(...finiteQualityValues) / 5) * 5 - 5)
-const qualityMaximum = Math.ceil((Math.max(...finiteQualityValues) + 5) / 5) * 5
+if (renderQuality && finiteQualityValues.length === 0) {
+  throw new Error('No finite quality values are available')
+}
+const qualityMinimum =
+  finiteQualityValues.length === 0
+    ? 0
+    : Math.max(0, Math.floor(Math.min(...finiteQualityValues) / 5) * 5 - 5)
+const qualityMaximum =
+  finiteQualityValues.length === 0 ? 5 : Math.ceil((Math.max(...finiteQualityValues) + 5) / 5) * 5
 
 type Metric = 'memory' | 'quality' | 'speed'
 
@@ -254,18 +288,13 @@ const chartSvg = (metric: Metric): string => {
     (_, index) => qualityMinimum + index * 5,
   )
   const ticks = metric === 'speed' ? speedTicks : metric === 'memory' ? memoryTicks : qualityTicks
-  const title =
-    metric === 'speed'
-      ? profile === 'web-codecs'
-        ? 'Common web codec speed'
-        : 'Image workflow speed'
-      : metric === 'memory'
-        ? profile === 'web-codecs'
-          ? 'Common web codec memory'
-          : 'Image workflow memory'
-        : profile === 'web-codecs'
-          ? 'Common web codec quality'
-          : 'Image workflow quality'
+  const subject =
+    profile === 'web-codecs'
+      ? 'Common web codec'
+      : profile === 'gif'
+        ? 'GIF and animated GIF'
+        : 'Image workflow'
+  const title = `${subject} ${metric}`
   const subtitle =
     metric === 'speed'
       ? 'Median wall time · logarithmic scale · lower is better'
@@ -344,7 +373,9 @@ const chartSvg = (metric: Metric): string => {
     metric === 'speed'
       ? 'Resize uses engine defaults: PureJsImage and Sharp use Lanczos 3; Jimp and ImageScript use bilinear. Timings include encoding and are not matched quality across kernels or lossy encoders.'
       : metric === 'memory'
-        ? 'Absolute process RSS from isolated workers. PureJsImage WASM accelerates eligible JPEG, PNG, and WebP work and uses TypeScript fallback for TIFF and AVIF; jSquash AVIF is WebAssembly.'
+        ? profile === 'gif'
+          ? 'Absolute process RSS from isolated workers. PureJsImage WASM accelerates JPEG, PNG, and resize steps; GIF decoding, palettes, dithering, and GIF encoding run in TypeScript on both PureJsImage engines.'
+          : 'Absolute process RSS from isolated workers. PureJsImage WASM accelerates eligible JPEG, PNG, and WebP work and uses TypeScript fallback for TIFF and AVIF; jSquash AVIF is WebAssembly.'
         : 'Premultiplied-RGBA PSNR against an independently decoded exact-area reference. Exact means every compared channel matched. Quality measurement is outside timing.'
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -375,7 +406,7 @@ const chartSvg = (metric: Metric): string => {
   </svg>`
 }
 
-const chartPrefix = profile === 'competitors' ? 'competitors' : 'web-codecs'
+const chartPrefix = profile
 const speedPath = join(outputDirectory, `${chartPrefix}-speed-${reportStem}.svg`)
 const memoryPath = join(outputDirectory, `${chartPrefix}-memory-${reportStem}.svg`)
 const qualityPath = join(outputDirectory, `${chartPrefix}-quality-${reportStem}.svg`)
@@ -388,9 +419,9 @@ await mkdir(outputDirectory, { recursive: true })
 await Promise.all([
   writeSvg(speedPath, chartSvg('speed')),
   writeSvg(memoryPath, chartSvg('memory')),
-  writeSvg(qualityPath, chartSvg('quality')),
+  ...(renderQuality ? [writeSvg(qualityPath, chartSvg('quality'))] : []),
 ])
 
 console.log(speedPath)
 console.log(memoryPath)
-console.log(qualityPath)
+if (renderQuality) console.log(qualityPath)
