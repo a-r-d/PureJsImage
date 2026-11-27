@@ -83,11 +83,15 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // codec, whose encoder now also builds an indexed file for output with 256 or fewer colors.
   // 2026-11-26: raised from 91,000 to 92,000 bytes, owner approved, for the PNG CRC that switches
   // to an eight-byte table after 256 KiB.
-  'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 92_000 },
+  // 2026-11-27: raised from 92,000 to 93,000 bytes, owner approved, for the PNG encoder passing
+  // its filtered block size to deflate.
+  'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 93_000 },
   'scientific-reader-jpeg': { baselineMinifiedBytes: 104_815, maxMinifiedBytes: 136_260 },
   // 2026-11-26: raised from 138,213 to 145,000 bytes, owner approved, for VP8 intra mode
   // selection in the lossy encoder and bilinear chroma upsampling in the decoder.
-  'scientific-reader-webp': { baselineMinifiedBytes: 106_317, maxMinifiedBytes: 145_000 },
+  // 2026-11-27: raised from 145,000 to 152,000 bytes, owner approved, for the lossy encoder's loop
+  // filter, segments, learned coefficient probabilities, and skip flags.
+  'scientific-reader-webp': { baselineMinifiedBytes: 106_317, maxMinifiedBytes: 152_000 },
   'scientific-reader-bmp': { baselineMinifiedBytes: 44_120, maxMinifiedBytes: 57_356 },
   'scientific-reader-jp2': { baselineMinifiedBytes: 93_696, maxMinifiedBytes: 121_805 },
   'scientific-reader-rpl': { baselineMinifiedBytes: 41_135, maxMinifiedBytes: 53_500 },

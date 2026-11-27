@@ -148,20 +148,14 @@ pub extern "C" fn webp_vp8_row(
             state[11 + i] = word(header, 29 + i);
         }
         // SAFETY: all validated read-only regions are disjoint from scratch.
-        let mut modes = vp8_coefficients::Reader {
-            data: unsafe { &shared_bytes(control_region)[..control_len as usize] },
-            next: 0,
-            range: word(header, 38),
-            value: word(header, 39),
-            bits: word(header, 40) as i32,
-        };
+        let mut modes = vp8_coefficients::Reader::new(
+            unsafe { &shared_bytes(control_region)[..control_len as usize] },
+            word(header, 38),
+            word(header, 39),
+            word(header, 40),
+        )?;
+        // SAFETY: mode probabilities and row scratch are disjoint.
         let table = unsafe { shared_bytes(mode_region) };
-        if !(128..=255).contains(&modes.range)
-            || !(0..=15).contains(&modes.bits)
-            || modes.value >= modes.range << modes.bits
-        {
-            return Err(ERROR_ARGUMENT);
-        }
         let skip_probability = word(header, 43);
         let mut pos = 0;
         let mut col = begin as usize;
@@ -299,8 +293,8 @@ pub extern "C" fn webp_vp8_row(
                 }
             }
         }
-        set_word(header, 38, modes.range);
-        set_word(header, 39, modes.value);
+        set_word(header, 38, modes.range());
+        set_word(header, 39, modes.value());
         set_word(header, 40, modes.bits as u32);
         set_word(header, 41, modes.next as u32);
         for i in 0..3 {

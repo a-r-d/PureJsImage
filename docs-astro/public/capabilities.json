@@ -1140,7 +1140,23 @@
         },
         {
           "status": "supported",
-          "text": "Forward transforms, quantization, coefficient coding, and standard coefficient probabilities"
+          "text": "Forward transforms, quantization, and coefficient coding"
+        },
+        {
+          "status": "supported",
+          "text": "Per-image coefficient probabilities learned from the start of the frame, up to 65,536 coefficient entries and 16,384 mode entries"
+        },
+        {
+          "status": "supported",
+          "text": "Skip flags for macroblocks with no coefficients when the whole frame fits in that sample and the flags save bytes"
+        },
+        {
+          "status": "supported",
+          "text": "Two segments, with a finer quantizer for smooth-gradient macroblocks"
+        },
+        {
+          "status": "supported",
+          "text": "Normal loop filter on textured images, at a level set from the quantizer"
         },
         {
           "status": "supported",
@@ -1152,15 +1168,15 @@
         },
         {
           "status": "planned",
-          "text": "Adaptive coefficient probabilities and optimized token partitions"
+          "text": "Multiple token partitions"
         },
         {
           "status": "planned",
-          "text": "Segmentation, skip decisions, and per-segment quantization"
+          "text": "More than two segments and per-segment filter levels"
         },
         {
           "status": "planned",
-          "text": "Normal or simple loop-filter selection and tuning"
+          "text": "Loop-filter level search and sharpness tuning"
         },
         {
           "status": "planned",

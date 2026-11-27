@@ -2,6 +2,7 @@ import { once } from 'node:events'
 import type { FileHandle } from 'node:fs/promises'
 import { availableParallelism, tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { getDefaultHighWaterMark } from 'node:stream'
 import {
   constants,
   createDeflate,
@@ -287,8 +288,22 @@ class NodeDeflateEncoder implements DeflateEncoder {
   readonly #completion: Promise<void>
   #finished = false
 
-  constructor(options: DeflateOptions, onData: (chunk: Uint8Array) => Promise<void>) {
-    const deflater = createDeflate(zlibOptions(options))
+  constructor(
+    options: DeflateOptions,
+    onData: (chunk: Uint8Array) => Promise<void>,
+    inputBlockBytes?: number,
+  ) {
+    // A write at the high-water mark waits for drain. Leave room for one
+    // filtered block while the pipeline produces the next, up to 128 KiB.
+    const writableHighWaterMark =
+      inputBlockBytes !== undefined &&
+      Number.isSafeInteger(inputBlockBytes) &&
+      inputBlockBytes >= getDefaultHighWaterMark(false) &&
+      inputBlockBytes < 128 * 1024
+        ? inputBlockBytes + 1
+        : undefined
+    const streamOptions = { ...zlibOptions(options), writableHighWaterMark }
+    const deflater = createDeflate(streamOptions)
     this.#deflater = deflater
     this.#completion = new Promise((resolve, reject) => {
       let writes = Promise.resolve()
@@ -344,8 +359,9 @@ export const createNodeRuntime = (options: Readonly<NodeRuntimeOptions> = {}): I
     createDeflateEncoder(
       options: DeflateOptions,
       onData: (chunk: Uint8Array) => Promise<void>,
+      inputBlockBytes?: number,
     ): DeflateEncoder {
-      return new NodeDeflateEncoder(options, onData)
+      return new NodeDeflateEncoder(options, onData, inputBlockBytes)
     },
     async createParallelDeflateEncoder(
       options: DeflateOptions,

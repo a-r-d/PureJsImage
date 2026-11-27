@@ -89,17 +89,22 @@ class BooleanEncoder {
       this.#bottom = (this.#bottom + split) >>> 0
       this.#range -= split
     } else this.#range = split
-    while (this.#range < 128) {
-      this.#range <<= 1
-      if ((this.#bottom & 0x80000000) !== 0) this.#carry()
-      this.#bottom = (this.#bottom << 1) >>> 0
-      this.#bitCount -= 1
-      if (this.#bitCount === 0) {
-        this.#append(this.#bottom >>> 24)
-        this.#bottom &= 0x00ffffff
-        this.#bitCount = 8
-      }
+    if (this.#range >= 128) return
+    const shift = Math.clz32(this.#range) - 24
+    this.#range <<= shift
+    if (shift < this.#bitCount) {
+      this.#bottom = (this.#bottom << shift) >>> 0
+      this.#bitCount -= shift
+      return
     }
+    // The coder emits at most one byte per symbol. Carry into the prior
+    // byte before exposing the next eight bits of the lower interval bound.
+    if (this.#bottom >>> (32 - this.#bitCount)) this.#carry()
+    const shifted = (this.#bottom << this.#bitCount) >>> 0
+    this.#append(shifted >>> 24)
+    const remaining = shift - this.#bitCount
+    this.#bottom = ((shifted & 0x00ffffff) << remaining) >>> 0
+    this.#bitCount = 8 - remaining
   }
 
   uint(value: number, bits: number): void {
@@ -117,7 +122,7 @@ class BooleanEncoder {
       this.#append(value >>> 24)
       value = (value << 8) >>> 0
     }
-    return this.#bytes.slice(0, this.#length)
+    return this.#bytes.subarray(0, this.#length)
   }
 
   #carry(): void {
@@ -139,6 +144,89 @@ class BooleanEncoder {
     this.#bytes[this.#length] = value
     this.#length += 1
   }
+}
+
+// Freeze the model at a macroblock boundary. After these limits the
+// remaining modes and coefficients go directly to the arithmetic coders.
+const maxTrainingTokens = 65536
+const maxTrainingModes = 16384
+const logProbability = Float64Array.from({ length: 257 }, (_, p) => Math.log2(p / 256))
+const skippedToken = 1 << 13
+const emptyBlock = 1 << 12
+
+// One word per macroblock plus one per predicted 4x4 block. This retains
+// only mode choices and their contexts, independent of their tree depths.
+class ModePrefix {
+  data = new Uint16Array(1024)
+  length = 0
+
+  append(record: number, subModes: Uint16Array): void {
+    if (this.length + 17 > this.data.length) {
+      const grown = new Uint16Array(Math.min(maxTrainingModes + 17, this.data.length * 2))
+      grown.set(this.data)
+      this.data = grown
+    }
+    this.data[this.length++] = record
+    if ((record & 7) === blockPrediction) {
+      this.data.set(subModes, this.length)
+      this.length += 16
+    }
+  }
+
+  replay(header: BooleanEncoder, segment: number, skip: number): void {
+    for (let i = 0; i < this.length; ) {
+      const record = this.data[i++] ?? 0
+      writeModes(header, record, this.data, i, segment, skip)
+      if ((record & 7) === blockPrediction) i += 16
+    }
+  }
+}
+
+// All macroblocks in a frame are encoded synchronously.
+let trainingScratch: { tokens: TokenPrefix; modes: ModePrefix } | undefined
+
+const selectProbabilities = (counts: Uint32Array, header: BooleanEncoder): Uint8Array => {
+  const probabilities = defaultCoefficientProbabilities.slice()
+  for (let i = 0; i < probabilities.length; i++) {
+    const zero = counts[i * 2] ?? 0
+    const one = counts[i * 2 + 1] ?? 0
+    const old = probabilities[i] ?? 128
+    // Shrink rare observations toward the default. A replacement must
+    // repay the eight-bit literal and the RFC 6386 update flag cost.
+    const next = Math.max(1, Math.min(255, Math.round((256 * zero + 16 * old) / (zero + one + 16))))
+    const updateProb = coefficientUpdateProbabilities[i] ?? 255
+    const saved =
+      zero * ((logProbability[next] ?? 0) - (logProbability[old] ?? 0)) +
+      one * ((logProbability[256 - next] ?? 0) - (logProbability[256 - old] ?? 0))
+    const update =
+      saved > 8 + (logProbability[updateProb] ?? 0) - (logProbability[256 - updateProb] ?? 0)
+    header.bit(Number(update), updateProb)
+    if (update) {
+      header.uint(next, 8)
+      probabilities[i] = next
+    }
+  }
+  return probabilities
+}
+
+// Once the complete frame fits in the training prefix, the skip decision
+// has an exact census. Price its flags against the EOBs they replace using
+// the selected coefficient model. Leave a margin for coder rounding.
+const selectSkipProbability = (
+  tokens: TokenPrefix,
+  probabilities: Uint8Array,
+  skipped: number,
+  total: number,
+): number => {
+  if (skipped === 0) return 0
+  const probability = Math.max(1, Math.min(255, Math.round((256 * (total - skipped)) / total)))
+  let saved = -16 - skipped * bitCost(1, probability) - (total - skipped) * bitCost(0, probability)
+  for (let i = 0; i < tokens.length; ) {
+    const block = tokens.data[i++] ?? 0
+    if (block & skippedToken) saved -= logProbability[probabilities[block & 2047] ?? 128] ?? 0
+    if (!(block & emptyBlock)) i += (block >> 4) - ((block & 3) === 0 ? 1 : 0)
+  }
+  return saved > 0 ? probability : 0
 }
 
 const probabilityOffset = (type: number, coefficient: number, context: number): number =>
@@ -198,30 +286,166 @@ const writeMagnitude = (
   }
 }
 
+// For nodes 1..10 of the RFC coefficient tree these are the first,
+// split and past-the-end token buckets: ZERO, ONE..FOUR, CAT1..CAT6.
+// Node 0 counts EOB separately because it is omitted after a zero.
+const coefficientTreeBuckets = Uint8Array.of(
+  1,
+  2,
+  12,
+  2,
+  3,
+  12,
+  3,
+  6,
+  12,
+  3,
+  4,
+  6,
+  4,
+  5,
+  6,
+  6,
+  8,
+  12,
+  6,
+  7,
+  8,
+  8,
+  10,
+  12,
+  8,
+  9,
+  10,
+  10,
+  11,
+  12,
+)
+
+// A block descriptor carries the initial context, type and last nonzero
+// position, followed by signed levels in scan order. An empty block needs
+// just its EOB tree offset. Nothing is stored for trailing zero coefficients.
+class TokenPrefix {
+  data = new Int16Array(1024)
+  length = 0
+  readonly histogram = new Uint32Array(96 * 13)
+
+  block(coefficients: Int32Array, start: number, end: number, type: number, context: number): void {
+    let checkEnd = true
+    let pos = type === 0 ? 1 : 0
+    if (this.length + 17 > this.data.length) {
+      const grown = new Int16Array(Math.min(maxTrainingTokens + 25 * 17, this.data.length * 2))
+      grown.set(this.data)
+      this.data = grown
+    }
+    if (end <= pos) {
+      const offset = probabilityOffset(type, pos, context)
+      this.data[this.length++] = emptyBlock | offset
+      const bucket = (offset / 11) * 13
+      this.histogram[bucket] = (this.histogram[bucket] ?? 0) + 1
+      return
+    }
+    this.data[this.length++] = (end << 4) | (context << 2) | type
+    for (; pos < end; pos++) {
+      const group = (type * 8 + (bands[pos] ?? 0)) * 3 + context
+      const index = group * 13
+      if (checkEnd) this.histogram[index + 12] = (this.histogram[index + 12] ?? 0) + 1
+      const value = coefficients[start + (zigzag[pos] ?? 0)] ?? 0
+      this.data[this.length++] = value
+      const mag = Math.abs(value)
+      const bucket =
+        mag <= 4
+          ? mag + 1
+          : mag <= 6
+            ? 6
+            : mag <= 10
+              ? 7
+              : mag <= 18
+                ? 8
+                : mag <= 34
+                  ? 9
+                  : mag <= 66
+                    ? 10
+                    : 11
+      this.histogram[index + bucket] = (this.histogram[index + bucket] ?? 0) + 1
+      checkEnd = mag !== 0
+      context = mag === 0 ? 0 : mag === 1 ? 1 : 2
+    }
+    if (end < 16) {
+      const bucket = ((type * 8 + (bands[end] ?? 0)) * 3 + context) * 13
+      this.histogram[bucket] = (this.histogram[bucket] ?? 0) + 1
+    }
+  }
+
+  counts(): Uint32Array {
+    const counts = new Uint32Array(96 * 22)
+    const sums = new Uint32Array(13)
+    for (let group = 0; group < 96; group++) {
+      const start = group * 13
+      const target = group * 22
+      counts[target] = this.histogram[start] ?? 0
+      counts[target + 1] = this.histogram[start + 12] ?? 0
+      for (let i = 1; i < 12; i++) sums[i + 1] = (sums[i] ?? 0) + (this.histogram[start + i] ?? 0)
+      for (let i = 0; i < 10; i++) {
+        const first = coefficientTreeBuckets[i * 3] ?? 0
+        const split = coefficientTreeBuckets[i * 3 + 1] ?? 0
+        const end = coefficientTreeBuckets[i * 3 + 2] ?? 0
+        counts[target + 2 * i + 2] = (sums[split] ?? 0) - (sums[first] ?? 0)
+        counts[target + 2 * i + 3] = (sums[end] ?? 0) - (sums[split] ?? 0)
+      }
+    }
+    return counts
+  }
+
+  replay(encoder: BooleanEncoder, probabilities: Uint8Array, skip: number): void {
+    const coefficients = new Int32Array(16)
+    for (let i = 0; i < this.length; ) {
+      const block = this.data[i++] ?? 0
+      if (block & emptyBlock) {
+        if (skip === 0 || !(block & skippedToken)) encoder.bit(0, probabilities[block & 2047])
+        continue
+      }
+      const type = block & 3
+      const end = block >> 4
+      for (let pos = type === 0 ? 1 : 0; pos < end; pos++)
+        coefficients[zigzag[pos] ?? 0] = this.data[i++] ?? 0
+      writeCoefficientBlock(
+        encoder,
+        probabilities,
+        coefficients,
+        0,
+        undefined,
+        end,
+        type,
+        (block >> 2) & 3,
+      )
+    }
+  }
+}
+
 const writeCoefficientBlock = (
   encoder: BooleanEncoder,
   probabilities: Uint8Array,
   coefficients: Int32Array,
   coefficientOffset: number,
+  prefix: TokenPrefix | undefined,
+  end: number,
   type: number,
   context: number,
 ): boolean => {
   let coefficient = type === 0 ? 1 : 0
+  if (prefix) {
+    prefix.block(coefficients, coefficientOffset, end, type, context)
+    return end > coefficient
+  }
   let nextContext = context
   let checkEnd = true
-  let hasNonzero = false
+  const hasNonzero = end > coefficient
   while (coefficient < 16) {
     const offset = probabilityOffset(type, coefficient, nextContext)
-    let nextNonzero = coefficient
-    while (
-      nextNonzero < 16 &&
-      (coefficients[coefficientOffset + (zigzag[nextNonzero] ?? 0)] ?? 0) === 0
-    ) {
-      nextNonzero += 1
-    }
     if (checkEnd) {
-      encoder.bit(Number(nextNonzero < 16), probabilities[offset])
-      if (nextNonzero === 16) return hasNonzero
+      encoder.bit(Number(coefficient < end), probabilities[offset])
+      if (coefficient >= end) break
     }
     const value = coefficients[coefficientOffset + (zigzag[coefficient] ?? 0)] ?? 0
     if (value === 0) {
@@ -232,7 +456,6 @@ const writeCoefficientBlock = (
       continue
     }
     encoder.bit(1, probabilities[offset + 1])
-    hasNonzero = true
     const magnitude = Math.abs(value)
     writeMagnitude(encoder, probabilities, offset, magnitude)
     encoder.bit(Number(value < 0))
@@ -271,17 +494,21 @@ const forwardDct = (residual: Int16Array, temporary: Int32Array, output: Int32Ar
 
 const quantize = (
   input: Int32Array,
-  dc: number,
-  ac: number,
+  inverseDc: number,
+  inverseAc: number,
   output: Int32Array,
   outputOffset: number,
-): void => {
-  for (let index = 0; index < 16; index += 1) {
+): number => {
+  let end = 0
+  for (let position = 0; position < 16; position++) {
+    const index = zigzag[position] ?? 0
     const value = input[index] ?? 0
-    const factor = index === 0 ? dc : ac
-    const magnitude = Math.min(2114, Math.floor((Math.abs(value) + factor / 2) / factor))
+    const inverse = position === 0 ? inverseDc : inverseAc
+    const magnitude = Math.min(2114, Math.floor(Math.abs(value) * inverse + 0.5))
     output[outputOffset + index] = value < 0 ? -magnitude : magnitude
+    if (magnitude !== 0) end = position + 1
   }
+  return end
 }
 
 interface ReconstructionPlane {
@@ -724,8 +951,7 @@ for (let i = 0; i < 16; i++)
 
 const scoreQuantized = (
   dct: Int32Array,
-  dc: number,
-  ac: number,
+  scratch: MacroblockScratch,
   lambda: number,
   modeCost: number,
 ): number => {
@@ -737,8 +963,9 @@ const scoreQuantized = (
   let lastContext = 0
   for (let i = 0; i < 16; i++) {
     const value = Math.abs(dct[zigzag[i] ?? 0] ?? 0)
-    const step = i === 0 ? dc : ac
-    const m = Math.round(value / step)
+    const step = i === 0 ? scratch.quantizers.yDc : scratch.quantizers.yAc
+    const inverse = i === 0 ? scratch.quantizers.inverseYDc : scratch.quantizers.inverseYAc
+    const m = Math.floor(value * inverse + 0.5)
     const error = value - m * step
     distortion += error * error
     const key = i * 3 + context
@@ -774,7 +1001,8 @@ const nominateSubMode = (
   context: number,
   scratch: MacroblockScratch,
 ): number => {
-  const { edges, averages, yAc } = scratch
+  const { edges, averages } = scratch
+  const { yAc } = scratch.quantizers
   const a = src[start] ?? 0
   const b = src[start + 2] ?? 0
   const c = src[start + 2 * width] ?? 0
@@ -828,7 +1056,8 @@ const chooseSubMode = (
   context: number,
   scratch: MacroblockScratch,
 ): number => {
-  const { edges, averages, residual, dctTemporary, transformed, bestDct, yDc, yAc } = scratch
+  const { edges, averages, residual, dctTemporary, transformed, bestDct } = scratch
+  const { yAc } = scratch.quantizers
   const data = plane.data
   const stride = plane.stride
   const top = out - stride
@@ -861,8 +1090,7 @@ const chooseSubMode = (
   if (mode !== 0) {
     const dcScore = scoreQuantized(
       transformed,
-      yDc,
-      yAc,
+      scratch,
       yAc * yAc * 0.12,
       subCosts[context * 10] ?? 0,
     )
@@ -879,8 +1107,7 @@ const chooseSubMode = (
     forwardDct(residual, dctTemporary, bestDct)
     const directionalScore = scoreQuantized(
       bestDct,
-      yDc,
-      yAc,
+      scratch,
       yAc * yAc * 0.12,
       subCosts[context * 10 + mode] ?? 0,
     )
@@ -891,13 +1118,35 @@ const chooseSubMode = (
   return flat ? (flatSubModes[context] ?? 0) : 0
 }
 
-const createMacroblockScratch = (yDc: number, yAc: number) => ({
-  yDc,
-  yAc,
-  uvDc: Math.min(132, yDc),
-  uvAc: yAc,
-  y2Dc: yDc * 2,
-  y2Ac: Math.max(8, Math.floor((yAc * 155) / 100)),
+// Round the reciprocal upward on a binary grid so exact half-way
+// coefficients still round up. For VP8 transforms below 32768 and steps
+// below 512, the error is < 32768 / 2^32, well below half a quantizer unit
+// (the closest non-tie is at least 1 / (2 * step) from a boundary).
+const quantizerInverse = (step: number): number => Math.ceil(2 ** 32 / step) / 2 ** 32
+
+const macroblockQuantizers = (q: number) => {
+  const yDc = vp8DcQuantizers[q] ?? 4
+  const yAc = vp8AcQuantizers[q] ?? 4
+  const uvDc = Math.min(132, yDc)
+  const y2Ac = Math.max(8, Math.floor((yAc * 155) / 100))
+  return {
+    yDc,
+    yAc,
+    uvDc,
+    uvAc: yAc,
+    y2Dc: yDc * 2,
+    y2Ac,
+    inverseYDc: quantizerInverse(yDc),
+    inverseYAc: quantizerInverse(yAc),
+    inverseUvDc: quantizerInverse(uvDc),
+    uvCosts: chromaDcCosts(uvDc),
+    inverseY2Dc: quantizerInverse(yDc * 2),
+    inverseY2Ac: quantizerInverse(y2Ac),
+  }
+}
+
+const createMacroblockScratch = (quantizers: ReturnType<typeof macroblockQuantizers>) => ({
+  quantizers,
   coefficients: new Int32Array(25 * 16),
   residual: new Int16Array(16),
   dctTemporary: new Int32Array(16),
@@ -905,12 +1154,37 @@ const createMacroblockScratch = (yDc: number, yAc: number) => ({
   reconstructed: new Int32Array(16),
   bestDct: new Int32Array(16),
   dcBlock: new Int32Array(16),
-  coded: new Uint8Array(16),
+  ends: new Uint8Array(25),
+  subModes: new Uint16Array(16),
   scores: new Float64Array(4),
   edges: new Uint8Array(13),
   averages: new Uint8Array(27),
 })
 type MacroblockScratch = ReturnType<typeof createMacroblockScratch>
+
+// Animations commonly encode many frames at the same quality. Retain
+// only the most recent pair of quantizers and their fixed-size workspace.
+const createQuantizerScratch = (q: number, fineQ: number) => {
+  const baseQuantizers = macroblockQuantizers(q)
+  return {
+    q,
+    fineQ,
+    baseQuantizers,
+    fineQuantizers: q === fineQ ? baseQuantizers : macroblockQuantizers(fineQ),
+    scratch: createMacroblockScratch(baseQuantizers),
+  }
+}
+let quantizerScratch: ReturnType<typeof createQuantizerScratch> | undefined
+
+const addDcResidual = (plane: ReconstructionPlane, offset: number, dc: number): void => {
+  const delta = (dc + 4) >> 3
+  if (delta === 0) return
+  for (let y = 0; y < 4; y++) {
+    for (let x = 0; x < 4; x++)
+      plane.data[offset + x] = clampByte((plane.data[offset + x] ?? 0) + delta)
+    offset += plane.stride
+  }
+}
 
 const encodeLuma16 = (
   yPadded: Uint8Array,
@@ -922,19 +1196,8 @@ const encodeLuma16 = (
   yPredictDc: number,
   scratch: MacroblockScratch,
 ): void => {
-  const {
-    yDc,
-    yAc,
-    y2Dc,
-    y2Ac,
-    coefficients,
-    residual,
-    dctTemporary,
-    transformed,
-    reconstructed,
-    dcBlock,
-    coded,
-  } = scratch
+  const { yDc, yAc, y2Dc, y2Ac } = scratch.quantizers
+  const { coefficients, residual, dctTemporary, transformed, reconstructed, dcBlock } = scratch
   predictSquareInto(yPlane, yOffset, 16, yMode, yPredictDc)
   for (let block = 0; block < 16; block++) {
     const dx = (block & 3) * 4
@@ -949,22 +1212,40 @@ const encodeLuma16 = (
         residual,
       )
     ) {
+      scratch.ends[block] = 0
       dcBlock[block] = 0
-      coefficients.fill(0, block * 16, block * 16 + 16)
-      coded[block] = 0
       continue
     }
-    coded[block] = 1
     forwardDct(residual, dctTemporary, transformed)
     dcBlock[block] = transformed[0] ?? 0
-    quantize(transformed, yDc, yAc, coefficients, block * 16)
+    transformed[0] = 0 // Luma DC is coded in the Y2 block.
+    scratch.ends[block] = quantize(
+      transformed,
+      scratch.quantizers.inverseYDc,
+      scratch.quantizers.inverseYAc,
+      coefficients,
+      block * 16,
+    )
   }
   walsh4x4(dcBlock, dctTemporary, transformed, false)
-  quantize(transformed, y2Dc, y2Ac, coefficients, 384)
+  scratch.ends[24] = quantize(
+    transformed,
+    scratch.quantizers.inverseY2Dc,
+    scratch.quantizers.inverseY2Ac,
+    coefficients,
+    384,
+  )
   reconstructCoefficients(coefficients, 384, y2Dc, y2Ac, transformed)
   walsh4x4(transformed, dctTemporary, dcBlock, true)
   for (let block = 0; block < 16; block++) {
-    if (coded[block] === 0 && dcBlock[block] === 0) continue
+    if (scratch.ends[block] === 0) {
+      addDcResidual(
+        yPlane,
+        yOffset + (block >> 2) * 4 * yPlane.stride + (block & 3) * 4,
+        dcBlock[block] ?? 0,
+      )
+      continue
+    }
     reconstructCoefficients(coefficients, block * 16, yDc, yAc, reconstructed)
     reconstructed[0] = dcBlock[block] ?? 0
     addInverseVp8Block(
@@ -978,7 +1259,6 @@ const encodeLuma16 = (
 }
 
 const encodeLuma4 = (
-  header: BooleanEncoder,
   yPadded: Uint8Array,
   yStart: number,
   paddedYWidth: number,
@@ -991,7 +1271,8 @@ const encodeLuma4 = (
   leftModes: Uint8Array,
   scratch: MacroblockScratch,
 ): void => {
-  const { yDc, yAc, coefficients, dctTemporary, reconstructed, bestDct } = scratch
+  const { yDc, yAc } = scratch.quantizers
+  const { coefficients, dctTemporary, reconstructed, bestDct } = scratch
   // Rightmost subblocks in every subblock row use the same four
   // above-right samples from the macroblock above (section 12.3).
   const aboveRight = yOffset - yPlane.stride + 16
@@ -1012,11 +1293,22 @@ const encodeLuma4 = (
     const li = block >> 2
     const context = (aboveModes[ai] ?? 0) * 10 + (leftModes[li] ?? 0)
     const mode = chooseSubMode(yPlane, output, yPadded, sampleRow, paddedYWidth, context, scratch)
-    writeSubMode(header, context, mode)
+    scratch.subModes[block] = (context << 4) | mode
     aboveModes[ai] = mode
     leftModes[li] = mode
     const coefficientOffset = block * 16
-    quantize(bestDct, yDc, yAc, coefficients, coefficientOffset)
+    const end = quantize(
+      bestDct,
+      scratch.quantizers.inverseYDc,
+      scratch.quantizers.inverseYAc,
+      coefficients,
+      coefficientOffset,
+    )
+    scratch.ends[block] = end
+    if (end <= 1) {
+      if (end === 1) addDcResidual(yPlane, output, (coefficients[coefficientOffset] ?? 0) * yDc)
+      continue
+    }
     reconstructCoefficients(coefficients, coefficientOffset, yDc, yAc, reconstructed)
     addInverseVp8Block(yPlane.data, yPlane.stride, output, reconstructed, dctTemporary)
   }
@@ -1033,7 +1325,8 @@ const encodeChroma = (
   base: number,
   scratch: MacroblockScratch,
 ): void => {
-  const { uvDc, uvAc, residual, dctTemporary, transformed, coefficients, reconstructed } = scratch
+  const { uvDc, uvAc } = scratch.quantizers
+  const { residual, dctTemporary, transformed, coefficients, reconstructed } = scratch
   predictSquareInto(plane, output, 8, uvMode, dc)
   for (let block = 0; block < 4; block += 1) {
     const blockX = (block & 1) * 4
@@ -1050,11 +1343,27 @@ const encodeChroma = (
         residual,
       )
     ) {
-      coefficients.fill(0, coefficientOffset, coefficientOffset + 16)
+      scratch.ends[coefficientOffset >> 4] = 0
       continue
     }
     forwardDct(residual, dctTemporary, transformed)
-    quantize(transformed, uvDc, uvAc, coefficients, coefficientOffset)
+    const end = quantize(
+      transformed,
+      scratch.quantizers.inverseUvDc,
+      scratch.quantizers.inverseYAc,
+      coefficients,
+      coefficientOffset,
+    )
+    scratch.ends[coefficientOffset >> 4] = end
+    if (end <= 1) {
+      if (end === 1)
+        addDcResidual(
+          plane,
+          output + blockY * plane.stride + blockX,
+          (coefficients[coefficientOffset] ?? 0) * uvDc,
+        )
+      continue
+    }
     reconstructCoefficients(coefficients, coefficientOffset, uvDc, uvAc, reconstructed)
     addInverseVp8Block(
       plane.data,
@@ -1068,18 +1377,22 @@ const encodeChroma = (
 
 const writeTokens = (
   tokens: BooleanEncoder,
+  probabilities: Uint8Array,
+  prefix: TokenPrefix | undefined,
   yMode: number,
   coefficients: Int32Array,
+  ends: Uint8Array,
   left: Int8Array,
   aboveContext: Int8Array,
 ): void => {
-  const probabilities = defaultCoefficientProbabilities
   if (yMode !== blockPrediction) {
     const nonzero = writeCoefficientBlock(
       tokens,
       probabilities,
       coefficients,
       384,
+      prefix,
+      ends[24] ?? 0,
       1,
       (left[8] ?? 0) + (aboveContext[8] ?? 0),
     )
@@ -1094,12 +1407,185 @@ const writeTokens = (
       probabilities,
       coefficients,
       block * 16,
+      prefix,
+      ends[block] ?? 0,
       type,
       (left[leftIndex] ?? 0) + (aboveContext[aboveIndex] ?? 0),
     )
     left[leftIndex] = nonzero ? 1 : 0
     aboveContext[aboveIndex] = nonzero ? 1 : 0
   }
+}
+
+const writeModes = (
+  header: BooleanEncoder,
+  record: number,
+  subModes: Uint16Array,
+  start: number,
+  segment: number,
+  skip: number,
+): void => {
+  if (segment !== 0) {
+    header.bit(0, 255)
+    header.bit((record >> 5) & 1, segment)
+  }
+  if (skip !== 0) header.bit(record >> 6, skip)
+  const yMode = record & 7
+  header.bit(Number(yMode !== blockPrediction), yModeProbabilities[0])
+  if (yMode === blockPrediction) {
+    for (let i = start; i < start + 16; i++) {
+      const sub = subModes[i] ?? 0
+      writeSubMode(header, sub >> 4, sub & 15)
+    }
+  } else {
+    header.bit(yMode >> 1, yModeProbabilities[1])
+    header.bit(yMode & 1, yModeProbabilities[yMode < 2 ? 2 : 3])
+  }
+  const path = squarePaths[(record >> 3) & 3] ?? '0'
+  for (let i = 0; i < path.length; i++) header.bit(Number(path[i]), uvModeProbabilities[i])
+}
+
+class FrameEntropy {
+  readonly tokens = new BooleanEncoder()
+  readonly header: BooleanEncoder
+  readonly segment: number
+  readonly total: number
+  readonly prefix: TokenPrefix
+  readonly modes: ModePrefix
+  probabilities: Uint8Array = defaultCoefficientProbabilities
+  training = true
+  skipped = 0
+
+  constructor(header: BooleanEncoder, segment: number, total: number) {
+    this.header = header
+    this.segment = segment
+    this.total = total
+    trainingScratch ??= { tokens: new TokenPrefix(), modes: new ModePrefix() }
+    this.prefix = trainingScratch.tokens
+    this.modes = trainingScratch.modes
+    this.prefix.histogram.fill(0)
+    this.prefix.length = 0
+    this.modes.length = 0
+  }
+
+  write(
+    yMode: number,
+    uvMode: number,
+    smooth: boolean,
+    scratch: MacroblockScratch,
+    left: Int8Array,
+    above: Int8Array,
+    last: boolean,
+  ): void {
+    // Bits 0..2 select Y, 3..4 select UV, 5 selects the fine segment,
+    // and 6 marks a macroblock containing only end-of-block tokens.
+    let record = yMode | (uvMode << 3) | (Number(smooth) << 5)
+    const prefix = this.training ? this.prefix : undefined
+    const start = prefix?.length ?? 0
+    writeTokens(
+      this.tokens,
+      this.probabilities,
+      prefix,
+      yMode,
+      scratch.coefficients,
+      scratch.ends,
+      left,
+      above,
+    )
+    if (!prefix) {
+      writeModes(this.header, record, scratch.subModes, 0, this.segment, 0)
+      return
+    }
+    if (prefix.length - start === (yMode === blockPrediction ? 24 : 25)) {
+      this.skipped++
+      record |= 64
+      for (let i = start; i < prefix.length; i++)
+        prefix.data[i] = (prefix.data[i] ?? 0) | skippedToken
+    }
+    this.modes.append(record, scratch.subModes)
+    if (last || prefix.length >= maxTrainingTokens || this.modes.length >= maxTrainingModes) {
+      this.probabilities = selectProbabilities(prefix.counts(), this.header)
+      const skip = last
+        ? selectSkipProbability(prefix, this.probabilities, this.skipped, this.total)
+        : 0
+      this.header.bit(Number(skip !== 0))
+      if (skip !== 0) this.header.uint(skip, 8)
+      this.modes.replay(this.header, this.segment, skip)
+      prefix.replay(this.tokens, this.probabilities, skip)
+      this.training = false
+    }
+  }
+}
+
+const keyframeParameters = (
+  width: number,
+  height: number,
+  ySource: Uint8Array,
+  quality: number,
+  columns: number,
+  rows: number,
+) => {
+  const q = Math.round(((100 - quality) * 127) / 99)
+  // Use a lighter quantizer for macroblocks with a smooth source gradient.
+  const fineQ = Math.max(0, q - Math.max(1, Math.round(q / 3)))
+  const segmented =
+    q > 0 &&
+    columns * rows >= 16 &&
+    18 * Math.ceil((columns * rows) / 16) + 4096 < maxPredictionPartitionLength
+
+  // Estimate the segment-map probability and filter strength from evenly
+  // spaced macroblocks. Sample only complete blocks in this prepass.
+  const fullColumns = Math.floor(width / 16)
+  const fullBlocks = fullColumns * Math.floor(height / 16)
+  const samples = Math.min(128, fullBlocks)
+  let smoothCount = 0
+  let changingPairs = 0
+  for (let i = 0; i < samples; i++) {
+    const block = Math.floor(((i + 0.5) * fullBlocks) / samples)
+    const start = Math.floor(block / fullColumns) * 16 * width + (block % fullColumns) * 16
+    let variation = 0
+    for (let y = 1; y < 16; y += 4) {
+      const row = start + y * width
+      for (let x = 1; x < 16; x += 4) {
+        const delta = Math.abs((ySource[row + x] ?? 0) - (ySource[row + x + 1] ?? 0))
+        variation += delta
+        changingPairs += Number(delta !== 0)
+      }
+    }
+    smoothCount += Number(variation < 48)
+  }
+  const segmentProbability = Math.max(
+    16,
+    Math.min(240, Math.round((256 * (samples - smoothCount + 1)) / (samples + 2))),
+  )
+  const filterLevel = changingPairs > samples * 8 ? Math.round(q / 4) : 0
+
+  const header = new BooleanEncoder()
+  header.uint(0, 2)
+  header.bit(Number(segmented))
+  if (segmented) {
+    header.bit(1) // update the segment map
+    header.bit(1) // update segment feature data
+    header.bit(0) // signed deltas from the base quantizer
+    header.bit(0) // segment 0 keeps the base quantizer
+    header.bit(1) // segment 1 uses the finer quantizer
+    header.uint(q - fineQ, 7)
+    header.bit(1)
+    header.uint(0, 6) // remaining quantizer and filter updates
+    header.bit(0) // root keeps probability 255, always select its left branch
+    header.bit(1) // signal the probability of segment 0 within that branch
+    header.uint(segmentProbability, 8)
+    header.bit(0) // segments 2 and 3 are unused
+  }
+  header.bit(0)
+  header.uint(filterLevel, 6)
+  header.uint(0, 3)
+  header.bit(0)
+  header.uint(0, 2)
+  header.uint(q, 7)
+  for (let index = 0; index < 5; index += 1) header.bit(0)
+  header.bit(0)
+  return { q, fineQ, segmented, segmentProbability, header }
 }
 
 const encodeVp8 = (
@@ -1109,37 +1595,27 @@ const encodeVp8 = (
   uSource: Uint8Array,
   vSource: Uint8Array,
   quality: number,
-): Uint8Array => {
+) => {
   const columns = Math.ceil(width / 16)
   const rows = Math.ceil(height / 16)
   const chromaWidth = Math.ceil(width / 2)
   const chromaHeight = Math.ceil(height / 2)
-  const q = Math.round(((100 - quality) * 127) / 99)
-  const yDc = vp8DcQuantizers[q] ?? 4
-  const yAc = vp8AcQuantizers[q] ?? 4
-  const uvAc = yAc
-
-  const header = new BooleanEncoder()
-  header.uint(0, 2)
-  header.bit(0)
-  header.bit(0)
-  header.uint(0, 6)
-  header.uint(0, 3)
-  header.bit(0)
-  header.uint(0, 2)
-  header.uint(q, 7)
-  for (let index = 0; index < 5; index += 1) header.bit(0)
-  header.bit(0)
-  for (let index = 0; index < coefficientUpdateProbabilities.length; index += 1) {
-    header.bit(0, coefficientUpdateProbabilities[index])
-  }
-  header.bit(0)
-  const tokens = new BooleanEncoder()
+  const { q, fineQ, segmented, segmentProbability, header } = keyframeParameters(
+    width,
+    height,
+    ySource,
+    quality,
+    columns,
+    rows,
+  )
+  const entropy = new FrameEntropy(header, segmented ? segmentProbability : 0, rows * columns)
   const aboveModes = new Uint8Array(columns * 4)
   const leftModes = new Uint8Array(4)
-  const scratch = createMacroblockScratch(yDc, yAc)
-  const uvCosts = chromaDcCosts(scratch.uvDc)
-  const { scores, coefficients } = scratch
+  const segmentQ = segmented ? fineQ : q
+  if (quantizerScratch?.q !== q || quantizerScratch.fineQ !== segmentQ)
+    quantizerScratch = createQuantizerScratch(q, segmentQ)
+  const { baseQuantizers, fineQuantizers, scratch } = quantizerScratch
+  const { scores } = scratch
   const yPlane = createPlane(columns * 16, 16)
   const uPlane = createPlane(columns * 8, 8)
   const vPlane = createPlane(columns * 8, 8)
@@ -1170,28 +1646,40 @@ const encodeVp8 = (
       const yOffset = yPlane.origin + column * 16
       prepareEdges(yPlane, yOffset, 16, row, column)
       const yStart = yBase + column * 16
+      let smooth = false
+      if (segmented) {
+        let variation = 0
+        for (let y = 1; y < 16; y += 4) {
+          const start = yStart + y * paddedYWidth
+          for (let x = 1; x < 16; x += 4)
+            variation += Math.abs((yPadded[start + x] ?? 0) - (yPadded[start + x + 1] ?? 0))
+        }
+        smooth = variation < 48
+      }
+      scratch.quantizers = smooth ? fineQuantizers : baseQuantizers
+      const { yAc, uvAc, uvCosts } = scratch.quantizers
       const yPredictDc = squareDc(yPlane, yOffset, row, column, 16)
       // The keyframe tag has only 19 bits for this partition. For every
       // starting arithmetic range, sixteen DC luma/UV records take at most
       // 55 renormalization bits. Reserve seven bytes per group plus space
       // for the current block's longest mode paths and coder termination.
       const remaining = (rows - row) * columns - column
+      // A pending record can select at most nine tree branches, each
+      // emitting at most one byte. Reserve 4 KiB for coefficient updates.
+      const usedHeader = entropy.training ? entropy.modes.length * 9 + 4096 : header.byteLength
       const reserveHeader =
-        header.byteLength + 7 * Math.ceil(remaining / 16) + 256 > maxPredictionPartitionLength
+        usedHeader + (segmented ? 18 : 7) * Math.ceil(remaining / 16) + 256 >
+        maxPredictionPartitionLength
       const yMode = reserveHeader
         ? 0
         : chooseLumaMode(yPadded, yStart, paddedYWidth, yPlane, yOffset, yPredictDc, yAc, scores)
-      header.bit(Number(yMode !== blockPrediction), yModeProbabilities[0])
       if (yMode !== blockPrediction) {
-        header.bit(yMode >> 1, yModeProbabilities[1])
-        header.bit(yMode & 1, yModeProbabilities[yMode < 2 ? 2 : 3])
         encodeLuma16(yPadded, yStart, paddedYWidth, yPlane, yOffset, yMode, yPredictDc, scratch)
         const mapped = macroToSubMode[yMode] ?? 0
         aboveModes.fill(mapped, column * 4, column * 4 + 4)
         leftModes.fill(mapped)
       } else {
         encodeLuma4(
-          header,
           yPadded,
           yStart,
           paddedYWidth,
@@ -1219,31 +1707,27 @@ const encodeVp8 = (
       for (let mode = 1; mode < 4; mode++)
         if ((scores[mode] ?? 0) < (scores[uvMode] ?? 0)) uvMode = mode
       if (reserveHeader) uvMode = 0
-      const path = squarePaths[uvMode] ?? '0'
-      for (let i = 0; i < path.length; i++) header.bit(Number(path[i]), uvModeProbabilities[i])
       encodeChroma(uPadded, chromaStart, paddedCWidth, uPlane, chromaOut, uvMode, uDc, 256, scratch)
       encodeChroma(vPadded, chromaStart, paddedCWidth, vPlane, chromaOut, uvMode, vDc, 320, scratch)
-      writeTokens(tokens, yMode, coefficients, left, aboveContext)
+      entropy.write(yMode, uvMode, smooth, scratch, left, aboveContext, remaining === 1)
       above[column] = aboveContext
     }
   }
   const firstPartition = header.finish()
   if (firstPartition.length > maxPredictionPartitionLength)
     throw invalidInput('VP8 prediction partition exceeds the frame tag')
-  const tokenPartition = tokens.finish()
-  const output = new Uint8Array(10 + firstPartition.length + tokenPartition.length)
+  const tokenPartition = entropy.tokens.finish()
+  const frameTag = new Uint8Array(10)
   const tag = (firstPartition.length << 5) | 0x10
-  output[0] = tag & 255
-  output[1] = (tag >>> 8) & 255
-  output[2] = tag >>> 16
-  output.set([0x9d, 0x01, 0x2a], 3)
-  output[6] = width & 255
-  output[7] = width >>> 8
-  output[8] = height & 255
-  output[9] = height >>> 8
-  output.set(firstPartition, 10)
-  output.set(tokenPartition, 10 + firstPartition.length)
-  return output
+  frameTag[0] = tag & 255
+  frameTag[1] = (tag >>> 8) & 255
+  frameTag[2] = tag >>> 16
+  frameTag.set([0x9d, 0x01, 0x2a], 3)
+  frameTag[6] = width & 255
+  frameTag[7] = width >>> 8
+  frameTag[8] = height & 255
+  frameTag[9] = height >>> 8
+  return { frameTag, firstPartition, tokenPartition }
 }
 
 const clampChannel = (value: number): number => (value < 0 ? 0 : value > 255 ? 255 : value)
@@ -1459,21 +1943,30 @@ export class LossyWebpEncoder implements ImageEncoder {
       const uAcc = this.#uAcc
       const vAcc = this.#vAcc
       if (!uAcc || !vAcc) throw invalidInput('WebP encoder is missing chroma accumulators')
-      for (let row = 0; row < block.height; row += 1) {
-        this.#y.set(
-          accelerated.y.subarray(row * this.#width, (row + 1) * this.#width),
-          (this.#expectedY + row) * this.#width,
-        )
-        if (this.#alpha && accelerated.alpha) {
-          const source = accelerated.alpha.subarray(row * this.#width, (row + 1) * this.#width)
-          this.#alpha.set(source, (this.#expectedY + row) * this.#width)
-          for (const alpha of source) this.#hasAlpha ||= alpha !== 255
+      const pixelOffset = this.#expectedY * this.#width
+      this.#y.set(accelerated.y, pixelOffset)
+      if (this.#alpha && accelerated.alpha) {
+        this.#alpha.set(accelerated.alpha, pixelOffset)
+        if (!this.#hasAlpha) {
+          for (let i = 0; i < accelerated.alpha.length; i++) {
+            if (accelerated.alpha[i] !== 255) {
+              this.#hasAlpha = true
+              break
+            }
+          }
         }
       }
       const chromaOffset = accelerated.chromaStartY * chromaWidth
-      for (let index = 0; index < accelerated.u.length; index += 1) {
-        uAcc[chromaOffset + index] = (uAcc[chromaOffset + index] ?? 0) + (accelerated.u[index] ?? 0)
-        vAcc[chromaOffset + index] = (vAcc[chromaOffset + index] ?? 0) + (accelerated.v[index] ?? 0)
+      // Only an odd starting luma row can share an accumulator row with
+      // the preceding band. All following chroma sums are complete writes.
+      const overlap = this.#expectedY & 1 ? chromaWidth : 0
+      for (let i = 0; i < overlap; i++) {
+        uAcc[chromaOffset + i] = (uAcc[chromaOffset + i] ?? 0) + (accelerated.u[i] ?? 0)
+        vAcc[chromaOffset + i] = (vAcc[chromaOffset + i] ?? 0) + (accelerated.v[i] ?? 0)
+      }
+      if (overlap < accelerated.u.length) {
+        uAcc.set(overlap ? accelerated.u.subarray(overlap) : accelerated.u, chromaOffset + overlap)
+        vAcc.set(overlap ? accelerated.v.subarray(overlap) : accelerated.v, chromaOffset + overlap)
       }
     } else {
       const uAcc = this.#uAcc
@@ -1555,7 +2048,8 @@ export class LossyWebpEncoder implements ImageEncoder {
     if (icc && iccColorSpace(icc) !== 'rgb')
       throw invalidInput('Preserved ICC profile does not match WebP RGB output pixels')
     const extended = alpha !== undefined || icc !== undefined || exif !== undefined
-    const vp8Padding = vp8.length & 1
+    const vp8Length = vp8.frameTag.length + vp8.firstPartition.length + vp8.tokenPartition.length
+    const vp8Padding = vp8Length & 1
     const alphaLength = alphaPayload ? 1 + alphaPayload.byteLength : 0
     const alphaPadding = alphaLength & 1
     const iccBytes = icc ? 8 + icc.byteLength + (icc.byteLength & 1) : 0
@@ -1566,10 +2060,10 @@ export class LossyWebpEncoder implements ImageEncoder {
         iccBytes +
         (alpha ? 8 + alphaLength + alphaPadding : 0) +
         8 +
-        vp8.length +
+        vp8Length +
         vp8Padding +
         exifBytes
-      : 4 + 8 + vp8.length + vp8Padding
+      : 4 + 8 + vp8Length + vp8Padding
     const output = new Uint8Array(8 + bodyLength)
     output.set([82, 73, 70, 70], 0)
     uint32(output, 4, bodyLength)
@@ -1597,9 +2091,12 @@ export class LossyWebpEncoder implements ImageEncoder {
       }
     }
     output.set([86, 80, 56, 32], offset)
-    uint32(output, offset + 4, vp8.length)
-    output.set(vp8, offset + 8)
-    offset += 8 + vp8.length + vp8Padding
+    uint32(output, offset + 4, vp8Length)
+    const frameStart = offset + 8
+    output.set(vp8.frameTag, frameStart)
+    output.set(vp8.firstPartition, frameStart + 10)
+    output.set(vp8.tokenPartition, frameStart + 10 + vp8.firstPartition.length)
+    offset += 8 + vp8Length + vp8Padding
     if (exif) {
       output.set([69, 88, 73, 70], offset)
       uint32(output, offset + 4, exif.byteLength)

@@ -816,6 +816,7 @@ export const createPngEncoder = async (
       strategy: request.pixelFormat === 'rgb8' ? 'rle' : 'default',
     }
     const onData = (chunk: Uint8Array): Promise<void> => writeChunk(output, 'IDAT', chunk)
+    const scanlineBytes = 1 + request.width * bytesPerPixel(request.pixelFormat)
     const parallel =
       request.threads === undefined
         ? undefined
@@ -823,11 +824,15 @@ export const createPngEncoder = async (
             options,
             onData,
             request.threads,
-            (1 + request.width * bytesPerPixel(request.pixelFormat)) * request.height,
+            scanlineBytes * request.height,
           )
+    const inputBlockBytes =
+      !acceleratedFilter || acceleratedFilter.transfersOutput
+        ? scanlineBytes * Math.min(scanlineBlockRows, request.height)
+        : undefined
     const truecolor = new PngEncoder(
       output,
-      parallel ?? runtime.createDeflateEncoder(options, onData),
+      parallel ?? runtime.createDeflateEncoder(options, onData, inputBlockBytes),
       request.width,
       request.height,
       request.pixelFormat,

@@ -1082,8 +1082,29 @@ unsafe fn quantize_aan(
         aan_row(converted, row * 8);
     }
     unsafe { aan_columns(converted) };
-    for index in 0..64 {
-        output[index] = round_like_javascript(converted[index] as f64 * reciprocals[index] as f64);
+    use core::arch::wasm32::*;
+    for index in (0..64).step_by(4) {
+        // SAFETY: all three arrays have 64 elements and index is at most 60.
+        let values = unsafe { v128_load(converted.as_ptr().add(index).cast()) };
+        let scales = unsafe { v128_load(reciprocals.as_ptr().add(index).cast()) };
+        let products = f32x4_mul(values, scales);
+        let nearest = f32x4_nearest(products);
+        unsafe {
+            v128_store(
+                output.as_mut_ptr().add(index).cast(),
+                i32x4_trunc_sat_f32x4(nearest),
+            );
+        }
+        // Quantized 8-bit DCT coefficients are well below 2^23. All
+        // half-integer boundaries are representable in binary32, so a
+        // product can round to the wrong integer only when it lands on one.
+        let half = f32x4_eq(f32x4_abs(f32x4_sub(products, nearest)), f32x4_splat(0.5));
+        let mut ties = i32x4_bitmask(half);
+        while ties != 0 {
+            let i = index + ties.trailing_zeros() as usize;
+            output[i] = round_like_javascript(f64::from(converted[i]) * f64::from(reciprocals[i]));
+            ties &= ties - 1;
+        }
     }
 }
 

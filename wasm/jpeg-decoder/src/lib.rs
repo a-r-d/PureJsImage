@@ -654,11 +654,35 @@ fn finish_entropy(scratch: &mut Scratch) -> Result<(), u32> {
     })
 }
 
-// Consume a run of short AC codes from ordinary (unstuffed) entropy bytes.
+#[inline(always)]
+fn apply_dc_difference(s: &mut Scratch, component: usize, difference: i32) -> Result<(), u32> {
+    let predictor = s.state.predictors[component]
+        .checked_add(difference)
+        .ok_or(ERROR_ARITHMETIC)?;
+    s.state.predictors[component] = predictor;
+    s.coefficients[0] = predictor;
+    Ok(())
+}
+
+#[inline(always)]
+fn ordinary_word(s: &Scratch, offset: usize) -> Option<u32> {
+    if s.state.input_length - offset < 4 {
+        return None;
+    }
+    // SAFETY: start validated the input extent; four bytes fit in the window.
+    let word = unsafe { ((s.state.input_pointer + offset) as *const u32).read_unaligned() };
+    if (!word).wrapping_sub(0x0101_0101) & word & 0x8080_8080 != 0 {
+        return None;
+    }
+    Some(word.swap_bytes())
+}
+
+// From position zero, read the DC difference and following short AC codes
+// from the same ordinary (unstuffed) bytes. At other positions resume AC.
 // Keep the reservoir in locals across symbols. On an escape, marker or long
 // code, return at the exact bit position for the canonical reader.
 #[inline(always)]
-fn short_ac_run(
+fn short_block_run(
     s: &mut Scratch,
     component: usize,
     mut k: usize,
@@ -673,18 +697,37 @@ fn short_ac_run(
         u64::from(s.state.bits) << (64 - count)
     };
     let table = component * HUFFMAN_LOOKUP_SIZE;
+    if k == 0 {
+        let Some(word) = ordinary_word(s, offset) else {
+            return Ok(0);
+        };
+        bits |= u64::from(word) << (32 - count);
+        let prefix = table + (bits >> 56) as usize;
+        let code_bits = s.dc_lookup_lengths[prefix];
+        if code_bits == 0 {
+            return Ok(0);
+        }
+        let size = s.dc_lookup_symbols[prefix];
+        let used = code_bits + size;
+        let mask = (1i32 << size) - 1;
+        let value = ((bits >> (64 - used)) as i32) & mask;
+        let difference = if value <= mask / 2 {
+            value - mask
+        } else {
+            value
+        };
+        apply_dc_difference(s, component, difference)?;
+        bits <<= used;
+        count += 32 - used;
+        offset += 4;
+        k = 1;
+    }
     while k < BLOCK_VALUES {
         if count < 16 {
-            if s.state.input_length - offset < 4 {
+            let Some(word) = ordinary_word(s, offset) else {
                 break;
-            }
-            // SAFETY: start validated the input extent; four bytes fit in the window.
-            let word = unsafe { ((s.state.input_pointer + offset) as *const u32).read_unaligned() };
-            // Detect an 0xff byte before crossing a stuffed byte or marker.
-            if (!word).wrapping_sub(0x0101_0101) & word & 0x8080_8080 != 0 {
-                break;
-            }
-            bits |= u64::from(word.swap_bytes()) << (32 - count);
+            };
+            bits |= u64::from(word) << (32 - count);
             count += 32;
             offset += 4;
         }
@@ -739,18 +782,21 @@ fn short_ac_run(
 
 fn decode_block(scratch: &mut Scratch, component: usize) -> Result<bool, u32> {
     scratch.coefficients.fill(0);
-    let dc_length = decode_huffman(scratch, component, false)?;
-    let difference = receive_and_extend(scratch, dc_length)?;
-    let predictor = scratch.state.predictors[component]
-        .checked_add(difference)
-        .ok_or(ERROR_ARITHMETIC)?;
-    scratch.state.predictors[component] = predictor;
-    scratch.coefficients[0] = predictor;
-
-    let mut index = 1usize;
     let mut has_ac = false;
+    let mut index = if scratch.state.crop.is_none() {
+        short_block_run(scratch, component, 0, &mut has_ac)?
+    } else {
+        // Crops preserve the canonical reader's exact refill position.
+        0
+    };
+    if index == 0 {
+        let dc_length = decode_huffman(scratch, component, false)?;
+        let difference = receive_and_extend(scratch, dc_length)?;
+        apply_dc_difference(scratch, component, difference)?;
+        index = 1;
+    }
     while index < BLOCK_VALUES {
-        index = short_ac_run(scratch, component, index, &mut has_ac)?;
+        index = short_block_run(scratch, component, index, &mut has_ac)?;
         if index >= BLOCK_VALUES {
             break;
         }
@@ -998,12 +1044,23 @@ fn try_idct4(
     let limit = f32x4_sub(f32x4_splat(0.5), margin);
     let mut rounded_rows = [i32x4_splat(0); 4];
     let mut uncertain = i32x4_splat(0);
-    for (y, result) in rounded_rows.iter_mut().enumerate() {
-        let mut v = f32x4_mul(rows[0], f32x4_splat(BASIS_4[0][y] as f32));
-        for j in 1..4 {
-            v = f32x4_add(v, f32x4_mul(rows[j], f32x4_splat(BASIS_4[j][y] as f32)));
-        }
-        v = f32x4_add(v, f32x4_splat(128.));
+    // The binary32 basis is symmetric. Share its even and odd terms
+    // across mirrored output rows. Uncertain bytes still use binary64.
+    let common = f32x4_splat(BASIS_4[0][0] as f32);
+    let high = f32x4_splat(BASIS_4[1][0] as f32);
+    let low = f32x4_splat(BASIS_4[1][1] as f32);
+    let even0 = f32x4_mul(f32x4_add(rows[0], rows[2]), common);
+    let even1 = f32x4_mul(f32x4_sub(rows[0], rows[2]), common);
+    let odd0 = f32x4_add(f32x4_mul(rows[1], high), f32x4_mul(rows[3], low));
+    let odd1 = f32x4_sub(f32x4_mul(rows[1], low), f32x4_mul(rows[3], high));
+    let sums = [
+        f32x4_add(even0, odd0),
+        f32x4_add(even1, odd1),
+        f32x4_sub(even1, odd1),
+        f32x4_sub(even0, odd0),
+    ];
+    for (result, sum) in rounded_rows.iter_mut().zip(sums) {
+        let v = f32x4_add(sum, f32x4_splat(128.));
         let nearest = f32x4_nearest(v);
         uncertain = v128_or(uncertain, f32x4_ge(f32x4_abs(f32x4_sub(v, nearest)), limit));
         *result = i32x4_trunc_sat_f32x4(nearest);

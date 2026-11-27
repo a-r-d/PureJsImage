@@ -49,11 +49,13 @@ const createFilter = (
   )
     return undefined
   const buffer = numeric(exports, 'buffer')
+  new Uint32Array(memory.buffer, buffer(1), axis.offsets.length).set(axis.offsets)
+  new Uint32Array(memory.buffer, buffer(2), axis.indices.length).set(axis.indices)
+  new Float64Array(memory.buffer, buffer(3), axis.weights.length).set(axis.weights)
+  // Configuring the group scratch can grow memory. Create persistent views afterwards.
+  if (filtered === 4 && numeric(exports, 'configure_rgba')() !== 1) return undefined
   const heap = memory.buffer
   const source = new Uint8Array(heap, buffer(0), sourceWidth * channels)
-  new Uint32Array(heap, buffer(1), axis.offsets.length).set(axis.offsets)
-  new Uint32Array(heap, buffer(2), axis.indices.length).set(axis.indices)
-  new Float64Array(heap, buffer(3), axis.weights.length).set(axis.weights)
   const ring = new Float32Array(heap, buffer(4), width * filtered * capacity)
   const indices = new Uint32Array(heap, buffer(5), capacity)
   const weights = new Float64Array(heap, buffer(6), capacity)
@@ -95,7 +97,7 @@ export const createWasmResizeAcceleratorWithLoader = (
       const { module, variant } = await compiled
       instance = await WebAssembly.instantiate(module)
       if (
-        numeric(instance.exports, 'abi_version')() !== 1 ||
+        numeric(instance.exports, 'abi_version')() !== 2 ||
         numeric(instance.exports, 'simd')() !== Number(variant === 'simd')
       )
         throw new Error('Unsupported resize WASM module')

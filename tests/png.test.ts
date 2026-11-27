@@ -847,6 +847,12 @@ describe('PNG pixel pipeline', () => {
     expect(Array.from(rows.subarray(20))).toEqual([0, 0, 0, 0, 0])
   })
 
+  it('preserves every scanline across queued deflate blocks and a partial final block', async () => {
+    const input = rgbaPng(769, 101)
+    const output = await (await Image.open(input)).png({ compressionLevel: 6 }).toBuffer()
+    expect(PNG.sync.read(output).data.equals(PNG.sync.read(input).data)).toBe(true)
+  })
+
   it('preserves Paeth residuals for neighbor differences near 32', async () => {
     const previous = [96, 64, 95, 127, 94, 62, 93, 125, 92]
     const current = [127, 96, 96, 127, 94, 62, 93, 125, 92]

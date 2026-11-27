@@ -37,13 +37,39 @@ const predictionModes = (bytes: Uint8Array, width: number, height: number) => {
     for (let i = 0; i < n; i++) result = 2 * result + bit()
     return result
   }
-  expect(uint(4)).toBe(0) // color, clamp, segmentation, filter type
-  expect(uint(10)).toBe(0) // deblocking level, sharpness and deltas
+  expect(uint(2)).toBe(0) // color and clamp
+  const segmentProbabilities = new Uint8Array(3).fill(255)
+  let segmentMap = false
+  const segmentQuantizers = new Int16Array(4)
+  const signed = (bits: number): number => {
+    if (!bit()) return 0
+    const magnitude = uint(bits)
+    return bit() ? -magnitude : magnitude
+  }
+  if (bit()) {
+    segmentMap = bit() === 1
+    if (bit()) {
+      expect(bit()).toBe(0) // deltas relative to the frame quantizer
+      for (let i = 0; i < 4; i++) segmentQuantizers[i] = signed(7)
+      for (let i = 0; i < 4; i++) signed(6)
+    }
+    if (segmentMap) for (let i = 0; i < 3; i++) if (bit()) segmentProbabilities[i] = uint(8)
+  }
+  expect(bit()).toBe(0) // normal filter
+  const filterLevel = uint(6)
+  expect(uint(4)).toBe(0) // sharpness and filter delta flag
   expect(uint(2)).toBe(0) // one token partition
-  uint(7) // quantizer
+  const baseQuantizer = uint(7)
   for (let i = 0; i < 5; i++) if (bit()) uint(5)
   bit()
-  for (const p of coefficientUpdateProbabilities) if (bit(p)) uint(8)
+  let updates = 0
+  for (const p of coefficientUpdateProbabilities)
+    if (bit(p)) {
+      uint(8)
+      updates++
+    }
+  const segments = new Set<number>()
+  let skipped = 0
   const skip = bit()
   const skipProb = skip ? uint(8) : 0
   const luma = new Set<number>()
@@ -54,7 +80,11 @@ const predictionModes = (bytes: Uint8Array, width: number, height: number) => {
   for (let y = 0; y < height; y += 16) {
     left.fill(0)
     for (let x = 0; x < width; x += 16) {
-      if (skip) bit(skipProb)
+      if (segmentMap) {
+        const high = bit(segmentProbabilities[0])
+        segments.add(high * 2 + bit(segmentProbabilities[1 + high]))
+      }
+      if (skip) skipped += bit(skipProb)
       const macro = bit(145) === 0 ? 4 : bit(156) === 0 ? bit(163) : 2 + bit(128)
       luma.add(macro)
       for (let b = 0; b < 16; b++) {
@@ -87,7 +117,17 @@ const predictionModes = (bytes: Uint8Array, width: number, height: number) => {
       chroma.add(bit(142) === 0 ? 0 : bit(114) === 0 ? 1 : 2 + bit(183))
     }
   }
-  return { luma, chroma, sub }
+  return {
+    luma,
+    chroma,
+    sub,
+    updates,
+    filterLevel,
+    baseQuantizer,
+    segmentQuantizers,
+    segments,
+    skipped,
+  }
 }
 
 const chart = (width: number, height: number, color: boolean): Buffer => {
@@ -123,7 +163,13 @@ it('round-trips the four 16×16 luma modes and ten submodes on odd frame edges',
   const height = 193
   const src = chart(width, height, false)
   const encoded = await (await Image.open(src)).webp({ quality: 75 }).toBuffer()
-  const { luma, sub } = predictionModes(encoded, width, height)
+  const { luma, sub, updates, filterLevel, baseQuantizer, segmentQuantizers, segments } =
+    predictionModes(encoded, width, height)
+  expect(updates).toBeGreaterThan(0)
+  expect(filterLevel).toBeGreaterThan(0)
+  expect(baseQuantizer).toBe(32)
+  expect(segmentQuantizers[1]).toBeLessThan(0)
+  expect([...segments].sort()).toEqual([0, 1])
   expect([...luma].sort()).toEqual([0, 1, 2, 3, 4])
   expect([...sub].sort()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
   const our = PNG.sync.read(await (await Image.open(encoded)).png().toBuffer())
@@ -168,4 +214,25 @@ it('enforces the 14-bit VP8 dimension at the public encode boundary', async () =
   await expect((await Image.open(chart(16384, 1, false))).webp().toBuffer()).rejects.toThrow(
     '14 bits',
   )
+})
+
+it('signals profitable skip flags in a mostly flat frame and decodes exactly', async () => {
+  const width = 512
+  const height = 480
+  const png = new PNG({ width, height })
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const value = x < 32 && y < 24 && (((x >> 2) ^ (y >> 2)) & 1) === 0 ? 20 : 180
+      const i = 4 * (y * width + x)
+      png.data.fill(value, i, i + 3)
+      png.data[i + 3] = 255
+    }
+  const encoded = await (await Image.open(PNG.sync.write(png))).webp({ quality: 75 }).toBuffer()
+  const { skipped, filterLevel } = predictionModes(encoded, width, height)
+  expect(skipped).toBeGreaterThan(0)
+  expect(skipped).toBeLessThan((width * height) / 256)
+  expect(filterLevel).toBe(0)
+  const oracle = await sharp(encoded).ensureAlpha().raw().toBuffer()
+  const ours = PNG.sync.read(await (await Image.open(encoded)).png().toBuffer())
+  expect(Buffer.compare(oracle, ours.data)).toBe(0)
 })

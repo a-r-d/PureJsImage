@@ -92,6 +92,99 @@ describe.each(['scalar', 'simd'] as const)('WASM resize %s', (variant) => {
     }
   })
 
+  it('matches repeated translucent bands when a filter footprint or a reused session changes', async () => {
+    const width = 201
+    const height = 123
+    const options = { width: 134, height: 82, fit: 'fill' } as const
+    let completed = 0
+    const counted: ImageResizeAccelerator = {
+      ...wasm,
+      async createFilter(request) {
+        const filter = await wasm.createFilter(request)
+        if (!filter) throw new Error('Expected WASM RGBA filter')
+        return {
+          ...filter,
+          vertical(...args) {
+            filter.vertical(...args)
+            completed++
+          },
+        }
+      },
+    }
+    const render = async (seed: number, accelerator?: ImageResizeAccelerator) => {
+      async function* input(): AsyncGenerator<PixelBlock> {
+        const stride = width * 4
+        const data = new Uint8Array(stride)
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const at = x * 4
+            data[at] = x + seed
+            data[at + 1] = x === 48 || x === 144 ? y * seed : 97
+            data[at + 2] = y < 20 ? 33 : 57
+            data[at + 3] = y === 36 ? 255 : y < 9 || y > 103 || x < 9 || x > 167 ? 0 : 201
+          }
+          yield { x: 0, y, width, height: 1, stride, format: 'rgba8', data }
+        }
+      }
+      const resize = createResizeTransform(
+        width,
+        height,
+        'rgba8',
+        options,
+        undefined,
+        undefined,
+        false,
+        accelerator,
+      )
+      const output: Uint8Array[] = []
+      for await (const block of resize.apply(input())) output.push(block.data)
+      return output
+    }
+    for (const seed of [3, 17]) {
+      expect(await render(seed, counted)).toEqual(await render(seed))
+    }
+    expect(completed).toBe(2 * options.height)
+  })
+
+  it('updates WASM views when a pooled filter needs a wider source footprint', async () => {
+    const width = 4096
+    const outputWidth = 65
+    const source = Uint8Array.from({ length: width * 4 }, (_, i) => (i * 17 + (i >>> 7)) & 255)
+    for (let i = 3; i < source.length; i += 4) source[i] = 255
+    const vertical = {
+      offsets: Uint32Array.of(0, 1),
+      indices: Uint32Array.of(0),
+      weights: Float64Array.of(1),
+    }
+    for (const wide of [false, true, false]) {
+      const indices = Uint32Array.from({ length: outputWidth }, (_, x) =>
+        wide && x % 2 === 0 ? width - x - 1 : x,
+      )
+      const filter = await wasm.createFilter({
+        sourceWidth: width,
+        format: 'rgba8',
+        outputChannels: 4,
+        opaque: false,
+        capacity: 1,
+        horizontal: {
+          offsets: Uint32Array.from({ length: outputWidth + 1 }, (_, i) => i),
+          indices,
+          weights: new Float64Array(outputWidth).fill(1),
+        },
+      })
+      if (!filter) throw new Error('Expected WASM RGBA filter')
+      filter.horizontal(source, 0)
+      const output = new Uint8Array(outputWidth * 4)
+      filter.vertical(vertical, 0, 1, output, 0)
+      const expected = new Uint8Array(output.length)
+      for (const [x, index] of indices.entries()) {
+        expected.set(source.subarray(index * 4, index * 4 + 4), x * 4)
+      }
+      expect(output).toEqual(expected)
+      filter.release?.()
+    }
+  })
+
   it.each(['horizontal', 'vertical'] as const)(
     'recovers after a late %s failure',
     async (phase) => {

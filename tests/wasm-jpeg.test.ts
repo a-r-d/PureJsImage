@@ -9,6 +9,7 @@ import {
 import type { DecodeRequest, DecoderOptions, ImageCodec, ImageDecoder } from '../src/codec.ts'
 import { accelerateJpegCodec, type JpegDecodeAcceleration, jpegCodec } from '../src/codecs/jpeg.ts'
 import { decodeBaselineJpeg, parseBaselineJpegSource } from '../src/codecs/jpeg-baseline.ts'
+import { parseJpegCoefficientImage } from '../src/codecs/jpeg-coefficients.ts'
 import { ImageError } from '../src/errors.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import type { PixelFormat } from '../src/pixel.ts'
@@ -604,6 +605,59 @@ describe('Rust/WASM JPEG accelerator', () => {
     }
   })
 
+  it('resumes short DC and AC decoding after long prefixes and stuffed bytes', async () => {
+    const segment = (marker: number, payload: readonly number[]): number[] => [
+      0xff,
+      marker,
+      (payload.length + 2) >> 8,
+      (payload.length + 2) & 255,
+      ...payload,
+    ]
+    // DC categories 0, 4, 8 and 6 have code lengths 1, 2, 3 and 9.
+    // The AC table has EOB, a 16-zero run and a one-bit coefficient.
+    const dcLengths = [1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+    const acLengths = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    const dc = ['0', '101000', '11011111111', '111000000011111', '100111', '11000000000']
+    const ac = ['0', '100', '11010', '1011010']
+    let bits = ''
+    for (let block = 0; block < 24 * 3; block++) {
+      bits += dc[block % dc.length]
+      bits += ac[block % ac.length]
+    }
+    bits = bits.padEnd(Math.ceil(bits.length / 8) * 8, '1')
+    const entropy: number[] = []
+    for (let i = 0; i < bits.length; i += 8) {
+      const value = Number.parseInt(bits.slice(i, i + 8), 2)
+      entropy.push(value)
+      if (value === 0xff) entropy.push(0)
+    }
+    expect(entropy).toContain(0xff)
+    const input = Uint8Array.from([
+      0xff,
+      0xd8,
+      ...segment(0xdb, [0, ...new Uint8Array(64).fill(1)]),
+      ...segment(0xc0, [8, 0, 8, 0, 192, 3, 1, 0x11, 0, 2, 0x11, 0, 3, 0x11, 0]),
+      ...segment(0xc4, [0, ...dcLengths, 0, 4, 8, 6, 0x10, ...acLengths, 0, 0xf0, 1]),
+      ...segment(0xda, [3, 1, 0, 2, 0, 3, 0, 0, 63, 0]),
+      ...entropy,
+      0xff,
+      0xd9,
+    ])
+    const expected = await decodeInput(jpegCodec, input)
+    for (const [key, url] of [
+      ['decoder', artifactUrl],
+      ['simdDecoder', simdDecoderArtifactUrl],
+    ] as const) {
+      const instance = await instantiateArtifact(url)
+      const codec = createWasmJpegAcceleratorWithLoaders(
+        { [key]: async () => instance },
+        { minimumPixels: 1 },
+      ).accelerate(jpegCodec)
+      expect(await decodeInput(codec, input)).toEqual(expected)
+      expect(numberExport(instance, 'jpeg_decoder_next')()).toBe(1)
+    }
+  })
+
   it('preserves half-byte rounding on a half-size coefficient block', async () => {
     const instance = await instantiateArtifact(simdDecoderArtifactUrl)
     const call = (name: string, ...args: number[]) =>
@@ -924,6 +978,44 @@ describe('Rust/WASM JPEG accelerator', () => {
     expect(sink.toUint8Array()).toEqual(output)
     expect(numberExport(instance, 'jpeg_encoder_output_length')()).toBeGreaterThan(0)
   })
+
+  it.each([
+    // The DC product rounds to +/-0.5 in binary32 for all three divisors.
+    // In binary64 its magnitude falls below, exactly on, or above that tie.
+    [32, 100, 0, 0],
+    [50, 64, 1, 0],
+    [90, 12, 1, -1],
+  ] as const)(
+    'quantizes signed near-half DC values at quality %i',
+    async (quality, sum, pos, neg) => {
+      const instance = await instantiateArtifact(simdEncoderArtifactUrl)
+      const codec = createWasmJpegAcceleratorWithLoaders(
+        { simdEncoder: async () => instance },
+        { minimumEncodePixels: 1 },
+      ).accelerate(jpegCodec)
+      const sink = new Uint8ArraySink()
+      const encoder = await codec.createEncoder?.(sink, {
+        width: 16,
+        height: 8,
+        pixelFormat: 'gray8',
+        options: { quality },
+      })
+      if (!encoder) throw new Error('Missing JPEG encoder')
+      const data = new Uint8Array(16 * 8).fill(128)
+      data[0] = 128 + sum
+      data[8] = 128 - sum
+      await encoder.write({ data, x: 0, y: 0, width: 16, height: 8, stride: 16, format: 'gray8' })
+      await encoder.finish()
+      expect(numberExport(instance, 'jpeg_encoder_output_length')()).toBeGreaterThan(0)
+      const jpeg = await parseJpegCoefficientImage(
+        new MemorySource(sink.toUint8Array()),
+        defaultImageLimits,
+        4096,
+      )
+      expect(jpeg?.components[0]?.coefficients[0]).toBe(pos)
+      expect(jpeg?.components[0]?.coefficients[64]).toBe(neg)
+    },
+  )
 
   it('matches JavaScript rounding immediately below a positive half-integer', async () => {
     const red = Uint8Array.of(

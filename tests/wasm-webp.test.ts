@@ -183,6 +183,30 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
   )
 
   it.each(artifacts)(
+    'matches libwebp across flat and textured VP8 blocks through $kind',
+    async ({ kind, url }) => {
+      const { data, width, height } = createNoisyFixture(193, 83)
+      for (let y = 0; y < height; y++) {
+        const start = y * width * 4
+        data.fill(255, start, start + 65 * 4)
+      }
+      const encoded = await sharp(data, { raw: { width, height, channels: 4 } })
+        .webp({ quality: 85 })
+        .toBuffer()
+      const expected = await sharp(encoded).ensureAlpha().raw().toBuffer()
+      let rows = 0
+      const accelerated = codecWithArtifact(kind, url, {
+        kernelOperation(operation, succeeded) {
+          if (operation === 'vp8-row' && succeeded) rows++
+        },
+      })
+      expect(expected.equals(await decode(webpCodec, encoded))).toBe(true)
+      expect(expected.equals(await decode(accelerated, encoded))).toBe(true)
+      expect(rows).toBe(Math.ceil(height / 16))
+    },
+  )
+
+  it.each(artifacts)(
     'batches VP8 rows with the simple luma filter through $kind',
     async ({ kind, url }) => {
       const input = await readFile(simpleFilterFixtureUrl)

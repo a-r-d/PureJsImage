@@ -3,9 +3,6 @@ use super::vp8_coefficients::Reader;
 
 const Y: [i8; 8] = [-4, 2, 4, 6, 0, -1, -2, -3];
 const UV: [i8; 6] = [0, 2, -1, 4, -2, -3];
-const SUB: [i8; 18] = [
-    0, 2, -1, 4, -2, 6, 8, 12, -3, 10, -5, -6, -4, 14, -7, 16, -8, -9,
-];
 const SQUARE: [u8; 4] = [0, 2, 3, 1];
 
 fn tree(r: &mut Reader, tree: &[i8], p: &[u8]) -> u8 {
@@ -16,6 +13,33 @@ fn tree(r: &mut Reader, tree: &[i8], p: &[u8]) -> u8 {
             return (-branch) as u8;
         }
         i = branch as usize;
+    }
+}
+
+// The ten 4x4 prediction modes have a fixed tree. Keep its probability
+// offsets independent of the previously decoded branch.
+fn subblock_mode(r: &mut Reader, p: &[u8]) -> u8 {
+    if r.bit(p[0]) == 0 {
+        return 0;
+    }
+    if r.bit(p[1]) == 0 {
+        return 1;
+    }
+    if r.bit(p[2]) == 0 {
+        return 2;
+    }
+    if r.bit(p[3]) == 0 {
+        if r.bit(p[4]) == 0 {
+            3
+        } else {
+            5 + r.bit(p[5]) as u8
+        }
+    } else if r.bit(p[6]) == 0 {
+        4
+    } else if r.bit(p[7]) == 0 {
+        7
+    } else {
+        8 + r.bit(p[8]) as u8
     }
 }
 
@@ -67,7 +91,7 @@ pub(super) fn decode(
             let above = if i < 4 { top[i] } else { cfg[i] };
             let side = if i % 4 == 0 { left[i / 4] } else { cfg[3 + i] };
             let start = 9 * (10 * above as usize + side as usize);
-            cfg[4 + i] = tree(r, &SUB, &p[start..start + 9]);
+            cfg[4 + i] = subblock_mode(r, &p[start..start + 9]);
         }
     }
     cfg[1] = tree(r, &UV, &[142, 114, 183]);

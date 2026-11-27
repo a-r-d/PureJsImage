@@ -26,32 +26,53 @@ const BASE: [i32; 6] = [5, 7, 11, 19, 35, 67];
 pub(super) struct Reader<'a> {
     pub(super) data: &'a [u8],
     pub(super) next: usize,
-    pub(super) range: u32,
-    pub(super) value: u32,
+    packed: u32,
     pub(super) bits: i32,
 }
 
-impl Reader<'_> {
+impl<'a> Reader<'a> {
+    pub(super) fn new(data: &'a [u8], range: u32, value: u32, bits: u32) -> Result<Self, u32> {
+        if !(128..=255).contains(&range) || bits > 15 || value >= range << bits {
+            return Err(ERROR_ARGUMENT);
+        }
+        Ok(Self {
+            data,
+            next: 0,
+            packed: (value << (24 - bits)) | range,
+            bits: bits as i32,
+        })
+    }
+
+    pub(super) fn range(&self) -> u32 {
+        self.packed & 255
+    }
+
+    pub(super) fn value(&self) -> u32 {
+        self.packed >> (24 - self.bits)
+    }
+
     #[inline(always)]
     pub(super) fn bit(&mut self, probability: u8) -> u32 {
-        let split = 1 + (((self.range - 1) * u32::from(probability)) >> 8);
-        let boundary = split << self.bits;
-        let one = self.value >= boundary;
-        let range = if one {
-            self.value -= boundary;
-            self.range - split
+        // The low byte holds the normalized interval. The left-aligned
+        // arithmetic value has at least nine trailing zero bits.
+        let range = self.packed & 255;
+        let split = 1 + (((range - 1) * u32::from(probability)) >> 8);
+        let boundary = split << 24;
+        let one = self.packed >= boundary;
+        let next = if one {
+            self.packed - (boundary | split)
         } else {
-            split
+            (self.packed & !255) | split
         };
-        let shift = range.leading_zeros() - 24;
-        self.range = range << shift;
+        let shift = (next & 255).leading_zeros() - 24;
+        self.packed = next << shift;
         self.bits -= shift as i32;
         if self.bits < 0 {
             // VP8's reference reader pads exhausted partitions with zeroes.
             let hi = self.data.get(self.next).copied().unwrap_or(0);
             let lo = self.data.get(self.next + 1).copied().unwrap_or(0);
-            self.value = (self.value << 16) | u32::from(u16::from_be_bytes([hi, lo]));
             self.bits += 16;
+            self.packed |= u32::from(u16::from_be_bytes([hi, lo])) << (24 - self.bits);
             self.next += 2;
         }
         u32::from(one)
@@ -163,21 +184,10 @@ pub(super) fn decode(
     let (factors, tail) = tail.split_at_mut(6);
     let (left, tail) = tail.split_at_mut(9);
     let (above, ends) = tail.split_at_mut(9);
-    if !(128..=255).contains(&registers[0])
-        || registers[2] > 15
-        || registers[1] >= registers[0] << registers[2]
-        || factors.iter().any(|&f| f > 1024)
-        || left.iter().chain(above.iter()).any(|&c| c > 1)
-    {
+    let mut r = Reader::new(input, registers[0], registers[1], registers[2])?;
+    if factors.iter().any(|&f| f > 1024) || left.iter().chain(above.iter()).any(|&c| c > 1) {
         return Err(ERROR_ARGUMENT);
     }
-    let mut r = Reader {
-        data: input,
-        next: 0,
-        range: registers[0],
-        value: registers[1],
-        bits: registers[2] as i32,
-    };
     coeffs.fill(0);
     let mut nonzero = false;
     for it in usize::from(block_mode != 0)..25 {
@@ -206,8 +216,8 @@ pub(super) fn decode(
         nonzero |= end != 0;
     }
     registers.copy_from_slice(&[
-        r.range,
-        r.value,
+        r.range(),
+        r.value(),
         r.bits as u32,
         r.next as u32,
         u32::from(nonzero),

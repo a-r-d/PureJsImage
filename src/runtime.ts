@@ -30,6 +30,7 @@ export interface ImageRuntime {
   createDeflateEncoder(
     options: DeflateOptions,
     onData: (chunk: Uint8Array) => Promise<void>,
+    inputBlockBytes?: number,
   ): DeflateEncoder
   createParallelDeflateEncoder?(
     options: DeflateOptions,

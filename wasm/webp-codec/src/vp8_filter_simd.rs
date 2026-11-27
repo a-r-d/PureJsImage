@@ -36,6 +36,10 @@ pub(super) fn edge<const VERTICAL: bool>(
     };
     let rows = [load(0), load(2), load(4), load(6)];
     let [a, b, c, d] = if VERTICAL { transpose(rows) } else { rows };
+    // Equal opposing pairs give zero adjustment for every lane.
+    if !v128_any_true(v128_xor(b, i64x2_shuffle::<1, 0>(c, c))) {
+        return;
+    }
     let p3 = u16x8_extend_low_u8x16(a);
     let mut p2 = u16x8_extend_high_u8x16(a);
     let p1 = u16x8_extend_low_u8x16(b);

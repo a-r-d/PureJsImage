@@ -34,6 +34,8 @@ export interface PngAccelerationRequest {
 }
 
 export interface PngRowFilter {
+  /** Each result has independent storage that the compressor can retain. */
+  readonly transfersOutput?: boolean
   filter(data: Uint8Array, stride: number, rows: number): Uint8Array
   release(): void
 }

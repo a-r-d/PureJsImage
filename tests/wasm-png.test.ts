@@ -420,6 +420,40 @@ const expectedRgba = (format: SupportedFormat['format'], width: number, height: 
   return output
 }
 
+it('preserves borrowed PNG filter output across consecutive large writes', async () => {
+  const width = 769
+  const height = 96
+  const rowBytes = width * 4
+  const filtered = new Uint8Array((rowBytes + 1) * 32)
+  const codec = acceleratePngCodec(pngCodec, {
+    async encode() {
+      return {
+        filter(data, stride, rows) {
+          for (let row = 0; row < rows; row++) {
+            filtered.set(
+              data.subarray(row * stride, row * stride + rowBytes),
+              row * (rowBytes + 1) + 1,
+            )
+          }
+          return filtered.subarray(0, rows * (rowBytes + 1))
+        },
+        release() {},
+      }
+    },
+  })
+  const sink = new Uint8ArraySink()
+  const encoder = await createEncoder(codec, sink, 'rgba8', width, height)
+  for (let y = 0; y < height; y += 32) {
+    await encoder.write(makePixelBlock('rgba8', width, y, 32, 0))
+  }
+  await encoder.finish()
+  expect(
+    PNG.sync
+      .read(Buffer.from(sink.toUint8Array()))
+      .data.equals(expectedRgba('rgba8', width, height)),
+  ).toBe(true)
+})
+
 const instrumentPngUnfilter = (
   instance: WebAssembly.Instance,
   onUnfilter: () => void,

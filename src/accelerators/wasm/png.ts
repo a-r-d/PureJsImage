@@ -356,6 +356,7 @@ const createAcceleratedFilter = (
   }
   const rowBytes = request.width * channels
   return Object.freeze({
+    transfersOutput: true,
     filter(data: Uint8Array, stride: number, rows: number): Uint8Array {
       return lease.filter(data, stride, rowBytes, channels, rows)
     },

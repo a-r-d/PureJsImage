@@ -59,6 +59,29 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- The lossy WebP encoder now uses four more VP8 tools: a normal loop filter on textured images
+  at a level set from the quantizer, two segments that give smooth-gradient macroblocks a finer
+  quantizer, coefficient probabilities learned from the start of each frame, and skip flags for
+  macroblocks with no coefficients when the whole frame fits in that sample. The `quality` scale
+  is unchanged. At equal PSNR and SSIM, files are on average 10.5% and 16.8% smaller on six
+  photos and 20.5% and 23.0% smaller on five graphics. The transparent logo at quality 75 drops
+  from 12,222 to 9,876 bytes while PSNR rises from 42.16 to 42.95 dB; Sharp/libwebp still writes
+  6,088 bytes at 47.51 dB. Encoding is also faster: the logo takes 64 ms instead of 72 ms in
+  TypeScript and 48 ms instead of 67 ms with the WASM accelerators, and the 12 MP photo 561 ms
+  instead of 574 ms and 248 ms instead of 263 ms.
+- The optional WASM accelerators are faster again, with output unchanged. With all of them
+  registered:
+  - resizing the transparent 1200x480 logo PNG to 800 px takes 11 ms instead of 27 ms, against
+    11.6 ms for Sharp single-thread, because the resize accelerator skips fully transparent spans
+    and reuses results for repeated pixel groups. In Node the PNG encoder also lets deflate buffer
+    one filtered block, so the TypeScript engine takes 41 ms instead of 44 ms;
+  - resizing a 12 MP JPEG to 1200 px takes 113 ms instead of 121 ms, from a shared bit buffer for
+    short Huffman codes, symmetric terms in the half-scale inverse DCT, and quantizing four
+    coefficients at a time in the SIMD JPEG encoder;
+  - resizing the lossy 1600x2000 WebP portrait to a JPEG takes 92 ms instead of 105 ms, from
+    packed arithmetic-decoder state, fixed mode-tree offsets, skipping loop-filter edges with no
+    change, and inverse transforms on four coefficients at once;
+  - applying EXIF orientation 6 to a JPEG takes 79 ms instead of 92 ms.
 - Lossy WebP decoding now uses bilinear chroma upsampling and BT.601 fixed-point color
   conversion, in TypeScript and in the optional WASM accelerator. Decoded pixels now match libwebp
   exactly on all 224 lossy still images in the Imazen WebP corpus and on the five lossy benchmark
@@ -81,7 +104,7 @@ All notable changes to PureJsImage are documented in this file.
     lookups, half-scale inverse DCT and 4:2:2 conversion in the JPEG decoder and SIMD vertical
     filtering in the resize accelerator, with output still identical to TypeScript;
   - the 100 MP PNG downscale takes 641 ms instead of 893 ms with 6% lower peak memory;
-  - resizing the lossy 12 MP WebP portrait takes 105 ms instead of 152 ms with 12% lower peak
+  - resizing the lossy 1600x2000 WebP portrait takes 105 ms instead of 152 ms with 12% lower peak
     memory, because the WebP accelerator now decodes a whole macroblock row per call.
 
 - The optional JPEG WASM accelerator now decodes progressive JPEG: DC and AC first and
@@ -92,7 +115,7 @@ All notable changes to PureJsImage are documented in this file.
   Progressive crops and 1/8-scale decodes still use TypeScript.
 - The optional WebP WASM accelerator now runs VP8 coefficient decoding, prediction, inverse
   transforms and loop filtering, and VP8L entropy decoding for streams without a color cache.
-  Decoded pixels are unchanged. Resizing the 12 MP lossy WebP portrait to a JPEG takes 152 ms
+  Decoded pixels are unchanged. Resizing the 1600x2000 lossy WebP portrait to a JPEG takes 152 ms
   instead of 227 ms with 14% lower peak memory, and the lossy photo to PNG 110 ms instead of 133 ms.
   The scalar module grew from 9 KB to 27 KB (4 KB to 11 KB gzipped).
 - PNG CRC checks switch to an eight-bytes-at-a-time table once 256 KiB has been checked. Small

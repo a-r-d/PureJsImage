@@ -213,6 +213,7 @@ fn predict_block(plane: &mut [u8], offset: usize, mode: u8) {
 }
 
 // The reference multiplies in Number and applies a signed 32-bit shift.
+#[cfg(not(feature = "simd"))]
 #[inline]
 fn idct(x: [i32; 4]) -> [i32; 4] {
     let [dc, one, two, three] = x;
@@ -263,6 +264,67 @@ fn add_residual(plane: &mut [u8], offset: usize, block: &[u32], end: u32, dc: i3
         }
         return;
     }
+    add_ac(plane, offset, block, dc);
+}
+
+#[cfg(feature = "simd")]
+fn add_ac(plane: &mut [u8], offset: usize, block: &[u32], dc: i32) {
+    use core::arch::wasm32::*;
+
+    #[inline(always)]
+    fn transform([dc, one, two, three]: [v128; 4]) -> [v128; 4] {
+        let mul = |a, k| i32x4_shr(i32x4_mul(a, i32x4_splat(k)), 16);
+        let a = i32x4_add(dc, two);
+        let b = i32x4_sub(dc, two);
+        let c = i32x4_sub(i32x4_sub(mul(one, 35468), three), mul(three, 20091));
+        let d = i32x4_add(i32x4_add(one, mul(one, 20091)), mul(three, 35468));
+        [
+            i32x4_add(a, d),
+            i32x4_add(b, c),
+            i32x4_sub(b, c),
+            i32x4_sub(a, d),
+        ]
+    }
+
+    #[inline(always)]
+    fn transpose([a, b, c, d]: [v128; 4]) -> [v128; 4] {
+        let ab0 = i32x4_shuffle::<0, 4, 1, 5>(a, b);
+        let ab1 = i32x4_shuffle::<2, 6, 3, 7>(a, b);
+        let cd0 = i32x4_shuffle::<0, 4, 1, 5>(c, d);
+        let cd1 = i32x4_shuffle::<2, 6, 3, 7>(c, d);
+        [
+            i64x2_shuffle::<0, 2>(ab0, cd0),
+            i64x2_shuffle::<1, 3>(ab0, cd0),
+            i64x2_shuffle::<0, 2>(ab1, cd1),
+            i64x2_shuffle::<1, 3>(ab1, cd1),
+        ]
+    }
+
+    let load = |row: usize| {
+        let words = &block[row * 4..][..4];
+        // SAFETY: the validated row contains four consecutive u32 coefficients.
+        unsafe { v128_load(words.as_ptr().cast()) }
+    };
+    let first = transform([
+        i32x4_replace_lane::<0>(load(0), dc),
+        load(1),
+        load(2),
+        load(3),
+    ]);
+    let residual = transpose(transform(transpose(first)));
+    for (y, delta) in residual.into_iter().enumerate() {
+        let pixels = &mut plane[offset + y * STRIDE..][..4];
+        let src = u32::from_le_bytes(pixels.try_into().unwrap());
+        let predicted = u32x4_extend_low_u16x8(u16x8_extend_low_u8x16(u32x4_splat(src)));
+        let sum = i32x4_add(predicted, i32x4_shr(i32x4_add(delta, i32x4_splat(4)), 3));
+        let halves = i16x8_narrow_i32x4(sum, sum);
+        let bytes = u8x16_narrow_i16x8(halves, halves);
+        pixels.copy_from_slice(&u32x4_extract_lane::<0>(bytes).to_le_bytes());
+    }
+}
+
+#[cfg(not(feature = "simd"))]
+fn add_ac(plane: &mut [u8], offset: usize, block: &[u32], dc: i32) {
     let mut temp = [0_i32; 16];
     for x in 0..4 {
         let col = idct([
