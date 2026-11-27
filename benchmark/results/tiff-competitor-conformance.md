@@ -8,7 +8,7 @@ Oracle: sharp with ImageMagick fallback raw RGBA8. Exact means every independent
 
 Signed, floating-point, wider-than-16-bit, and arbitrary-channel rasters are classified as native scientific data and are not forced through RGBA.
 
-PureJsImage: package metadata 0.18.0; main snapshot c341a4c68dba1e8d44b21de1ac7de3493e7d223a; working tree clean.
+PureJsImage: package metadata 0.19.0; main snapshot c341a4c68dba1e8d44b21de1ac7de3493e7d223a; working tree clean.
 
 | Engine | Version | Files attempted | RGBA-compared | Decoded | Exact | Pixel mismatch | Unsupported | Error | Oracle failure | Timeout | Crash | Native raster, not compared | Malformed rejected | Malformed accepted | Malformed timeout | Malformed crash |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |

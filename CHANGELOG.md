@@ -4,6 +4,8 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-11-27
+
 ### Added
 
 - GIF output: `image.gif()` and `encode('gif')`. Images with 256 or fewer colors keep their exact
@@ -2128,4 +2130,5 @@ All notable changes to PureJsImage are documented in this file.
 [0.16.0]: https://github.com/a-r-d/PureJsImage/compare/v0.15.0...v0.16.0
 [0.17.0]: https://github.com/a-r-d/PureJsImage/compare/v0.16.0...v0.17.0
 [0.18.0]: https://github.com/a-r-d/PureJsImage/compare/v0.17.0...v0.18.0
-[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.18.0...HEAD
+[0.19.0]: https://github.com/a-r-d/PureJsImage/compare/v0.18.0...v0.19.0
+[Unreleased]: https://github.com/a-r-d/PureJsImage/compare/v0.19.0...HEAD
