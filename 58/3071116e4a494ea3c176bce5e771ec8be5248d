@@ -1,0 +1,120 @@
+wasm/webp-codec/src/vp8_modes.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 1-74
+tests/webp-intra-modes.test.ts
+  s_fb44c3e6b9dfb0::t_2cfab9121f06bb 1-171
+docs-astro/public/capabilities.json
+  s_fb44c3e6b9dfb0::t_710dea98bbafc0 830,1006-1007,1139,1279-1283
+src/codecs/png.ts
+  s_fb44c3e6b9dfb0::t_95d63601293a93 48-53,72,75,87-103,105
+  s_fb44c3e6b9dfb0::t_746701046916bc 12
+tests/project-contract.test.ts
+  s_fb44c3e6b9dfb0::t_bafca0a41c02b6 197
+src/codecs/webp-acceleration.ts
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 46-89
+src/node-image.ts
+  s_fb44c3e6b9dfb0::t_95d63601293a93 17-25,29-32,35
+  s_fb44c3e6b9dfb0::t_d92c3d5e951172 1-3,11
+tests/webp.test.ts
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 482-504,515
+docs-astro/public/llms.txt
+  s_fb44c3e6b9dfb0::t_710dea98bbafc0 520
+docs-astro/src/pages/codecs.astro
+  s_fb44c3e6b9dfb0::t_710dea98bbafc0 25
+src/codecs/webp-lossy-encode.ts
+  s_fb44c3e6b9dfb0::t_2cfab9121f06bb 6,14-17,82-85,209,294,298-300,302-307,309-313,315,325,389,394,409-1102,1138-1146,1149-1167,1169-1170,1172-1205,1208-1226,1231-1232,1381-1382
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_d0f257230a9fdc 179,526,529,532,541,544,547,581,586,589,592,616,619,622,871,874,877,896,901,904,907,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1391,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554,2134-2135,2138,2142-2143,2146,2182-2183,2186,2190-2191,2194,2198-2199,2206-2207,2210
+benchmark/optimization-log.md
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 8848-9006
+  s_fb44c3e6b9dfb0::t_5f0f158ef84bfa 14-15,8761-8847
+  s_fb44c3e6b9dfb0::t_8dbc0aa7d3f635 8653-8760
+  s_fb44c3e6b9dfb0::t_c6ab9d6e8e6e94 10-13,9007-9108
+src/codecs/vp8.ts
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 11,14,20,198-207,1133-1134,1140,1146,1176-1181,1191-1196,1277-1282,1310-1316,1323-1324,1329-1336,1341-1342,1346-1347,1363-1380,1385-1386,1388-1390,1392-1399,1488-1512,1534-1597,1701-1710,1712-1713,1725-1734
+wasm/webp-codec/src/vp8_coefficients.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 26-31,36,150,154-215
+  s_fb44c3e6b9dfb0::t_d0aab5a6b0eff3 216
+wasm/webp-codec/src/vp8_row.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 1-344
+wasm/resize/src/lib.rs
+  s_fb44c3e6b9dfb0::t_ea5ae636a7fecc 187-289,296-299
+src/codecs/png-decode.ts
+  s_fb44c3e6b9dfb0::t_95d63601293a93 6,19-20,23,26,159-162,172-189,197-198,207-208,602,610,615,623-629,657,666-685,691-692,719,851,959,962
+src/codecs/webp-animation.ts
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 26,119,130,136,180,218,268,275-282,298,300-305,311,330,340-347,370,375
+src/codecs/webp.ts
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 345,384,443,458,460-470,584,595,685-688
+tests/wasm-webp.test.ts
+  s_fb44c3e6b9dfb0::t_a392e5a2f44d7c 188,198
+  s_fb44c3e6b9dfb0::t_f88524e12e386b 27-32
+  s_fb44c3e6b9dfb0::t_1b7c4bfdf71b01 87-104,110
+  s_fb44c3e6b9dfb0::t_3e621a30f3d663 243-258
+  s_fb44c3e6b9dfb0::t_f2521475a03922 259-260
+  s_fb44c3e6b9dfb0::t_7f2a3b5fe84818 425-426
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 44-46,185-187,189-197,199-204,206-242,261-300,422-424,427-468,497-503
+  s_fb44c3e6b9dfb0::t_c45580b4a16f14 118
+  s_fb44c3e6b9dfb0::t_0c165842074949 3
+  s_fb44c3e6b9dfb0::t_3d620ca1147553 205
+wasm/webp-codec/src/lib.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 4-6,8-9,12,392-393,429-439
+wasm/webp-codec/src/vp8_filter.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 1,7,13,24-68,70,162-199,201,205,208,211-227,229,233,236,240
+webp-codec-support.md
+  s_fb44c3e6b9dfb0::t_710dea98bbafc0 69,132-133,203-208
+src/accelerators/wasm/webp.ts
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 11,15,17,43,181,474-596
+wasm/webp-codec/src/vp8_filter_simd.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 1-114
+capabilities/manifest.json
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 1010,1096
+  s_fb44c3e6b9dfb0::t_710dea98bbafc0 1159-1160,1230-1235
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_b8ff5a73503263 62-78,80-86
+  s_fb44c3e6b9dfb0::t_ef117965e28081 79
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_d0f257230a9fdc 179,526,529,532,541,544,547,581,586,589,592,616,619,622,871,874,877,896,901,904,907,1231,1234,1237,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1391,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554,2134-2135,2138,2142-2143,2146,2182-2183,2186,2190-2191,2194,2198-2199,2206-2207,2210
+docs-astro/src/pages/api.astro
+  s_fb44c3e6b9dfb0::t_57b7edd644b397 284
+tests/wasm-jpeg.test.ts
+  s_fb44c3e6b9dfb0::t_ea5ae636a7fecc 605,607-671
+  s_fb44c3e6b9dfb0::t_2e5b7625cd227c 603-604,606
+wasm/jpeg-decoder/src/lib.rs
+  s_fb44c3e6b9dfb0::t_ea5ae636a7fecc 670-674,687,691,709-710,724,734-736,926-929,935-1034,1043-1046,1524-1606,1615-1626
+tests/png.test.ts
+  s_fb44c3e6b9dfb0::t_95d63601293a93 4,7,10-15,17,927-1039
+  s_fb44c3e6b9dfb0::t_8d27b5d98c3d7b 1040
+README.md
+  s_fb44c3e6b9dfb0::t_d0f257230a9fdc 541-545,547,549,560-564,566
+tests/wasm-resize.test.ts
+  s_fb44c3e6b9dfb0::t_ea5ae636a7fecc 296-342
+scripts/bundle-size-budgets.ts
+  s_fb44c3e6b9dfb0::t_f83bc6cf7d987e 44-45,60-61,88-90
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_d0f257230a9fdc 99-101,104-106,109-111,114-116,119-121,129,134-136
+wasm/webp-codec/src/vp8_rgba.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 1-161
+tests/wasm-png.test.ts
+  s_fb44c3e6b9dfb0::t_95d63601293a93 21,1013-1044
+  s_fb44c3e6b9dfb0::t_638188cf060073 1045
+wasm/webp-codec/src/vp8_predict.rs
+  s_fb44c3e6b9dfb0::t_637560d20f31d9 304-338,340-353,355-362,365-366
+src/node-runtime.ts
+  s_fb44c3e6b9dfb0::t_95d63601293a93 5-12,14,240-283
+  s_fb44c3e6b9dfb0::t_8c0e84bd32243f 284
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "583071116e4a494ea3c176bce5e771ec8be5248d",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
