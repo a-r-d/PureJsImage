@@ -301,56 +301,67 @@ pub extern "C" fn webp_predict_tile(
         }
         // SAFETY: the validated state and tile are disjoint.
         let (state, tile) = unsafe { (shared_u32(st), exclusive_bytes(tile)) };
-        let (modes, planes) = tile.split_at_mut(16);
-        if y_mode == 4 && modes.iter().any(|&mode| mode > 9) {
-            return Err(ERROR_ARGUMENT);
-        }
-        let ends = &state[29..54];
-        let words = &state[54..];
-        let dc = if y_mode == 4 {
-            None
-        } else {
-            Some(luma_dc(&words[384..400]))
-        };
-        for (i, plane) in planes.chunks_exact_mut(PLANE_BYTES).enumerate() {
-            let size = if i == 0 { 16 } else { 8 };
-            let start = STRIDE + 1;
-            let split = i == 0 && y_mode == 4;
-            if split {
-                if right != 0 {
-                    let last = plane[16];
-                    plane[17..21].fill(last);
-                }
-                for y in [3, 7, 11] {
-                    plane.copy_within(17..21, start + y * STRIDE + 16);
-                }
-            } else {
-                predict_square(
-                    plane,
-                    start,
-                    size,
-                    if i == 0 { y_mode as u8 } else { uv_mode as u8 },
-                );
-            }
-            for y in 0..size / 4 {
-                for x in 0..size / 4 {
-                    let index = y * (size / 4) + x;
-                    let off = start + 4 * y * STRIDE + 4 * x;
-                    if split {
-                        predict_block(plane, off, modes[index]);
-                    }
-                    let block_index = index + [0, 16, 20][i];
-                    let block = &words[16 * block_index..][..16];
-                    let dc = if i == 0 {
-                        dc.as_ref().map_or(block[0] as i32, |dc| dc[index])
-                    } else {
-                        block[0] as i32
-                    };
-                    add_residual(plane, off, block, ends[block_index], dc);
-                }
-            }
-        }
-        Ok(())
+        predict(state, tile, y_mode, uv_mode, right)
     })();
     result.map_or_else(|e| e, |_| STATUS_OK)
+}
+
+pub(super) const TILE_BYTES: usize = 16 + PLANE_BYTES * 3;
+pub(super) fn predict(
+    state: &[u32],
+    tile: &mut [u8],
+    y_mode: u32,
+    uv_mode: u32,
+    right: u32,
+) -> Result<(), u32> {
+    let (modes, planes) = tile.split_at_mut(16);
+    if y_mode == 4 && modes.iter().any(|&mode| mode > 9) {
+        return Err(ERROR_ARGUMENT);
+    }
+    let ends = &state[29..54];
+    let words = &state[54..];
+    let dc = if y_mode == 4 {
+        None
+    } else {
+        Some(luma_dc(&words[384..400]))
+    };
+    for (i, plane) in planes.chunks_exact_mut(PLANE_BYTES).enumerate() {
+        let size = if i == 0 { 16 } else { 8 };
+        let start = STRIDE + 1;
+        let split = i == 0 && y_mode == 4;
+        if split {
+            if right != 0 {
+                let last = plane[16];
+                plane[17..21].fill(last);
+            }
+            for y in [3, 7, 11] {
+                plane.copy_within(17..21, start + y * STRIDE + 16);
+            }
+        } else {
+            predict_square(
+                plane,
+                start,
+                size,
+                if i == 0 { y_mode as u8 } else { uv_mode as u8 },
+            );
+        }
+        for y in 0..size / 4 {
+            for x in 0..size / 4 {
+                let index = y * (size / 4) + x;
+                let off = start + 4 * y * STRIDE + 4 * x;
+                if split {
+                    predict_block(plane, off, modes[index]);
+                }
+                let block_index = index + [0, 16, 20][i];
+                let block = &words[16 * block_index..][..16];
+                let dc = if i == 0 {
+                    dc.as_ref().map_or(block[0] as i32, |dc| dc[index])
+                } else {
+                    block[0] as i32
+                };
+                add_residual(plane, off, block, ends[block_index], dc);
+            }
+        }
+    }
+    Ok(())
 }

@@ -86,8 +86,6 @@ describe('Animated WebP decoding', () => {
     const decoded = await ourFrames(input)
     expect(decoded.frames).toHaveLength(12)
     for (const [index, frame] of reference.entries()) {
-      // Saturated flat colors show the decoder's nearest chroma upsampling more than photos do;
-      // a still WebP of each composited frame scores within about 1 dB of these values.
       expect(psnr(frame, decoded.frames[index] ?? new Uint8Array())).toBeGreaterThan(30)
     }
   })

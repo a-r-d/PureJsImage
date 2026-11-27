@@ -3,13 +3,17 @@ import { invalidInput } from '../errors.ts'
 import { iccColorSpace } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
-import { vp8AcQuantizers, vp8DcQuantizers } from './vp8.ts'
+import { addInverseVp8Block, vp8AcQuantizers, vp8DcQuantizers } from './vp8.ts'
 import {
   coefficientUpdateProbabilities,
   defaultCoefficientProbabilities,
   keyframeBlockModeProbabilities,
 } from './vp8-tables.ts'
 import type { WebpKernel } from './webp-acceleration.ts'
+
+const blockPrediction = 4
+const macroToSubMode = Uint8Array.of(0, 2, 3, 1) // DC, vertical, horizontal, true motion
+const maxPredictionPartitionLength = (1 << 19) - 1
 
 const yModeProbabilities = Uint8Array.of(145, 156, 163, 128)
 const uvModeProbabilities = Uint8Array.of(142, 114, 183)
@@ -74,6 +78,10 @@ class BooleanEncoder {
   #range = 255
   #bottom = 0
   #bitCount = 24
+
+  get byteLength(): number {
+    return this.#length
+  }
 
   bit(value: number, probability = 128): void {
     const split = 1 + (((this.#range - 1) * probability) >> 8)
@@ -198,7 +206,7 @@ const writeCoefficientBlock = (
   type: number,
   context: number,
 ): boolean => {
-  let coefficient = 0
+  let coefficient = type === 0 ? 1 : 0
   let nextContext = context
   let checkEnd = true
   let hasNonzero = false
@@ -283,33 +291,28 @@ interface ReconstructionPlane {
 }
 
 const createPlane = (width: number, height: number): ReconstructionPlane => {
-  const stride = width + 2
+  const stride = width + 6
   return { data: new Uint8Array((height + 2) * stride), stride, origin: stride + 1 }
 }
 
-const padPlane = (
+// Extend only the edge macroblocks. Aligned interior rows use the source
+// directly; the final row (or an unaligned width) fits in a single band.
+const padBand = (
   source: Uint8Array,
-  sourceWidth: number,
-  sourceHeight: number,
-  paddedWidth: number,
-  paddedHeight: number,
+  width: number,
+  height: number,
+  y: number,
+  stride: number,
+  size: number,
+  scratch: Uint8Array,
 ): Uint8Array => {
-  if (sourceWidth === paddedWidth && sourceHeight === paddedHeight) return source
-  const padded = new Uint8Array(paddedWidth * paddedHeight)
-  for (let y = 0; y < paddedHeight; y += 1) {
-    const sourceY = y < sourceHeight ? y : sourceHeight - 1
-    const sourceRow = sourceY * sourceWidth
-    const paddedRow = y * paddedWidth
-    padded.set(source.subarray(sourceRow, sourceRow + sourceWidth), paddedRow)
-    if (paddedWidth > sourceWidth) {
-      padded.fill(
-        source[sourceRow + sourceWidth - 1] ?? 0,
-        paddedRow + sourceWidth,
-        paddedRow + paddedWidth,
-      )
-    }
+  if (width === stride && y + size <= height) return source
+  for (let i = 0; i < size; i++) {
+    const start = Math.min(height - 1, y + i) * width
+    scratch.set(source.subarray(start, start + width), i * stride)
+    scratch.fill(source[start + width - 1] ?? 0, i * stride + width, (i + 1) * stride)
   }
-  return padded
+  return scratch
 }
 
 const finalizeChroma = (
@@ -319,7 +322,7 @@ const finalizeChroma = (
   chromaWidth: number,
   chromaHeight: number,
 ): Uint8Array => {
-  const bytes = new Uint8Array(chromaWidth * chromaHeight)
+  const bytes = new Uint8Array(source.buffer, source.byteOffset, chromaWidth * chromaHeight)
   if ((width & 1) === 0 && (height & 1) === 0) {
     const pixels = chromaWidth * chromaHeight
     for (let index = 0; index < pixels; index += 1) {
@@ -383,49 +386,13 @@ const reconstructCoefficients = (
   }
 }
 
-const addPredictedInverseVp8Block = (
-  data: Uint8Array,
-  stride: number,
-  offset: number,
-  coefficients: Int32Array,
-  temporary: Int32Array,
-  predictor: number,
-): void => {
-  for (let x = 0; x < 4; x += 1) {
-    const top = coefficients[x] ?? 0
-    const mid = coefficients[8 + x] ?? 0
-    const one = coefficients[4 + x] ?? 0
-    const three = coefficients[12 + x] ?? 0
-    const c = ((one * 35468) >> 16) - three - ((three * 20091) >> 16)
-    const d = one + ((one * 20091) >> 16) + ((three * 35468) >> 16)
-    temporary[x] = top + mid + d
-    temporary[12 + x] = top + mid - d
-    temporary[4 + x] = top - mid + c
-    temporary[8 + x] = top - mid - c
-  }
-  for (let y = 0; y < 4; y += 1) {
-    const row = y * 4
-    const a = (temporary[row] ?? 0) + (temporary[row + 2] ?? 0)
-    const b = (temporary[row] ?? 0) - (temporary[row + 2] ?? 0)
-    const one = temporary[row + 1] ?? 0
-    const three = temporary[row + 3] ?? 0
-    const c = ((one * 35468) >> 16) - three - ((three * 20091) >> 16)
-    const d = one + ((one * 20091) >> 16) + ((three * 35468) >> 16)
-    const pixel = offset + y * stride
-    data[pixel] = clampByte(predictor + ((a + d + 4) >> 3))
-    data[pixel + 1] = clampByte(predictor + ((b + c + 4) >> 3))
-    data[pixel + 2] = clampByte(predictor + ((b - c + 4) >> 3))
-    data[pixel + 3] = clampByte(predictor + ((a - d + 4) >> 3))
-  }
-}
-
-const predictChromaDc = (
+const squareDc = (
   plane: ReconstructionPlane,
   offset: number,
   row: number,
   column: number,
+  size: number,
 ): number => {
-  const size = 8
   let total = 0
   if (row > 0) {
     for (let index = 0; index < size; index += 1) {
@@ -439,7 +406,700 @@ const predictChromaDc = (
   }
   return row === 0 && column === 0
     ? 128
-    : (total + (row > 0 && column > 0 ? size : size >> 1)) >> (row > 0 && column > 0 ? 4 : 3)
+    : (total + (row > 0 && column > 0 ? size : size >> 1)) >>
+        ((size === 8 ? 3 : 4) + Number(row > 0 && column > 0))
+}
+
+// RFC 6386 sections 11 and 12. The bit strings are paths through the
+// keyframe mode trees. Costs are measured in bits at the same probabilities.
+const squarePaths = ['0', '10', '110', '111']
+const bitCost = (bit: number, probability: number): number =>
+  -Math.log2((bit === 0 ? probability : 256 - probability) / 256)
+
+const squareModeCost = Float64Array.from(squarePaths, (path) => {
+  let bits = 0
+  for (let i = 0; i < path.length; i++)
+    bits += bitCost(Number(path[i]), uvModeProbabilities[i] ?? 128)
+  return bits
+})
+
+const chromaZero = bitCost(0, defaultCoefficientProbabilities[probabilityOffset(2, 0, 0)] ?? 128)
+const chromaNonzero = bitCost(1, defaultCoefficientProbabilities[probabilityOffset(2, 0, 0)] ?? 128)
+// Four samples from one 4x4 chroma block have a signed sum in
+// [-1020, 1020]. The DC reconstruction and its estimated rate depend
+// only on that sum and the frame quantizer.
+const chromaDcCosts = (step: number): Float64Array => {
+  const costs = new Float64Array(2041)
+  const lambda = (step * step) / 96
+  for (let sum = -1020; sum <= 1020; sum++) {
+    const level = Math.round((2 * Math.abs(sum)) / step) * Math.sign(sum)
+    const reconstructed = (level * step + 4) >> 3
+    const bits = level === 0 ? chromaZero : chromaNonzero + 1 + Math.log2(Math.abs(level))
+    costs[sum + 1020] = 4 * reconstructed * reconstructed - 2 * sum * reconstructed + lambda * bits
+  }
+  return costs
+}
+
+const scoreChromaModes = (
+  scores: Float64Array,
+  source: Uint8Array,
+  start: number,
+  width: number,
+  plane: ReconstructionPlane,
+  out: number,
+  costs: Float64Array,
+  dc: number,
+): void => {
+  const top = out - plane.stride
+  const corner = plane.data[top - 1] ?? 0
+  for (let mode = 0; mode < 4; mode++) {
+    let score = scores[mode] ?? 0
+    for (let by = 0; by < 8; by += 4)
+      for (let bx = 0; bx < 8; bx += 4) {
+        let sum = 0
+        let square = 0
+        for (let y = by; y < by + 4; y += 2) {
+          const left = plane.data[out + y * plane.stride - 1] ?? 0
+          for (let x = bx; x < bx + 4; x += 2) {
+            const above = plane.data[top + x] ?? 0
+            const pred =
+              mode === 0
+                ? dc
+                : mode === 1
+                  ? above
+                  : mode === 2
+                    ? left
+                    : clampByte(above + left - corner)
+            const delta = (source[start + y * width + x] ?? 0) - pred
+            sum += delta
+            square += delta * delta
+          }
+        }
+        score += square + (costs[sum + 1020] ?? 0)
+      }
+    scores[mode] = score
+  }
+}
+
+const predictSquareInto = (
+  plane: ReconstructionPlane,
+  offset: number,
+  size: number,
+  mode: number,
+  dc: number,
+): void => {
+  const data = plane.data
+  const top = offset - plane.stride
+  const corner = data[top - 1] ?? 0
+  for (let y = 0; y < size; y++) {
+    const row = offset + y * plane.stride
+    const left = data[row - 1] ?? 0
+    if (mode === 0 || mode === 2) data.fill(mode === 0 ? dc : left, row, row + size)
+    else if (mode === 1) data.copyWithin(row, top, top + size)
+    else
+      for (let x = 0; x < size; x++) data[row + x] = clampByte(left + (data[top + x] ?? 0) - corner)
+  }
+}
+
+const residual4 = (
+  source: Uint8Array,
+  start: number,
+  width: number,
+  plane: ReconstructionPlane,
+  output: number,
+  residual: Int16Array,
+): number => {
+  let nonzero = 0
+  for (let y = 0; y < 4; y++) {
+    const src = start + y * width
+    const dst = output + y * plane.stride
+    for (let x = 0; x < 4; x++) {
+      const value = (source[src + x] ?? 0) - (plane.data[dst + x] ?? 0)
+      residual[y * 4 + x] = value
+      nonzero |= value
+    }
+  }
+  return nonzero
+}
+
+// Transform the 16 luma DC coefficients by rows and columns. Scale the
+// two-pass forward result by 1/2 and the inverse by 1/8 (RFC 6386, 14.3).
+const walsh4x4 = (
+  input: Int32Array,
+  work: Int32Array,
+  result: Int32Array,
+  inverse: boolean,
+): void => {
+  for (let i = 0; i < 4; i++) {
+    const a = (input[i] ?? 0) + (input[i + 12] ?? 0)
+    const b = (input[i + 4] ?? 0) + (input[i + 8] ?? 0)
+    const c = (input[i + 4] ?? 0) - (input[i + 8] ?? 0)
+    const d = (input[i] ?? 0) - (input[i + 12] ?? 0)
+    work[i] = a + b
+    work[i + 4] = d + c
+    work[i + 8] = a - b
+    work[i + 12] = d - c
+  }
+  const bias = inverse ? 3 : 1
+  const shift = inverse ? 3 : 1
+  for (let i = 0; i < 16; i += 4) {
+    const a = (work[i] ?? 0) + (work[i + 3] ?? 0)
+    const b = (work[i + 1] ?? 0) + (work[i + 2] ?? 0)
+    const c = (work[i + 1] ?? 0) - (work[i + 2] ?? 0)
+    const d = (work[i] ?? 0) - (work[i + 3] ?? 0)
+    result[i] = (a + b + bias) >> shift
+    result[i + 1] = (d + c + bias) >> shift
+    result[i + 2] = (a - b + bias) >> shift
+    result[i + 3] = (d - c + bias) >> shift
+  }
+}
+
+const lumaModeCost = Float64Array.from([0, 1, 2, 3, 4], (mode) =>
+  mode === 4
+    ? bitCost(0, 145)
+    : bitCost(1, 145) + bitCost(mode >> 1, 156) + bitCost(mode & 1, mode < 2 ? 163 : 128),
+)
+
+// Estimate residual rate from the default EOB probabilities at the first
+// coefficient of each block type. The predictor error and one sample per
+// 4x4 block let us compare partitions before transforming the winner.
+const firstTokenCost = (type: number, nonzero: number): number =>
+  bitCost(
+    nonzero,
+    defaultCoefficientProbabilities[probabilityOffset(type, type === 0 ? 1 : 0, 0)] ?? 128,
+  )
+
+const macroZeroCost = firstTokenCost(0, 0)
+const macroNonzeroCost = firstTokenCost(0, 1)
+
+const subblockZeroCost = firstTokenCost(3, 0)
+const subblockNonzeroCost = firstTokenCost(3, 1)
+
+const subblockPartitionBits =
+  (lumaModeCost[4] ?? 0) + 16 * bitCost(0, keyframeBlockModeProbabilities[0] ?? 128)
+
+const chooseLumaMode = (
+  src: Uint8Array,
+  start: number,
+  width: number,
+  plane: ReconstructionPlane,
+  out: number,
+  dc: number,
+  ac: number,
+  scores: Float64Array,
+): number => {
+  const lambda = (ac * ac) / 64
+  for (let mode = 0; mode < 4; mode++) scores[mode] = (lumaModeCost[mode] ?? 0) * lambda
+  let small = subblockPartitionBits * lambda
+  const top = out - plane.stride
+  const corner = plane.data[top - 1] ?? 0
+
+  const threshold = (ac / 8) ** 2
+  for (let y = 0; y < 16; y += 4) {
+    const left = plane.data[out + (y + 1) * plane.stride - 1] ?? 0
+    for (let x = 0; x < 16; x += 4) {
+      const above = plane.data[top + x + 1] ?? 0
+      const p = start + (y + 1) * width + x + 1
+      const value = src[p] ?? 0
+      const d0 = (value - dc) ** 2
+      const d1 = (value - above) ** 2
+      const d2 = (value - left) ** 2
+      const d3 = (value - clampByte(above + left - corner)) ** 2
+      scores[0] =
+        (scores[0] ?? 0) + d0 + lambda * (d0 > threshold ? macroNonzeroCost : macroZeroCost)
+      scores[1] =
+        (scores[1] ?? 0) + d1 + lambda * (d1 > threshold ? macroNonzeroCost : macroZeroCost)
+      scores[2] =
+        (scores[2] ?? 0) + d2 + lambda * (d2 > threshold ? macroNonzeroCost : macroZeroCost)
+      scores[3] =
+        (scores[3] ?? 0) + d3 + lambda * (d3 > threshold ? macroNonzeroCost : macroZeroCost)
+      const localTop = y === 0 ? above : (src[start + (y - 1) * width + x + 1] ?? 0)
+      const localLeft = x === 0 ? left : (src[p - 2] ?? 0)
+      const err = (value - ((localTop + localLeft + 1) >> 1)) ** 2
+      small += err + lambda * (err > threshold ? subblockNonzeroCost : subblockZeroCost)
+    }
+  }
+  // Reserve the 16x16 partition for smooth prediction. Textured blocks
+  // pay a larger token cost when their DC values move into Y2.
+  let winner = blockPrediction
+  let best = Math.min(small, 16 * (ac / 5) ** 2)
+  for (let mode = 0; mode < 4; mode++)
+    if ((scores[mode] ?? 0) < best) {
+      best = scores[mode] ?? 0
+      winner = mode
+    }
+  return winner
+}
+
+// Nodes and leaves of the RFC 6386 keyframe subblock tree (section 11.2).
+const subTree = Int8Array.of(0, 2, -1, 4, -2, 6, 8, 12, -3, 10, -5, -6, -4, 14, -7, 16, -8, -9)
+const subBits = new Uint8Array(10)
+const subLengths = new Uint8Array(10)
+const subCosts = new Float64Array(1000)
+const initSubTree = (node: number, bits: number, length: number): void => {
+  for (let bit = 0; bit <= 1; bit++) {
+    const child = subTree[node + bit] ?? 0
+    const code = (bits << 1) | bit
+    if (child > 0) initSubTree(child, code, length + 1)
+    else {
+      const mode = -child
+      subBits[mode] = code
+      subLengths[mode] = length + 1
+      for (let context = 0; context < 100; context++) {
+        let cost = 0
+        let index = 0
+        for (let shift = length; shift >= 0; shift--) {
+          const branch = (code >> shift) & 1
+          cost += bitCost(branch, keyframeBlockModeProbabilities[context * 9 + (index >> 1)] ?? 128)
+          index = subTree[index + branch] ?? 0
+        }
+        subCosts[context * 10 + mode] = cost
+      }
+    }
+  }
+}
+initSubTree(0, 0, 0)
+
+const writeSubMode = (header: BooleanEncoder, context: number, mode: number): void => {
+  const code = subBits[mode] ?? 0
+  let node = 0
+  for (let shift = (subLengths[mode] ?? 0) - 1; shift >= 0; shift--) {
+    const bit = (code >> shift) & 1
+    header.bit(bit, keyframeBlockModeProbabilities[context * 9 + (node >> 1)])
+    node = subTree[node + bit] ?? 0
+  }
+}
+
+// Boundary coordinates run from L (0) through the corner (4) to H (12).
+// Slots 0..12 hold weighted three-tap averages. Slots 13..25 hold adjacent
+// pair averages and slot 26 repeats the bottom left sample.
+const directionalSamples = new Uint8Array(8 * 16)
+for (let y = 0; y < 4; y++)
+  for (let x = 0; x < 4; x++) {
+    const p = y * 4 + x
+    directionalSamples[p] = 5 + x // VE
+    directionalSamples[16 + p] = 3 - y // HE
+    directionalSamples[32 + p] = Math.min(12, 6 + x + y) // LD
+    directionalSamples[48 + p] = 4 + x - y // RD
+    const vr = 2 * x - y
+    directionalSamples[64 + p] =
+      vr < 0 ? 4 + vr + 1 : vr % 2 === 0 ? 13 + 4 + (vr >> 1) : 5 + (vr >> 1)
+    const vl = 2 * x + y
+    directionalSamples[80 + p] =
+      vl >= 8 ? 6 + (vl - 8) + 4 : vl % 2 === 0 ? 13 + 5 + (vl >> 1) : 6 + (vl >> 1)
+    const hd = 2 * y - x
+    directionalSamples[96 + p] =
+      hd < 0 ? 4 - hd - 1 : hd % 2 === 0 ? 13 + 3 - (hd >> 1) : 3 - (hd >> 1)
+    const hu = 2 * y + x
+    directionalSamples[112 + p] = hu >= 6 ? 26 : hu % 2 === 0 ? 13 + 2 - (hu >> 1) : 2 - (hu >> 1)
+  }
+
+// Estimates in the coefficient domain. Each slot includes the zero/nonzero
+// decision, the small-magnitude token and its sign, under the default context.
+const tokenCosts = new Float32Array(16 * 3 * 32)
+const endCosts = new Float32Array(16 * 3)
+const continueCosts = new Float32Array(16 * 3)
+for (let i = 0; i < 16; i++)
+  for (let c = 0; c < 3; c++) {
+    const key = i * 3 + c
+    const offset = probabilityOffset(3, i, c)
+    const prob = defaultCoefficientProbabilities
+    endCosts[key] = bitCost(0, prob[offset] ?? 128)
+    continueCosts[key] = bitCost(1, prob[offset] ?? 128)
+    for (let m = 0; m < 32; m++) {
+      let cost = bitCost(Number(m !== 0), prob[offset + 1] ?? 128)
+      if (m) {
+        cost += 1 + bitCost(Number(m !== 1), prob[offset + 2] ?? 128)
+        if (m > 1) {
+          cost += bitCost(Number(m > 4), prob[offset + 3] ?? 128)
+          if (m <= 4) {
+            cost += bitCost(Number(m !== 2), prob[offset + 4] ?? 128)
+            if (m > 2) cost += bitCost(Number(m === 4), prob[offset + 5] ?? 128)
+          } else cost += 2 + Math.log2(m)
+        }
+      }
+      tokenCosts[key * 32 + m] = cost
+    }
+  }
+
+const scoreQuantized = (
+  dct: Int32Array,
+  dc: number,
+  ac: number,
+  lambda: number,
+  modeCost: number,
+): number => {
+  let distortion = 0
+  let bits = modeCost
+  let context = 0
+  let last = 0
+  let pending = 0
+  let lastContext = 0
+  for (let i = 0; i < 16; i++) {
+    const value = Math.abs(dct[zigzag[i] ?? 0] ?? 0)
+    const step = i === 0 ? dc : ac
+    const m = Math.round(value / step)
+    const error = value - m * step
+    distortion += error * error
+    const key = i * 3 + context
+    if (i === last) pending += continueCosts[key] ?? 0
+    pending += tokenCosts[key * 32 + Math.min(31, m)] ?? 0
+    context = m === 0 ? 0 : m === 1 ? 1 : 2
+    if (m) {
+      bits += pending
+      pending = 0
+      last = i + 1
+      lastContext = context
+    }
+  }
+  // A trailing zero run is represented by a single EOB.
+  if (last < 16) bits += endCosts[last * 3 + lastContext] ?? 0
+  return distortion + lambda * bits
+}
+
+const flatSubModes = Uint8Array.from({ length: 100 }, (_, context) => {
+  let best = 0
+  for (let i = 1; i < 10; i++)
+    if ((subCosts[context * 10 + i] ?? 0) < (subCosts[context * 10 + best] ?? 0)) best = i
+  return best
+})
+
+const squared = (x: number): number => x * x
+
+const nominateSubMode = (
+  src: Uint8Array,
+  start: number,
+  width: number,
+  dc: number,
+  context: number,
+  scratch: MacroblockScratch,
+): number => {
+  const { edges, averages, yAc } = scratch
+  const a = src[start] ?? 0
+  const b = src[start + 2] ?? 0
+  const c = src[start + 2 * width] ?? 0
+  const d = src[start + width * 2 + 2] ?? 0
+  const offset = context * 10
+  const lambda = (yAc * yAc) / 32
+  let winner = 0
+  let best =
+    squared(a - dc) +
+    squared(b - dc) +
+    squared(c - dc) +
+    squared(d - dc) +
+    lambda * (subCosts[offset] ?? 0)
+  const corner = edges[4] ?? 0
+  const x0 = (edges[5] ?? 0) - corner
+  const x2 = (edges[7] ?? 0) - corner
+  const l0 = edges[3] ?? 0
+  const l2 = edges[1] ?? 0
+  const tm =
+    squared(a - clampByte(l0 + x0)) +
+    squared(b - clampByte(l0 + x2)) +
+    squared(c - clampByte(l2 + x0)) +
+    squared(d - clampByte(l2 + x2)) +
+    lambda * (subCosts[offset + 1] ?? 0)
+  if (tm < best) {
+    best = tm
+    winner = 1
+  }
+  for (let mode = 2; mode < 10; mode++) {
+    const i = (mode - 2) * 16
+    const score =
+      squared(a - (averages[directionalSamples[i] ?? 0] ?? 0)) +
+      squared(b - (averages[directionalSamples[i + 2] ?? 0] ?? 0)) +
+      squared(c - (averages[directionalSamples[i + 8] ?? 0] ?? 0)) +
+      squared(d - (averages[directionalSamples[i + 10] ?? 0] ?? 0)) +
+      lambda * (subCosts[offset + mode] ?? 0)
+    if (score < best) {
+      best = score
+      winner = mode
+    }
+  }
+  return winner
+}
+
+const chooseSubMode = (
+  plane: ReconstructionPlane,
+  out: number,
+  src: Uint8Array,
+  start: number,
+  width: number,
+  context: number,
+  scratch: MacroblockScratch,
+): number => {
+  const { edges, averages, residual, dctTemporary, transformed, bestDct, yDc, yAc } = scratch
+  const data = plane.data
+  const stride = plane.stride
+  const top = out - stride
+  for (let i = 0; i < 4; i++) edges[3 - i] = data[out + i * stride - 1] ?? 0
+  for (let i = 0; i < 9; i++) edges[4 + i] = data[top + i - 1] ?? 0
+  const dc = predictDc4(plane, out)
+  let flat = true
+  for (let i = 0; i < 13; i++)
+    if (edges[i] !== dc) {
+      flat = false
+      break
+    }
+  let mode = 0
+  if (!flat) {
+    for (let i = 0; i < 13; i++) {
+      const a = edges[Math.max(0, i - 1)] ?? 0
+      const b = edges[i] ?? 0
+      const c = edges[Math.min(i + 1, 12)] ?? 0
+      averages[i] = (a + 2 * b + c + 2) >> 2
+      averages[13 + i] = (b + c + 1) >> 1
+    }
+    averages[26] = edges[0] ?? 0
+    mode = nominateSubMode(src, start, width, dc, context, scratch)
+  }
+  // The DC alternative never reads the predicted plane. Only overwrite the
+  // directional predictor if the coded DC residual actually wins.
+  for (let y = 0; y < 4; y++)
+    for (let x = 0; x < 4; x++) residual[y * 4 + x] = (src[start + y * width + x] ?? 0) - dc
+  forwardDct(residual, dctTemporary, mode === 0 ? bestDct : transformed)
+  if (mode !== 0) {
+    const dcScore = scoreQuantized(
+      transformed,
+      yDc,
+      yAc,
+      yAc * yAc * 0.12,
+      subCosts[context * 10] ?? 0,
+    )
+    for (let y = 0; y < 4; y++)
+      for (let x = 0; x < 4; x++) {
+        const k = y * 4 + x
+        const pred =
+          mode === 1
+            ? clampByte((edges[3 - y] ?? 0) + (edges[5 + x] ?? 0) - (edges[4] ?? 0))
+            : (averages[directionalSamples[(mode - 2) * 16 + k] ?? 0] ?? 0)
+        data[out + y * stride + x] = pred
+        residual[k] = (src[start + y * width + x] ?? 0) - pred
+      }
+    forwardDct(residual, dctTemporary, bestDct)
+    const directionalScore = scoreQuantized(
+      bestDct,
+      yDc,
+      yAc,
+      yAc * yAc * 0.12,
+      subCosts[context * 10 + mode] ?? 0,
+    )
+    if (directionalScore <= dcScore) return mode
+    bestDct.set(transformed)
+  }
+  for (let y = 0; y < 4; y++) data.fill(dc, out + y * stride, out + y * stride + 4)
+  return flat ? (flatSubModes[context] ?? 0) : 0
+}
+
+const createMacroblockScratch = (yDc: number, yAc: number) => ({
+  yDc,
+  yAc,
+  uvDc: Math.min(132, yDc),
+  uvAc: yAc,
+  y2Dc: yDc * 2,
+  y2Ac: Math.max(8, Math.floor((yAc * 155) / 100)),
+  coefficients: new Int32Array(25 * 16),
+  residual: new Int16Array(16),
+  dctTemporary: new Int32Array(16),
+  transformed: new Int32Array(16),
+  reconstructed: new Int32Array(16),
+  bestDct: new Int32Array(16),
+  dcBlock: new Int32Array(16),
+  coded: new Uint8Array(16),
+  scores: new Float64Array(4),
+  edges: new Uint8Array(13),
+  averages: new Uint8Array(27),
+})
+type MacroblockScratch = ReturnType<typeof createMacroblockScratch>
+
+const encodeLuma16 = (
+  yPadded: Uint8Array,
+  yStart: number,
+  paddedYWidth: number,
+  yPlane: ReconstructionPlane,
+  yOffset: number,
+  yMode: number,
+  yPredictDc: number,
+  scratch: MacroblockScratch,
+): void => {
+  const {
+    yDc,
+    yAc,
+    y2Dc,
+    y2Ac,
+    coefficients,
+    residual,
+    dctTemporary,
+    transformed,
+    reconstructed,
+    dcBlock,
+    coded,
+  } = scratch
+  predictSquareInto(yPlane, yOffset, 16, yMode, yPredictDc)
+  for (let block = 0; block < 16; block++) {
+    const dx = (block & 3) * 4
+    const dy = (block >> 2) * 4
+    if (
+      !residual4(
+        yPadded,
+        yStart + dy * paddedYWidth + dx,
+        paddedYWidth,
+        yPlane,
+        yOffset + dy * yPlane.stride + dx,
+        residual,
+      )
+    ) {
+      dcBlock[block] = 0
+      coefficients.fill(0, block * 16, block * 16 + 16)
+      coded[block] = 0
+      continue
+    }
+    coded[block] = 1
+    forwardDct(residual, dctTemporary, transformed)
+    dcBlock[block] = transformed[0] ?? 0
+    quantize(transformed, yDc, yAc, coefficients, block * 16)
+  }
+  walsh4x4(dcBlock, dctTemporary, transformed, false)
+  quantize(transformed, y2Dc, y2Ac, coefficients, 384)
+  reconstructCoefficients(coefficients, 384, y2Dc, y2Ac, transformed)
+  walsh4x4(transformed, dctTemporary, dcBlock, true)
+  for (let block = 0; block < 16; block++) {
+    if (coded[block] === 0 && dcBlock[block] === 0) continue
+    reconstructCoefficients(coefficients, block * 16, yDc, yAc, reconstructed)
+    reconstructed[0] = dcBlock[block] ?? 0
+    addInverseVp8Block(
+      yPlane.data,
+      yPlane.stride,
+      yOffset + (block >> 2) * 4 * yPlane.stride + (block & 3) * 4,
+      reconstructed,
+      dctTemporary,
+    )
+  }
+}
+
+const encodeLuma4 = (
+  header: BooleanEncoder,
+  yPadded: Uint8Array,
+  yStart: number,
+  paddedYWidth: number,
+  yPlane: ReconstructionPlane,
+  yOffset: number,
+  firstRow: boolean,
+  rightEdge: boolean,
+  column: number,
+  aboveModes: Uint8Array,
+  leftModes: Uint8Array,
+  scratch: MacroblockScratch,
+): void => {
+  const { yDc, yAc, coefficients, dctTemporary, reconstructed, bestDct } = scratch
+  // Rightmost subblocks in every subblock row use the same four
+  // above-right samples from the macroblock above (section 12.3).
+  const aboveRight = yOffset - yPlane.stride + 16
+  if (rightEdge || firstRow)
+    yPlane.data.fill(
+      firstRow ? 127 : (yPlane.data[aboveRight - 1] ?? 0),
+      aboveRight,
+      aboveRight + 4,
+    )
+  for (let y = 3; y < 12; y += 4)
+    yPlane.data.copyWithin(yOffset + y * yPlane.stride + 16, aboveRight, aboveRight + 4)
+  for (let block = 0; block < 16; block += 1) {
+    const blockX = (block & 3) * 4
+    const blockY = (block >> 2) * 4
+    const output = yOffset + (block >> 2) * 4 * yPlane.stride + (block & 3) * 4
+    const sampleRow = yStart + blockY * paddedYWidth + blockX
+    const ai = column * 4 + (block & 3)
+    const li = block >> 2
+    const context = (aboveModes[ai] ?? 0) * 10 + (leftModes[li] ?? 0)
+    const mode = chooseSubMode(yPlane, output, yPadded, sampleRow, paddedYWidth, context, scratch)
+    writeSubMode(header, context, mode)
+    aboveModes[ai] = mode
+    leftModes[li] = mode
+    const coefficientOffset = block * 16
+    quantize(bestDct, yDc, yAc, coefficients, coefficientOffset)
+    reconstructCoefficients(coefficients, coefficientOffset, yDc, yAc, reconstructed)
+    addInverseVp8Block(yPlane.data, yPlane.stride, output, reconstructed, dctTemporary)
+  }
+}
+
+const encodeChroma = (
+  chromaSource: Uint8Array,
+  start: number,
+  paddedCWidth: number,
+  plane: ReconstructionPlane,
+  output: number,
+  uvMode: number,
+  dc: number,
+  base: number,
+  scratch: MacroblockScratch,
+): void => {
+  const { uvDc, uvAc, residual, dctTemporary, transformed, coefficients, reconstructed } = scratch
+  predictSquareInto(plane, output, 8, uvMode, dc)
+  for (let block = 0; block < 4; block += 1) {
+    const blockX = (block & 1) * 4
+    const blockY = (block >> 1) * 4
+    const sampleRow = start + blockY * paddedCWidth + blockX
+    const coefficientOffset = base + block * 16
+    if (
+      !residual4(
+        chromaSource,
+        sampleRow,
+        paddedCWidth,
+        plane,
+        output + (block >> 1) * 4 * plane.stride + (block & 1) * 4,
+        residual,
+      )
+    ) {
+      coefficients.fill(0, coefficientOffset, coefficientOffset + 16)
+      continue
+    }
+    forwardDct(residual, dctTemporary, transformed)
+    quantize(transformed, uvDc, uvAc, coefficients, coefficientOffset)
+    reconstructCoefficients(coefficients, coefficientOffset, uvDc, uvAc, reconstructed)
+    addInverseVp8Block(
+      plane.data,
+      plane.stride,
+      output + (block >> 1) * 4 * plane.stride + (block & 1) * 4,
+      reconstructed,
+      dctTemporary,
+    )
+  }
+}
+
+const writeTokens = (
+  tokens: BooleanEncoder,
+  yMode: number,
+  coefficients: Int32Array,
+  left: Int8Array,
+  aboveContext: Int8Array,
+): void => {
+  const probabilities = defaultCoefficientProbabilities
+  if (yMode !== blockPrediction) {
+    const nonzero = writeCoefficientBlock(
+      tokens,
+      probabilities,
+      coefficients,
+      384,
+      1,
+      (left[8] ?? 0) + (aboveContext[8] ?? 0),
+    )
+    left[8] = aboveContext[8] = Number(nonzero)
+  }
+  for (let block = 0; block < 24; block += 1) {
+    const type = block < 16 ? (yMode === blockPrediction ? 3 : 0) : 2
+    const leftIndex = leftIndexes[block] ?? 0
+    const aboveIndex = aboveIndexes[block] ?? 0
+    const nonzero = writeCoefficientBlock(
+      tokens,
+      probabilities,
+      coefficients,
+      block * 16,
+      type,
+      (left[leftIndex] ?? 0) + (aboveContext[aboveIndex] ?? 0),
+    )
+    left[leftIndex] = nonzero ? 1 : 0
+    aboveContext[aboveIndex] = nonzero ? 1 : 0
+  }
 }
 
 const encodeVp8 = (
@@ -457,7 +1117,6 @@ const encodeVp8 = (
   const q = Math.round(((100 - quality) * 127) / 99)
   const yDc = vp8DcQuantizers[q] ?? 4
   const yAc = vp8AcQuantizers[q] ?? 4
-  const uvDc = Math.min(132, yDc)
   const uvAc = yAc
 
   const header = new BooleanEncoder()
@@ -475,134 +1134,102 @@ const encodeVp8 = (
     header.bit(0, coefficientUpdateProbabilities[index])
   }
   header.bit(0)
-  for (let row = 0; row < rows; row += 1) {
-    for (let column = 0; column < columns; column += 1) {
-      header.bit(0, yModeProbabilities[0])
-      for (let block = 0; block < 16; block += 1) {
-        header.bit(0, keyframeBlockModeProbabilities[0])
-      }
-      header.bit(0, uvModeProbabilities[0])
-    }
-  }
-
   const tokens = new BooleanEncoder()
-  const probabilities = defaultCoefficientProbabilities
-  const yPlane = createPlane(columns * 16, rows * 16)
-  const uPlane = createPlane(columns * 8, rows * 8)
-  const vPlane = createPlane(columns * 8, rows * 8)
-  const above = Array.from({ length: columns }, () => new Int8Array(8))
-  const coefficients = new Int32Array(24 * 16)
-  const residual = new Int16Array(16)
-  const dctTemporary = new Int32Array(16)
-  const transformed = new Int32Array(16)
-  const reconstructed = new Int32Array(16)
+  const aboveModes = new Uint8Array(columns * 4)
+  const leftModes = new Uint8Array(4)
+  const scratch = createMacroblockScratch(yDc, yAc)
+  const uvCosts = chromaDcCosts(scratch.uvDc)
+  const { scores, coefficients } = scratch
+  const yPlane = createPlane(columns * 16, 16)
+  const uPlane = createPlane(columns * 8, 8)
+  const vPlane = createPlane(columns * 8, 8)
+  const above = Array.from({ length: columns }, () => new Int8Array(9))
   const paddedYWidth = columns * 16
-  const paddedYHeight = rows * 16
   const paddedCWidth = columns * 8
-  const paddedCHeight = rows * 8
-  const yPadded = padPlane(ySource, width, height, paddedYWidth, paddedYHeight)
-  const uPadded = padPlane(uSource, chromaWidth, chromaHeight, paddedCWidth, paddedCHeight)
-  const vPadded = padPlane(vSource, chromaWidth, chromaHeight, paddedCWidth, paddedCHeight)
-  for (let row = 0; row < rows; row += 1) {
-    const left = new Int8Array(8)
+  const yScratch = new Uint8Array(
+    width === paddedYWidth && height % 16 === 0 ? 0 : paddedYWidth * 16,
+  )
+  const cScratchSize = chromaWidth === paddedCWidth && chromaHeight % 8 === 0 ? 0 : paddedCWidth * 8
+  const uScratch = new Uint8Array(cScratchSize)
+  const vScratch = new Uint8Array(cScratchSize)
+  for (let row = 0; row < rows; row++) {
+    const yPadded = padBand(ySource, width, height, row * 16, paddedYWidth, 16, yScratch)
+    const uPadded = padBand(uSource, chromaWidth, chromaHeight, row * 8, paddedCWidth, 8, uScratch)
+    const vPadded = padBand(vSource, chromaWidth, chromaHeight, row * 8, paddedCWidth, 8, vScratch)
+    const yBase = yPadded === ySource ? row * 16 * paddedYWidth : 0
+    const cBase = uPadded === uSource ? row * 8 * paddedCWidth : 0
+    if (row > 0) {
+      yPlane.data.copyWithin(0, 16 * yPlane.stride, 17 * yPlane.stride)
+      uPlane.data.copyWithin(0, 8 * uPlane.stride, 9 * uPlane.stride)
+      vPlane.data.copyWithin(0, 8 * vPlane.stride, 9 * vPlane.stride)
+    }
+    leftModes.fill(0)
+    const left = new Int8Array(9)
     for (let column = 0; column < columns; column += 1) {
-      const aboveContext = above[column] ?? new Int8Array(8)
-      const yOffset = yPlane.origin + row * 16 * yPlane.stride + column * 16
+      const aboveContext = above[column] ?? new Int8Array(9)
+      const yOffset = yPlane.origin + column * 16
       prepareEdges(yPlane, yOffset, 16, row, column)
-      for (let block = 0; block < 16; block += 1) {
-        const blockX = column * 16 + (block & 3) * 4
-        const blockY = row * 16 + (block >> 2) * 4
-        const output = yOffset + (block >> 2) * 4 * yPlane.stride + (block & 3) * 4
-        const predictor = predictDc4(yPlane, output)
-        const sampleRow = blockY * paddedYWidth + blockX
-        residual[0] = (yPadded[sampleRow] ?? 0) - predictor
-        residual[1] = (yPadded[sampleRow + 1] ?? 0) - predictor
-        residual[2] = (yPadded[sampleRow + 2] ?? 0) - predictor
-        residual[3] = (yPadded[sampleRow + 3] ?? 0) - predictor
-        residual[4] = (yPadded[sampleRow + paddedYWidth] ?? 0) - predictor
-        residual[5] = (yPadded[sampleRow + paddedYWidth + 1] ?? 0) - predictor
-        residual[6] = (yPadded[sampleRow + paddedYWidth + 2] ?? 0) - predictor
-        residual[7] = (yPadded[sampleRow + paddedYWidth + 3] ?? 0) - predictor
-        residual[8] = (yPadded[sampleRow + paddedYWidth * 2] ?? 0) - predictor
-        residual[9] = (yPadded[sampleRow + paddedYWidth * 2 + 1] ?? 0) - predictor
-        residual[10] = (yPadded[sampleRow + paddedYWidth * 2 + 2] ?? 0) - predictor
-        residual[11] = (yPadded[sampleRow + paddedYWidth * 2 + 3] ?? 0) - predictor
-        residual[12] = (yPadded[sampleRow + paddedYWidth * 3] ?? 0) - predictor
-        residual[13] = (yPadded[sampleRow + paddedYWidth * 3 + 1] ?? 0) - predictor
-        residual[14] = (yPadded[sampleRow + paddedYWidth * 3 + 2] ?? 0) - predictor
-        residual[15] = (yPadded[sampleRow + paddedYWidth * 3 + 3] ?? 0) - predictor
-        forwardDct(residual, dctTemporary, transformed)
-        const coefficientOffset = block * 16
-        quantize(transformed, yDc, yAc, coefficients, coefficientOffset)
-        reconstructCoefficients(coefficients, coefficientOffset, yDc, yAc, reconstructed)
-        addPredictedInverseVp8Block(
-          yPlane.data,
-          yPlane.stride,
-          output,
-          reconstructed,
-          dctTemporary,
-          predictor,
+      const yStart = yBase + column * 16
+      const yPredictDc = squareDc(yPlane, yOffset, row, column, 16)
+      // The keyframe tag has only 19 bits for this partition. For every
+      // starting arithmetic range, sixteen DC luma/UV records take at most
+      // 55 renormalization bits. Reserve seven bytes per group plus space
+      // for the current block's longest mode paths and coder termination.
+      const remaining = (rows - row) * columns - column
+      const reserveHeader =
+        header.byteLength + 7 * Math.ceil(remaining / 16) + 256 > maxPredictionPartitionLength
+      const yMode = reserveHeader
+        ? 0
+        : chooseLumaMode(yPadded, yStart, paddedYWidth, yPlane, yOffset, yPredictDc, yAc, scores)
+      header.bit(Number(yMode !== blockPrediction), yModeProbabilities[0])
+      if (yMode !== blockPrediction) {
+        header.bit(yMode >> 1, yModeProbabilities[1])
+        header.bit(yMode & 1, yModeProbabilities[yMode < 2 ? 2 : 3])
+        encodeLuma16(yPadded, yStart, paddedYWidth, yPlane, yOffset, yMode, yPredictDc, scratch)
+        const mapped = macroToSubMode[yMode] ?? 0
+        aboveModes.fill(mapped, column * 4, column * 4 + 4)
+        leftModes.fill(mapped)
+      } else {
+        encodeLuma4(
+          header,
+          yPadded,
+          yStart,
+          paddedYWidth,
+          yPlane,
+          yOffset,
+          row === 0,
+          column === columns - 1,
+          column,
+          aboveModes,
+          leftModes,
+          scratch,
         )
       }
-      for (let planeIndex = 0; planeIndex < 2; planeIndex += 1) {
-        const plane = planeIndex === 0 ? uPlane : vPlane
-        const output = plane.origin + row * 8 * plane.stride + column * 8
-        prepareEdges(plane, output, 8, row, column)
-        const predictor = predictChromaDc(plane, output, row, column)
-        const chromaSource = planeIndex === 0 ? uPadded : vPadded
-        for (let block = 0; block < 4; block += 1) {
-          const blockX = column * 8 + (block & 1) * 4
-          const blockY = row * 8 + (block >> 1) * 4
-          const sampleRow = blockY * paddedCWidth + blockX
-          residual[0] = (chromaSource[sampleRow] ?? 0) - predictor
-          residual[1] = (chromaSource[sampleRow + 1] ?? 0) - predictor
-          residual[2] = (chromaSource[sampleRow + 2] ?? 0) - predictor
-          residual[3] = (chromaSource[sampleRow + 3] ?? 0) - predictor
-          residual[4] = (chromaSource[sampleRow + paddedCWidth] ?? 0) - predictor
-          residual[5] = (chromaSource[sampleRow + paddedCWidth + 1] ?? 0) - predictor
-          residual[6] = (chromaSource[sampleRow + paddedCWidth + 2] ?? 0) - predictor
-          residual[7] = (chromaSource[sampleRow + paddedCWidth + 3] ?? 0) - predictor
-          residual[8] = (chromaSource[sampleRow + paddedCWidth * 2] ?? 0) - predictor
-          residual[9] = (chromaSource[sampleRow + paddedCWidth * 2 + 1] ?? 0) - predictor
-          residual[10] = (chromaSource[sampleRow + paddedCWidth * 2 + 2] ?? 0) - predictor
-          residual[11] = (chromaSource[sampleRow + paddedCWidth * 2 + 3] ?? 0) - predictor
-          residual[12] = (chromaSource[sampleRow + paddedCWidth * 3] ?? 0) - predictor
-          residual[13] = (chromaSource[sampleRow + paddedCWidth * 3 + 1] ?? 0) - predictor
-          residual[14] = (chromaSource[sampleRow + paddedCWidth * 3 + 2] ?? 0) - predictor
-          residual[15] = (chromaSource[sampleRow + paddedCWidth * 3 + 3] ?? 0) - predictor
-          forwardDct(residual, dctTemporary, transformed)
-          const coefficientOffset = (16 + planeIndex * 4 + block) * 16
-          quantize(transformed, uvDc, uvAc, coefficients, coefficientOffset)
-          reconstructCoefficients(coefficients, coefficientOffset, uvDc, uvAc, reconstructed)
-          addPredictedInverseVp8Block(
-            plane.data,
-            plane.stride,
-            output + (block >> 1) * 4 * plane.stride + (block & 1) * 4,
-            reconstructed,
-            dctTemporary,
-            predictor,
-          )
-        }
-      }
-      for (let block = 0; block < 24; block += 1) {
-        const type = block < 16 ? 3 : 2
-        const leftIndex = leftIndexes[block] ?? 0
-        const aboveIndex = aboveIndexes[block] ?? 0
-        const nonzero = writeCoefficientBlock(
-          tokens,
-          probabilities,
-          coefficients,
-          block * 16,
-          type,
-          (left[leftIndex] ?? 0) + (aboveContext[aboveIndex] ?? 0),
-        )
-        left[leftIndex] = nonzero ? 1 : 0
-        aboveContext[aboveIndex] = nonzero ? 1 : 0
-      }
+      const chromaStart = cBase + column * 8
+      const chromaOut = uPlane.origin + column * 8
+      prepareEdges(uPlane, chromaOut, 8, row, column)
+      prepareEdges(vPlane, chromaOut, 8, row, column)
+      const uDc = squareDc(uPlane, chromaOut, row, column, 8)
+      const vDc = squareDc(vPlane, chromaOut, row, column, 8)
+      for (let mode = 0; mode < 4; mode++)
+        scores[mode] = ((squareModeCost[mode] ?? 0) * uvAc * uvAc) / 64
+      scoreChromaModes(scores, uPadded, chromaStart, paddedCWidth, uPlane, chromaOut, uvCosts, uDc)
+      scoreChromaModes(scores, vPadded, chromaStart, paddedCWidth, vPlane, chromaOut, uvCosts, vDc)
+      let uvMode = 0
+      for (let mode = 1; mode < 4; mode++)
+        if ((scores[mode] ?? 0) < (scores[uvMode] ?? 0)) uvMode = mode
+      if (reserveHeader) uvMode = 0
+      const path = squarePaths[uvMode] ?? '0'
+      for (let i = 0; i < path.length; i++) header.bit(Number(path[i]), uvModeProbabilities[i])
+      encodeChroma(uPadded, chromaStart, paddedCWidth, uPlane, chromaOut, uvMode, uDc, 256, scratch)
+      encodeChroma(vPadded, chromaStart, paddedCWidth, vPlane, chromaOut, uvMode, vDc, 320, scratch)
+      writeTokens(tokens, yMode, coefficients, left, aboveContext)
       above[column] = aboveContext
     }
   }
   const firstPartition = header.finish()
+  if (firstPartition.length > maxPredictionPartitionLength)
+    throw invalidInput('VP8 prediction partition exceeds the frame tag')
   const tokenPartition = tokens.finish()
   const output = new Uint8Array(10 + firstPartition.length + tokenPartition.length)
   const tag = (firstPartition.length << 5) | 0x10
@@ -751,6 +1378,8 @@ export class LossyWebpEncoder implements ImageEncoder {
     metadata: Readonly<PreservedMetadata> | undefined,
     kernel?: WebpKernel,
   ) {
+    if (width > 0x3fff || height > 0x3fff)
+      throw invalidInput('Lossy VP8 dimensions must fit in 14 bits')
     this.#sink = sink
     this.#width = width
     this.#height = height

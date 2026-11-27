@@ -1,13 +1,20 @@
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { buffer } from 'node:stream/consumers'
 import { deflateSync, gunzipSync, inflateSync } from 'node:zlib'
 import { PNG } from 'pngjs'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { crc32 } from '../src/codecs/crc32.ts'
+import { pngCodec } from '../src/codecs/png.ts'
+import { createPngDecoder } from '../src/codecs/png-decode.ts'
+import { defaultImageLimits } from '../src/limits.ts'
+import { inflatePng } from '../src/node-runtime.ts'
+import { MemorySource } from '../src/source.ts'
+import { HostileSource } from './hostile-source.ts'
 import { adobeRgbProfile, displayP3RgbProfile, grayGammaProfile } from './icc-fixtures.ts'
-import { Image } from './image-library.ts'
+import { createTestImageLibrary, Image } from './image-library.ts'
 
 const temporaryDirectories: string[] = []
 
@@ -915,5 +922,119 @@ describe('PNG pixel pipeline', () => {
       code: 'INVALID_INPUT',
     })
     await expect(readFile(path)).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+})
+
+describe('Node PNG inflate', () => {
+  const split = async function* (data: Uint8Array): AsyncGenerator<Uint8Array> {
+    const scratch = new Uint8Array(31)
+    for (let offset = 0; offset < data.length; offset += scratch.length) {
+      const chunk = data.subarray(offset, offset + scratch.length)
+      scratch.set(chunk)
+      yield scratch.subarray(0, chunk.length)
+    }
+  }
+
+  it('renders a PNG in Node without the web DecompressionStream global', async () => {
+    const input = rgbaPng(6, 4)
+    vi.stubGlobal('DecompressionStream', undefined)
+    try {
+      const output = await (await Image.open(input)).png().toBuffer()
+      expect(PNG.sync.read(output).data.equals(PNG.sync.read(input).data)).toBe(true)
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
+  it.each(['reusable', 'shared', 'mutable'])(
+    'snapshots %s input before handing it to zlib',
+    async (kind) => {
+      const pixels = Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8)
+      const bytes = specializedPng(2, 1, 8, 6, Uint8Array.of(0, ...pixels))
+      const shared = new Uint8Array(new SharedArrayBuffer(bytes.length))
+      shared.set(bytes)
+      const source =
+        kind === 'reusable'
+          ? new HostileSource(bytes)
+          : new MemorySource(kind === 'shared' ? shared : bytes)
+      const decoder = await createPngDecoder(
+        source,
+        defaultImageLimits,
+        {},
+        [],
+        (chunks, maximum) => {
+          const delayed = async function* (): AsyncGenerator<Uint8Array> {
+            for await (const chunk of chunks) {
+              if (kind === 'shared') shared.fill(0)
+              else if (kind === 'mutable') bytes.fill(0)
+              else await source.read(0, 1)
+              yield chunk
+            }
+          }
+          return inflatePng(delayed(), maximum)
+        },
+      )
+      let rows = 0
+      for await (const block of decoder.decode()) {
+        expect(block.data).toEqual(pixels)
+        rows += block.height
+      }
+      expect(rows).toBe(1)
+    },
+  )
+
+  it('consumes each borrowed IDAT fragment before the next read', async () => {
+    const original = Buffer.alloc(256 * 1024)
+    for (let i = 0; i < original.length; i++) original[i] = (i >> 3) ^ i
+    const decoded = await buffer(inflatePng(split(deflateSync(original)), original.length))
+    expect(decoded.equals(original)).toBe(true)
+  })
+
+  it('preserves the decoded byte limit and stops an unfinished producer on cancellation', async () => {
+    const compressed = deflateSync(Buffer.alloc(300_000))
+    await expect(buffer(inflatePng(split(compressed), 64_000))).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    let closed = false
+    const source = async function* (): AsyncGenerator<Uint8Array> {
+      try {
+        yield* split(compressed)
+      } finally {
+        closed = true
+      }
+    }
+    for await (const chunk of inflatePng(source(), 300_000)) {
+      expect(chunk.length).toBeGreaterThan(0)
+      break
+    }
+    expect(closed).toBe(true)
+  })
+
+  it('rejects both truncated zlib data and an incorrect Adler-32', async () => {
+    const valid = deflateSync(Buffer.alloc(100_000))
+    const wrongAdler = Buffer.from(valid)
+    wrongAdler[wrongAdler.length - 1] = (wrongAdler.at(-1) ?? 0) ^ 1
+    for (const invalid of [valid.subarray(0, -2), wrongAdler]) {
+      await expect(buffer(inflatePng(split(invalid), 100_000))).rejects.toMatchObject({
+        code: 'INVALID_INPUT',
+        message: 'PNG image data could not be decompressed',
+      })
+    }
+  })
+
+  it('preserves the decoder of a custom codec derived from the reference PNG codec', async () => {
+    let opens = 0
+    const library = createTestImageLibrary([
+      {
+        ...pngCodec,
+        async createDecoder(...args: Parameters<NonNullable<typeof pngCodec.createDecoder>>) {
+          opens++
+          if (!pngCodec.createDecoder) throw new Error('Missing PNG decoder')
+          return pngCodec.createDecoder(...args)
+        },
+      },
+    ])
+    await (await library.open(rgbaPng(3, 2))).png().toBuffer()
+    expect(opens).toBe(1)
   })
 })

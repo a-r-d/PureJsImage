@@ -41,7 +41,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-25: raised to 660,000 bytes, owner approved, for the same RGBA resize paths.
   // 2026-11-25: raised to 662,000 bytes, owner approved, for the same rotation and resize paths.
   // 2026-11-26: raised to 667,000 bytes, owner approved, for the same animated GIF pipeline path.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 667_000 },
+  // 2026-11-26: raised to 668,000 bytes, owner approved, for the Node zlib PNG inflate path.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 668_000 },
   // The specialized entry includes the same effort-9 searches and the same encoder input handling.
   // 2026-11-23: raised by 1,000 bytes for the GRAY ICC profile on grayscale JPEG input in
   // lossless keepIcc() output and the effort-7 search conditions, owner approved.
@@ -56,7 +57,8 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // 2026-11-25: raised to 210,000 bytes, owner approved, for the same RGBA resize paths.
   // 2026-11-26: raised to 212,000 bytes, owner approved, for the shared-read RGBA Lanczos resize.
   // 2026-11-26: raised to 216,000 bytes, owner approved, for the same animated GIF pipeline path.
-  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 216_000 },
+  // 2026-11-26: raised to 217,000 bytes, owner approved, for the Node zlib PNG inflate path.
+  scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 217_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },
   'scientific-reader-gsf': { baselineMinifiedBytes: 37_864, maxMinifiedBytes: 50_000 },
@@ -83,7 +85,9 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   // to an eight-byte table after 256 KiB.
   'scientific-reader-png': { baselineMinifiedBytes: 67_385, maxMinifiedBytes: 92_000 },
   'scientific-reader-jpeg': { baselineMinifiedBytes: 104_815, maxMinifiedBytes: 136_260 },
-  'scientific-reader-webp': { baselineMinifiedBytes: 106_317, maxMinifiedBytes: 138_213 },
+  // 2026-11-26: raised from 138,213 to 145,000 bytes, owner approved, for VP8 intra mode
+  // selection in the lossy encoder and bilinear chroma upsampling in the decoder.
+  'scientific-reader-webp': { baselineMinifiedBytes: 106_317, maxMinifiedBytes: 145_000 },
   'scientific-reader-bmp': { baselineMinifiedBytes: 44_120, maxMinifiedBytes: 57_356 },
   'scientific-reader-jp2': { baselineMinifiedBytes: 93_696, maxMinifiedBytes: 121_805 },
   'scientific-reader-rpl': { baselineMinifiedBytes: 41_135, maxMinifiedBytes: 53_500 },

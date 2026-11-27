@@ -8,11 +8,13 @@ import {
 } from '../../codecs/webp.ts'
 import type {
   Vp8CoefficientReader,
+  Vp8FilteredRow,
   Vp8lEntropyRequest,
   Vp8Plane,
 } from '../../codecs/webp-acceleration.ts'
+import { vp8RowBlockBytes } from '../../codecs/webp-acceleration.ts'
 
-const abiVersion = 2
+const abiVersion = 3
 const wasmPageBytes = 65_536
 const defaultMinimumPixels = 16_384
 const defaultMinimumEncodePixels = 16_384
@@ -38,6 +40,7 @@ export interface WasmWebpInstanceLoaders {
 
 export type WasmWebpKernelOperation =
   | 'vp8-predict'
+  | 'vp8-row'
   | 'vp8-filter'
   | 'vp8-coefficients'
   | 'vp8-rgb-to-yuv420'
@@ -175,6 +178,7 @@ const createKernel = (
   const version = numberFunction(instance.exports.webp_codec_abi_version, 'webp_codec_abi_version')
   const simd = numberFunction(instance.exports.webp_codec_simd, 'webp_codec_simd')
   const predictTile = numberFunction(instance.exports.webp_predict_tile, 'webp_predict_tile')
+  const decodeRow = numberFunction(instance.exports.webp_vp8_row, 'webp_vp8_row')
   const filterPlane = numberFunction(
     instance.exports.webp_vp8_filter_plane,
     'webp_vp8_filter_plane',
@@ -467,6 +471,129 @@ const createKernel = (
       let uView: DataView | undefined
       let vView: DataView | undefined
       const reader: Vp8CoefficientReader = {
+        decodeRow(y, u, v, first, history, factors, request) {
+          // All externally visible updates occur after the last window succeeds.
+          // A trap (including after a refill) leaves the TS decoder at row start.
+          let result: Vp8FilteredRow | undefined
+          const success = attempt('vp8-row', () => {
+            const columns = history.length / vp8RowBlockBytes
+            const headerWords = 48
+            const cfg = statePointer + headerWords * 4
+            const yStart = cfg + history.length
+            const uStart = yStart + y.stride * 33
+            const vStart = uStart + u.stride * 17
+            const savedY = vStart + v.stride * 17
+            const savedU = savedY + y.stride
+            const savedV = savedU + u.stride
+            const output = Math.ceil((savedV + v.stride + 3 * columns) / 4) * 4
+            const controlPointer = output + request.width * 16 * 4
+            const modePointer = controlPointer + 4096
+            const missing = modePointer + 900 - memory.buffer.byteLength
+            if (missing > 0) memory.grow(Math.ceil(missing / wasmPageBytes))
+            const bytes = new Uint8Array(memory.buffer)
+            const header = new Uint32Array(memory.buffer, statePointer, headerWords)
+            header[0] = reader.range
+            header[1] = reader.value
+            header[2] = reader.bufferedBits
+            header.fill(0, 29, 38)
+            header[38] = request.reader.range
+            header[39] = request.reader.value
+            header[40] = request.reader.bufferedBits
+            bytes[statePointer + 42 * 4] = Number(request.updateSegments)
+            bytes.set(request.segments, statePointer + 42 * 4 + 1)
+            header[43] = request.skipProbability
+            bytes.set(request.probabilities, modePointer)
+            bytes.set(request.filters, statePointer + 44 * 4)
+            for (let i = 0; i < factors.length; i++) {
+              const f = factors[i]
+              if (!f) return false
+              header.set(f.y1, 5 + 6 * i)
+              header.set(f.y2, 7 + 6 * i)
+              header.set(f.uv, 9 + 6 * i)
+            }
+            bytes.set(history, cfg)
+            if (!first) {
+              if (!request.filteredY || !request.filteredU || !request.filteredV) return false
+              const yFrom = y.origin - 1
+              const uFrom = u.origin - 1 - u.stride
+              const vFrom = v.origin - 1 - v.stride
+              bytes.set(y.data.subarray(yFrom, yFrom + y.stride * 16), yStart + y.stride)
+              bytes.set(u.data.subarray(uFrom, uFrom + u.stride * 9), uStart)
+              bytes.set(v.data.subarray(vFrom, vFrom + v.stride * 9), vStart)
+              bytes.set(request.filteredY, savedY)
+              bytes.set(request.filteredU, savedU)
+              bytes.set(request.filteredV, savedV)
+            }
+            bytes.set(probabilities, probabilityPointer)
+            coefficientOwner = undefined
+            let controlOffset = request.reader.offset
+            let offset = reader.offset
+            let col = 0
+            while (col < columns) {
+              const start = Math.min(offset, end)
+              const stop = Math.min(start + windowSize, end)
+              bytes.set(data.subarray(start, stop), base)
+              const controlStart = Math.min(controlOffset, request.end)
+              const controlStop = Math.min(controlStart + 4096, request.end)
+              bytes.set(data.subarray(controlStart, controlStop), controlPointer)
+              if (
+                decodeRow(
+                  base,
+                  stop - start,
+                  Number(stop < end),
+                  probabilityPointer,
+                  statePointer,
+                  columns,
+                  Number(first),
+                  col,
+                  controlPointer,
+                  controlStop - controlStart,
+                  Number(controlStop < request.end),
+                  modePointer,
+                  request.width,
+                  Number(request.second),
+                  Number(request.simpleFilter),
+                ) !== 0
+              )
+                return false
+              const next = header[4] ?? 0
+              if (next <= col || next > columns) return false
+              col = next
+              offset += header[3] ?? 0
+              controlOffset += header[41] ?? 0
+            }
+            let pixels: Uint8Array | undefined
+            if (!first) {
+              const available = request.recycledPixels
+              if (available && available.length === controlPointer - output) {
+                available.set(bytes.subarray(output, controlPointer))
+                pixels = available
+              } else {
+                pixels = bytes.slice(output, controlPointer)
+              }
+            }
+            result = {
+              yAbove: bytes.slice(savedY, savedU),
+              uAbove: bytes.slice(savedU, savedV),
+              vAbove: bytes.slice(savedV, savedV + v.stride),
+              pixels,
+            }
+            y.data.set(bytes.subarray(yStart + 17 * y.stride, uStart), y.origin - 1)
+            u.data.set(bytes.subarray(uStart + 8 * u.stride, vStart), u.origin - 1 - u.stride)
+            v.data.set(bytes.subarray(vStart + 8 * v.stride, savedY), v.origin - 1 - v.stride)
+            history.set(bytes.subarray(cfg, yStart))
+            request.reader.range = header[38] ?? 0
+            request.reader.value = header[39] ?? 0
+            request.reader.bufferedBits = header[40] ?? 0
+            request.reader.offset = controlOffset
+            reader.range = header[0] ?? 0
+            reader.value = header[1] ?? 0
+            reader.bufferedBits = header[2] ?? 0
+            reader.offset = offset
+            return true
+          })
+          return success ? result : undefined
+        },
         predict(
           y,
           u,

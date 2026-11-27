@@ -18,6 +18,7 @@ import { pngCodec } from '../src/codec-entries/png.ts'
 import { crc32 } from '../src/codecs/crc32.ts'
 import { acceleratePngCodec, type PngDecodeAcceleration } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { createNodeImageLibrary } from '../src/node-image.ts'
 import { nodeRuntime } from '../src/node-runtime.ts'
 import type { PixelBlock, PixelFormat } from '../src/pixel.ts'
 import type { ImageSink } from '../src/sink.ts'
@@ -1007,6 +1008,39 @@ describe('Rust/WASM PNG accelerator', () => {
     expect(failed).toBe(true)
     expect(starts).toEqual([0, 32, 64])
     expect(pixels).toEqual(expected.data)
+  })
+
+  it('releases a cancelled decode before the next Node render uses the same WASM kernel', async () => {
+    let calls = 0
+    const codec = acceleratedWithArtifact('scalar', scalarArtifactUrl, 'decode', undefined, () => {
+      calls++
+    })
+    const input = supportedFixture(rgbaFormat, 4, 43, 67)
+    const decoder = await createDecoder(codec, input)
+    for await (const block of decoder.decode()) {
+      block.release?.()
+      break
+    }
+    expect(calls).toBeGreaterThan(0)
+    const afterCancel = calls
+    const image = await createNodeImageLibrary([codec]).open(input)
+    const output = await image.png().toBuffer()
+    expect(PNG.sync.read(output).data.equals(expectedRgba('rgba8', 43, 67))).toBe(true)
+    expect(calls).toBeGreaterThan(afterCancel)
+  })
+
+  it('restarts native inflate after losing the WASM kernel on the second output block', async () => {
+    let calls = 0
+    const codec = acceleratedWithArtifact('simd', simdArtifactUrl, 'decode', undefined, () => {
+      if (++calls === 2) throw new Error('simulated PNG kernel failure')
+    })
+    // All 67 small scanlines fit in one native inflate chunk. The first 32-row block
+    // has reached the encoder before the second unfilter call fails.
+    const input = supportedFixture(rgbaFormat, 4, 43, 67)
+    const image = await createNodeImageLibrary([codec]).open(input)
+    const output = await image.png().toBuffer()
+    expect(calls).toBe(2)
+    expect(PNG.sync.read(output).data.equals(expectedRgba('rgba8', 43, 67))).toBe(true)
   })
 
   it('falls back while instances are leased and releases decoder and encoder leases after completion', async () => {

@@ -184,11 +184,118 @@ fn byte(v: f64) -> u8 {
     if v < 0.5 { 0 } else { (v + 0.5) as u8 }
 }
 
+// The vertical pass only exports bytes. With bounded samples and weights,
+// binary32 can certify most of those bytes. Re-evaluate any channel close
+// enough to a rounding boundary to depend on the intermediate precision.
+#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+fn vertical_rgb_bytes(f: &mut Filter, count: usize) -> bool {
+    use core::arch::wasm32::*;
+    if count > 32 {
+        return false;
+    }
+    let stride = f.sum.len();
+    let mut starts = [0; 32];
+    let mut absolute_weight = 0.;
+    for (i, start) in starts[..count].iter_mut().enumerate() {
+        *start = (f.vertical_indices[i] as usize % f.capacity) * stride;
+        absolute_weight += f.vertical_weights[i].abs();
+    }
+    if !(absolute_weight <= 8.) {
+        return false;
+    }
+    let mut out_of_range = i32x4_splat(0);
+    f.sum.fill(0.);
+    for (i, &start) in starts[..count].iter().enumerate() {
+        let weight = f.vertical_weights[i] as f32;
+        let (src, tail) = f.ring[start..start + stride].as_chunks::<4>();
+        let (sum, rest) = f.sum.as_chunks_mut::<4>();
+        for (dest, source) in sum.iter_mut().zip(src) {
+            // SAFETY: each chunk contains exactly four contiguous f32 lanes.
+            unsafe {
+                let v = v128_load(source.as_ptr().cast());
+                out_of_range = v128_or(
+                    out_of_range,
+                    v128_not(f32x4_le(f32x4_abs(v), f32x4_splat(512.))),
+                );
+                let old = v128_load(dest.as_ptr().cast());
+                v128_store(
+                    dest.as_mut_ptr().cast(),
+                    f32x4_add(old, f32x4_mul(v, f32x4_splat(weight))),
+                );
+            }
+        }
+        for (dest, &v) in rest.iter_mut().zip(tail) {
+            if !(v.abs() <= 512.) {
+                return false;
+            }
+            *dest += v * weight;
+        }
+    }
+    if v128_any_true(out_of_range) {
+        return false;
+    }
+    // Each exact partial sum is bounded by 512 * sum(abs(weight)). In
+    // either arithmetic path, a term incurs at most count+3 roundings
+    // (including weight conversion). For count <= 32 the usual gamma_n
+    // bound n*u/(1-n*u) is below 2*n*u. Allow both paths, both precisions,
+    // and an absolute unit for subnormals. The factor of four includes slack for rounding the bound.
+    let bound =
+        ((count + 3) as f64 * 4. * f64::from(f32::EPSILON) * (1. + 512. * absolute_weight)) as f32;
+    let exact_byte = |c: usize| {
+        let mut exact = 0_f32;
+        for (i, &start) in starts[..count].iter().enumerate() {
+            exact =
+                (f64::from(exact) + f64::from(f.ring[start + c]) * f.vertical_weights[i]) as f32;
+        }
+        byte(f64::from(exact))
+    };
+    let (groups, tail) = f.sum.as_chunks::<16>();
+    let (output, end) = f.output.as_chunks_mut::<16>();
+    for (group, (values, bytes)) in groups.iter().zip(output).enumerate() {
+        let mut uncertain = 0;
+        let mut rounded_channels = [i32x4_splat(0); 4];
+        for (lane, (part, result)) in values
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .zip(&mut rounded_channels)
+            .enumerate()
+        {
+            // SAFETY: part contains exactly four f32 values.
+            let v = unsafe { v128_load(part.as_ptr().cast()) };
+            let nearest = f32x4_nearest(v);
+            let distance = f32x4_abs(f32x4_sub(v, nearest));
+            uncertain |= u32::from(i32x4_bitmask(f32x4_ge(distance, f32x4_splat(0.5 - bound))))
+                << (lane * 4);
+            *result = i32x4_trunc_sat_f32x4(nearest);
+        }
+        let a = i16x8_narrow_i32x4(rounded_channels[0], rounded_channels[1]);
+        let b = i16x8_narrow_i32x4(rounded_channels[2], rounded_channels[3]);
+        // SAFETY: output has exactly sixteen channels in this group.
+        unsafe {
+            v128_store(bytes.as_mut_ptr().cast(), u8x16_narrow_i16x8(a, b));
+        }
+        while uncertain != 0 {
+            let lane = uncertain.trailing_zeros() as usize;
+            bytes[lane] = exact_byte(group * 16 + lane);
+            uncertain &= uncertain - 1;
+        }
+    }
+    for (i, out) in end.iter_mut().enumerate() {
+        *out = exact_byte(stride - tail.len() + i);
+    }
+    true
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn vertical(count: usize) -> u32 {
     FILTER.with_borrow_mut(|f| {
         if count == 0 || count > f.capacity {
             return 0;
+        }
+        #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+        if f.channels == 3 && f.output_channels == 3 && vertical_rgb_bytes(f, count) {
+            return 1;
         }
         let stride = f.sum.len();
         f.sum.fill(0.);

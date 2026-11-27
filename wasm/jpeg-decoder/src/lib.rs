@@ -666,8 +666,12 @@ fn short_ac_run(
 ) -> Result<usize, u32> {
     let first = s.state.input_offset;
     let mut offset = first;
-    let mut bits = u64::from(s.state.bits);
     let mut count = s.state.bit_count;
+    let mut bits = if count == 0 {
+        0
+    } else {
+        u64::from(s.state.bits) << (64 - count)
+    };
     let table = component * HUFFMAN_LOOKUP_SIZE;
     while k < BLOCK_VALUES {
         if count < 16 {
@@ -680,11 +684,11 @@ fn short_ac_run(
             if (!word).wrapping_sub(0x0101_0101) & word & 0x8080_8080 != 0 {
                 break;
             }
-            bits = (bits << 32) | u64::from(word.swap_bytes());
+            bits |= u64::from(word.swap_bytes()) << (32 - count);
             count += 32;
             offset += 4;
         }
-        let prefix = table + ((bits >> (count - 8)) & 255) as usize;
+        let prefix = table + (bits >> 56) as usize;
         let code_bits = s.ac_lookup_lengths[prefix];
         let symbol = s.ac_lookup_symbols[prefix];
         let size = symbol & 15;
@@ -702,6 +706,8 @@ fn short_ac_run(
         {
             break;
         }
+        let raw = (bits >> (64 - used)) as i32;
+        bits <<= used;
         count -= used;
         if size == 0 {
             if zeros < 15 {
@@ -715,7 +721,7 @@ fn short_ac_run(
                 return Err(ERROR_ENTROPY);
             }
             let mask = (1i32 << size) - 1;
-            let raw = (bits >> count) as i32 & mask;
+            let raw = raw & mask;
             s.coefficients[ZIG_ZAG[k]] = if raw <= mask / 2 { raw - mask } else { raw };
             k += 1;
             *has_ac = true;
@@ -725,8 +731,9 @@ fn short_ac_run(
     // input window so a restart, refill or slow decode sees the original position.
     let unread = (offset - first).min(usize::from(count / 8));
     s.state.input_offset = offset - unread;
-    s.state.bits = (bits >> (unread * 8)) as u32;
-    s.state.bit_count = count - (unread * 8) as u8;
+    let retained = count - (unread * 8) as u8;
+    s.state.bits = (bits.wrapping_shr(u32::from(64 - retained))) as u32;
+    s.state.bit_count = retained;
     Ok(k)
 }
 
@@ -916,11 +923,113 @@ fn inverse_reduced<const N: usize>(
                 sum += rows[v][x] * basis[v][y];
             }
             let shifted = sum + 128.0;
-            let integer = shifted as u8;
-            let sample = integer.saturating_add((shifted >= f64::from(integer) + 0.5) as u8);
+            // Doubling is exact in binary64. Keep the half bit through the
+            // float-to-integer conversion, then round and saturate the byte.
+            let twice = ((shifted * 2.) as i32).clamp(0, 510);
+            let sample = ((twice + 1) >> 1) as u8;
             set_plane_byte(scratch, buffer, offset + y * stride + x, sample);
         }
     }
+}
+
+// Bound binary32 evaluation of the 4x4 transform before rounding to bytes.
+// Only store the result if every channel has a unique rounded byte.
+#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+fn try_idct4(
+    scratch: &Scratch,
+    component: usize,
+    buffer: usize,
+    block_x: usize,
+    block_y: usize,
+) -> bool {
+    use core::arch::wasm32::*;
+    let basis = |u: usize| {
+        f32x4(
+            BASIS_4[u][0] as f32,
+            BASIS_4[u][1] as f32,
+            BASIS_4[u][2] as f32,
+            BASIS_4[u][3] as f32,
+        )
+    };
+    let mut rows = [f32x4_splat(0.); 4];
+    let mut largest = f32x4_splat(0.);
+    for (v, row) in rows.iter_mut().enumerate() {
+        let i = v * BLOCK;
+        // SAFETY: each fixed-size table row contains at least four i32 values.
+        let coeff = unsafe { v128_load(scratch.coefficients.as_ptr().add(i).cast()) };
+        let quant = unsafe {
+            v128_load(
+                scratch
+                    .quantization
+                    .as_ptr()
+                    .add(component * BLOCK_VALUES + i)
+                    .cast(),
+            )
+        };
+        let dequantized = f32x4_mul(f32x4_convert_i32x4(coeff), f32x4_convert_i32x4(quant));
+        largest = f32x4_pmax(largest, f32x4_abs(dequantized));
+        let dc = f32x4_mul(
+            i32x4_shuffle::<0, 0, 0, 0>(dequantized, dequantized),
+            basis(0),
+        );
+        let ac1 = f32x4_mul(
+            i32x4_shuffle::<1, 1, 1, 1>(dequantized, dequantized),
+            basis(1),
+        );
+        let ac2 = f32x4_mul(
+            i32x4_shuffle::<2, 2, 2, 2>(dequantized, dequantized),
+            basis(2),
+        );
+        let ac3 = f32x4_mul(
+            i32x4_shuffle::<3, 3, 3, 3>(dequantized, dequantized),
+            basis(3),
+        );
+        *row = f32x4_add(f32x4_add(f32x4_add(dc, ac1), ac2), ac3);
+    }
+    let pairs = f32x4_pmax(largest, i32x4_shuffle::<2, 3, 0, 1>(largest, largest));
+    let max = f32x4_pmax(pairs, i32x4_shuffle::<1, 0, 3, 2>(pairs, pairs));
+    // Four-by-four products each have basis magnitude <= 0.5. Even with
+    // separately rounded coefficients, basis terms, two multiplies and both
+    // four-term sums, 64 epsilon * (max + 128) covers both arithmetic paths.
+    let margin = f32x4_mul(
+        f32x4_splat(64. * f32::EPSILON),
+        f32x4_add(max, f32x4_splat(128.)),
+    );
+    let limit = f32x4_sub(f32x4_splat(0.5), margin);
+    let mut rounded_rows = [i32x4_splat(0); 4];
+    let mut uncertain = i32x4_splat(0);
+    for (y, result) in rounded_rows.iter_mut().enumerate() {
+        let mut v = f32x4_mul(rows[0], f32x4_splat(BASIS_4[0][y] as f32));
+        for j in 1..4 {
+            v = f32x4_add(v, f32x4_mul(rows[j], f32x4_splat(BASIS_4[j][y] as f32)));
+        }
+        v = f32x4_add(v, f32x4_splat(128.));
+        let nearest = f32x4_nearest(v);
+        uncertain = v128_or(uncertain, f32x4_ge(f32x4_abs(f32x4_sub(v, nearest)), limit));
+        *result = i32x4_trunc_sat_f32x4(nearest);
+    }
+    if v128_any_true(uncertain) {
+        return false;
+    }
+    let pixels = u8x16_narrow_i16x8(
+        i16x8_narrow_i32x4(rounded_rows[0], rounded_rows[1]),
+        i16x8_narrow_i32x4(rounded_rows[2], rounded_rows[3]),
+    );
+    let stride = scratch.state.plane_widths[component];
+    let start = scratch.state.planes_pointer
+        + buffer * scratch.state.plane_buffer_bytes
+        + scratch.state.plane_offsets[component]
+        + (1 + block_y * 4) * stride
+        + block_x * 4;
+    // SAFETY: jpeg_decoder_start reserves the padded MCU plane, including
+    // all four columns and rows of this block.
+    unsafe {
+        (start as *mut u32).write_unaligned(u32x4_extract_lane::<0>(pixels));
+        ((start + stride) as *mut u32).write_unaligned(u32x4_extract_lane::<1>(pixels));
+        ((start + stride * 2) as *mut u32).write_unaligned(u32x4_extract_lane::<2>(pixels));
+        ((start + stride * 3) as *mut u32).write_unaligned(u32x4_extract_lane::<3>(pixels));
+    }
+    true
 }
 
 fn inverse_dct(
@@ -931,6 +1040,10 @@ fn inverse_dct(
     block_y: usize,
     has_ac: bool,
 ) {
+    #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+    if scratch.state.block_size == 4 && try_idct4(scratch, component, buffer, block_x, block_y) {
+        return;
+    }
     match scratch.state.block_size {
         4 => return inverse_reduced(scratch, component, buffer, block_x, block_y, &BASIS_4),
         2 => return inverse_reduced(scratch, component, buffer, block_x, block_y, &BASIS_2),
@@ -1408,6 +1521,89 @@ fn sample_422_pixel(
     )
 }
 
+// Eight adjacent chroma intervals produce sixteen RGB pixels. At odd luma x,
+// the first pair has weights (3, 1) and (1, 3) in the two chroma samples.
+#[cfg(all(target_arch = "wasm32", feature = "simd"))]
+unsafe fn render_422_interior(s: &Scratch, buffer: usize, row: usize, stride: usize) -> usize {
+    use core::arch::wasm32::*;
+
+    #[inline(always)]
+    unsafe fn chroma(p: *const u8) -> (v128, v128) {
+        // SAFETY: the caller checks that nine consecutive chroma bytes fit.
+        let left = i16x8_extend_low_u8x16(unsafe { v128_load64_zero(p.cast()) });
+        let right = i16x8_extend_low_u8x16(unsafe { v128_load64_zero(p.add(1).cast()) });
+        let middle = i16x8_add(i16x8_add(left, right), i16x8_splat(2 - 512));
+        let a = i16x8_shr(i16x8_add(middle, i16x8_shl(left, 1)), 2);
+        let b = i16x8_shr(i16x8_add(middle, i16x8_shl(right, 1)), 2);
+        (
+            i16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(a, b),
+            i16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(a, b),
+        )
+    }
+
+    #[inline(always)]
+    fn channels(y: v128, cb: v128, cr: v128) -> [v128; 3] {
+        let r = i32x4_mul(cr, i32x4_splat(5_880_414));
+        let g = i32x4_add(
+            i32x4_mul(cb, i32x4_splat(-1_443_412)),
+            i32x4_mul(cr, i32x4_splat(-2_995_305)),
+        );
+        let b = i32x4_mul(cb, i32x4_splat(7_432_307));
+        [r, g, b].map(|v| i32x4_add(y, i32x4_shr(v, 22)))
+    }
+
+    #[inline(always)]
+    fn eight(y: v128, cb: v128, cr: v128) -> [v128; 3] {
+        let a = channels(
+            i32x4_extend_low_i16x8(y),
+            i32x4_extend_low_i16x8(cb),
+            i32x4_extend_low_i16x8(cr),
+        );
+        let b = channels(
+            i32x4_extend_high_i16x8(y),
+            i32x4_extend_high_i16x8(cb),
+            i32x4_extend_high_i16x8(cr),
+        );
+        core::array::from_fn(|c| i16x8_narrow_i32x4(a[c], b[c]))
+    }
+
+    let base = s.state.planes_pointer + buffer * s.state.plane_buffer_bytes;
+    let plane = |c: usize| base + s.state.plane_offsets[c] + row * s.state.plane_widths[c];
+    let mut x = 1;
+    while x + 16 <= s.state.width
+        && (x >> 1) + 9 <= s.state.plane_widths[1]
+        && (x >> 1) + 9 <= s.state.plane_widths[2]
+    {
+        // SAFETY: start validates each row's plane extent and output stride;
+        // this loop bounds the sixteen luma and nine chroma samples it reads.
+        let y = unsafe { v128_load((plane(0) + x) as *const v128) };
+        let cb = unsafe { chroma((plane(1) + (x >> 1)) as *const u8) };
+        let cr = unsafe { chroma((plane(2) + (x >> 1)) as *const u8) };
+        let a = eight(i16x8_extend_low_u8x16(y), cb.0, cr.0);
+        let b = eight(i16x8_extend_high_u8x16(y), cb.1, cr.1);
+        let [r, g, b]: [v128; 3] = core::array::from_fn(|c| u8x16_narrow_i16x8(a[c], b[c]));
+        let rg0 = i8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(r, g);
+        let rg1 =
+            i8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(r, g);
+        let mid = i8x16_shuffle::<11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26>(
+            rg0, rg1,
+        );
+        let p0 = i8x16_shuffle::<0, 1, 16, 2, 3, 17, 4, 5, 18, 6, 7, 19, 8, 9, 20, 10>(rg0, b);
+        let p1 = i8x16_shuffle::<0, 21, 1, 2, 22, 3, 4, 23, 5, 6, 24, 7, 8, 25, 9, 10>(mid, b);
+        let p2 =
+            i8x16_shuffle::<26, 6, 7, 27, 8, 9, 28, 10, 11, 29, 12, 13, 30, 14, 15, 31>(rg1, b);
+        let dest = s.state.output_pointer + (row - 1) * stride + x * 3;
+        // SAFETY: sixteen packed RGB pixels occupy exactly these 48 bytes.
+        unsafe {
+            v128_store(dest as *mut v128, p0);
+            v128_store((dest + 16) as *mut v128, p1);
+            v128_store((dest + 32) as *mut v128, p2);
+        }
+        x += 16;
+    }
+    x
+}
+
 fn render_422(scratch: &Scratch, height: usize, stride: usize) {
     let buffer = scratch.state.pending_buffer;
     let y_offset = scratch.state.plane_offsets[0];
@@ -1416,6 +1612,18 @@ fn render_422(scratch: &Scratch, height: usize, stride: usize) {
         let row = local_y + 1;
         let y_row_offset = y_offset + row * y_width;
         let mut x = 0;
+        #[cfg(all(target_arch = "wasm32", feature = "simd"))]
+        if scratch.state.width >= 17 {
+            let first = sample_422_pixel(scratch, buffer, 0, row);
+            write_rgb(scratch, local_y * stride, first.0, first.1, first.2);
+            // SAFETY: render_pending has validated the output extent and layout.
+            x = unsafe { render_422_interior(scratch, buffer, row, stride) };
+            if x < scratch.state.width {
+                let odd = sample_422_pixel(scratch, buffer, x, row);
+                write_rgb(scratch, local_y * stride + x * 3, odd.0, odd.1, odd.2);
+                x += 1;
+            }
+        }
         while x + 1 < scratch.state.width {
             let (cb_first, cb_second) = sample_half_pair_numerators(scratch, 1, buffer, x, row);
             let (cr_first, cr_second) = sample_half_pair_numerators(scratch, 2, buffer, x, row);

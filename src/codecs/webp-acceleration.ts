@@ -43,7 +43,50 @@ export interface Vp8Factors {
   readonly uv: readonly [number, number]
 }
 
-export interface Vp8CoefficientReader {
+export interface Vp8ReaderState {
+  range: number
+  value: number
+  bufferedBits: number
+  offset: number
+}
+
+export interface Vp8FilteredRow {
+  readonly yAbove: Uint8Array
+  readonly uAbove: Uint8Array
+  readonly vAbove: Uint8Array
+  readonly pixels: Uint8Array | undefined
+}
+
+export interface Vp8RowRequest {
+  readonly width: number
+  readonly second: boolean
+  readonly simpleFilter: boolean
+  readonly recycledPixels: Uint8Array | undefined
+  readonly filters: Uint8Array
+  readonly filteredY: Uint8Array | undefined
+  readonly filteredU: Uint8Array | undefined
+  readonly filteredV: Uint8Array | undefined
+  readonly reader: Vp8ReaderState
+  readonly end: number
+  readonly probabilities: Uint8Array
+  readonly updateSegments: boolean
+  readonly segments: Uint8Array
+  readonly skipProbability: number
+}
+
+// Y/UV mode, segment, skip, sixteen submodes, nine above contexts, nonzero.
+export const vp8RowBlockBytes = 30
+
+export interface Vp8CoefficientReader extends Vp8ReaderState {
+  decodeRow(
+    planesY: Vp8Plane,
+    planesU: Vp8Plane,
+    planesV: Vp8Plane,
+    first: boolean,
+    history: Uint8Array,
+    factors: readonly Vp8Factors[],
+    request: Vp8RowRequest,
+  ): Vp8FilteredRow | undefined
   predict(
     y: Vp8Plane,
     u: Vp8Plane,
@@ -56,10 +99,6 @@ export interface Vp8CoefficientReader {
     fallbackCoefficients: Int32Array,
     fallbackEnds: Uint8Array,
   ): boolean
-  range: number
-  value: number
-  bufferedBits: number
-  offset: number
   decode(
     blockMode: boolean,
     factors: Vp8Factors,

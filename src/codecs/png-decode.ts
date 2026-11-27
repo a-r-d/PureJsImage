@@ -3,7 +3,7 @@ import type { PixelColorSemantics } from '../color.ts'
 import { ImageError, invalidInput, limitExceeded, truncatedInput } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { type PixelBlock, type PixelFormat, resumePixelBlocks } from '../pixel.ts'
-import { type ImageSource, readExactly } from '../source.ts'
+import { type ImageSource, readExactly, stableSourceBuffers } from '../source.ts'
 import { updateCrc32 } from './crc32.ts'
 import {
   ColorManagedDecoder,
@@ -16,15 +16,15 @@ import {
   parseGrayIccTransform16,
   parseRgbIccTransform16,
 } from './icc.ts'
-import { scanlineBlockRows, bytesPerPixel, paeth } from './png-common.ts'
+import type { PngAcceleration, PngColorType, PngInflater, PngRegion } from './png.ts'
+import { bytesPerPixel, paeth, scanlineBlockRows } from './png-common.ts'
 import {
-  sourceReadSize,
   type ChunkRange,
+  isGrayProfile,
   type PngDescription,
   parsePng,
-  isGrayProfile,
+  sourceReadSize,
 } from './png-metadata.ts'
-import type { PngColorType, PngRegion, PngAcceleration } from './png.ts'
 
 const idatType = Uint8Array.of(73, 68, 65, 84)
 interface Adam7Pass {
@@ -156,7 +156,10 @@ const pngColorSemantics = (description: PngDescription): PixelColorSemantics => 
 const readCompressedChunks = async function* (
   source: ImageSource,
   chunks: readonly ChunkRange[],
-): AsyncGenerator<Uint8Array> {
+  reuseInput: boolean,
+): AsyncGenerator<Uint8Array<ArrayBuffer>> {
+  const stable = stableSourceBuffers in source && source[stableSourceBuffers] === true
+  let scratch: Uint8Array<ArrayBuffer> | undefined
   for (const chunk of chunks) {
     let crc = updateCrc32(0xffffffff, idatType)
     let position = 0
@@ -166,9 +169,24 @@ const readCompressedChunks = async function* (
         chunk.offset + position,
         Math.min(sourceReadSize, chunk.length - position),
       )
-      crc = updateCrc32(crc, data)
-      position += data.byteLength
-      yield data
+      // Concurrent reads may invalidate a custom source's previous view. Check the CRC on
+      // the same bytes the inflater will receive, including when shared memory backs the input.
+      let bytes: Uint8Array<ArrayBuffer>
+      if (!reuseInput) {
+        // The web stream can retain its input after its write promise resolves.
+        bytes = Uint8Array.from(data)
+      } else if (stable && data.buffer instanceof ArrayBuffer) {
+        bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+      } else {
+        // The Node adapter drains its write before advancing. A single bounded snapshot
+        // protects caller-owned buffers across concurrent reads, mutations and transfers.
+        if (!scratch || scratch.length < data.length) scratch = new Uint8Array(data.length)
+        bytes = scratch.length === data.length ? scratch : scratch.subarray(0, data.length)
+        bytes.set(data)
+      }
+      crc = updateCrc32(crc, bytes)
+      position += bytes.byteLength
+      yield bytes
     }
     if ((crc ^ 0xffffffff) >>> 0 !== chunk.expectedCrc) {
       throw invalidInput('PNG IDAT checksum does not match its data')
@@ -176,13 +194,8 @@ const readCompressedChunks = async function* (
   }
 }
 
-// DecompressionStream may retain a chunk after writer.write() resolves. Take
-// bounded ownership before the next ImageSource read is allowed to invalidate it.
-const ownedArrayBufferView = (data: Uint8Array): Uint8Array<ArrayBuffer> => Uint8Array.from(data)
-
-const decompressedChunks = async function* (
-  source: ImageSource,
-  chunks: readonly ChunkRange[],
+const inflateWebPng = async function* (
+  compressed: AsyncIterable<Uint8Array<ArrayBuffer>>,
   maximumDecodedBytes: number,
 ): AsyncGenerator<Uint8Array> {
   const decompressor = new DecompressionStream('deflate')
@@ -191,8 +204,8 @@ const decompressedChunks = async function* (
   let feedError: unknown
   const feeding = (async () => {
     try {
-      for await (const chunk of readCompressedChunks(source, chunks)) {
-        await writer.write(ownedArrayBufferView(chunk))
+      for await (const chunk of compressed) {
+        await writer.write(chunk)
       }
       await writer.close()
     } catch (error) {
@@ -586,6 +599,7 @@ class PngDecoder implements ImageDecoder {
   readonly #source: ImageSource
   readonly #description: PngDescription
   readonly #limits: ImageLimits
+  readonly #inflate: PngInflater
   readonly #accelerations: readonly PngAcceleration[]
 
   constructor(
@@ -593,15 +607,24 @@ class PngDecoder implements ImageDecoder {
     description: PngDescription,
     limits: ImageLimits,
     accelerations: readonly PngAcceleration[],
+    inflate: PngInflater | undefined,
   ) {
     this.#source = source
     this.#description = description
     this.#limits = limits
+    this.#inflate = inflate ?? inflateWebPng
     this.#accelerations = accelerations
     this.width = description.width
     this.height = description.height
     this.pixelFormat = outputFormat(description)
     this.colorSemantics = pngColorSemantics(description)
+  }
+
+  #inflatedChunks(): AsyncIterable<Uint8Array> {
+    return this.#inflate(
+      readCompressedChunks(this.#source, this.#description.idat, this.#inflate !== inflateWebPng),
+      this.#limits.maxDecodedBytes,
+    )
   }
 
   async *decode(request: DecodeRequest = {}): AsyncGenerator<PixelBlock> {
@@ -631,11 +654,7 @@ class PngDecoder implements ImageDecoder {
           transparency: this.#description.transparency !== undefined,
           pixelFormat: this.pixelFormat,
           region,
-          inflated: decompressedChunks(
-            this.#source,
-            this.#description.idat,
-            this.#limits.maxDecodedBytes,
-          ),
+          inflated: this.#inflatedChunks(),
         })
       } catch {
         continue
@@ -644,22 +663,33 @@ class PngDecoder implements ImageDecoder {
 
       const iterator = accelerated[Symbol.asyncIterator]()
       let firstOutputRow = 0
-      while (true) {
-        let result: IteratorResult<PixelBlock>
-        try {
-          result = await iterator.next()
-        } catch {
+      let finished = false
+      try {
+        while (true) {
+          let result: IteratorResult<PixelBlock>
+          try {
+            result = await iterator.next()
+          } catch {
+            break
+          }
+          if (result.done) {
+            finished = true
+            return
+          }
+          const block = result.value
+          firstOutputRow = Math.max(firstOutputRow, block.y + block.height)
+          yield block
+        }
+      } finally {
+        // Closing a partial render releases the inflater and the accelerator's kernel lease.
+        if (!finished) {
           try {
             await iterator.return?.()
           } catch {}
-          yield* resumePixelBlocks(this.#decodeTypeScript(region, bitsPerPixel), firstOutputRow)
-          return
         }
-        if (result.done) return
-        const block = result.value
-        firstOutputRow = Math.max(firstOutputRow, block.y + block.height)
-        yield block
       }
+      yield* resumePixelBlocks(this.#decodeTypeScript(region, bitsPerPixel), firstOutputRow)
+      return
     }
     yield* this.#decodeTypeScript(region, bitsPerPixel)
   }
@@ -686,11 +716,7 @@ class PngDecoder implements ImageDecoder {
     let filled = 0
     let row = 0
 
-    for await (const chunk of decompressedChunks(
-      this.#source,
-      this.#description.idat,
-      this.#limits.maxDecodedBytes,
-    )) {
+    for await (const chunk of this.#inflatedChunks()) {
       let chunkOffset = 0
       while (chunkOffset < chunk.byteLength) {
         if (row >= this.height) throw invalidInput('PNG image data contains extra scanlines')
@@ -822,11 +848,7 @@ class PngDecoder implements ImageDecoder {
     let scanline = new Uint8Array((pass?.rowBytes ?? 0) + 1)
     let previous = new Uint8Array(pass?.rowBytes ?? 0)
 
-    for await (const chunk of decompressedChunks(
-      this.#source,
-      this.#description.idat,
-      this.#limits.maxDecodedBytes,
-    )) {
+    for await (const chunk of this.#inflatedChunks()) {
       let chunkOffset = 0
       while (chunkOffset < chunk.byteLength) {
         if (pass === undefined) throw invalidInput('PNG Adam7 image data contains extra scanlines')
@@ -934,9 +956,10 @@ export const createPngDecoder = async (
   limits: ImageLimits,
   options: Readonly<DecoderOptions> = {},
   accelerations: readonly PngAcceleration[] = [],
+  inflate?: PngInflater,
 ): Promise<ImageDecoder> => {
   const description = await parsePng(source, limits, true)
-  const decoder = new PngDecoder(source, description, limits, accelerations)
+  const decoder = new PngDecoder(source, description, limits, accelerations, inflate)
   if (options.preserveIcc === true && description.iccProfile) return decoder
   if (description.bitDepth === 16) {
     const deep = deepPngColorTransform(description)

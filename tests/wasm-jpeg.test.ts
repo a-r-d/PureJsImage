@@ -604,6 +604,75 @@ describe('Rust/WASM JPEG accelerator', () => {
     }
   })
 
+  it('preserves half-byte rounding on a half-size coefficient block', async () => {
+    const instance = await instantiateArtifact(simdDecoderArtifactUrl)
+    const call = (name: string, ...args: number[]) =>
+      numberExport(instance, `jpeg_decoder_${name}`)(...args)
+    const memory = memoryExport(instance)
+    const input = memory.buffer.byteLength
+    memory.grow(1)
+    const coefficientBytes = 3 * 64 * Int16Array.BYTES_PER_ELEMENT
+    const planes = input + coefficientBytes
+    const planeBytes = 2 * 3 * 4 * 6
+    const output = planes + planeBytes
+    new Uint8Array(memory.buffer, call('vertical_sampling_ptr'), 3).fill(1)
+    new Uint8Array(memory.buffer, call('horizontal_sampling_ptr'), 3).fill(1)
+    new Int32Array(memory.buffer, call('quantization_ptr'), 3 * 64).fill(1)
+    const coefficients = new Int16Array(memory.buffer, input, 3 * 64)
+    coefficients[0] = -1019
+    coefficients[2 * 8 + 2] = -1023
+    expect(
+      call(
+        'start',
+        input,
+        coefficientBytes,
+        planes,
+        0,
+        planes,
+        planeBytes,
+        output,
+        48,
+        0,
+        4,
+        4,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        4,
+        1,
+      ),
+    ).toBe(0)
+    expect(call('next')).toBe(2)
+    expect(call('refill', coefficientBytes, 0)).toBe(0)
+    expect(call('next')).toBe(0)
+    // The binary64 transform gives 128.49999999999994 at (1, 3).
+    // Other pixels round to 129 even though binary32 yields the same half tie.
+    const luma = [0, 129, 129, 0, 129, 0, 0, 128, 129, 0, 0, 129, 0, 128, 129, 0]
+    expect([...new Uint8Array(memory.buffer, output, 48)]).toEqual(luma.flatMap((y) => [y, y, y]))
+    expect(call('next')).toBe(1)
+  })
+
+  it('matches 4:2:2 chroma interpolation at SIMD group boundaries', async () => {
+    const instance = await instantiateArtifact(simdDecoderArtifactUrl)
+    const codec = createWasmJpegAcceleratorWithLoaders(
+      { simdDecoder: async () => instance },
+      { minimumPixels: 1 },
+    ).accelerate(jpegCodec)
+    for (const width of [16, 17, 18, 32, 33, 34, 65, 66]) {
+      const { output } = await encodePixels(jpegCodec, 'rgb8', '422', 3, width, 19)
+      for (const scaleDenominator of [1, 2, 4] as const) {
+        const request = { scaleDenominator }
+        expect(await decodeInput(codec, output, request)).toEqual(
+          await decodeInput(jpegCodec, output, request),
+        )
+        expect(numberExport(instance, 'jpeg_decoder_next')()).toBe(1)
+      }
+    }
+  })
+
   it('matches reduced RGB ICC crops across restart rows and partial MCU edges', async () => {
     const width = 1537
     const { output: input } = await encodePixels(

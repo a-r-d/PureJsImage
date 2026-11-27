@@ -1,10 +1,15 @@
 #![no_std]
 mod vp8_coefficients;
 mod vp8_filter;
+#[cfg(feature = "simd")]
+mod vp8_filter_simd;
+mod vp8_modes;
 mod vp8_predict;
+mod vp8_rgba;
+mod vp8_row;
 mod vp8l_entropy;
 
-const ABI_VERSION: u32 = 2;
+const ABI_VERSION: u32 = 3;
 const STATUS_OK: u32 = 0;
 const ERROR_ARGUMENT: u32 = 1;
 const ERROR_MODE: u32 = 2;
@@ -384,7 +389,8 @@ pub extern "C" fn webp_vp8_yuv_to_rgba(
             .checked_mul(y_stride)
             .and_then(|value| value.checked_add(width))
             .ok_or(ERROR_ARGUMENT)?;
-        let chroma_height = height.div_ceil(2);
+        // The chroma views include one filtered context row on either side.
+        let chroma_height = height.div_ceil(2) + 2;
         let chroma_width = width.div_ceil(2);
         let u_required = (chroma_height - 1)
             .checked_mul(u_stride)
@@ -420,18 +426,17 @@ pub extern "C" fn webp_vp8_yuv_to_rgba(
         let height = height as usize;
         for row in 0..height {
             let y_offset = row * y_stride as usize;
-            let uv_offset = (row >> 1) * u_stride as usize;
-            let vv_offset = (row >> 1) * v_stride as usize;
-            for x in 0..width {
-                let luminance = 76_283 * i32::from(y_data[y_offset + x].saturating_sub(16));
-                let u = i32::from(u_data[uv_offset + (x >> 1)]) - 128;
-                let v = i32::from(v_data[vv_offset + (x >> 1)]) - 128;
-                let blue = clamp_byte((luminance + 132_252 * u + 32_768) >> 16);
-                let green = clamp_byte((luminance - 25_624 * u - 53_281 * v + 32_768) >> 16);
-                let red = clamp_byte((luminance + 104_595 * v + 32_768) >> 16);
-                output[row * width + x] =
-                    u32::from_le_bytes([red as u8, green as u8, blue as u8, 255]);
-            }
+            let center = (row >> 1) + 1;
+            let other = if row & 1 == 0 { center - 1 } else { center + 1 };
+            let chroma_width = chroma_width as usize;
+            vp8_rgba::convert_row(
+                &y_data[y_offset..][..width],
+                &u_data[center * u_stride as usize..][..chroma_width],
+                &u_data[other * u_stride as usize..][..chroma_width],
+                &v_data[center * v_stride as usize..][..chroma_width],
+                &v_data[other * v_stride as usize..][..chroma_width],
+                &mut output[row * width..][..width],
+            );
         }
         Ok(())
     })();

@@ -827,7 +827,7 @@
         "status": "supported",
         "label": "Yes"
       },
-      "boundary": "Animated frames use one RGBA canvas and VP8 frames use nearest chroma upsampling; compressed RIFF input and compact VP8L transform maps remain source-sized",
+      "boundary": "Animated frames use one RGBA canvas. VP8 frames use bilinear chroma upsampling. Compressed RIFF input and compact VP8L transform maps remain source-sized",
       "description": "Decodes static VP8 lossy, VP8L lossless, extended alpha, and odd RIFF padding. Encodes first-party static lossy, exact lossless, or near-lossless WebP with effort-based size optimization plus opt-in EXIF and compatible ICC preservation. Animated WebP decodes any selected frame, or every composited frame with `open(input, { animated: true })`, applying alpha blending and disposal. Animated output encodes each changed rectangle as a lossy or lossless frame with the source durations and loop count. `openWebpAnimation()` and `encodeWebpAnimation()` in `purejsimage/codecs/webp` read and write frames directly.",
       "memory": "VP8 uses two macroblock rows; VP8L uses a fixed maximum 4 MiB entropy history plus scanline transform buffers. Decode still retains compressed input and compact transform maps. Lossless encode retains one 32-bit transformed frame, a fixed maximum 4 MiB match table, and one encoded payload. Animated decode keeps one RGBA canvas; animated encode keeps the current and previous frames and every encoded frame until the RIFF size is known.",
       "recommendation": "Use lossless WebP for graphics, interface captures, screenshots, and other repeated structure; use lossy WebP for photographs, or PNG when exact lossless photographic preservation is required. Compare sizes for the actual source because lossless WebP can be larger than PNG on photographic content. Use effort 0 for faster lossless encoding or effort 6 for the smallest output.",
@@ -1003,8 +1003,8 @@
           "text": "Crop- and resize-aware reconstruction that avoids RGB conversion for pixels which cannot contribute to the output"
         },
         {
-          "status": "planned",
-          "text": "Higher-quality chroma-siting-aware upsampling instead of nearest chroma sample selection"
+          "status": "supported",
+          "text": "Bilinear chroma upsampling across macroblock rows"
         },
         {
           "status": "supported",
@@ -1136,7 +1136,7 @@
         },
         {
           "status": "supported",
-          "text": "4x4 luma and 8x8 chroma DC prediction"
+          "text": "Rate-distortion mode choice across the four 16x16 luma modes with Walsh-Hadamard Y2 coding, the ten 4x4 luma modes, and the four chroma modes"
         },
         {
           "status": "supported",
@@ -1149,14 +1149,6 @@
         {
           "status": "planned",
           "text": "Bounded macroblock-row encoding; the current encoder retains full Y, U, V, optional alpha, reconstruction, and output buffers"
-        },
-        {
-          "status": "planned",
-          "text": "Rate-distortion-driven luma and chroma prediction-mode selection"
-        },
-        {
-          "status": "planned",
-          "text": "16x16 luma prediction and Walsh-Hadamard Y2 coding where beneficial"
         },
         {
           "status": "planned",
@@ -1284,7 +1276,11 @@
         },
         {
           "status": "supported",
-          "text": "Keep opt-in Rust/WASM VP8 coefficient decoding, prediction, inverse transforms and loop filtering, and cache-free VP8L entropy decoding, at exact TypeScript parity per macroblock, row or band, resuming in TypeScript without duplicate rows after a failure"
+          "text": "Keep opt-in Rust/WASM VP8 mode parsing, coefficient decoding, prediction, inverse transforms, loop filtering and bilinear RGBA conversion in one call per macroblock row, and cache-free VP8L entropy decoding, at exact TypeScript parity, resuming in TypeScript without duplicate rows after a failure"
+        },
+        {
+          "status": "supported",
+          "text": "Decode lossy still images to exactly libwebp's pixels: all 224 lossy stills in the Imazen WebP corpus and all five lossy benchmark stills match"
         }
       ]
     },

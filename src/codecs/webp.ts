@@ -342,6 +342,7 @@ interface WebpPixelRows {
   readonly height: number
   // VP8 produces RGBA bytes. VP8L produces packed ARGB words.
   readonly pixels: Uint32Array | Uint8Array
+  readonly release?: () => void
 }
 
 interface WebpPixelSource {
@@ -380,6 +381,7 @@ class WebpPixelDecoder implements ImageDecoder {
         if (alphaRows) {
           for (let row = 0; row < block.height; row += 1) nextAlphaRow(alphaRows, this.width)
         }
+        block.release?.()
         continue
       }
       const blockHeight = sourceEnd - sourceStart
@@ -438,6 +440,7 @@ class WebpPixelDecoder implements ImageDecoder {
         stride,
         format: 'rgba8',
         data,
+        ...(block.release ? { release: block.release } : {}),
       }
     }
   }
@@ -452,8 +455,19 @@ export const createWebpBitstreamDecoder = async (
   image: WebpChunk,
   alphaChunk: WebpChunk | undefined,
   limits: ImageLimits,
-  kernel?: WebpKernel,
+  accelerations?: readonly WebpAcceleration[],
 ): Promise<ImageDecoder> => {
+  let kernel: WebpKernel | undefined
+  if (accelerations?.length) {
+    const dimensions =
+      image.type === 'VP8L' ? losslessDimensions(data, image) : lossyDimensions(data, image)
+    validateImageDimensions(dimensions.width, dimensions.height, 1, limits)
+    kernel = await prepareWebpKernel(accelerations, {
+      operation: 'decode',
+      width: dimensions.width,
+      height: dimensions.height,
+    })
+  }
   let decoded: WebpPixelSource
   if (image.type === 'VP8L') {
     const { decodeLosslessWebp } = await import('./webp-lossless.ts')
@@ -567,23 +581,18 @@ const decodeWebp = async (
       )
     }
     const { decodeWebpAnimationFrame } = await import('./webp-animation.ts')
-    return decodeWebpAnimationFrame(data, parsed, options.frame ?? 0, limits)
+    return decodeWebpAnimationFrame(data, parsed, options.frame ?? 0, limits, accelerations)
   }
   if (!parsed.image) throw invalidInput('WebP image bitstream is missing')
   if (parsed.image.type === 'VP8 ' && parsed.hasAlpha && !parsed.alpha) {
     throw invalidInput('WebP extended alpha chunk is missing')
   }
-  const kernel = await prepareWebpKernel(accelerations, {
-    width: parsed.width,
-    height: parsed.height,
-    operation: 'decode',
-  })
   const decoder = await createWebpBitstreamDecoder(
     data,
     parsed.image,
     parsed.image.type === 'VP8 ' && parsed.hasAlpha ? parsed.alpha : undefined,
     limits,
-    kernel,
+    accelerations,
   )
   if (decoder.width !== parsed.width || decoder.height !== parsed.height) {
     throw invalidInput('WebP canvas and image bitstream dimensions do not match')
@@ -673,6 +682,10 @@ export const accelerateWebpCodec = (
       limits: ImageLimits,
       options?: Readonly<DecoderOptions>,
     ): Promise<ImageDecoder> => decodeWebp(source, limits, options, accelerations),
+    async createAnimationDecoder(source: ImageSource, limits: ImageLimits) {
+      const { decodeWebpAnimation } = await import('./webp-animation.ts')
+      return decodeWebpAnimation(await input(source), limits, accelerations)
+    },
     createEncoder: (sink: ImageSink, request: EncodeRequest): Promise<ImageEncoder> =>
       createWebpEncoder(sink, request, accelerations),
   })

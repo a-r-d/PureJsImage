@@ -23,17 +23,17 @@ const EXTRA: [&[u8]; 6] = [
 ];
 const BASE: [i32; 6] = [5, 7, 11, 19, 35, 67];
 
-struct Reader<'a> {
-    data: &'a [u8],
-    next: usize,
-    range: u32,
-    value: u32,
-    bits: i32,
+pub(super) struct Reader<'a> {
+    pub(super) data: &'a [u8],
+    pub(super) next: usize,
+    pub(super) range: u32,
+    pub(super) value: u32,
+    pub(super) bits: i32,
 }
 
 impl Reader<'_> {
     #[inline(always)]
-    fn bit(&mut self, probability: u8) -> u32 {
+    pub(super) fn bit(&mut self, probability: u8) -> u32 {
         let split = 1 + (((self.range - 1) * u32::from(probability)) >> 8);
         let boundary = split << self.bits;
         let one = self.value >= boundary;
@@ -147,61 +147,70 @@ pub extern "C" fn webp_vp8_coefficients(
                 exclusive_u32(state),
             )
         };
-        let (header, coeffs) = words.split_at_mut(54);
-        let (registers, tail) = header.split_at_mut(5);
-        let (factors, tail) = tail.split_at_mut(6);
-        let (left, tail) = tail.split_at_mut(9);
-        let (above, ends) = tail.split_at_mut(9);
-        if !(128..=255).contains(&registers[0])
-            || registers[2] > 15
-            || registers[1] >= registers[0] << registers[2]
-            || factors.iter().any(|&f| f > 1024)
-            || left.iter().chain(above.iter()).any(|&c| c > 1)
-        {
-            return Err(ERROR_ARGUMENT);
-        }
-        let mut r = Reader {
-            data: input,
-            next: 0,
-            range: registers[0],
-            value: registers[1],
-            bits: registers[2] as i32,
-        };
-        coeffs.fill(0);
-        let mut nonzero = false;
-        for it in usize::from(block_mode != 0)..25 {
-            let i = if it == 0 { 24 } else { it - 1 };
-            let (kind, quant) = if i == 24 {
-                (1, 2)
-            } else if i >= 16 {
-                (2, 4)
-            } else if block_mode != 0 {
-                (3, 0)
-            } else {
-                (0, 0)
-            };
-            let context = (left[LEFT[i]] + above[ABOVE[i]]) as usize;
-            let end = r.block(
-                probs,
-                kind,
-                context,
-                &factors[quant..quant + 2],
-                &mut coeffs[i * 16..i * 16 + 16],
-            );
-            let flag = u32::from(end != 0);
-            left[LEFT[i]] = flag;
-            above[ABOVE[i]] = flag;
-            ends[i] = end;
-            nonzero |= end != 0;
-        }
-        registers.copy_from_slice(&[
-            r.range,
-            r.value,
-            r.bits as u32,
-            r.next as u32,
-            u32::from(nonzero),
-        ]);
-        Ok(())
+        decode(input, probs, words, block_mode)
     })();
     result.map_or_else(|error| error, |_| STATUS_OK)
+}
+
+pub(super) fn decode(
+    input: &[u8],
+    probs: &[u8],
+    words: &mut [u32],
+    block_mode: u32,
+) -> Result<(), u32> {
+    let (header, coeffs) = words.split_at_mut(54);
+    let (registers, tail) = header.split_at_mut(5);
+    let (factors, tail) = tail.split_at_mut(6);
+    let (left, tail) = tail.split_at_mut(9);
+    let (above, ends) = tail.split_at_mut(9);
+    if !(128..=255).contains(&registers[0])
+        || registers[2] > 15
+        || registers[1] >= registers[0] << registers[2]
+        || factors.iter().any(|&f| f > 1024)
+        || left.iter().chain(above.iter()).any(|&c| c > 1)
+    {
+        return Err(ERROR_ARGUMENT);
+    }
+    let mut r = Reader {
+        data: input,
+        next: 0,
+        range: registers[0],
+        value: registers[1],
+        bits: registers[2] as i32,
+    };
+    coeffs.fill(0);
+    let mut nonzero = false;
+    for it in usize::from(block_mode != 0)..25 {
+        let i = if it == 0 { 24 } else { it - 1 };
+        let (kind, quant) = if i == 24 {
+            (1, 2)
+        } else if i >= 16 {
+            (2, 4)
+        } else if block_mode != 0 {
+            (3, 0)
+        } else {
+            (0, 0)
+        };
+        let context = (left[LEFT[i]] + above[ABOVE[i]]) as usize;
+        let end = r.block(
+            probs,
+            kind,
+            context,
+            &factors[quant..quant + 2],
+            &mut coeffs[i * 16..i * 16 + 16],
+        );
+        let flag = u32::from(end != 0);
+        left[LEFT[i]] = flag;
+        above[ABOVE[i]] = flag;
+        ends[i] = end;
+        nonzero |= end != 0;
+    }
+    registers.copy_from_slice(&[
+        r.range,
+        r.value,
+        r.bits as u32,
+        r.next as u32,
+        u32::from(nonzero),
+    ]);
+    Ok(())
 }

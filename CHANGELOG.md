@@ -59,6 +59,31 @@ All notable changes to PureJsImage are documented in this file.
 
 ### Changed
 
+- Lossy WebP decoding now uses bilinear chroma upsampling and BT.601 fixed-point color
+  conversion, in TypeScript and in the optional WASM accelerator. Decoded pixels now match libwebp
+  exactly on all 224 lossy still images in the Imazen WebP corpus and on the five lossy benchmark
+  images; before, 48 corpus images matched and the rest averaged 42 dB PSNR. Nearest-neighbor
+  chroma had shown most on saturated edges. The TypeScript decoder is about 1% slower, and PNG
+  files written from decoded WebP photos can be a few percent larger because the chroma is
+  smoother.
+- The lossy WebP encoder now chooses a prediction mode for every macroblock: the four 16x16 luma
+  modes, the ten 4x4 luma modes and the four chroma modes, scored by distortion plus estimated
+  bits. Before, every block used DC prediction. On six test images at quality 50, 75 and 90,
+  files are 1.4% to 24.7% smaller with higher PSNR and SSIM in all 18 cases; the transparent logo
+  at quality 75 drops from 15,034 to 12,222 bytes. Encoding a 12 MP photo is about 10% slower in
+  TypeScript; the extra working memory is one macroblock row.
+- In Node, PNG decoding inflates image data with `node:zlib` in 64 KiB chunks instead of the
+  web `DecompressionStream`, which cut the hand-offs on the 100 MP test image from 24,698 to
+  6,386. Browsers are unchanged. With only TypeScript codecs, resizing a 12 MP PNG takes 269 ms
+  instead of 297 ms with 6% lower peak memory.
+- The optional WASM accelerators are faster. With all of them registered:
+  - resizing a 12 MP JPEG to 1200 px takes 121 ms instead of 173 ms, from faster Huffman
+    lookups, half-scale inverse DCT and 4:2:2 conversion in the JPEG decoder and SIMD vertical
+    filtering in the resize accelerator, with output still identical to TypeScript;
+  - the 100 MP PNG downscale takes 641 ms instead of 893 ms with 6% lower peak memory;
+  - resizing the lossy 12 MP WebP portrait takes 105 ms instead of 152 ms with 12% lower peak
+    memory, because the WebP accelerator now decodes a whole macroblock row per call.
+
 - The optional JPEG WASM accelerator now decodes progressive JPEG: DC and AC first and
   refinement scans, end-of-band runs, and restart intervals, at full, 1/2 and 1/4 scale. It keeps
   compact coefficient planes and reconstructs rows in bounded bands, like the TypeScript decoder,

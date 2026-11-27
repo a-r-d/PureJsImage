@@ -9,7 +9,7 @@ import type { ImageLimits } from '../limits.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
 import type { ImageSource } from '../source.ts'
-import { signature, isPng } from './png-common.ts'
+import { isPng, signature } from './png-common.ts'
 
 export type PngColorType = 0 | 2 | 3 | 4 | 6
 
@@ -45,6 +45,12 @@ export interface PngEncodeAccelerationRequest {
   readonly adaptiveFiltering: boolean
 }
 
+/** Consume each compressed view before requesting the next one. */
+export type PngInflater = (
+  compressed: AsyncIterable<Uint8Array<ArrayBuffer>>,
+  maximumDecodedBytes: number,
+) => AsyncIterable<Uint8Array>
+
 export interface PngAcceleration {
   decode?(request: PngAccelerationRequest): Promise<AsyncIterable<PixelBlock> | undefined>
   encode?(request: PngEncodeAccelerationRequest): Promise<PngRowFilter | undefined>
@@ -63,9 +69,10 @@ const decodePng = async (
   limits: ImageLimits,
   options?: Readonly<DecoderOptions>,
   accelerations?: readonly PngAcceleration[],
+  inflate?: PngInflater,
 ): Promise<ImageDecoder> => {
   const { createPngDecoder } = await import('./png-decode.ts')
-  return createPngDecoder(source, limits, options, accelerations)
+  return createPngDecoder(source, limits, options, accelerations, inflate)
 }
 
 const encodePng = async (
@@ -77,7 +84,25 @@ const encodePng = async (
   return createPngEncoder(sink, request, accelerations)
 }
 
+// Bind after application accelerators are resolved so their reference-codec identity is preserved.
+const pngRuntimeBinding = {
+  withPngInflater(this: ImageCodec, inflate: PngInflater): ImageCodec {
+    const accelerations = registeredPngAccelerations(this)
+    // A custom codec can spread pngCodec and supply its own decoder.
+    if (!accelerations) return this
+    return Object.freeze({
+      ...this,
+      createDecoder: (
+        source: ImageSource,
+        limits: ImageLimits,
+        options?: Readonly<DecoderOptions>,
+      ) => decodePng(source, limits, options, accelerations, inflate),
+    })
+  },
+}
+
 export const pngCodec: ImageCodec = {
+  ...pngRuntimeBinding,
   format: 'png',
   mimeTypes: ['image/png'],
   minimumBytes: signature.length,

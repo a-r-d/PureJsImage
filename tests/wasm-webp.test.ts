@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
+import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -23,6 +24,12 @@ const losslessFixtureUrl = new URL(
   '../benchmark/corpus/files/webp-lossless-tux-386x395.webp',
   import.meta.url,
 )
+// Synthetic gradients, two disks, and noise, written by libwebp 1.5.0 with
+// `cwebp -q 50 -nostrong -f 60 -metadata none`. It uses the simple loop filter at level 16.
+const simpleFilterFixtureUrl = new URL(
+  './fixtures/webp/simple-filter-256x160.webp',
+  import.meta.url,
+)
 
 const artifacts = [
   { kind: 'scalar', url: scalarArtifactUrl },
@@ -34,7 +41,9 @@ const instantiateArtifact = async (url: URL): Promise<WebAssembly.Instance> => {
   return result.instance
 }
 
-const decodedPixels = async (decoder: ImageDecoder): Promise<Uint8Array> => {
+const decodedPixels = async (
+  decoder: Pick<ImageDecoder, 'width' | 'height' | 'decode'>,
+): Promise<Uint8Array> => {
   const output = new Uint8Array(decoder.width * decoder.height * 4)
   for await (const block of decoder.decode()) {
     expect(block.format).toBe('rgba8')
@@ -75,11 +84,30 @@ const createRgbaFixture = (width = 17, height = 13): RgbaFixture => {
   return { data, height, width }
 }
 
+// Opaque gradients with seeded noise, so every macroblock carries many coefficient tokens.
+const createNoisyFixture = (width: number, height: number): RgbaFixture => {
+  const data = new Uint8Array(width * height * 4)
+  let seed = 1
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 4
+      seed = (Math.imul(seed, 1_103_515_245) + 12_345) >>> 0
+      const noise = (seed >>> 24) - 128
+      data[offset] = (x + noise) & 0xff
+      data[offset + 1] = (y * 3 + noise) & 0xff
+      data[offset + 2] = (x + y - noise) & 0xff
+      data[offset + 3] = 255
+    }
+  }
+  return { data, height, width }
+}
+
 const encode = async (
   codec: ImageCodec,
   input: RgbaFixture,
   lossless: boolean,
   effort?: number,
+  quality = 80,
 ): Promise<Uint8Array> => {
   const sink = new Uint8ArraySink()
   const encoder = await codec.createEncoder?.(sink, {
@@ -87,7 +115,7 @@ const encode = async (
     metadata: {},
     options: lossless
       ? { lossless: true, ...(effort === undefined ? {} : { effort }) }
-      : { quality: 80 },
+      : { quality },
     pixelFormat: 'rgba8',
     width: input.width,
   })
@@ -151,6 +179,122 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
       for (const input of fixtures) {
         expect(await decode(accelerated, input)).toEqual(await decode(webpCodec, input))
       }
+    },
+  )
+
+  it.each(artifacts)(
+    'batches VP8 rows with the simple luma filter through $kind',
+    async ({ kind, url }) => {
+      const input = await readFile(simpleFilterFixtureUrl)
+      let rows = 0
+      const accelerated = codecWithArtifact(kind, url, {
+        kernelOperation(operation, succeeded) {
+          if (operation === 'vp8-row' && succeeded) rows++
+        },
+      })
+      expect(
+        Buffer.from(await decode(accelerated, input)).equals(await decode(webpCodec, input)),
+      ).toBe(true)
+      expect(rows).toBe(Math.ceil(160 / 16))
+    },
+  )
+
+  it.each(artifacts)(
+    'preserves outstanding $kind VP8 bands across late and repeated releases',
+    async ({ kind, url }) => {
+      const input = await encode(webpCodec, createNoisyFixture(160, 96), false)
+      const decoder = await codecWithArtifact(kind, url).createDecoder?.(
+        new MemorySource(input),
+        defaultImageLimits,
+      )
+      if (!decoder) throw new Error('Missing WebP decoder')
+      const iterator = decoder.decode()[Symbol.asyncIterator]()
+      const next = async () => {
+        const result = await iterator.next()
+        if (result.done) throw new Error('Missing VP8 band')
+        return result.value
+      }
+      try {
+        const first = await next()
+        const firstBytes = Buffer.from(first.data)
+        const second = await next()
+        const secondBytes = Buffer.from(second.data)
+        expect(Buffer.from(first.data).equals(firstBytes)).toBe(true)
+        first.release?.()
+        const third = await next()
+        const thirdBytes = Buffer.from(third.data)
+        // A stale release must not return the third band's buffer to the decoder.
+        first.release?.()
+        const fourth = await next()
+        expect(Buffer.from(third.data).equals(thirdBytes)).toBe(true)
+        expect(Buffer.from(second.data).equals(secondBytes)).toBe(true)
+        second.release?.()
+        third.release?.()
+        fourth.release?.()
+      } finally {
+        await iterator.return?.()
+      }
+    },
+  )
+
+  it.each(artifacts)(
+    'accelerates composited and selected animation frames through the $kind decoder',
+    async ({ kind, url }) => {
+      // Three lossy libwebp frames. The row kernel needs frames at least 8 macroblocks wide.
+      const width = 160
+      const height = 64
+      const page = createNoisyFixture(width, height).data
+      const strip = new Uint8Array(page.length * 3)
+      for (let frame = 0; frame < 3; frame += 1) {
+        const start = frame * page.length
+        strip.set(page, start)
+        // Later frames add a white band at a new height, so libwebp writes partial frames.
+        for (let y = frame * 8; frame > 0 && y < frame * 8 + 24; y += 1) {
+          strip.fill(255, start + (y * width + 8) * 4, start + (y * width + 152) * 4)
+        }
+      }
+      const input = await sharp(Buffer.from(strip), {
+        raw: { width, height: height * 3, channels: 4, pageHeight: height },
+      })
+        .webp({ quality: 75 })
+        .toBuffer()
+      let rows = 0
+      const accelerated = codecWithArtifact(kind, url, {
+        kernelOperation(operation, succeeded) {
+          if (operation === 'vp8-row' && succeeded) rows++
+        },
+      })
+      const selected = async (codec: ImageCodec) => {
+        const decoder = await codec.createDecoder?.(new MemorySource(input), defaultImageLimits, {
+          frame: 1,
+        })
+        if (!decoder) throw new Error('Missing WebP decoder')
+        return decodedPixels(decoder)
+      }
+      const reference = await selected(webpCodec)
+      expect(Buffer.from(await selected(accelerated)).equals(reference)).toBe(true)
+      expect(rows).toBeGreaterThan(0)
+      rows = 0
+      const animation = await accelerated.createAnimationDecoder?.(
+        new MemorySource(input),
+        defaultImageLimits,
+      )
+      if (!animation) throw new Error('Missing WebP animation decoder')
+      let compared = false
+      for await (const frame of animation.frames()) {
+        if (frame.index === 1) {
+          const pixels = await decodedPixels({
+            width: animation.width,
+            height: animation.height,
+            decode: frame.decode,
+          })
+          expect(Buffer.from(pixels).equals(reference)).toBe(true)
+          compared = true
+          break
+        }
+      }
+      expect(compared).toBe(true)
+      expect(rows).toBeGreaterThan(0)
     },
   )
 
@@ -275,6 +419,53 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
     },
   )
 
+  it.each(artifacts)(
+    'replays an uncommitted $kind VP8 row after a token refill fails',
+    async ({ kind, url }) => {
+      // Noise at quality 100 gives each 64-macroblock row more tokens than one 16 KiB window.
+      const input = await encode(webpCodec, createNoisyFixture(1024, 48), false, undefined, 100)
+      const instance = await instantiateArtifact(url)
+      const original = instance.exports.webp_vp8_row
+      if (typeof original !== 'function') throw new Error('Missing VP8 row kernel')
+      let rows = 0
+      let failures = 0
+      const load = async (): Promise<WebAssembly.Instance> => ({
+        exports: {
+          ...instance.exports,
+          webp_vp8_row: (...args: readonly number[]) => {
+            const result: unknown = Reflect.apply(original, undefined, args)
+            // The first window already changed private pixels and entropy state.
+            if (rows > 0 && (args[7] ?? 0) > 0) {
+              failures++
+              const memory = instance.exports.memory
+              if (memory instanceof WebAssembly.Memory) memory.grow(1)
+              throw new Error('simulated row refill failure')
+            }
+            return result
+          },
+        },
+      })
+      const codec = createWasmWebpAcceleratorWithLoaders(
+        kind === 'simd' ? { simdDecoder: load } : { decoder: load },
+        { minimumPixels: 1 },
+      ).accelerate(webpCodec)
+      const decoder = await codec.createDecoder?.(new MemorySource(input), defaultImageLimits)
+      if (!decoder) throw new Error('Missing WebP decoder')
+      const reference = await decode(webpCodec, input)
+      for await (const block of decoder.decode()) {
+        expect(block.y).toBe(rows)
+        const offset = rows * block.stride
+        expect(
+          Buffer.from(block.data).equals(reference.subarray(offset, offset + block.data.length)),
+        ).toBe(true)
+        rows += block.height
+        block.release?.()
+      }
+      expect(rows).toBe(decoder.height)
+      expect(failures).toBe(1)
+    },
+  )
+
   it('loads checked-in SIMD and scalar artifacts through the public Node entry', async () => {
     const input = await readFile(losslessFixtureUrl)
     const codec = createWasmWebpAccelerator({ minimumPixels: 1 }).accelerate(webpCodec)
@@ -303,5 +494,12 @@ describe('Rust/WASM WebP accelerator', { timeout: 30_000 }, () => {
     if (typeof operation !== 'function') throw new Error('Missing WebP green transform export')
     const status: unknown = Reflect.apply(operation, undefined, [0xffff_fff0, 64])
     expect(status).toBe(1)
+    const row = instance.exports.webp_vp8_row
+    if (typeof row !== 'function') throw new Error('Missing VP8 row kernel')
+    // An in-bounds input and tables cannot authorize a row workspace past memory.
+    const memory = instance.exports.memory
+    if (!(memory instanceof WebAssembly.Memory)) throw new Error('Missing WebP WASM memory')
+    const table = memory.buffer.byteLength - 4096
+    expect(row(table, 0, 0, table, 0xffff_fff0, 8, 1, 0, table, 0, 0, table, 128, 0, 0)).toBe(1)
   })
 })

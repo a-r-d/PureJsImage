@@ -1,15 +1,16 @@
-// Apply the VP8 normal loop filter to one bounded plane band, preserving the
+// Apply a VP8 loop filter to one bounded plane band, preserving the
 // column order of vertical, internal, horizontal and internal edges.
 use super::{
     ERROR_ARGUMENT, STATUS_OK, exclusive_bytes, regions_overlap, shared_bytes, validate_region,
 };
 
+#[cfg(not(feature = "simd"))]
 #[inline]
 fn byte(value: i32) -> u8 {
     value.clamp(0, 255) as u8
 }
 
-fn edge(
+fn edge<const SIMPLE: bool>(
     data: &mut [u8],
     start: usize,
     step: usize,
@@ -20,7 +21,53 @@ fn edge(
     variance: i32,
     outer: bool,
 ) {
+    if SIMPLE {
+        let limit = 2 * level + interior;
+        for i in 0..size {
+            let q = start + i * advance;
+            let p1 = i32::from(data[q - 2 * step]);
+            let p0 = i32::from(data[q - step]);
+            let q0 = i32::from(data[q]);
+            let q1 = i32::from(data[q + step]);
+            if 2 * (p0 - q0).abs() + ((p1 - q1).abs() >> 1) <= limit {
+                let adjust = (3 * (q0 - p0) + (p1 - q1).clamp(-128, 127)).clamp(-128, 127);
+                let first = (adjust + 4).min(127) >> 3;
+                let second = (adjust + 3).min(127) >> 3;
+                data[q - step] = (p0 + second).clamp(0, 255) as u8;
+                data[q] = (q0 - first).clamp(0, 255) as u8;
+            }
+        }
+        return;
+    }
+    #[cfg(feature = "simd")]
+    {
+        for i in (0..size).step_by(8) {
+            if advance == 1 {
+                super::vp8_filter_simd::edge::<false>(
+                    data,
+                    start + i,
+                    step,
+                    level,
+                    interior,
+                    variance,
+                    outer,
+                );
+            } else {
+                super::vp8_filter_simd::edge::<true>(
+                    data,
+                    start + i * advance,
+                    advance,
+                    level,
+                    interior,
+                    variance,
+                    outer,
+                );
+            }
+        }
+    }
+    #[cfg(not(feature = "simd"))]
     let limit = 2 * level + interior;
+    #[cfg(not(feature = "simd"))]
     for i in 0..size {
         let q = start + i * advance;
         let p1 = i32::from(data[q - 2 * step]);
@@ -112,73 +159,83 @@ pub extern "C" fn webp_vp8_filter_plane(
         // SAFETY: the padded plane and the complete parameter array are bounded and disjoint.
         let (data, params) = unsafe { (exclusive_bytes(plane), shared_bytes(cfg)) };
         let (size, stride) = (size as usize, stride as usize);
-        for (col, param) in params.chunks_exact(3).enumerate() {
-            let level = i32::from(param[0]);
-            if level == 0 {
-                continue;
-            }
-            let interior = i32::from(param[1]);
-            let variance = i32::from(level >= 15) + i32::from(level >= 40);
-            let subblocks = param[2] != 0;
-            let q = above_rows as usize * stride + col * size;
-            if col != 0 {
-                edge(
-                    data,
-                    q,
-                    1,
-                    stride,
-                    size,
-                    level + 2,
-                    interior,
-                    variance,
-                    true,
-                )
-            }
-            if subblocks {
-                for x in (4..size).step_by(4) {
-                    edge(
-                        data,
-                        q + x,
-                        1,
-                        stride,
-                        size,
-                        level,
-                        interior,
-                        variance,
-                        false,
-                    )
-                }
-            }
-            if above != 0 {
-                edge(
-                    data,
-                    q,
-                    stride,
-                    1,
-                    size,
-                    level + 2,
-                    interior,
-                    variance,
-                    true,
-                )
-            }
-            if subblocks {
-                for y in (4..size).step_by(4) {
-                    edge(
-                        data,
-                        q + y * stride,
-                        stride,
-                        1,
-                        size,
-                        level,
-                        interior,
-                        variance,
-                        false,
-                    )
-                }
-            }
-        }
+        apply::<false>(data, params, size, stride, above_rows as usize);
         Ok(())
     })();
     result.map_or_else(|error| error, |_| STATUS_OK)
+}
+
+pub(super) fn apply<const SIMPLE: bool>(
+    data: &mut [u8],
+    params: &[u8],
+    size: usize,
+    stride: usize,
+    above_rows: usize,
+) {
+    for (col, param) in params.chunks_exact(3).enumerate() {
+        let level = i32::from(param[0]);
+        if level == 0 {
+            continue;
+        }
+        let interior = i32::from(param[1]);
+        let variance = i32::from(level >= 15) + i32::from(level >= 40);
+        let subblocks = param[2] != 0;
+        let q = above_rows * stride + col * size;
+        if col != 0 {
+            edge::<SIMPLE>(
+                data,
+                q,
+                1,
+                stride,
+                size,
+                level + 2,
+                interior,
+                variance,
+                true,
+            )
+        }
+        if subblocks {
+            for x in (4..size).step_by(4) {
+                edge::<SIMPLE>(
+                    data,
+                    q + x,
+                    1,
+                    stride,
+                    size,
+                    level,
+                    interior,
+                    variance,
+                    false,
+                )
+            }
+        }
+        if above_rows != 0 {
+            edge::<SIMPLE>(
+                data,
+                q,
+                stride,
+                1,
+                size,
+                level + 2,
+                interior,
+                variance,
+                true,
+            )
+        }
+        if subblocks {
+            for y in (4..size).step_by(4) {
+                edge::<SIMPLE>(
+                    data,
+                    q + y * stride,
+                    stride,
+                    1,
+                    size,
+                    level,
+                    interior,
+                    variance,
+                    false,
+                )
+            }
+        }
+    }
 }

@@ -2,9 +2,16 @@ import { once } from 'node:events'
 import type { FileHandle } from 'node:fs/promises'
 import { availableParallelism, tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { constants, createDeflate, type Deflate, deflateSync, type ZlibOptions } from 'node:zlib'
+import {
+  constants,
+  createDeflate,
+  createInflate,
+  type Deflate,
+  deflateSync,
+  type ZlibOptions,
+} from 'node:zlib'
 
-import { invalidInput } from './errors.ts'
+import { ImageError, invalidInput, limitExceeded } from './errors.ts'
 import { MemoryTemporaryStore } from './memory-temporary-store.ts'
 import type { NodeImageLibraryOptions } from './node-options.ts'
 import type {
@@ -229,6 +236,51 @@ const zlibOptions = (options: DeflateOptions): ZlibOptions => ({
   level: options.level,
   strategy: options.strategy === 'rle' ? constants.Z_RLE : constants.Z_DEFAULT_STRATEGY,
 })
+
+// Use the same zlib wrapper and checksum validation as Node's DecompressionStream.
+export async function* inflatePng(
+  compressed: AsyncIterable<Uint8Array>,
+  maximumDecodedBytes: number,
+): AsyncGenerator<Uint8Array> {
+  // Drain every nonempty write before asking the source for another borrowed view.
+  const options = { chunkSize: 64 * 1024, writableHighWaterMark: 1, rejectGarbageAfterEnd: true }
+  const inflater = createInflate(options)
+  const controller = new AbortController()
+  let feedError: unknown
+  const feeding = (async () => {
+    try {
+      for await (const chunk of compressed) {
+        if (controller.signal.aborted) return
+        if (!inflater.write(chunk)) await once(inflater, 'drain', { signal: controller.signal })
+      }
+      inflater.end()
+    } catch (error) {
+      feedError = error
+      inflater.destroy(error instanceof Error ? error : new Error('PNG inflate source failed'))
+    }
+  })()
+  let decodedBytes = 0
+  try {
+    for await (const data of inflater) {
+      if (!(data instanceof Uint8Array)) throw invalidInput('PNG inflater returned invalid data')
+      if (data.byteLength > maximumDecodedBytes - decodedBytes) {
+        throw limitExceeded(`PNG decompressed data exceeds maxDecodedBytes ${maximumDecodedBytes}`)
+      }
+      decodedBytes += data.byteLength
+      yield data
+    }
+    await feeding
+    if (feedError !== undefined) throw feedError
+  } catch (error) {
+    if (error instanceof ImageError) throw error
+    if (feedError instanceof ImageError) throw feedError
+    throw invalidInput('PNG image data could not be decompressed')
+  } finally {
+    controller.abort()
+    inflater.destroy()
+    await feeding
+  }
+}
 
 class NodeDeflateEncoder implements DeflateEncoder {
   readonly #deflater: Deflate

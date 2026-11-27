@@ -23,6 +23,7 @@ import {
   createWebpEncoder,
   type ParsedWebp,
   parseWebp,
+  type WebpAcceleration,
   type WebpChunk,
 } from './webp.ts'
 
@@ -115,6 +116,7 @@ export class WebpCompositor {
   readonly #width: number
   readonly #frames: readonly WebpFrameDescriptor[]
   readonly #limits: ImageLimits
+  readonly #accelerations: readonly WebpAcceleration[] | undefined
   readonly canvas: Uint8Array
   #next = 0
   #pendingDisposal: WebpFrameDescriptor | undefined
@@ -125,11 +127,13 @@ export class WebpCompositor {
     height: number,
     frames: readonly WebpFrameDescriptor[],
     limits: ImageLimits,
+    accelerations?: readonly WebpAcceleration[],
   ) {
     this.#data = data
     this.#width = width
     this.#frames = frames
     this.#limits = limits
+    this.#accelerations = accelerations
     this.canvas = new Uint8Array(width * height * 4)
   }
 
@@ -173,6 +177,7 @@ export class WebpCompositor {
       frame.image,
       frame.alpha,
       this.#limits,
+      this.#accelerations,
     )
     if (decoder.width !== frame.width || decoder.height !== frame.height) {
       throw invalidInput('WebP frame and bitstream dimensions do not match')
@@ -210,6 +215,7 @@ export class WebpCompositor {
           }
         }
       }
+      block.release?.()
     }
     this.#pendingDisposal = frame
     this.#next += 1
@@ -259,13 +265,21 @@ export const decodeWebpAnimationFrame = async (
   parsed: ParsedWebp,
   frame: number,
   limits: ImageLimits,
+  accelerations?: readonly WebpAcceleration[],
 ): Promise<ImageDecoder> => {
   rejectProfile(parsed)
   const frames = webpFrames(data, parsed)
   if (frame >= frames.length) {
     throw invalidInput(`WebP frame ${frame} does not exist; the file has ${frames.length} frames`)
   }
-  const compositor = new WebpCompositor(data, parsed.width, parsed.height, frames, limits)
+  const compositor = new WebpCompositor(
+    data,
+    parsed.width,
+    parsed.height,
+    frames,
+    limits,
+    accelerations,
+  )
   compositor.skipTo(frame, parsed.height)
   while (compositor.nextFrame <= frame) await compositor.drawNext()
   return new WebpCanvasDecoder(compositor.canvas, parsed.width, parsed.height)
@@ -281,13 +295,20 @@ class WebpAnimationDecoder implements ImageAnimationDecoder {
   readonly #parsed: ParsedWebp
   readonly #frames: readonly WebpFrameDescriptor[] | undefined
   readonly #limits: ImageLimits
+  readonly #accelerations: readonly WebpAcceleration[] | undefined
 
-  constructor(data: Uint8Array, parsed: ParsedWebp, limits: ImageLimits) {
+  constructor(
+    data: Uint8Array,
+    parsed: ParsedWebp,
+    limits: ImageLimits,
+    accelerations?: readonly WebpAcceleration[],
+  ) {
     this.width = parsed.width
     this.height = parsed.height
     this.#data = data
     this.#parsed = parsed
     this.#limits = limits
+    this.#accelerations = accelerations
     this.#frames = parsed.animated ? webpFrames(data, parsed) : undefined
     this.frameCount = this.#frames?.length ?? 1
     this.loop = parsed.animated ? parsed.loop : 0
@@ -306,6 +327,7 @@ class WebpAnimationDecoder implements ImageAnimationDecoder {
         image,
         this.#parsed.alpha,
         this.#limits,
+        this.#accelerations,
       )
       if (this.#parsed.colorTransform) {
         const { ColorManagedDecoder } = await import('./webp-icc.ts')
@@ -315,7 +337,14 @@ class WebpAnimationDecoder implements ImageAnimationDecoder {
       yield { index: 0, durationMs: 0, decode: (request) => still.decode(request) }
       return
     }
-    const compositor = new WebpCompositor(this.#data, width, height, frames, this.#limits)
+    const compositor = new WebpCompositor(
+      this.#data,
+      width,
+      height,
+      frames,
+      this.#limits,
+      this.#accelerations,
+    )
     for (let index = 0; index < frames.length; index += 1) {
       throwIfAborted(signal)
       const frame = await compositor.drawNext(signal)
@@ -338,11 +367,12 @@ class WebpAnimationDecoder implements ImageAnimationDecoder {
 export const decodeWebpAnimation = async (
   data: Uint8Array,
   limits: ImageLimits,
+  accelerations?: readonly WebpAcceleration[],
 ): Promise<ImageAnimationDecoder> => {
   const parsed = await parseWebp(data)
   validateImageDimensions(parsed.width, parsed.height, parsed.frames, limits)
   if (parsed.animated) rejectProfile(parsed)
-  return new WebpAnimationDecoder(data, parsed, limits)
+  return new WebpAnimationDecoder(data, parsed, limits, accelerations)
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

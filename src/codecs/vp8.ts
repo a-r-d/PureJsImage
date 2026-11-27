@@ -8,13 +8,16 @@ import type {
   Vp8Plane as Plane,
   Vp8CoefficientReader,
   Vp8Factors,
+  Vp8ReaderState,
   WebpKernel,
 } from './webp-acceleration.ts'
+import { vp8RowBlockBytes } from './webp-acceleration.ts'
 
 export interface DecodedVp8Rows {
   readonly y: number
   readonly height: number
   readonly pixels: Uint8Array
+  readonly release?: () => void
 }
 
 export interface DecodedVp8 {
@@ -192,7 +195,16 @@ class BooleanDecoder {
     this.offset += 2
   }
 
-  resume(reader: Vp8CoefficientReader): void {
+  checkpoint(): Vp8ReaderState {
+    return {
+      range: this.#range,
+      value: this.value,
+      bufferedBits: this.#bufferedBits,
+      offset: this.offset,
+    }
+  }
+
+  resume(reader: Vp8ReaderState): void {
     this.#range = reader.range
     this.value = reader.value
     this.#bufferedBits = reader.bufferedBits
@@ -1118,19 +1130,20 @@ const filterSimpleEdge = (
 }
 
 const loopFilterParameters = (
-  block: Macroblock,
+  segment: number,
+  split: boolean,
   segmentation: Segmentation,
   filter: LoopFilter,
 ): readonly [number, number, number] => {
   let level = filter.level
   if (segmentation.enabled) {
-    const segmentLevel = segmentation.filterLevels[block.segment] ?? 0
+    const segmentLevel = segmentation.filterLevels[segment] ?? 0
     level = segmentation.absolute ? segmentLevel : level + segmentLevel
   }
   level = Math.max(0, Math.min(63, level))
   if (filter.deltaEnabled) {
     level += filter.referenceDeltas[0] ?? 0
-    if (block.yMode === BLOCK) level += filter.modeDeltas[0] ?? 0
+    if (split) level += filter.modeDeltas[0] ?? 0
   }
   level = Math.max(0, Math.min(63, level))
   let interior = level
@@ -1160,7 +1173,12 @@ const applyLoopFilterRow = (
     for (let column = 0; column < blocks.length; column += 1) {
       const block = blocks[column]
       if (!block) continue
-      const [level, interior] = loopFilterParameters(block, segmentation, filter)
+      const [level, interior] = loopFilterParameters(
+        block.segment,
+        block.yMode === BLOCK,
+        segmentation,
+        filter,
+      )
       params[column * 3] = level
       params[column * 3 + 1] = interior
       params[column * 3 + 2] = Number(block.hasCoefficients || block.yMode === BLOCK)
@@ -1170,7 +1188,12 @@ const applyLoopFilterRow = (
   for (let column = 0; column < blocks.length; column += 1) {
     const block = blocks[column]
     if (!block) continue
-    const [level, interior, variance] = loopFilterParameters(block, segmentation, filter)
+    const [level, interior, variance] = loopFilterParameters(
+      block.segment,
+      block.yMode === BLOCK,
+      segmentation,
+      filter,
+    )
     if (level === 0) continue
     const y = yPlane.origin + planeRow * 16 * yPlane.stride + column * 16
     const u = uPlane.origin + planeRow * 8 * uPlane.stride + column * 8
@@ -1251,10 +1274,12 @@ const applyLoopFilterRow = (
 }
 
 const writeRgba = (pixels: Uint8Array, offset: number, y: number, u: number, v: number): void => {
-  const luminance = 76283 * Math.max(0, y - 16)
-  const blue = clampByte((luminance + 132252 * (u - 128) + 32768) >> 16)
-  const green = clampByte((luminance - 25624 * (u - 128) - 53281 * (v - 128) + 32768) >> 16)
-  const red = clampByte((luminance + 104595 * (v - 128) + 32768) >> 16)
+  // Limited-range BT.601: Q14 coefficients, truncated to Q6 per term.
+  // The biases include the studio offsets (Y=16, U=V=128) and half a unit.
+  const luminance = (19077 * y) >> 8
+  const blue = clampByte((luminance + ((33050 * u) >> 8) - 17685) >> 6)
+  const green = clampByte((luminance - ((6419 * u) >> 8) - ((13320 * v) >> 8) + 8708) >> 6)
+  const red = clampByte((luminance + ((26149 * v) >> 8) - 14234) >> 6)
   pixels[offset] = red
   pixels[offset + 1] = green
   pixels[offset + 2] = blue
@@ -1282,27 +1307,44 @@ const restorePlaneRow = (plane: Plane, pixelRow: number, row: Uint8Array): void 
   plane.data.set(row, physicalRowOffset(plane, pixelRow))
 }
 
+// The spare top row holds the filtered chroma just above the current band.
+// Extend the first and last visible rows at the image boundaries.
+const copyChromaRow = (plane: Plane, from: number, to: number): void => {
+  const source = physicalRowOffset(plane, from)
+  plane.data.copyWithin(physicalRowOffset(plane, to), source, source + plane.stride)
+}
+
 const convertVp8Rows = (
   yPlane: Plane,
   uPlane: Plane,
   vPlane: Plane,
   width: number,
   height: number,
+  first: boolean,
+  last: boolean,
   kernel?: WebpKernel,
 ): Uint8Array => {
   const chromaWidth = Math.ceil(width / 2)
   const chromaHeight = Math.ceil(height / 2)
+  if (first) {
+    copyChromaRow(uPlane, 0, -1)
+    copyChromaRow(vPlane, 0, -1)
+  }
+  if (last) {
+    copyChromaRow(uPlane, chromaHeight - 1, chromaHeight)
+    copyChromaRow(vPlane, chromaHeight - 1, chromaHeight)
+  }
   const accelerated = kernel?.vp8ToRgba(
     yPlane.data.subarray(yPlane.origin, yPlane.origin + (height - 1) * yPlane.stride + width),
     yPlane.stride,
     uPlane.data.subarray(
-      uPlane.origin,
-      uPlane.origin + (chromaHeight - 1) * uPlane.stride + chromaWidth,
+      uPlane.origin - uPlane.stride,
+      uPlane.origin + chromaHeight * uPlane.stride + chromaWidth,
     ),
     uPlane.stride,
     vPlane.data.subarray(
-      vPlane.origin,
-      vPlane.origin + (chromaHeight - 1) * vPlane.stride + chromaWidth,
+      vPlane.origin - vPlane.stride,
+      vPlane.origin + chromaHeight * vPlane.stride + chromaWidth,
     ),
     vPlane.stride,
     width,
@@ -1318,24 +1360,43 @@ const convertVp8Rows = (
     const yOffset = yPlane.origin + y * yPlane.stride
     const uvOffset = uPlane.origin + (y >> 1) * uPlane.stride
     const vvOffset = vPlane.origin + (y >> 1) * vPlane.stride
-    let x = 0
-    for (; x + 1 < width; x += 2) {
-      const chromaOffset = x >> 1
-      const u = uData[uvOffset + chromaOffset] ?? 0
-      const v = vData[vvOffset + chromaOffset] ?? 0
-      writeRgba(pixels, pixelOffset + x * 4, yData[yOffset + x] ?? 0, u, v)
-      writeRgba(pixels, pixelOffset + x * 4 + 4, yData[yOffset + x + 1] ?? 0, u, v)
-    }
-    if (x < width) {
-      const chromaOffset = x >> 1
+    const direction = (y & 1) === 0 ? -1 : 1
+    const uOther = uvOffset + direction * uPlane.stride
+    const vOther = vvOffset + direction * vPlane.stride
+    let leftU = 3 * (uData[uvOffset] ?? 0) + (uData[uOther] ?? 0)
+    let leftV = 3 * (vData[vvOffset] ?? 0) + (vData[vOther] ?? 0)
+    writeRgba(pixels, pixelOffset, yData[yOffset] ?? 0, (leftU + 2) >> 2, (leftV + 2) >> 2)
+    let x = 1
+    for (let col = 1; col < chromaWidth; col += 1) {
+      const rightU = 3 * (uData[uvOffset + col] ?? 0) + (uData[uOther + col] ?? 0)
+      const rightV = 3 * (vData[vvOffset + col] ?? 0) + (vData[vOther + col] ?? 0)
       writeRgba(
         pixels,
         pixelOffset + x * 4,
         yData[yOffset + x] ?? 0,
-        uData[uvOffset + chromaOffset] ?? 0,
-        vData[vvOffset + chromaOffset] ?? 0,
+        (3 * leftU + rightU + 8) >> 4,
+        (3 * leftV + rightV + 8) >> 4,
       )
+      x += 1
+      writeRgba(
+        pixels,
+        pixelOffset + x * 4,
+        yData[yOffset + x] ?? 0,
+        (leftU + 3 * rightU + 8) >> 4,
+        (leftV + 3 * rightV + 8) >> 4,
+      )
+      x += 1
+      leftU = rightU
+      leftV = rightV
     }
+    if (x < width)
+      writeRgba(
+        pixels,
+        pixelOffset + x * 4,
+        yData[yOffset + x] ?? 0,
+        (leftU + 2) >> 2,
+        (leftV + 2) >> 2,
+      )
     pixelOffset += width * 4
   }
   return pixels
@@ -1424,6 +1485,31 @@ export const decodeVp8 = (
       const factors = Array.from({ length: 4 }, (_, segment) =>
         factorSet(segment, segmentation, quantization),
       )
+      // One returned RGBA band can be reused. Outstanding bands remain caller-owned.
+      let recycledPixels: Uint8Array | undefined
+      let rowHistory =
+        kernel &&
+        columns >= 8 &&
+        !(header instanceof BytewiseBooleanDecoder) &&
+        coefficientReaders.every((reader) => reader !== undefined)
+          ? new Uint8Array(columns * vp8RowBlockBytes)
+          : undefined
+      // Deblocking levels depend only on segment and the block/square luma mode.
+      const rowFilters = rowHistory ? new Uint8Array(16) : undefined
+      if (rowFilters && (loopFilter.level !== 0 || segmentation.enabled)) {
+        for (let segment = 0; segment < 4; segment++) {
+          for (let split = 0; split < 2; split++) {
+            const [level, interior] = loopFilterParameters(
+              segment,
+              split !== 0,
+              segmentation,
+              loopFilter,
+            )
+            rowFilters[segment * 4 + 2 * split] = level
+            rowFilters[segment * 4 + 2 * split + 1] = interior
+          }
+        }
+      }
       let unfilteredYAbove: Uint8Array | undefined
       let unfilteredUAbove: Uint8Array | undefined
       let unfilteredVAbove: Uint8Array | undefined
@@ -1445,6 +1531,70 @@ export const decodeVp8 = (
           restorePlaneRow(vPlane, 7, unfilteredVAbove)
         }
 
+        const partitionIndex = row % partitionCount
+        let reader = coefficientReaders[partitionIndex]
+        const tokenDecoder = tokenDecoders[partitionIndex]
+        if (!tokenDecoder) throw invalidInput('VP8 token partition is missing')
+        // Small rows use the existing tile kernel. Larger rows amortize staging
+        // the modes, token window and three reconstruction planes together.
+        const modeState = rowHistory ? header.checkpoint() : undefined
+        const rowDecoded =
+          modeState &&
+          rowHistory &&
+          rowFilters &&
+          reader?.decodeRow(yPlane, uPlane, vPlane, row === 0, rowHistory, factors, {
+            width,
+            second: row === 1,
+            simpleFilter: loopFilter.simple,
+            recycledPixels,
+            filters: rowFilters,
+            filteredY: filteredYAbove,
+            filteredU: filteredUAbove,
+            filteredV: filteredVAbove,
+            reader: modeState,
+            end: firstPartitionOffset + firstPartitionLength,
+            probabilities: keyframeBlockModeProbabilities,
+            updateSegments: segmentation.updateMap,
+            segments: segmentation.treeProbabilities,
+            skipProbability: skipEnabled ? skipProbability : 256,
+          })
+        if (rowDecoded && modeState) {
+          header.resume(modeState)
+          unfilteredYAbove = rowDecoded.yAbove
+          unfilteredUAbove = rowDecoded.uAbove
+          unfilteredVAbove = rowDecoded.vAbove
+          const pixels = rowDecoded.pixels
+          if (pixels) {
+            recycledPixels = undefined
+            let released = false
+            yield {
+              y: (row - 1) * 16,
+              height: 16,
+              pixels,
+              release() {
+                if (released) return
+                released = true
+                recycledPixels ??= pixels
+              },
+            }
+          }
+          continue
+        }
+        if (rowHistory) {
+          // Resume at this row. The packed checkpoint contains modes and
+          // coefficient contexts from the last completed row, even after a trap.
+          for (let col = 0; col < columns; col++) {
+            const above = modeAbove[col]
+            const context = aboveContexts[col]
+            if (!above || !context) throw invalidInput('VP8 macroblock state is missing')
+            const off = col * vp8RowBlockBytes
+            above.yMode = rowHistory[off] ?? 0
+            above.modes.set(rowHistory.subarray(off + 4, off + 20))
+            context.set(rowHistory.subarray(off + 20, off + 29))
+          }
+          rowHistory = undefined
+        }
+        const leftContext = new Int8Array(9)
         decodeModeRow(
           header,
           modeAbove,
@@ -1454,11 +1604,6 @@ export const decodeVp8 = (
           skipEnabled,
           skipProbability,
         )
-        const leftContext = new Int8Array(9)
-        const partitionIndex = row % partitionCount
-        let reader = coefficientReaders[partitionIndex]
-        const tokenDecoder = tokenDecoders[partitionIndex]
-        if (!tokenDecoder) throw invalidInput('VP8 token partition is missing')
         for (let column = 0; column < columns; column += 1) {
           const block = blocks[column]
           const aboveContext = aboveContexts[column]
@@ -1553,8 +1698,19 @@ export const decodeVp8 = (
           yield {
             y: outputY,
             height: outputHeight,
-            pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight, kernel),
+            pixels: convertVp8Rows(
+              yPlane,
+              uPlane,
+              vPlane,
+              width,
+              outputHeight,
+              row === 1,
+              false,
+              kernel,
+            ),
           }
+          copyChromaRow(uPlane, 7, -1)
+          copyChromaRow(vPlane, 7, -1)
           copyPlaneMacroblockRow(yPlane, 16)
           copyPlaneMacroblockRow(uPlane, 8)
           copyPlaneMacroblockRow(vPlane, 8)
@@ -1566,7 +1722,16 @@ export const decodeVp8 = (
       yield {
         y: outputY,
         height: outputHeight,
-        pixels: convertVp8Rows(yPlane, uPlane, vPlane, width, outputHeight, kernel),
+        pixels: convertVp8Rows(
+          yPlane,
+          uPlane,
+          vPlane,
+          width,
+          outputHeight,
+          macroblockRows === 1,
+          true,
+          kernel,
+        ),
       }
     },
   }

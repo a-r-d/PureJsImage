@@ -66,8 +66,7 @@ coverage.
   frame allocations
 - [ ] Crop- and resize-aware reconstruction that avoids RGB conversion for
   pixels which cannot contribute to the output
-- [ ] Higher-quality chroma-siting-aware upsampling instead of nearest chroma
-  sample selection
+- [x] Bilinear chroma upsampling across macroblock rows
 - [x] Alpha-plane reconstruction in bounded rows
 
 ### Color and metadata
@@ -130,7 +129,8 @@ source because lossless WebP can be larger than PNG on photographic content.
 - [x] YUV 4:2:0 output
 - [x] `gray8`, `rgb8`, and `rgba8` pipeline input
 - [x] Exact alpha preservation through an uncompressed `ALPH` chunk when needed
-- [x] 4x4 luma and 8x8 chroma DC prediction
+- [x] Rate-distortion mode choice across the four 16x16 luma modes with
+  Walsh-Hadamard Y2 coding, the ten 4x4 luma modes, and the four chroma modes
 - [x] Forward transforms, quantization, coefficient coding, and standard
   coefficient probabilities
 - [x] Public `image.webp()` and `image.encode('webp')` APIs
@@ -139,8 +139,6 @@ source because lossless WebP can be larger than PNG on photographic content.
 
 - [ ] Bounded macroblock-row encoding; the current encoder retains full Y, U,
   V, optional alpha, reconstruction, and output buffers
-- [ ] Rate-distortion-driven luma and chroma prediction-mode selection
-- [ ] 16x16 luma prediction and Walsh-Hadamard Y2 coding where beneficial
 - [ ] Adaptive coefficient probabilities and optimized token partitions
 - [ ] Segmentation, skip decisions, and per-segment quantization
 - [ ] Normal or simple loop-filter selection and tuning
@@ -202,7 +200,9 @@ source because lossless WebP can be larger than PNG on photographic content.
 - [x] Keep opt-in scalar and SIMD Rust/WASM VP8 row conversion and VP8L decode
   and encode transforms at exact TypeScript parity, with bounded row or block
   copies and transparent TypeScript fallback after setup or kernel failures
-- [x] Keep opt-in Rust/WASM VP8 coefficient decoding, prediction, inverse
-  transforms and loop filtering, and cache-free VP8L entropy decoding, at exact
-  TypeScript parity per macroblock, row or band, resuming in TypeScript without
-  duplicate rows after a failure
+- [x] Keep opt-in Rust/WASM VP8 mode parsing, coefficient decoding, prediction,
+  inverse transforms, loop filtering and bilinear RGBA conversion in one call per
+  macroblock row, and cache-free VP8L entropy decoding, at exact TypeScript parity,
+  resuming in TypeScript without duplicate rows after a failure
+- [x] Decode lossy still images to exactly libwebp's pixels: all 224 lossy stills
+  in the Imazen WebP corpus and all five lossy benchmark stills match

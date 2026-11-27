@@ -293,6 +293,53 @@ it.each(['scalar', 'simd'] as const)(
   },
 )
 
+it.each(['simd', 'scalar'] as const)(
+  'matches the reference vertical sum on both sides of byte rounding boundaries in %s',
+  async (variant) => {
+    const accelerator = createWasmResizeAccelerator({ variant })
+    const width = 21
+    const capacity = 11
+    const session = await accelerator.createFilter({
+      sourceWidth: width,
+      format: 'rgb8',
+      outputChannels: 3,
+      opaque: false,
+      capacity,
+      horizontal: {
+        offsets: Uint32Array.from({ length: width + 1 }, (_, i) => i),
+        indices: Uint32Array.from({ length: width }, (_, i) => i),
+        weights: new Float64Array(width).fill(1),
+      },
+    })
+    if (!session) throw new Error('Expected an RGB filter')
+    const indices = Uint32Array.from({ length: capacity }, (_, i) => i)
+    const weights = Float64Array.from(indices, (i) => Math.sin(i + 1) / 5)
+    weights[capacity - 1] = 1
+    const axis = { indices, weights, offsets: Uint32Array.of(0, capacity) }
+    const output = new Uint8Array(width * 3)
+    const expected = new Uint8Array(output.length)
+    const last = session.rows[capacity - 1]
+    if (!last) throw new Error('Missing final row')
+    for (const magnitude of [160, 700]) {
+      for (let c = 0; c < output.length; c++) {
+        let sum = 0
+        for (let i = 0; i < capacity - 1; i++) {
+          const row = session.rows[i]
+          if (!row) throw new Error('Missing filter row')
+          row[c] = Math.cos(i + 2 * c) * magnitude
+          sum = Math.fround(sum + (row[c] ?? 0) * (weights[i] ?? 0))
+        }
+        const target = ((c * 59) % 260) - 2 + 0.5
+        last[c] = target + ((c % 3) - 1) * 0.000007 - sum
+        expected[c] = Math.min(255, Math.max(0, Math.round(Math.fround(sum + (last[c] ?? 0)))))
+      }
+      session.vertical(axis, 0, capacity, output, 0)
+      expect(output).toEqual(expected)
+    }
+    session.release?.()
+  },
+)
+
 it('declines scratch above the working-set limit', async () => {
   const wasm = createWasmResizeAccelerator()
   expect(await wasm.createBox?.(1_000_000, 'rgba8', 1)).toBeUndefined()

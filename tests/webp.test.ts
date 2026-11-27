@@ -479,6 +479,29 @@ describe('WebP codec', () => {
     expectPixelClose(output, 31, 23, [75, 77, 62])
   })
 
+  it.each([
+    [1, 19],
+    [2, 1],
+    [17, 33],
+    [129, 47],
+  ])(
+    'matches libwebp at image and macroblock edges for %i by %i saturated pixels',
+    async (width, height) => {
+      const data = Buffer.alloc(width * height * 3)
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          data[3 * (y * width + x) + ((Math.floor(x / 3) + Math.floor(y / 5)) % 3)] = 255
+        }
+      }
+      const input = await sharp(data, { raw: { width, height, channels: 3 } })
+        .webp({ quality: 85 })
+        .toBuffer()
+      const expected = await sharp(input).ensureAlpha().raw().toBuffer()
+      const actual = PNG.sync.read(await (await Image.open(input)).png().toBuffer())
+      expect(actual.data).toEqual(expected)
+    },
+  )
+
   it('preserves decoded pixels for a noncanonical VP8 token partition', async () => {
     const input = Buffer.from(lossy)
     const payload = webpChunkOffset(input, 'VP8 ') + 8
@@ -489,7 +512,7 @@ describe('WebP codec', () => {
     const hash = createHash('sha256')
     for await (const block of decoder.decode()) hash.update(block.data)
     expect(hash.digest('hex')).toBe(
-      '178fb175d34baf68188569a2da8d11faaa547f723db87b938a3b941d10ab965b',
+      '5c60a5e474ff9c075f999e7d7e3bb38f5087666625bba2dccbe36eae6a9c8a93',
     )
   })
 
