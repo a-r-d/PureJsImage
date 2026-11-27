@@ -1,0 +1,172 @@
+benchmark/results/public/gif-2026-11-27T05-52-10-277Z.json
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-402
+benchmark/results/public/index.md
+  s_fb44c3e6b9dfb0::t_d508e599009e30 3,7-9
+benchmark/hillclimb/trees.ts
+  s_e91495f9ee6dc9::t_27b66488327a9c 70-71,75-76,78-80
+  s_e91495f9ee6dc9::t_0316bee8507c63 1-69,81-106
+  s_fb44c3e6b9dfb0::t_301ac54c53b072 72-74,77
+benchmark/results/web-codecs-memory-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-345
+benchmark/README.md
+  s_e91495f9ee6dc9::t_17dbe781454e49 266-284
+docs-astro/public/assets/web-codecs-quality-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 1-147
+benchmark/results/gif-speed-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-182
+docs-astro/src/pages/performance.astro
+  s_fb44c3e6b9dfb0::t_4ada4ec4bf4067 51-75
+  s_fb44c3e6b9dfb0::t_7be6afe2879aeb 249-280
+  s_fb44c3e6b9dfb0::t_9fd947b6f76e44 7
+benchmark/results/public/competitors-2026-11-27T05-49-04-257Z.md
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-12
+benchmark/results/result-index-2026-11-27T13-08-22-217Z.md
+  s_fb44c3e6b9dfb0::t_d508e599009e30 1-278
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_a904691fea1393 179,532,536,541,544,547,581,586,589,592,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1391,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+benchmark/results/public/web-codecs-2026-11-27T13-07-40-398Z.json
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-1421
+benchmark/results/web-codecs-speed-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-347
+docs-astro/src/components/BenchmarkClusterNav.astro
+  s_fb44c3e6b9dfb0::t_16924b9a238f05 3
+  s_fb44c3e6b9dfb0::t_20b1c0fdfd8137 16-19
+  s_fb44c3e6b9dfb0::t_7854d09b174f2c 15
+README.md
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 140-142,144,146,499-501
+  s_fb44c3e6b9dfb0::t_a904691fea1393 543-546,562-565
+benchmark/results/gif-memory-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-180
+docs-astro/public/assets/readme/web-codec-memory.svg
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 20,50-51,53-54,56-57,59-60,62-63,65-66,68-69,71-72,76-77,79-80,82-83,85-86,88-89,91-92,94-95,97-98,102-103,105-106,108-109,111-112,114-115,117-118,120-121,123-124,128-129,131-132,134-135,137-138,140-141,143-144,146-147,149-150,154-155,157-158,162-163,165-166,170-171,173-174,178-179,181-182,186-187,189-190,194-195,197-198,202-203,205-206,210-211,213-214,218-219,221-222,226-227,229-230,232-233,235-236,238-239,241-242,244-245,251-252,254-255,259-260,262-263,267-268,270-271,275-276,278-279,283-284,286-287,291-292,294-295,299-300,302-303,307-308,310-311,315-316,322-323,325-326,330-331,333-334,338-339,341-342,344
+benchmark/results/public/gif-2026-11-27T05-52-10-277Z.md
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-12
+docs-astro/public/assets/readme/web-codec-speed.svg
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 20,52-53,55-56,58-59,61-62,64-65,67-68,70-71,73-74,78-79,81-82,84-85,87-88,90-91,93-94,96-97,99-100,104-105,107-108,110-111,113-114,116-117,119-120,122-123,125-126,130-131,133-134,136-137,139-140,142-143,145-146,148-149,151-152,156-157,159-160,164-165,167-168,172-173,175-176,180-181,183-184,188-189,191-192,196-197,199-200,204-205,207-208,212-213,215-216,220-221,223-224,228-229,231-232,234-235,237-238,240-241,243-244,246-247,253-254,256-257,261-262,264-265,269-270,272-273,277-278,280-281,285-286,288-289,293-294,296-297,301-302,304-305,309-310,312-313,317-318,324-325,327-328,332-333,335-336,340-341,343-344,346
+scripts/bundle-size-budgets.ts
+  s_fb44c3e6b9dfb0::t_4a7fd379a6db79 47-48
+  s_fb44c3e6b9dfb0::t_09c1ff5707e158 24-26
+  s_fb44c3e6b9dfb0::t_bfe65177b8c6e2 64-65
+src/executor.ts
+  s_fb44c3e6b9dfb0::t_94a3be551cc946 802-804
+  s_fb44c3e6b9dfb0::t_ae64dc3e043553 839
+  s_fb44c3e6b9dfb0::t_e9adc624b23cab 805-807,836-838
+  s_fb44c3e6b9dfb0::t_d96565e4a2c4d9 840-842
+  s_fb44c3e6b9dfb0::t_31a1d3dcc65f75 808-835,843-909
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_a904691fea1393 179,532,536,541,544,547,581,586,589,592,1246,1249,1252,1261,1264,1267,1276,1279,1282,1291,1294,1297,1306,1309,1312,1321,1324,1327,1336,1339,1342,1351,1354,1357,1366,1369,1372,1381,1384,1387,1391,1396,1399,1402,1411,1414,1417,1426,1429,1432,1441,1444,1447,1456,1459,1462,1472,1475,1478,1503,1506,1509,1518,1521,1524,1548,1551,1554
+benchmark/results/public/index.json
+  s_fb44c3e6b9dfb0::t_d508e599009e30 3-4,7-8,11-15,17-18,20-21,26-27,30-31,35-36,41-42,55,60-61,64-65,69-102
+benchmark/hillclimb/run.ts
+  s_e91495f9ee6dc9::t_37825103ae571a 553-554,558,560-564
+  s_e91495f9ee6dc9::t_2fa9e5543ded47 33
+  s_e91495f9ee6dc9::t_2f0a70bb9fb7d3 699
+  s_e91495f9ee6dc9::t_d4881345afd6c9 597-599,601-603,613,615,617,619-630,633,638
+  s_e91495f9ee6dc9::t_f688da82cf74c7 504,513-520
+  s_e91495f9ee6dc9::t_e1c4f9a9f63d6d 665
+  s_e91495f9ee6dc9::t_9e2b243478b826 9
+  s_e91495f9ee6dc9::t_4dfee18bfa7814 648
+  s_e91495f9ee6dc9::t_8bf4d2b78c1abf 719-720,728
+  s_e91495f9ee6dc9::t_88769243fb1dd0 341,347-358
+benchmark/results/result-index-2026-11-27T13-08-22-217Z.json
+  s_fb44c3e6b9dfb0::t_d508e599009e30 1-4307
+benchmark/results/web-codecs-quality-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-147
+docs-astro/public/assets/web-codecs-speed-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 1-347
+benchmark/results/public/web-codecs-2026-11-27T13-07-40-398Z.md
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-12
+benchmark/results/competitors-quality-2026-11-27T05-49-04-257Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-competitors.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-207
+docs-astro/public/assets/gif-memory-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 1-180
+benchmark/results/competitors-speed-2026-11-27T05-49-04-257Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-competitors.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-181
+docs-astro/public/assets/web-codecs-memory-2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.svg
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 1-345
+scripts/render-public-benchmark-results.ts
+  s_fb44c3e6b9dfb0::t_21e789072b4b33 199-201
+  s_fb44c3e6b9dfb0::t_9fd947b6f76e44 202-209
+  s_fb44c3e6b9dfb0::t_0edbf7111ed233 543
+  s_fb44c3e6b9dfb0::t_5b448445583743 210-211
+benchmark/scripts/render-competitor-charts.ts
+  s_fb44c3e6b9dfb0::t_32802126467df4 51
+  s_fb44c3e6b9dfb0::t_99ecdea553aee8 422,427
+  s_fb44c3e6b9dfb0::t_429057482b0b4c 291-297
+  s_fb44c3e6b9dfb0::t_318197eaf87355 204
+  s_fb44c3e6b9dfb0::t_506a892f19a31e 213-221
+  s_fb44c3e6b9dfb0::t_bd6736fb4b409c 70-81
+  s_fb44c3e6b9dfb0::t_b08daf51d95c21 15-16
+  s_fb44c3e6b9dfb0::t_5531be2abfdb35 409
+  s_fb44c3e6b9dfb0::t_87e9cd116ddf42 109-118,120-126
+  s_fb44c3e6b9dfb0::t_7997bfe537c3b6 376-378
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 143,148,153,157,209,211-213,216-217,223-282
+  s_fb44c3e6b9dfb0::t_a904691fea1393 109-111,114-116,119,129,134-136
+  s_fb44c3e6b9dfb0::t_5429de52af88de 283-284
+benchmark/results/competitors-memory-2026-11-27T05-49-04-257Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-competitors.svg
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-183
+.agents/skills/benchmark-hillclimb/SKILL.md
+  s_e91495f9ee6dc9::t_d764e977348661 63-69
+tests/benchmark-hillclimb-trees.test.ts
+  s_fb44c3e6b9dfb0::t_fa915be3154ff1 79-99
+  s_e91495f9ee6dc9::t_6a4943362bbc25 1-78,100-145
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_2d464111b4cdf1 63-70
+  s_fb44c3e6b9dfb0::t_83833205ada5a5 48-49
+docs-astro/public/assets/gif-speed-2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.svg
+  s_fb44c3e6b9dfb0::t_b28456afbd0d58 1-182
+scripts/render-documentation.ts
+  s_fb44c3e6b9dfb0::t_fc35d433c70fc0 677,686,690
+  s_fb44c3e6b9dfb0::t_4dfa436d9978fa 1104
+  s_fb44c3e6b9dfb0::t_33ad6586c80c72 751-777
+  s_fb44c3e6b9dfb0::t_608a8abb0e3fee 656-657,660
+  s_fb44c3e6b9dfb0::t_1a71b58e681fa8 1233-1234
+  s_fb44c3e6b9dfb0::t_0c38d9535ec2aa 1337
+  s_fb44c3e6b9dfb0::t_7b75de380c7d4f 1353
+  s_fb44c3e6b9dfb0::t_842cde550f288a 1092-1103,1105
+benchmark/results/public/competitors-2026-11-27T05-49-04-257Z.json
+  s_fb44c3e6b9dfb0::t_2bd845194c476c 1-973
+tests/project-contract.test.ts
+  s_fb44c3e6b9dfb0::t_1cfd1121562423 292
+  s_fb44c3e6b9dfb0::t_514bee4481ea5e 192
+  s_fb44c3e6b9dfb0::t_49b31991bcc5eb 197
+benchmark/optimization-log.md
+  s_fb44c3e6b9dfb0::t_618c1859c2f7b2 10-12,9634,9648-9736
+benchmark/results/2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.json
+  s_fb44c3e6b9dfb0::t_f1867585b1954c 1-6548
+benchmark/results/2026-11-27T05-52-10-277Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-imagescript-gif.md
+  s_fb44c3e6b9dfb0::t_ab520702e5c96e 1-101
+benchmark/results/2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.json
+  s_fb44c3e6b9dfb0::t_9f681b83d18404 1-26600
+benchmark/results/2026-11-27T13-07-40-398Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-web-codecs.md
+  s_fb44c3e6b9dfb0::t_8bdb89a7fe5ac5 1-275
+benchmark/results/2026-11-27T05-49-04-257Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-competitors.json
+  s_fb44c3e6b9dfb0::t_2334d9be0aef6b 1-17398
+benchmark/results/2026-11-27T05-49-04-257Z-purejsimage-purejsimage-wasm-jimp-sharp-sharp-single-thread-image-js-imagescript-jsquash-competitors.md
+  s_fb44c3e6b9dfb0::t_2b9a7e24e637af 1-203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "db72fa3eb0428e4ea76632e972c94543a044721a",
+  "prompts": {},
+  "sessions": {
+    "s_e91495f9ee6dc9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "407abe79-6306-4639-b697-e556a326989a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    },
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
