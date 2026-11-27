@@ -1,0 +1,47 @@
+benchmark/generated/package-metrics.json
+  s_fb44c3e6b9dfb0::t_556be5eec72e0d 178
+docs-astro/src/pages/tiff-comparison.astro
+  s_fb44c3e6b9dfb0::t_5bd355660e1499 84-85
+docs-astro/src/data/package-metrics.json
+  s_fb44c3e6b9dfb0::t_556be5eec72e0d 178
+docs-astro/src/data/library-comparison.ts
+  s_fb44c3e6b9dfb0::t_808ccdd4bbc871 235
+package.json
+  s_fb44c3e6b9dfb0::t_0fa487dadc770c 3
+CITATION.cff
+  s_fb44c3e6b9dfb0::t_808ccdd4bbc871 10-11,29
+benchmark/results/tiff-competitor-conformance.json
+  s_fb44c3e6b9dfb0::t_5bd355660e1499 18
+docs-astro/src/data/documentation-data.json
+  s_fb44c3e6b9dfb0::t_556be5eec72e0d 132
+codemeta.json
+  s_fb44c3e6b9dfb0::t_808ccdd4bbc871 32-33,38,40-41
+docs-astro/src/pages/demo.astro
+  s_fb44c3e6b9dfb0::t_808ccdd4bbc871 433,435
+benchmark/results/tiff-competitor-conformance.md
+  s_fb44c3e6b9dfb0::t_808ccdd4bbc871 11
+tests/tiff-competitor-harness.test.ts
+  s_fb44c3e6b9dfb0::t_808ccdd4bbc871 57
+CHANGELOG.md
+  s_fb44c3e6b9dfb0::t_0fa487dadc770c 7-8,2133-2134
+README.md
+  s_fb44c3e6b9dfb0::t_556be5eec72e0d 535,558
+package-lock.json
+  s_fb44c3e6b9dfb0::t_735c7bd1873e3e 3,9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ce31f2731245ecb2b36a393df5e6ed4ee502554a",
+  "prompts": {},
+  "sessions": {
+    "s_fb44c3e6b9dfb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "eea75c49-06a0-46f5-99f9-e89ec91d6aae",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
